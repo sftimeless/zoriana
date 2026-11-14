@@ -1,0 +1,84 @@
+# Initial verification — November 14, 2026
+
+- Node 25.9.0. Fresh dependency installation reported zero known vulnerabilities.
+- Five calculation tests passed: Horizons CSV parsing and failure rejection, UTC Julian dates, north-crossing azimuth interpolation, horizon-crossing integration, and coordinate/sky-direction consistency.
+- Production frontend build passed. Three.js produces a bundle above Vite's 500 kB advisory threshold (about 138 kB gzip); this is not a scientific or browser validation claim.
+- Live backend returned 169 hourly Sun samples and 169 hourly Earth samples for latitude -89.5, longitude 0, November 14–21 UTC; invalid latitude 91 returned HTTP 400.
+- Browser flow checked: NASA globe texture, Apollo 11 selection, south-pole search, Sun/Earth result changes, timeline end and start, site comparison, a raycast-dropped pin at approximately -9.9258, 73.2364, and date change.
+- Browser console showed no error entries during these checks.
+- This was the in-app browser. Native Safari performance has not been measured. Mobile layout and local-terrain horizon accuracy are not certified by these checks.
+- Old project source and assets were not read or copied into this project; original project was not changed.
+
+## Terrain upgrade — November 14, 2026
+
+- Downloaded fresh NASA LOLA global LDEM_16 and PDS LDEM_85S_40M V2.0 grids. Source hashes and units are in data/terrain-manifest.json. The old Zoriana project remains untouched.
+- Twelve tests pass, including an analytic curved-sphere horizon, a synthetic ridge blocking a visible body, south-polar projection orientation, exact-pole ray directions, dateline wrapping, and raster no-data rejection.
+- Five independent global/polar grid samples differ by approximately 29–210 m, consistent with their different spatial sampling; this checks gross orientation/scale errors, not vertical accuracy certification.
+- At latitude -89.5°, longitude 0°, skyline calculation sampled 2,205,197 terrain points with 1,440 azimuth bins. Latest cold end-to-end time: approximately 564 ms; worker calculation 520 ms; cache access 0.01 ms. Skyline spans -0.2633° to 9.5805°.
+- Live JPL observer altitude is -0.719158 km, equal to DEM elevation -721.158 m plus observer height 2 m.
+- For November 14–17 UTC at this site: Sun above reference horizon for 72 h, but terrain-adjusted body-center visibility is 0 h. At November 14 12:00 UTC, Sun elevation is 1.30262°, terrain at that azimuth is 6.87659°.
+- Earth example from the live seven-day series: November 17 09:00 UTC, Earth elevation 0.052637°, terrain skyline 1.717865°; Earth is above the reference plane but blocked by terrain.
+- Browser checks verified live terrain results, the terrain on/off difference (0 versus 72 sunlight hours), visible source resolution, and no browser warning/error entries.
+- In-app browser diagnostic, compact viewport: 721 completed renders over 6.00 seconds (120.1 fps), frame-interval p95 9.3 ms, CPU+GPU completion p95 0.3 ms. Benchmark forces GPU completion per measured render and animates orbit/zoom. These figures are specific to this environment and are NOT a Safari result or a comparison against the previous implementation.
+- Native Safari access was attempted through computer use and denied: “Computer Use was not approved to use Safari.” Safari smoothness remains UNVERIFIED. An opt-in diagnostic route is available for native Safari testing.
+- Production frontend build passed; the Three.js bundle still triggers Vite's non-failing >500 kB advisory.
+- Limits: 40 m south-polar raster south of 85°S; 1.9 km global background. Horizons are sampled to 300 km at 0.25° bearings. Bilinear interpolation, finite rays, hourly ephemerides and five-minute clearance samples can miss events and small terrain. No eclipse, partial-disk, antenna, or usable-power model. At the time of this terrain-metrics check, the globe did not yet render terrain-cast shadows; the subsequent upgrade below adds approximate visual shadow masks.
+- Final idle check: the DOM diagnostic render count remained at 4 across two observations separated by the live backend integration check, confirming no continuous render loop while idle.
+- Final browser date change to November 17 at 12:00 UTC showed Sun elevation 1.6° and Earth elevation 0.2°, both marked “Blocked by terrain”; the following three-day Earth-visible estimate was 37.3 h.
+- Final live integration assertions passed after restart: both Sun and Earth can be blocked by terrain, observer altitude matches the DEM plus 2 m, 1,440-bin profile is complete, invalid coordinates return HTTP 400.
+
+## Moving terrain shadows — November 14, 2026
+
+- Added GPU ray occlusion through actual quantitative LOLA heights, not just normal-based lighting. Date/time uses the existing JPL Sun vector; shadows are projected into reusable global and south-polar masks.
+- Derived visual height assets: 2880×1440 global Float32 meters (3.8 km north/south spacing), 1896×1896 polar Float32 meters (160 m spacing), generated by averaging the existing fresh NASA grids. Source provenance remains in terrain-manifest.json; scripts/prepare-terrain.py reproduces both files.
+- Settled masks: 2048×1024 global, 1024×1024 polar. Coalesced 60 ms preview updates use half dimensions; refinement follows 280 ms without a time change. No occlusion recomputation on camera drag or zoom.
+- Fifteen Node tests pass, including shadow direction, changing solar elevation, analytic smooth-sphere visibility, raster wrapping and existing terrain/ephemeris coverage.
+- Actual browser GPU readback: **16/16** real-terrain fixtures agreed with independent CPU rays sampled at uniform small distances; **6 blocked, 10 lit**. This validates selected projection/occlusion cases, not full scientific accuracy.
+- In-app browser 708×728 viewport: static-date orbit/zoom **721 completed renders / 6.00 seconds, 120.1 fps**, frame p95 **9.3 ms**, CPU+GPU p95 **0.3 ms**. During timeline playback plus orbit/zoom: **721 / 6.00 seconds, 120.1 fps**, frame p95 **9.4 ms**, CPU+GPU p95 **0.3 ms**. Frame interval includes interference from the offscreen work; per-frame CPU+GPU does not separately time each shadow pass.
+- Visually checked changing shadow shapes near Shackleton between Nov 14 12:00 and Nov 20 12:00 UTC, slider playback, zoom, Satellite default-off, manually re-enabling sunlight in Satellite, and a start-date change to Nov 17. UI remained compact with one new Sunlight toggle.
+- Corrected polar camera framing: sites now center on their actual latitude (clamped only within 0.05° of the exact pole), instead of being clamped to 82° and hidden under the planning card.
+- A shader concatenation error was caught during initial browser validation and fixed before the measurements. No new browser errors were present after the fix.
+- Native Safari remains **unverified** because computer-use access was previously denied. The above is explicitly an in-app browser measurement, not a Safari claim.
+- Limits: visual heights and masks are coarser than site horizon calculations; finite ray steps, 8/50 m height biases and 500 km search range can miss shadows. The source color mosaic retains some baked lighting. No finite solar-disk penumbrae or eclipses. Details and README disclose these boundaries.
+
+## Interface redesign, landing view and compliance pass — November 14, 2026 (afternoon)
+
+- Twenty-three Node tests pass. Eight are new (`tests/windows.test.mjs`): visibility-interval extraction (multiple intervals, open-ended, range clipping, never-rising, exactly-on-horizon) and countdown formatting, including agreement between an interval edge and the banner countdown for the same crossing.
+- Production frontend build passed (same non-failing >500 kB advisory).
+- In-app browser (Chromium), 1440×900, live backend and live JPL Horizons, no console errors:
+  - Site list shows eight curated sites; category filter and name search return the expected entries.
+  - Coordinate search "-84.5, 30" created a pin and returned terrain, Sun/Earth angles, a sunrise countdown and timeline bands.
+  - Stay length 3 d → 7 d changed the sunlit total (55.6 h → 151.6 h); Terrain off changed it to 168.0 h and back.
+  - Three-site comparison (pin, Malapert region, Blue Ghost M1) rendered aligned bands and a "Most sunlight" tag; a fourth site was refused with a message.
+  - A pin placed by an actual mouse click on the globe resolved to 23.0868°S 25.2510°E and loaded normally.
+  - Date change to 2027-01-20 reloaded data; an out-of-range date was rejected and the previous date kept.
+  - Playback advanced the clock and stopped on request; the range end read T+7 d 0 h.
+  - Landing view opened on the dropped pin (3.8 km relief grid) and earlier on Shackleton (160 m grid); Face the Sun turned the camera to heading 17° against a Sun azimuth of 16.9°; the compass returned the view to 0°; mouse drag changed heading and tilt; Satellite and the home button returned to the globe.
+  - Phone-width layout (375×812): status pill, bottom sheet and timeline render without horizontal scrolling.
+- Not verified: native Safari, touch gestures on a physical phone, performance on low-end GPUs, and the scientific accuracy of the landing-view mesh (it is a visual aid; site metrics come from the server-side horizon model).
+- Compliance changes the same afternoon: the bitmap app icon dated November 13 was removed and replaced by a code-drawn placeholder; one curated site was removed at the team's request; AI-assistance acknowledgment was added to the method sheet, page metadata, package.json and source headers; REFERENCES.md lists every external resource.
+
+## Date comparison and lunar-day view — November 14, 2026 (afternoon)
+
+- The server now requests 30 days of hourly Horizons positions per site and date (721 samples each for Sun and Earth). Live check at 89.5°S 0°E from November 14: last sample 2026-12-14 00:00 UTC.
+- Twenty-seven Node tests pass. Four are new: dark-stretch complement, longest interval, per-landing-day stay scores (including a partial crossing hour and stays that run past the series), and best-day tie-breaking.
+- In-app browser (Chromium), 1440×900, live JPL data, no console errors:
+  - Shackleton region, November 14: banner reads "3 d 22 h until Earthrise" then "Sunrise in 9 d 14 h" (the second event is beyond the old seven-day window). Lunar-day summary: 22% sunlit over 30 days, longest sunlight 6 d 9 h from November 24, best landing day for a 3-day stay November 25.
+  - Same site across dates in the comparison panel: November 14 (0.0 h sunlit, 0.0 h Earth, baseline), November 25 (72.0 h / 72.0 h, +72.0 each), November 21 (0.0 h / 72.0 h).
+  - "Open" on an option switched the landing date and reloaded the site; selecting a day on the lunar chart moved the landing date; "Use this date" applied the best day; a fifth option was refused with a message; removing the baseline promoted the next option.
+  - Changing the stay to 7 days recomputed the bars and all comparison totals; Terrain off changed the lunar summary.
+  - Phone width (375×812): comparison panel and lunar chart fit without horizontal scrolling.
+- Not verified: Safari, touch devices, and dates near the 2099 limit. "Best landing day" is a sunlit-hours ranking, not a validated mission recommendation.
+
+## Wider polar terrain, slope and map-tool links — November 14, 2026 (afternoon)
+
+- Downloaded PDS LOLA LDEM_80S_80M V2.0 (7600×7600, 115,520,000 bytes) into `data/lola_80s_80m/`. Label confirms 80 m/pixel, pole at pixel 3799.5, half-metre units. SHA-256 recorded in `data/terrain-manifest.json`.
+- Thirty-three Node tests pass. Six are new: the generic south-polar pixel lookup reproduces the 40 m registration and scales to 80 m; slope recovers a 10° synthetic plane, is zero on flat ground and null without data; QuickMap and Moon Trek links for polar and mid-latitude sites.
+- Terrain service run directly:
+  - 84.5°S 30°E and 82°S 60°W now report the 80 m grid (previously the 1.9 km global grid); 84.5°S 30°E elevation +5,225 m.
+  - IM-1 (80.13°S 1.44°E): 80 m grid, elevation +2,593 m, slope 11.5° over 160 m. The landing site is reported to lie on a slope of about 12°.
+  - Shackleton and Malapert points unchanged on the 40 m grid (elevations −721 m and +4,757 m as before); slopes 6.8° and 10.3° over 80 m.
+  - Cold horizon times 0.1–0.7 s per site.
+- In-app browser, live data, no console errors: slope, terrain source and both links appear on site cards; mid-latitude sites label slope as regional (3.8 km baseline).
+- Link formats opened against the live tools: QuickMap accepted a lon/lat `extent` box and a south-polar `prjExtent` box (it requested south-polar tiles centred on the pole region); Moon Trek opened on the Apollo 11 area and, in its south-polar projection, on Shackleton crater. North-polar links were not opened.
+- Limits: the 80 m grid improves horizons and slope only. The shadow layer and landing-view relief between 80°S and 85°S still use the 3.8 km grid. Slope is a DEM-scale figure, not a hazard assessment.

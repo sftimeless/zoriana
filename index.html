@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Zoriana is a lunar landing site navigator: compare sites and dates, and see Sun and Earth positions over real LOLA terrain with NASA/JPL Horizons.">
+<meta name="ai-assistance" content="Code written with AI coding assistance (OpenAI Codex, Anthropic Claude Code) under human direction. See README.md.">
+<link rel="icon" type="image/svg+xml" href="/assets/icon.svg">
+<title>Zoriana — Lunar Landing Site Navigator</title>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+ <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+ <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2.5V5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></symbol>
+ <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z" fill="currentColor"/></symbol>
+ <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.2 3.2 14.8 0 18M12 3c-3.2 3.2-3.2 14.8 0 18"/></symbol>
+ <symbol id="i-antenna" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.7" fill="currentColor"/><path d="M8.2 15.8a5.4 5.4 0 0 1 0-7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.3 18.7a9.5 9.5 0 0 1 0-13.4M18.7 5.3a9.5 9.5 0 0 1 0 13.4"/></symbol>
+ <symbol id="i-map" viewBox="0 0 24 24"><path d="M3.5 6.5l5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2zM9 4.5v13M15 6.5v13"/></symbol>
+ <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s6.5-5.6 6.5-10.5a6.5 6.5 0 0 0-13 0C5.500 15.400 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/></symbol>
+ <symbol id="i-scope" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/></symbol>
+ <symbol id="i-fullmoon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="9" cy="9.500" r="1.5"/><circle cx="14.5" cy="14.2" r="2.1"/></symbol>
+ <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+ <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+ <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11.500-7z" fill="currentColor" stroke="none"/></symbol>
+ <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5.5v13M15.5 5.5v13" stroke-width="3.2"/></symbol>
+ <symbol id="i-nav" viewBox="0 0 24 24"><path d="M12 3l7.5 17.500L12 16.600 4.500 20.500z" fill="currentColor" stroke="none"/></symbol>
+ <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.500" r=".7" fill="currentColor"/></symbol>
+ <symbol id="i-compare" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="16" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="16" rx="1.6"/></symbol>
+ <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6.500 21V4M6.500 5h11l-2.500 3.500 2.500 3.500h-11"/></symbol>
+ <symbol id="i-crater" viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="9.500" ry="5.500"/><path d="M5.200 14c0-2 3-3.500 6.800-3.500-2.300.900-3.600 2.100-3.600 3.500s1.300 2.600 3.600 3.500c-3.800 0-6.800-1.500-6.800-3.500z" fill="currentColor" stroke-width="1"/><path d="M17.500 2.500l.800 2.200 2.200.800-2.200.800-.800 2.200-.800-2.200-2.200-.800 2.200-.800z" fill="currentColor" stroke="none"/></symbol>
+ <symbol id="i-lm" viewBox="0 0 24 24"><g stroke-width="1.700"><circle cx="12" cy="7.300" r="4.300"/><path d="M10.700 4.300h2.600l.900 6.800h-4.400z"/><circle cx="5.300" cy="3.300" r="1.300"/><path d="M6.400 4.100l2 1.300M6 11.500h12v3.200H6zM6 12.300H3.800L2.300 20M18 12.300h2.200L21.700 20M.800 20h3M20.200 20h3M10.500 14.700l-.900 2.600h4.800l-.900-2.600"/></g></symbol>
+ <symbol id="i-novac" viewBox="0 0 24 24"><g stroke-width="1.700"><path d="M8.500 2.500h7v12h-7zM12.500 2.500v12M12.500 6.500h3M12.500 10.500h3M9 14.500L3.500 20.500M15 14.500l5.500 6M12 14.500v6M2 20.500h3M19 20.500h3M10.500 20.500h3"/><circle cx="8.300" cy="9.300" r="2.300" fill="currentColor" fill-opacity=".35"/></g></symbol>
+ <symbol id="i-blueghost" viewBox="0 0 24 24"><g stroke-width="1.700"><path d="M8.800 4.300a3.200 3.200 0 0 0 6.400 0zM12 7.500V10M3.500 10h17M5 10v5.500h14V10M9.700 10v5.500M14.300 10v5.500M6 15.500L3 20M18 15.500l3 4.500M1.500 20h3M19.500 20h3M10.800 15.500l-.600 1.900h3.600l-.600-1.900"/></g></symbol>
+ <symbol id="i-vikram" viewBox="0 0 24 24"><g stroke-width="1.700"><path d="M6 6.500h9.500V14H6zM6 10.200h9.500M10.700 6.500V14M8.500 6.500V3.800M7.300 3.800h2.400M13 6.500V4.800M7.500 14L4.500 20M14 14l1.500 6M3 20h3M14 20h3M15.500 12.500L21.500 20M20 20h3"/><rect x="18.600" y="14.300" width="3.400" height="2.200" rx=".600" fill="currentColor" stroke="none"/></g></symbol>
+ <symbol id="i-slim" viewBox="0 0 24 24"><g stroke-width="1.700"><path d="M9 6.500a3 3 0 0 1 6 0M5.500 6.500h13v8h-13zM9.800 6.500v8M14.200 6.500v8M5.500 10.500h13M9.500 14.500h5v2h-5zM7 14.500L4.500 20M17 14.500l2.500 5.500M3 20h3M18 20h3"/></g></symbol>
+ <symbol id="i-lander" viewBox="0 0 24 24"><path d="M4.500 3.500h15v3.500h-15zM9.500 3.500v3.500M14.500 3.500v3.500M12 7v3M7.500 10h9l1.500 3.500-1.500 3.500h-9L6 13.500zM8 17l-2.500 3.500M16 17l2.500 3.500M4 20.500h3M17 20.500h3"/></symbol>
+ <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 5.500l6.500 6.500L9 18.500"/></symbol>
+ <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+ <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+ <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.500l3.500 2"/></symbol>
+</svg>
+
+<div id="app">
+ <div id="globe" aria-label="Interactive lunar globe. Drag to rotate, scroll to zoom, or enable Drop a pin to select coordinates."></div>
+ <div id="labels"></div>
+
+ <!-- Status rail: mission clock, link and power state, and the main destinations -->
+ <nav id="rail" aria-label="Status and navigation">
+  <div class="rail-status" aria-live="off">
+   <time id="rail-clock">--:--</time>
+   <span class="rail-utc">UTC</span>
+   <span id="rail-earth" class="rail-ind earth" title="Select a site to see Earth visibility"><svg class="ic"><use href="#i-antenna"/></svg></span>
+   <span id="rail-sun" class="rail-ind sun" title="Select a site to see sunlight"><svg class="ic"><use href="#i-sun"/></svg></span>
+  </div>
+  <div class="rail-apps">
+   <button id="rail-search" class="rail-app blue" aria-label="Search landing sites" title="Search landing sites"><svg class="ic"><use href="#i-search"/></svg></button>
+   <button id="rail-compare" class="rail-app green" aria-label="Compare landing sites" title="Compare landing sites"><svg class="ic"><use href="#i-compare"/></svg><b id="compare-count" hidden>0</b></button>
+   <button id="about" class="rail-app gray" aria-label="About the data and method" title="Data and method"><svg class="ic"><use href="#i-info"/></svg></button>
+  </div>
+  <button id="rail-home" class="rail-home" aria-label="Zoriana: show whole Moon" title="Show whole Moon"><img src="/assets/icon.svg" alt="" width="46" height="46"></button>
+ </nav>
+
+ <aside id="planner" class="planner">
+  <div class="handle"></div>
+  <div class="search-wrap"><svg class="ic"><use href="#i-search"/></svg><input id="search" aria-label="Search lunar places or coordinates" placeholder="Search the Moon or enter lat, lon" autocomplete="off" spellcheck="false"></div>
+  <div id="search-results"></div>
+
+  <div id="browse">
+   <div id="chips" class="chips" role="group" aria-label="Filter landing sites"></div>
+   <h2 class="list-title">Landing sites</h2>
+   <div id="destinations" class="list"></div>
+   <button id="pin-from-card" class="list-action"><span class="badge cat-pin"><svg class="ic"><use href="#i-pin"/></svg></span><span class="row-text"><strong>Drop a pin</strong><small>Evaluate any point on the Moon</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>
+   <p class="tiny center">Pick a site. Pick a date. See your Sun and Earth windows.</p>
+  </div>
+
+  <div id="site-card" hidden>
+   <div class="place-head">
+    <span id="site-badge" class="badge big"></span>
+    <div class="place-title"><h1 id="site-name"></h1><p id="site-type"></p></div>
+    <button id="close-card" class="circle-btn" aria-label="Close site"><svg class="ic"><use href="#i-x"/></svg></button>
+   </div>
+   <p id="site-coords" class="mono coords"></p>
+   <div class="actions">
+    <button id="compare" class="pill primary"><svg class="ic"><use href="#i-compare"/></svg><span>Compare</span></button>
+    <button id="recenter" class="pill"><svg class="ic"><use href="#i-nav"/></svg><span>Fly to</span></button>
+    <button id="details" class="pill" aria-label="View calculation details"><svg class="ic"><use href="#i-info"/></svg><span>Method</span></button>
+   </div>
+   <div id="calculation-status" role="status"></div>
+
+   <!-- Next-event banner: the lunar equivalent of the next turn -->
+   <section id="event-banner" class="banner" aria-live="polite">
+    <div class="banner-main">
+     <span id="event-icon" class="banner-icon"></span>
+     <div><strong id="event-count">—</strong><span id="event-label">Calculating windows</span></div>
+    </div>
+    <p id="event-sub"></p>
+   </section>
+
+   <div class="metrics">
+    <div class="tile sun">
+     <span class="tile-label"><svg class="ic"><use href="#i-sun"/></svg>Sun elevation</span>
+     <strong id="sun-elevation">—</strong>
+     <span id="sun-state" class="state">Select a date</span>
+     <dl><dt>Azimuth</dt><dd id="sun-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="sun-clear">—</dd></dl>
+    </div>
+    <div class="tile earth">
+     <span class="tile-label"><svg class="ic"><use href="#i-globe"/></svg>Earth elevation</span>
+     <strong id="earth-elevation">—</strong>
+     <span id="earth-state" class="state">Select a date</span>
+     <dl><dt>Azimuth</dt><dd id="earth-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="earth-clear">—</dd></dl>
+    </div>
+   </div>
+
+   <section class="group">
+    <header><h3>Sky from the surface</h3><button id="terrain-toggle" class="mini-toggle" aria-pressed="true">Terrain on</button></header>
+    <svg id="horizon" viewBox="0 0 320 132" role="img" aria-label="Local terrain horizon with Sun and Earth positions and their paths over the stay"></svg>
+    <p id="terrain-source" class="tiny">NASA LOLA terrain</p>
+   </section>
+
+   <section class="group">
+    <header><h3>Surface stay</h3>
+     <div id="duration" class="segmented" role="group" aria-label="Mission duration">
+      <button data-duration="24" aria-pressed="false">24 h</button><button data-duration="72" aria-pressed="true">3 d</button><button data-duration="168" aria-pressed="false">7 d</button>
+     </div>
+    </header>
+    <div class="stay-row sun"><span>Sunlit time</span><b id="sun-window">—</b><i class="bar"><i id="sun-bar"></i></i></div>
+    <div class="stay-row earth"><span>Earth in view</span><b id="earth-window">—</b><i class="bar"><i id="earth-bar"></i></i></div>
+    <p id="next-event" class="tiny"></p>
+   </section>
+
+   <section class="group" id="lunar">
+    <header><h3>Lunar day ahead</h3><span id="lunar-range" class="tiny"></span></header>
+    <p id="lunar-status" class="tiny"></p>
+    <div id="lunar-chart" hidden>
+     <div id="lunar-plot" class="lunar-plot">
+      <svg id="lunar-bars" viewBox="0 0 30 10" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <svg id="lunar-bands" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <i id="lunar-window" title="Your stay"></i>
+      <div id="lunar-days" role="group" aria-label="Choose a landing day in the next 30 days"></div>
+     </div>
+     <div id="lunar-ticks" class="lunar-ticks"></div>
+     <p id="lunar-caption" class="tiny"></p>
+    </div>
+    <div id="lunar-facts" class="facts flat"></div>
+   </section>
+
+   <section class="group facts">
+    <div><span>Surface elevation</span><b id="site-elevation" class="mono">—</b></div>
+    <div><span>Surface slope</span><b id="site-slope" class="mono">—</b></div>
+    <div><span>Terrain data</span><b id="site-grid">—</b></div>
+    <div><span>Ephemeris</span><b>NASA/JPL Horizons · hourly</b></div>
+    <div><span>Open this site in</span><b class="links"><a id="link-quickmap" target="_blank" rel="noopener">QuickMap ↗</a><a id="link-trek" target="_blank" rel="noopener">Moon Trek ↗</a></b></div>
+   </section>
+  </div>
+ </aside>
+
+ <div class="map-status"><span class="live-dot"></span><span id="map-status">Loading NASA imagery</span></div>
+
+ <div class="map-tools">
+  <div class="mat toolgroup">
+   <button id="map-mode" aria-label="Choose map" aria-expanded="false" title="Choose map"><svg class="ic"><use href="#i-map"/></svg></button>
+   <button id="sunlight" aria-label="Sunlight layer" aria-pressed="true" title="Sunlight layer"><svg class="ic"><use href="#i-sun"/></svg></button>
+  </div>
+  <div class="mat toolgroup">
+   <button id="pin" aria-label="Drop a pin" title="Drop a pin"><svg class="ic"><use href="#i-scope"/></svg></button>
+   <button id="home" aria-label="Show whole Moon" title="Show whole Moon"><svg class="ic"><use href="#i-fullmoon"/></svg></button>
+  </div>
+  <div class="mat toolgroup">
+   <button id="zoom-in" aria-label="Zoom in"><svg class="ic"><use href="#i-plus"/></svg></button>
+   <button id="zoom-out" aria-label="Zoom out"><svg class="ic"><use href="#i-minus"/></svg></button>
+  </div>
+  <div id="heading-tools" class="mat toolgroup" hidden>
+   <button id="face-earth" aria-label="Face Earth" title="Face Earth"><svg class="ic"><use href="#i-globe"/></svg></button>
+   <button id="face-sun" aria-label="Face the Sun" title="Face the Sun"><svg class="ic"><use href="#i-sun"/></svg></button>
+  </div>
+  <button id="north" class="mat compass" aria-label="Reset north up" title="North up"><i></i><span>N</span></button>
+ </div>
+
+ <section id="map-picker" class="mat map-picker" hidden aria-label="Choose map">
+  <div class="picker-head"><strong>Choose Map</strong><button id="close-picker" class="circle-btn" aria-label="Close map chooser"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="picker-tiles">
+   <button data-mode="explore" class="active"><span class="thumb explore"></span>Explore</button>
+   <button data-mode="landing"><span class="thumb landing"><i></i></span>Landing</button>
+   <button data-mode="satellite"><span class="thumb satellite"></span>Satellite</button>
+  </div>
+  <p class="tiny">Landing tilts the camera over the selected site with true-scale LOLA relief. Explore and Landing show sunlight and terrain shadows for the selected time. Satellite shows unlit reference imagery.</p>
+ </section>
+
+ <section id="comparison" class="mat comparison" hidden>
+  <div class="picker-head"><strong>Compare sites and dates</strong><button id="close-compare" class="circle-btn" aria-label="Close comparison"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <p id="comparison-method" class="tiny">Same start date and stay · terrain included</p>
+  <div id="comparison-cards"></div>
+  <div class="legend in-card"><span class="lg sun">Sunlit</span><span class="lg earth">Earth in view</span></div>
+ </section>
+
+ <div id="hint" class="hint">Drag to explore · Scroll to zoom</div>
+
+ <section class="timeline mat" aria-label="Date and time">
+  <div class="timeline-top">
+   <button id="play" class="play" aria-label="Play time animation"><svg class="ic"><use href="#i-play"/></svg></button>
+   <div class="clock-block"><span id="clock">12:00</span><small><span id="clock-date"></span> · UTC</small></div>
+   <div class="met"><small>Mission time</small><span id="met" class="mono">T+0 h</span></div>
+   <div class="legend"><span class="lg sun">Sunlit</span><span class="lg earth">Earth in view</span></div>
+   <label class="date-label"><small>Landing date · UTC</small><input id="date" type="date" min="2000-01-01" max="2099-12-24" aria-label="Start date in UTC"></label>
+   <button id="today" class="text-button">Now</button>
+  </div>
+  <div class="scrub">
+   <svg id="bands" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"></svg>
+   <span class="scrub-empty">Select a site to see its sunlight and Earth windows</span>
+   <input id="time" type="range" min="0" max="168" step="0.25" value="12" aria-label="Hours after start date">
+  </div>
+  <div class="timeline-ticks"><span id="range-start"></span><span>+1 d</span><span>+2 d</span><span>+3 d</span><span>+4 d</span><span>+5 d</span><span>+6 d</span><span>+7 d</span></div>
+ </section>
+
+ <footer><button id="sources">NASA / LRO imagery · LOLA terrain · JPL Horizons</button><span id="scale">Lunar exploration preview</span></footer>
+ <div id="toast" role="status" hidden></div>
+
+ <dialog id="info">
+  <button id="close-info" class="circle-btn close" aria-label="Close details"><svg class="ic"><use href="#i-x"/></svg></button>
+  <small>ZORIANA · DATA &amp; METHOD</small>
+  <h2>Real observations.<br>Clear boundaries.</h2>
+  <p>The lunar mosaic comes from NASA’s Lunar Reconnaissance Orbiter. Sun and Earth positions are requested from NASA/JPL Horizons for your coordinates and dates.</p>
+  <dl>
+   <dt>Visibility</dt><dd>Body center above the sampled local terrain horizon. Craters, ridges and lunar curvature affect visibility. Eclipses, antenna constraints, solar-array geometry and usable power are not modeled. Terrain off compares the same ephemerides against a flat reference horizon.</dd>
+   <dt>Libration &amp; orbit</dt><dd>Horizons computes each position for an observer fixed to the lunar surface at your coordinates, so the Moon’s libration and orbital variations are already included in the Sun and Earth angles shown here. No atmospheric refraction is applied because the Moon has no atmosphere.</dd>
+   <dt>Sampling</dt><dd>Hourly JPL positions for the 30 days after the landing date, interpolated against the terrain horizon every five minutes. Durations, countdowns and crossings are estimates; short events and unresolved obstacles can be missed. Mission totals begin at 00:00 UTC on the selected start date.</dd>
+   <dt>Lunar day &amp; comparison</dt><dd>The lunar-day chart covers 30 days, slightly more than one 29.5-day cycle of lunar day and night. Its bars score each possible landing day by the sunlit hours of the selected stay; “best” means most sunlit hours, with Earth visibility as the tie-break, and is not a mission recommendation. A longest stretch marked “≥” touches the edge of the 30-day window and may continue beyond it. Comparison options are a site on a landing date, aligned by mission time; differences are shown against the first option.</dd>
+   <dt>Terrain &amp; location</dt><dd id="terrain-detail">LOLA elevation grids. Planetocentric latitude, east-positive longitude, a 1,737.4 km reference radius and an observer 2 m above the sampled surface. Select a site for its data resolution. Named pins are exploration points, not certified landing sites.</dd>
+   <dt>Map</dt><dd>The gold and blue lines from a selected site point toward the Sun and Earth at the chosen time. They are drawn dashed when the body is hidden by terrain or below the horizon. Their length is illustrative.</dd>
+   <dt>Landing view</dt><dd>A tilted camera orbits the selected site over a true-scale terrain mesh (no vertical exaggeration) built from the same averaged LOLA grids as the shadow layer: 160 m spacing south of 86.6°S within about 48 km of the site, 3.8 km elsewhere within about 260 km. Drag to change heading and tilt; the compass shows north. A faint camera-side fill keeps relief readable in shadow and is not sunlight. The view is illustrative; site metrics use the finer horizon model.</dd>
+   <dt>Rendering</dt><dd>8K NASA CGI Moon Kit mosaic with a downsampled LOLA relief texture. Full elevation grids are processed separately for site visibility. The Sunlight layer traces rays toward the JPL Sun through LOLA elevations on a curved Moon. Ridges and crater walls cast moving shadows. For responsive interaction, visual elevations are averaged to 160 m south of 85°S and 3.8 km elsewhere; shadow masks refine after time scrubbing stops (about 300 m polar pixels and 5.3 km equatorial pixels). Sparse ray steps up to 500 km, height bias and map sampling can miss small obstacles or narrow shadows. This is approximate visual coverage, separate from the finer site horizon calculations. The mosaic contains some baked lighting which cannot move. Satellite defaults to unlit imagery; use the Sun button to show sunlight in any mode.</dd>
+  </dl>
+  <div class="source-links"><a href="https://svs.gsfc.nasa.gov/4720/" target="_blank" rel="noopener">NASA imagery ↗</a><a href="https://pds-geosciences.wustl.edu/missions/lro/lola.htm" target="_blank" rel="noopener">LOLA terrain ↗</a><a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener">JPL Horizons ↗</a></div>
+  <p class="tiny">Fresh implementation · NASA Space Apps 2026 · Not affiliated with or endorsed by NASA. Code written with AI coding assistance (OpenAI Codex and Anthropic Claude Code) under human direction; see the README for details.</p>
+ </dialog>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
