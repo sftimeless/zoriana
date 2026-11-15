@@ -6,7 +6,11 @@ export function parseHorizons(text) {
     const c = line.split(',').map(s => s.trim());
     const jd = Number(c[0]), az = Number(c[3]), el = Number(c[4]);
     if (![jd, az, el].every(Number.isFinite) || !c[3] || !c[4]) throw new Error('Invalid JPL sample.');
-    return { time: Math.round((jd - 2440587.5) * DAY / 1000) * 1000, az, el };
+    const row = { time: Math.round((jd - 2440587.5) * DAY / 1000) * 1000, az, el };
+    // Optional sixth column: distance from the site to the body's centre, in km.
+    const range = c[5] ? Number(c[5]) : NaN;
+    if (Number.isFinite(range) && range > 0) row.range = range;
+    return row;
   });
   if (rows.length < 2) throw new Error('Insufficient JPL samples.');
   return rows;
@@ -17,7 +21,9 @@ export function sampleAt(rows, time) {
   if (i <= 0) return rows[0];
   const a=rows[i-1], b=rows[i], t=(time-a.time)/(b.time-a.time);
   const delta=((b.az-a.az+540)%360)-180;
-  return {time, az:(a.az+delta*t+360)%360, el:a.el+(b.el-a.el)*t};
+  const sample={time, az:(a.az+delta*t+360)%360, el:a.el+(b.el-a.el)*t};
+  if(a.range!==undefined&&b.range!==undefined) sample.range=a.range+(b.range-a.range)*t;
+  return sample;
 }
 export function visibleHours(rows, start, end) {
   if (!sampleAt(rows,start) || !sampleAt(rows,end)) return null;
@@ -48,9 +54,14 @@ export function coordinatesToVector(lat,lon) {
 // distance in Moon radii. For Earth the two differ by up to about 0.26° (parallax); for the Sun
 // the difference is negligible.
 export function centredDirection(lat,lon,az,el,distance) {
-  const site=coordinatesToVector(lat,lon),toBody=skyDirection(lat,lon,az,el);
-  const v=site.map((s,i)=>s+toBody[i]*distance),length=Math.hypot(...v);
+  const v=centredPosition(lat,lon,az,el,distance),length=Math.hypot(...v);
   return v.map(x=>x/length);
+}
+// The body's position relative to the Moon's centre, in Moon radii, from the site's view of it
+// and its distance from the site.
+export function centredPosition(lat,lon,az,el,distance) {
+  const site=coordinatesToVector(lat,lon),toBody=skyDirection(lat,lon,az,el);
+  return site.map((s,i)=>s+toBody[i]*distance);
 }
 export function skyDirection(lat,lon,az,el) {
   const r=Math.PI/180,p=lat*r,l=lon*r,a=az*r,e=el*r;

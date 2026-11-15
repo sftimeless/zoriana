@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseHorizons,sampleAt,visibleHours,nextCrossing,coordinatesToVector,skyDirection,centredDirection} from '../src/ephemeris.mjs';
+import {parseHorizons,sampleAt,visibleHours,nextCrossing,coordinatesToVector,skyDirection,centredDirection,centredPosition} from '../src/ephemeris.mjs';
 test('parses JD and azimuth/elevation from documented Horizons CSV columns',()=>{
  const r=parseHorizons('header\n$$SOE\n2461358.500000000, ,i, 91.441764, -13.158066,\n2461358.541666667, ,i, 91.444819, -12.650398,\n$$EOE\nfooter');
  assert.equal(new Date(r[0].time).toISOString(),'2026-11-14T00:00:00.000Z');assert.equal(r[1].time-r[0].time,3600000);assert.equal(r[0].el,-13.158066);
@@ -19,4 +19,18 @@ test('Moon-centred direction corrects Earth parallax and leaves an overhead body
  assert.ok(angle(limb,coordinatesToVector(0,90))<90,'tilt is toward the observing site');
  // At the Sun's distance the correction vanishes.
  assert.ok(angle(centredDirection(0,90,270,0,23500*D/60),skyDirection(0,90,270,0))<.001);
+});
+test('parses the Horizons range column when present and interpolates it',()=>{
+ // Real Horizons rows for Earth seen from 0°N 0°E on the Moon, 2026-11-15 (QUANTITIES 4,20 with RANGE_UNITS KM).
+ const r=parseHorizons('$$SOE\n2461359.500000000, ,i, 321.655223,    85.763311,  4.0298080881E+05, -0.0164008,\n2461359.541666667, ,i, 320.624337,    85.765252,  4.0292074467E+05, -0.0169714,\n$$EOE');
+ assert.equal(r[0].range,402980.80881);assert.equal(r[1].range,402920.74467);
+ const mid=sampleAt(r,(r[0].time+r[1].time)/2);assert.ok(Math.abs(mid.range-402950.77674)<1e-6);
+ // Rows without the column, as older responses had, simply carry no range.
+ const old=parseHorizons('$$SOE\n2461358.500000000, ,i, 91.441764, -13.158066,\n2461358.541666667, ,i, 91.444819, -12.650398,\n$$EOE');
+ assert.equal(old[0].range,undefined);assert.equal(sampleAt(old,old[0].time+1000).range,undefined);
+});
+test('Moon-centred position adds the site offset to the range',()=>{
+ const D=402980.80881/1737.4,len=v=>Math.hypot(...v);
+ assert.ok(Math.abs(len(centredPosition(0,0,0,90,D))-(D+1))<1e-9,'overhead: one Moon radius farther from the centre');
+ assert.ok(Math.abs(len(centredPosition(0,0,0,0,D))-Math.hypot(D,1))<1e-9,'on the horizon: right triangle');
 });

@@ -11,7 +11,7 @@ async function query(target,lat,lon,date,altitude=0) {
   if(cache.has(key)) return cache.get(key);
   const promise=scheduled(async()=>{
     const end=new Date(Date.parse(date)+SERIES_DAYS*DAY).toISOString().slice(0,10);
-    const params={format:'json',COMMAND:`'${target}'`,EPHEM_TYPE:"'OBSERVER'",CENTER:"'coord@301'",COORD_TYPE:"'GEODETIC'",SITE_COORD:`'${lon},${lat},${altitude}'`,START_TIME:`'${date}'`,STOP_TIME:`'${end}'`,STEP_SIZE:"'1 h'",QUANTITIES:"'4'",CSV_FORMAT:"'YES'",CAL_FORMAT:"'JD'",OBJ_DATA:"'NO'",APPARENT:"'AIRLESS'"};
+    const params={format:'json',COMMAND:`'${target}'`,EPHEM_TYPE:"'OBSERVER'",CENTER:"'coord@301'",COORD_TYPE:"'GEODETIC'",SITE_COORD:`'${lon},${lat},${altitude}'`,START_TIME:`'${date}'`,STOP_TIME:`'${end}'`,STEP_SIZE:"'1 h'",QUANTITIES:"'4,20'",RANGE_UNITS:"'KM'",CSV_FORMAT:"'YES'",CAL_FORMAT:"'JD'",OBJ_DATA:"'NO'",APPARENT:"'AIRLESS'"};
     const response=await fetch('https://ssd.jpl.nasa.gov/api/horizons.api?'+new URLSearchParams(params),{signal:AbortSignal.timeout(30000)});
     if(!response.ok) throw new Error('JPL request failed.');
     const data=await response.json();
@@ -34,7 +34,7 @@ const server=http.createServer(async(req,res)=>{
       const terrain=url.searchParams.get('reference')==='1'?null:await getTerrain(lat,lon);
       const altitude=terrain?(terrain.elevationMeters+terrain.observerHeightMeters)/1000:0;
       const [sun,earth]=await Promise.all([query(10,lat,lon,date,altitude),query(399,lat,lon,date,altitude)]);
-      res.end(JSON.stringify({sun,earth,lat,lon,date,days:SERIES_DAYS,terrain,altitudeKm:altitude,source:'NASA/JPL Horizons + NASA LOLA',model:'Airless apparent body-center elevation; 1737.4 km reference sphere; observer at sampled DEM elevation + 2 m; hourly ephemerides. Finite DEM, azimuth and time sampling; eclipses not evaluated.'}));
+      res.end(JSON.stringify({sun,earth,lat,lon,date,days:SERIES_DAYS,terrain,altitudeKm:altitude,source:'NASA/JPL Horizons + NASA LOLA',model:'Airless apparent body-center elevation and observer range; 1737.4 km reference sphere; observer at sampled DEM elevation + 2 m; hourly ephemerides. Finite DEM, azimuth and time sampling; eclipses not evaluated.'}));
     }catch(e){res.writeHead(502);res.end(JSON.stringify({error:'Terrain or NASA/JPL data is unavailable. Please retry. No reference-only result has been substituted.'}));}
     return;
   }

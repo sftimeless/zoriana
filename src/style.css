@@ -163,7 +163,7 @@ canvas{display:block;touch-action:none}
 .state::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--label3)}
 .state.ok{color:var(--green)}.state.ok::before{background:var(--green)}
 .state.blocked{color:var(--orange)}.state.blocked::before{background:var(--orange)}
-.tile dl{display:grid;grid-template-columns:1fr auto;gap:3px 6px;margin-top:9px;padding-top:8px;border-top:.5px solid var(--sep);font-size:11.5px}
+.tile dl{display:grid;grid-template-columns:1fr auto;gap:3px 4px;margin-top:9px;padding-top:8px;border-top:.5px solid var(--sep);font-size:11px;white-space:nowrap}
 .tile dt{color:var(--label2)}
 .tile dd{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
 

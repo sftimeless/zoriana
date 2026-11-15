@@ -8,7 +8,7 @@ Last checked against the code on November 14, 2026.
 
 ## Field: NASA Data
 
-- **NASA/JPL Horizons System** (API). Sun and Earth apparent azimuth and elevation for an observer on the lunar surface at the chosen coordinates and height, hourly, airless model. Queried live by the app's server for every site and date. https://ssd.jpl.nasa.gov/horizons/ · API documentation: https://ssd-api.jpl.nasa.gov/doc/horizons.html
+- **NASA/JPL Horizons System** (API). Sun and Earth apparent azimuth, elevation and distance for an observer on the lunar surface at the chosen coordinates and height, hourly, airless model. Queried live by the app's server for every site and date. https://ssd.jpl.nasa.gov/horizons/ · API documentation: https://ssd-api.jpl.nasa.gov/doc/horizons.html
 - **LRO LOLA polar elevation model, LDEM_85S_40M V2.0** (NASA PDS Geosciences Node). 40 m south-polar grid used for the terrain horizon at sites south of 85°S, and averaged to 160 m for the shadow layer and landing-view terrain. https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_85s_40m.lbl
 - **LRO LOLA polar elevation model, LDEM_80S_80M V2.0** (NASA PDS Geosciences Node). 80 m grid from 80°S to the pole, used for the terrain horizon and surface slope at sites between 80°S and 85°S. https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_80s_80m.lbl
 - **LRO LOLA global elevation, LDEM_16 float TIFF** (NASA Scientific Visualization Studio, CGI Moon Kit). 16 pixels per degree; used for the terrain horizon elsewhere and for distant terrain, and averaged to 3.8 km for the shadow layer and landing-view terrain. https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_16.tif

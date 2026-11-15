@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
-import { DAY, sampleAt, visibleHours, nextCrossing, coordinatesToVector, skyDirection, centredDirection } from './ephemeris.mjs';
+import { DAY, sampleAt, visibleHours, nextCrossing, coordinatesToVector, skyDirection, centredPosition } from './ephemeris.mjs';
 import { segments, span, gaps, longest, landingDays, bestLandingDay } from './windows.mjs';
 import { earthMeshRotation } from './earth-orientation.mjs';
 import { horizonAt, clearanceSeries, RADIUS } from './terrain-math.mjs';
@@ -152,11 +152,12 @@ function layoutBeams(){
 }
 
 // ---- Where the Sun and Earth are ----
-// Earth is drawn at its true size and mean distance (in Moon radii), lit by the same Sun as the
+// Earth is drawn at its true size and its JPL distance for the selected time, lit by the same Sun as the
 // Moon and turned to show the face that points at the Moon, so its direction, apparent size,
 // phase and visible continents are right. The Sun is drawn at its true angular
 // size but much closer than it really is. Each also marks the point on the Moon where it is overhead.
-const EARTH_DISTANCE=384400/1737.4,EARTH_RADIUS=6371/1737.4,SUN_DISTANCE=500,SUN_RADIUS=SUN_DISTANCE*Math.tan(THREE.MathUtils.degToRad(.266));
+const MOON_KM=1737.4,EARTH_MEAN_KM=384400; // the mean is only a fallback for responses without a range
+const EARTH_DISTANCE=EARTH_MEAN_KM/MOON_KM,EARTH_RADIUS=6371/MOON_KM,SUN_DISTANCE=500,SUN_RADIUS=SUN_DISTANCE*Math.tan(THREE.MathUtils.degToRad(.266));
 function makeBody(name,label,mesh,distance,radius,overhead){
  mesh.visible=false;mesh.frustumCulled=false;scene.add(mesh);
  const mark=document.createElement('div');mark.className=`overhead ${name}`;mark.hidden=true;mark.innerHTML=`<span class="marker">${icon(name==='sun'?'sun':'globe')}</span><span class="name">${overhead}</span>`;
@@ -177,13 +178,18 @@ loader.load('/assets/earth-blue-marble-2k.jpg',texture=>{texture.colorSpace=THRE
  // The night side is shown faintly (not physically) so the globe stays readable as a crescent.
  m.emissiveMap=texture;m.emissive.set(0xffffff);m.emissiveIntensity=.2;m.needsUpdate=true;invalidate();});
 const earthTurn=new THREE.Matrix4();
+// Where a body sits in the scene (Moon radii, Moon-centred). Earth goes at its real position:
+// the site's view of it and the site's distance to it, shifted to the Moon's centre. The Sun
+// keeps its true direction at a fixed nearby distance.
+function bodyPosition(name,d,s,out){
+ if(name==='earth')return out.fromArray(centredPosition(d.lat,d.lon,s.az,s.el,(s.range??EARTH_MEAN_KM)/MOON_KM));
+ return out.fromArray(skyDirection(d.lat,d.lon,s.az,s.el)).multiplyScalar(SUN_DISTANCE);
+}
 function updateBodies(){
  const d=data||referenceData,time=observationTime();if(!d)return;
  for(const b of Object.values(bodies)){
   const s=sampleAt(d[b.name],time);if(!s)continue;
-  // JPL angles are seen from the site; shift Earth's to the Moon's centre (the Sun's shift is negligible).
-  b.direction.fromArray(b.name==='earth'?centredDirection(d.lat,d.lon,s.az,s.el,EARTH_DISTANCE):skyDirection(d.lat,d.lon,s.az,s.el));
-  b.mesh.position.copy(b.direction).multiplyScalar(b.distance);b.mesh.visible=true;b.known=true;
+  bodyPosition(b.name,d,s,b.mesh.position);b.direction.copy(b.mesh.position).normalize();b.mesh.visible=true;b.known=true;
   if(b.name==='earth'){const r=earthMeshRotation(time);earthTurn.set(r[0][0],r[0][1],r[0][2],0,r[1][0],r[1][1],r[1][2],0,r[2][0],r[2][1],r[2][2],0,0,0,0,1);b.mesh.quaternion.setFromRotationMatrix(earthTurn);}
   b.point.copy(b.direction).multiplyScalar(1.003);
   const lat=THREE.MathUtils.radToDeg(Math.asin(b.direction.y)),lon=THREE.MathUtils.radToDeg(Math.atan2(-b.direction.z,b.direction.x));
@@ -304,7 +310,7 @@ function framing(name,site,target,frame,distance){
  if(!data||Math.abs(data.lat-site.lat)>1e-5||Math.abs(data.lon-site.lon)>1e-5)return null;
  const s=sampleAt(data[name],observationTime());if(!s)return null;
  const profile=terrainEnabled?data.terrain:null,above=s.el-(profile?horizonAt(profile,s.az):0)>0,body=bodies[name];
- const position=new THREE.Vector3().fromArray(name==='earth'?centredDirection(data.lat,data.lon,s.az,s.el,body.distance):skyDirection(data.lat,data.lon,s.az,s.el)).multiplyScalar(body.distance);
+ const position=bodyPosition(name,data,s,new THREE.Vector3());
  return {azimuth:s.az,tilt:above?tiltToShow(position,target,frame,s.az,distance):null};
 }
 function surfaceCameraPosition(target,frame,azimuth,distance,tilt){ // behind the site, looking toward azimuth
@@ -454,6 +460,7 @@ function refreshMetrics(){
   $(`#${name}-elevation`).textContent=current?deg(current.el):'—';
   $(`#${name}-az`).textContent=current?`${number(current.az)}°`:'—';
   $(`#${name}-clear`).textContent=current?signedDeg(clear):'—';
+  $(`#${name}-range`).textContent=current?.range?(name==='sun'?`${(current.range/1e6).toFixed(1)}M km`:`${Math.round(current.range).toLocaleString()} km`):'—';
   const state=$(`#${name}-state`);state.className=`state${up?' ok':terrainBlocked?' blocked':''}`;
   state.textContent=current?(up?(name==='sun'?'Sunlit':'Earth in view'):(terrainBlocked?'Blocked by terrain':'Below horizon')):(selected?'Awaiting terrain & JPL':'No site selected');
   const hours=data?visibleHours(visibilityRows(data,name),startDate(),end):null;

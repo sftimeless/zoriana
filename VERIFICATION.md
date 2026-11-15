@@ -120,3 +120,11 @@
 
 - Earth now has the same two looks as the Moon: lit by the modelled Sun in Explore and Landing, and plain NASA imagery with no lighting in Satellite or whenever the Sunlight layer is off.
 - In-app browser, no console errors: at Malapert region on 2026-11-21 06:00 UTC, Earth drew as a lit crescent with Sunlight on and as a full textured disc with Sunlight off; switching to Satellite turned lighting off and back to Explore turned it on.
+
+## Real Earth distance — November 14, 2026 (evening)
+
+- The server now also requests the Horizons observer range (quantity 20, in km). Live check for the reference site from 2026-11-15: 721 hourly Earth samples, range 402,981 km at the start and between 357,629 and 404,670 km over the 30 days; Sun range 147.8 million km.
+- Earth is placed at that distance, shifted from the site to the Moon's centre, instead of at the 384,400 km average. On 2026-11-15 the average was about 5% too close.
+- Forty Node tests pass. Two are new: parsing and interpolating the range column from real Horizons rows (and tolerating rows without it), and the Moon-centred position for overhead and horizon cases.
+- In-app browser, no console errors: the site card shows Earth at 403,926 km and the Sun at 147.8 million km from the Shackleton region on 2026-11-15 12:00 UTC, changing to 376,014 km on 2026-11-21 06:00 UTC; the landing view still opens with Earth in frame.
+- The Sun is still drawn at a fixed nearby distance in its true direction and apparent size.
