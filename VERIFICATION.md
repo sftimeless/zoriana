@@ -324,3 +324,14 @@
 - Limits: the relief is as fine as the mesh (about 590 m, 270 m or 160 m), so boulders and small craters are in the picture but not in the relief; the imagery carries the lighting of the day it was photographed; at a place in night the view is dark and the app says so. The camera path is the same shape everywhere, scaled to the mesh.
 - Not verified: frame rate on a real phone or a slow computer (the flight keeps real time down to two frames a second); the fly-by on the live site from a phone.
 
+## Fly-by captions — November 15, 2026 (UTC)
+
+- Each fly-by now shows one plain sentence per stage and, with the numbers switch on, a second line of figures. The switch is the site card's own ("Hide the numbers"); the fly-by bar has a "123" button for it. There is no audience toggle.
+- Live site, Copernicus from the list: "Landing time moved to Nov 20, 16:00 UTC, when the Sun is 23.8° high over Copernicus."; then "Copernicus: a crater 96 km across, named for the Polish astronomer Nicolaus Copernicus." / "The floor lies about 3.8 km below the rim, and the high ground at its centre stands about 1.0 km above the floor." (numbers: typical rim +270 m, floor −3,510 m, central high point −2,560 m) / "For a lander arriving Nov 20, 16:00 UTC and staying 3 d: Sunlit for the whole stay. Earth in view throughout."
+- Local build: Tycho "about 4.7 km below the rim… about 2.3 km above the floor" (rim +1,290 m, floor −3,420 m); Shackleton "about 4.0 km below the rim", and "This point is in permanent shadow."; IM-4 "Within about 30 km of this point the ground rises and falls by 4.4 km." (lowest +2,610 m, highest +7,000 m, slope 9.5° over 160 m). Commonly published depths are about 4.7 km (Tycho), 3.8 km (Copernicus) and 4.2 km (Shackleton).
+- Listed fly-bys now move the landing time, not only the clock, to the good-light moment, so the stay in the last caption matches the view.
+- Safari on the simulated iPhone (local build): the caption sits above the fly-by controls; the numbers line is hidden until "123" is pressed.
+- The three name origins were read from the IAU Gazetteer entries for Shackleton (5450), Tycho (6163) and Copernicus (1296) and are listed in `REFERENCES.md`.
+- Eighty-five Node tests pass. No console errors in any check.
+- Not verified: captions for craters wider than the mesh allows (they fall back to the 30 km relief sentence); the fly-by on a real phone.
+

@@ -82,5 +82,20 @@ Every answer can be rebuilt from one request to the app and one to JPL.
 A fly-by is a camera pass over the Landing view: it starts high, turns once around the place while coming down to a low pass, then climbs away, in 50 seconds at normal speed (it can be paused, and played at half or double speed). Nothing new is calculated for it. The ground is the Landing view's true-scale LOLA mesh, the picture is NASA's imagery, and the light and shadows are the ones calculated for the time on the clock.
 
 - How low the camera goes depends on how fine the ground is under it: 42 km from the place it is looking at on the 590 m mesh, 22 km on the 270 m mesh, 16 km on the 160 m mesh. The camera is kept at least 1.5 km above the mesh under it.
-- A fly-by started from a site card keeps your date and time, and says so if it is night there. The four listed fly-bys (Shackleton, Tycho, Copernicus, the Apollo 11 site) are for looking, so they move the clock to a time in the next 30 days when the Sun is up and 10° to 30° high there, or to its highest point if it never gets that high, and say what they changed it to. Feature positions come from the IAU list.
+- A fly-by started from a site card keeps your date and time, and says so if it is night there. The four listed fly-bys (Shackleton, Tycho, Copernicus, the Apollo 11 site) are for looking, so they move the landing time to a moment in the next 30 days when the Sun is up and 10° to 30° high there, or to its highest point if it never gets that high, and say what they changed it to. Feature positions come from the IAU list.
 - It is a visual aid. Detail finer than the mesh, such as boulders and small craters, is in the imagery but not in the relief, and the imagery carries the lighting of the day it was photographed.
+
+### Fly-by captions
+
+Each fly-by shows one plain sentence per stage, and a second line of numbers for anyone who wants them. The second line follows the same "numbers" switch as the site card, so it is on by default on a computer and off on a phone, and the "123" button on the fly-by bar changes it. There is no separate version for planners, teachers and the public: everyone gets the sentence, and the numbers are one tap away.
+
+| Stage | Sentence | Numbers |
+|---|---|---|
+| Approach | What the place is: the IAU name, kind and size of a named feature; a mission site's type and description; or where a pin is | Coordinates, elevation, the mesh spacing in use |
+| Low pass | What the ground does: a crater's depth and central rise, or the relief around a site | The heights behind it, and the slope at the site |
+| Climb out | What a lander would get: the stay summary for the landing time shown | The countdown to the next change with its "±", and the geometry-only caution |
+
+- Everything except the three name origins is read from data already in the app: the IAU feature list, the LOLA mesh on screen, and the JPL-based stay figures.
+- Crater figures are measured from the mesh on screen, not looked up. The rim is the middle value of the highest point found in each of 72 directions between 0.75 and 1.25 crater radii; the floor is the height that one fifth of the inner half lies below; the central high point is the highest ground within a quarter radius, reported only when it rises more than 600 m above the floor and stays below the rim. On November 15, 2026 this gave 4.7 km for Tycho (rim +1,290 m, floor −3,420 m, central high point 2.3 km above the floor) and 4.0 km for Shackleton, close to commonly published depths of about 4.7 km and 4.2 km.
+- For a site or pin that is not a crater, the sentence is the difference between the lowest and highest ground within about 30 km.
+- "Named for…" is given only for Shackleton, Tycho and Copernicus, from the origin field of the IAU Gazetteer of Planetary Nomenclature.

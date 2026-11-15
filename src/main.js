@@ -524,7 +524,7 @@ function enterSurface(site){
   // The finer ground can sit a little higher or lower than the coarse one: move the look point, the pins and the lines onto it.
   surface.info=fineInfo;surface.radius=fineInfo.radius;surface.target.copy(surface.frame.up).multiplyScalar(fineInfo.radius);
   if(surface.controls){surface.controls.target.copy(surface.target);surface.controls.minDistance=closestRange();if(!tour?.playing)surface.controls.update();}
-  placeLabels();if(selected)updateBeams();invalidate();
+  placeLabels();if(selected)updateBeams();if(tour)renderFlybyCaption();invalidate();
  });
  surface?.controls?.dispose();controls.enabled=false;
  surface={site,frame,north:new THREE.Vector3(...skyDirection(lat,site.lon,0,0)),east:new THREE.Vector3(...skyDirection(lat,site.lon,90,0)),target:frame.up.clone().multiplyScalar(radius),radius,info,distance,controls:null,awaitingEarth:false};
@@ -543,6 +543,60 @@ function enterSurface(site){
 const FLYBY_KEYS=[[0,0,5.6,38],[.2,65,2.8,54],[.42,165,1,71],[.68,285,1.05,72],[.86,345,2.3,58],[1,395,4.2,44]];
 const FLYBY_SECONDS=50,FLYBY_SPEEDS=[1,2,.5];
 const tourDirection=new THREE.Vector3();
+// A site made from an entry in the IAU list of named features: [name, latitude, longitude, diameter in km, kind].
+const featureSite=f=>({id:`pin-${f[1].toFixed(4)}_${f[2].toFixed(4)}`,name:f[0],type:`${f[4]} · ${f[3]>=10?Math.round(f[3]):f[3]} km across · centre of the IAU-named feature`,cat:'pin',lat:f[1],lon:f[2],feature:{kind:f[4],diameterKm:f[3]}});
+// Who the listed fly-by craters are named for, from the "origin" field of the IAU Gazetteer of Planetary Nomenclature.
+const ORIGINS={Shackleton:'named for the Antarctic explorer Ernest Shackleton',Tycho:'named for the Danish astronomer Tycho Brahe',Copernicus:'named for the Polish astronomer Nicolaus Copernicus'};
+
+// ---- Fly-by captions: one plain sentence for each stage of the flight, and the numbers behind it for those who ask ----
+// Heights in metres around the place the camera is circling, read from the mesh on screen. For a crater of
+// the given radius: the rim is the middle value of the highest point found in each direction between 0.75 and
+// 1.25 radii, the floor is the level that a fifth of the inner half lies below, and the peak is the highest
+// point within a quarter radius of the centre. Low and high are the extremes out to 1.25 radii.
+function terrainFigures(radiusKm){
+ const at=(r,az)=>{const a=THREE.MathUtils.degToRad(az);tourDirection.copy(surface.frame.up).addScaledVector(surface.east,Math.sin(a)*r/1737.4).addScaledVector(surface.north,Math.cos(a)*r/1737.4).normalize();return (patch.groundRadius(tourDirection)-1)*1737400;};
+ const pick=(list,q)=>{const sorted=[...list].sort((a,b)=>a-b);return sorted[Math.min(sorted.length-1,Math.floor(q*sorted.length))];};
+ let low=Infinity,high=-Infinity,peak=-Infinity;const inner=[],crests=[];
+ for(let az=0;az<360;az+=5){
+  let crest=-Infinity;
+  for(let k=0;k<=40;k++){const r=radiusKm*1.25*k/40,h=at(r,az);low=Math.min(low,h);high=Math.max(high,h);if(r<=radiusKm*.5)inner.push(h);if(r<=radiusKm*.25)peak=Math.max(peak,h);if(r>=radiusKm*.75)crest=Math.max(crest,h);}
+  crests.push(crest);
+ }
+ return {low,high,peak,floor:pick(inner,.2),rim:pick(crests,.5)};
+}
+const kmText=m=>`${(m/1000).toFixed(1)} km`,heightText=m=>`${m<0?'−':'+'}${Math.abs(Math.round(m/10)*10).toLocaleString()} m`;
+function flybyCaption(stage){
+ const site=surface.site,f=site.feature,info=surface.info,mine=selected===site&&data;
+ const mesh=info?`${info.gridMeters<1000?info.gridMeters+' m':(info.gridMeters/1000).toFixed(1)+' km'} mesh`:'mesh';
+ // A crater is measured as a crater when its rim fits well inside the mesh; anything else is described by its relief within 25 km.
+ const crater=f&&/crater/i.test(f.kind)&&f.diameterKm>=8&&info&&f.diameterKm*.625<=info.halfKm*.9;
+ if(!tour.figures||tour.figuresFor!==info){tour.figures=terrainFigures(crater?f.diameterKm/2:25);tour.figuresFor=info;}
+ const g=tour.figures;
+ if(stage===0){
+  const what=f?`${site.name}: a ${f.kind.toLowerCase()} ${f.diameterKm>=10?Math.round(f.diameterKm):f.diameterKm} km across${ORIGINS[site.name]?`, ${ORIGINS[site.name]}`:''}.`
+   :site.cat==='pin'?`${site.name}: ${site.type.includes('·')?`a point ${site.type.split('·').slice(1).join('·').trim()}`:'a point you chose'}.`
+   :`${site.name}: ${site.type}${site.description?`. ${site.description}`:''}.`;
+  return [what,`${coord(site).replace(/\s+/g,' ')}${mine?.terrain?` · elevation ${heightText(data.terrain.elevationMeters)}`:''} · NASA LOLA relief at true scale, ${mesh} · NASA LRO imagery`];
+ }
+ if(stage===1){
+  const slope=mine?.terrain&&Number.isFinite(data.terrain.slopeDegrees)?` Slope at the ${f?'centre':'site'}: ${data.terrain.slopeDegrees.toFixed(1)}° over ${data.terrain.slopeBaselineMeters} m.`:'';
+  if(crater){const depth=g.rim-g.floor,rise=g.peak-g.floor,peaked=rise>600&&g.peak<g.rim;
+   return [`The floor lies about ${kmText(depth)} below the rim${peaked?`, and the high ground at its centre stands about ${kmText(rise)} above the floor`:''}.`,`Measured here from the LOLA ${mesh}: typical rim ${heightText(g.rim)}, floor ${heightText(g.floor)}${peaked?`, central high point ${heightText(g.peak)}`:''}.${slope}`];}
+  const span=g.high-g.low;
+  return [`Within about 30 km of this point the ground rises and falls by ${span>=1000?kmText(span):`${Math.round(span/10)*10} m`}.`,`Lowest ${heightText(g.low)}, highest ${heightText(g.high)}, from the LOLA ${mesh}.${slope}`];
+ }
+ if(!mine)return ['Sun and Earth windows for this place are still loading.',''];
+ const summary=$('#stay-summary').textContent,shadowed=$('#site-shadow').textContent.trim().startsWith('Yes');
+ return [`For a lander arriving ${stamp(startDate())} and staying ${stayLabel()}: ${summary}${shadowed?' This point is in permanent shadow.':''}`,`${$('#event-count').textContent}${/^[A-Z]/.test($('#event-label').textContent)?'. ':' '}${$('#event-label').textContent}. Geometry only: not usable power, not a radio link, not landing safety.`];
+}
+function renderFlybyCaption(){
+ if(!tour||!surface)return;
+ const u=tour.t/FLYBY_SECONDS,stage=u<.34?0:u<.72?1:2;tour.stage=stage;
+ const [plain,numbers]=flybyCaption(stage),show=!$('#site-card').classList.contains('simple');
+ $('#flyby-fact').textContent=plain;$('#flyby-numbers').textContent=numbers;$('#flyby-numbers').hidden=!show||!numbers;
+ $('#flyby-detail').setAttribute('aria-pressed',String(show));
+}
+
 // How close the camera comes, in km from the point it looks at: finer ground allows a closer pass.
 function lowPassKm(){const i=surface?.info;return !i?200:i.fine?(i.halfKm<=70?22:42):i.polar?16:200;}
 function closestRange(){return Math.min(surface.distance*.3,lowPassKm()*.6/1737.4);}
@@ -563,6 +617,7 @@ function placeFlybyCamera(){
 function advanceTour(now){
  tour.t=Math.min(FLYBY_SECONDS,tour.t+Math.min(.5,(now-tour.last)/1000)*tour.speed);tour.last=now; // keeps real time down to two frames a second
  placeFlybyCamera();$('#flyby-progress').style.width=`${(tour.t/FLYBY_SECONDS*100).toFixed(1)}%`;
+ {const u=tour.t/FLYBY_SECONDS,stage=u<.34?0:u<.72?1:2;if(stage!==tour.stage)renderFlybyCaption();}
  if(tour.t>=FLYBY_SECONDS)pauseFlyby();
 }
 function showFlybyBar(){
@@ -571,6 +626,7 @@ function showFlybyBar(){
  $('#flyby-play').innerHTML=icon(tour.playing?'pause':'play');$('#flyby-play').setAttribute('aria-label',tour.playing?'Pause the fly-by':done?'Play the fly-by again':'Resume the fly-by');
  $('#flyby-label').textContent=done?'Fly-by finished · drag to look around':tour.playing?`Fly-by · ${surface.site.name}`:'Paused · drag to look around';
  $('#flyby-speed').textContent=`${tour.speed}×`;$('#flyby-progress').style.width=`${(tour.t/FLYBY_SECONDS*100).toFixed(1)}%`;
+ renderFlybyCaption();
 }
 function beginFlyby(){
  if(!surface?.controls)return;
@@ -627,20 +683,25 @@ $('#flybys').onclick=async e=>{
  let site=choice.site?sites.find(s=>s.id===choice.site):null;
  if(!site){
   const f=features?.find(x=>x[0]===choice.feature);if(!f){toast('Place names are still loading. Try again in a moment.');return;}
-  site={id:`pin-${f[1].toFixed(4)}_${f[2].toFixed(4)}`,name:f[0],type:`${f[4]} · ${f[3]>=10?Math.round(f[3]):f[3]} km across · centre of the IAU-named feature`,cat:'pin',lat:f[1],lon:f[2]};addCustom(site);
+  site=featureSite(f);addCustom(site);
  }
  stopFlyby();
  if(mode==='landing')await selectSite(site);else{selected=site;setMode('landing');for(let i=0;i<100&&!(data&&selected===site);i++)await new Promise(r=>setTimeout(r,200));}
  if(selected!==site)return;
- // These are for looking, so the clock moves to a time with good light there, and says so.
+ // These are for looking, so the landing time moves to a moment with good light there, and says so.
+ // Moving the landing time, not just the clock, keeps the stay described in the captions in step with the view.
  const when=goodLightTime();
- if(when!==null&&Math.abs(when-observationTime())>HOUR/2){$('#time').value=Math.round((when-startDate())/HOUR*4)/4;$('#time').oninput();const sun=sampleAt(data.sun,when);toast(`Clock moved to ${stamp(when)}, when the Sun is ${deg(sun.el)} high over ${site.name}.`);}
+ if(when!==null&&Math.abs(when-observationTime())>HOUR/2){
+  const t=new Date(when),date=t.toISOString().slice(0,10),sun=sampleAt(data.sun,when);
+  if(date>=DATE_MIN&&date<=DATE_MAX){landingHour=t.getUTCHours();$('#hour').value=String(landingHour);$('#time').value=0;applyDate(date);toast(`Landing time moved to ${stamp(when)}, when the Sun is ${deg(sun.el)} high over ${site.name}.`);}
+ }
  flybyWanted=performance.now();tryStartFlyby();
 };
 $('#flyby').onclick=requestFlyby;
 $('#flyby-play').onclick=()=>{if(tour?.playing)pauseFlyby();else resumeFlyby();};
 $('#flyby-speed').onclick=()=>{if(!tour)return;tour.speed=FLYBY_SPEEDS[(FLYBY_SPEEDS.indexOf(tour.speed)+1)%FLYBY_SPEEDS.length];showFlybyBar();};
 $('#flyby-stop').onclick=stopFlyby;
+$('#flyby-detail').onclick=()=>setDetail($('#site-card').classList.contains('simple'));
 function attachSurfaceControls(){
  if(!surface)return;
  const c=new OrbitControls(camera,renderer.domElement);c.target.copy(surface.target);c.enablePan=false;c.enableDamping=true;c.dampingFactor=.12;c.rotateSpeed=.5;c.zoomSpeed=.65;
@@ -769,7 +830,7 @@ $('#site-landed').onclick=()=>{
 $('#rail-search').onclick=()=>{if(selected)closeSite();$('#search').focus();};
 $('#search').oninput=()=>{const q=$('#search').value.trim().toLowerCase();const results=$('#search-results');if(!q){results.innerHTML='';return;}const coords=parseCoordinates(q);if(coords){const {lat,lon}=coords;{results.innerHTML=`<button id="coordinate-result" class="row cat-pin"><span class="badge">${icon('pin')}</span><span class="row-text"><strong>Go to ${safe(formatCoordinates(lat,lon))}</strong><small>Latitude, east longitude · ${safe(coord({lat,lon}).replace(/\s+/g,' '))}</small></span>${icon('chevron','chev')}</button>`;$('#coordinate-result').onclick=()=>{const s={id:'pin-'+Date.now(),name:pinName(lat,lon),lat,lon,cat:'pin',type:describePlace(lat,lon)};addCustom(s);selectSite(s);};return;}}const found=sites.filter(s=>[s.name,s.description,s.type,categories[s.cat].label].join(' ').toLowerCase().includes(q));const named=searchFeatures(features,q,6).filter(f=>!found.some(s=>s.name.toLowerCase()===f[0].toLowerCase()));
  results.innerHTML=found.map(siteRow).join('')+named.map((f,i)=>`<button class="row cat-pin" data-feature="${i}"><span class="badge">${icon('crater')}</span><span class="row-text"><strong>${safe(f[0])}</strong><small>${safe(f[4])} · ${f[3]>=10?Math.round(f[3]):f[3]} km across</small></span><span class="row-meta mono">${Math.abs(f[1]).toFixed(1)}°${f[1]<0?'S':'N'}</span>${icon('chevron','chev')}</button>`).join('')||`<p>No matching place${features?'':' yet (the list of named features is still loading)'}. Try latitude, longitude (for example −85, 20), or drop a pin.</p>`;
- results.querySelectorAll('[data-feature]').forEach(button=>button.onclick=()=>{const f=named[Number(button.dataset.feature)];const s={id:`pin-${f[1].toFixed(4)}_${f[2].toFixed(4)}`,name:f[0],type:`${f[4]} · ${f[3]>=10?Math.round(f[3]):f[3]} km across · centre of the IAU-named feature`,cat:'pin',lat:f[1],lon:f[2]};addCustom(s);selectSite(s);});
+ results.querySelectorAll('[data-feature]').forEach(button=>button.onclick=()=>{const f=named[Number(button.dataset.feature)];const s=featureSite(f);addCustom(s);selectSite(s);});
 };
 $('#search').onkeydown=e=>{if(e.key==='Enter')$('#search-results button')?.click();};
 
@@ -907,10 +968,11 @@ function refreshMetrics(){
  $('#terrain-toggle').setAttribute('aria-pressed',String(terrainEnabled));$('#terrain-toggle').textContent=terrainEnabled?'Terrain on':'Terrain off';
  if(data?.terrain)$('#terrain-detail').textContent=`${data.terrain.source}. The ground here is ${Math.abs(Math.round(data.terrain.elevationMeters)).toLocaleString()} m ${data.terrain.elevationMeters<0?'below':'above'} the 1,737.4 km reference radius, and the view is from 2 m above it. The skyline is traced every 0.25° out to 300 km. Grids: 40 m south of 85°S, 80 m near both poles, 474 m elsewhere. Small obstacles and narrow ridges can be missed.`;
  drawBands();updateBeams();updateCursor();renderLunar();syncUrl();
+ if(tour)renderFlybyCaption();
 }
 $('#terrain-toggle').onclick=()=>{terrainEnabled=!terrainEnabled;refreshMetrics();renderComparison();renderRanking();};
 // The card can hide its numbers. Phones start that way; the choice is remembered. Nothing is removed: the caution line and the plain sentences always stay.
-function setDetail(show,remember=true){$('#site-card').classList.toggle('simple',!show);$('#detail-toggle').setAttribute('aria-pressed',String(show));$('#detail-toggle').textContent=show?'Hide the numbers':'Show the numbers: angles, distances, data sources';if(remember)try{localStorage.setItem('zoriana-detail',show?'1':'0');}catch{}}
+function setDetail(show,remember=true){$('#site-card').classList.toggle('simple',!show);$('#detail-toggle').setAttribute('aria-pressed',String(show));$('#detail-toggle').textContent=show?'Hide the numbers':'Show the numbers: angles, distances, data sources';if(remember)try{localStorage.setItem('zoriana-detail',show?'1':'0');}catch{}if(tour)renderFlybyCaption();}
 $('#detail-toggle').onclick=()=>setDetail($('#site-card').classList.contains('simple'));
 {let stored=null;try{stored=localStorage.getItem('zoriana-detail');}catch{}setDetail(stored===null?!matchMedia('(max-width:900px)').matches:stored==='1',false);}
 // Explainers can show what they describe.
