@@ -1,0 +1,52 @@
+{
+ "gridMeters": 120,
+ "size": 7624,
+ "extentKm": 914.88,
+ "coversDegreesFromPole": 15,
+ "south": {
+  "sources": {
+   "psr": {
+    "url": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/lpsr_75s_120m_201608.img",
+    "sha256": "f47c537432528ca6852e94d11c2c0ca08e2dcd972ef73d20ea2270ea8e6beff4"
+   },
+   "sun": {
+    "url": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/avgvisib_75s_120m_201608.img",
+    "sha256": "a354543b62871227a5066077f5ac61ed7e8dabd5268eb5a5aa4b147aa5bba61e"
+   },
+   "earth": {
+    "url": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/avgvisib_75s_120m_201608_earth.img",
+    "sha256": "443ad251a480dea19e96417dfcfe1cb87a91eb02ee158b262d78abe899258fff"
+   }
+  },
+  "shadowedAreaKm2": 27702,
+  "highestSunShare": 0.896,
+  "medianSunShare": 0.379,
+  "outputs": [
+   "public/assets/psr-south-240m.png",
+   "public/assets/heat-south-480m.webp"
+  ]
+ },
+ "north": {
+  "sources": {
+   "psr": {
+    "url": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/lpsr_75n_120m_201608.img",
+    "sha256": "21e419b9ee152ade9cee0062a87ad0f62ed5e997b1d8de243bd637a1e2c76be7"
+   },
+   "sun": {
+    "url": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/avgvisib_75n_120m_201608.img",
+    "sha256": "ccb1dbed68ab4c6d06591d63ed5b4fc79aabb1e93cd4913d4d9563bf4330d80d"
+   },
+   "earth": {
+    "url": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/avgvisib_75n_120m_201608_earth.img",
+    "sha256": "8ba053e85b5ade61a002f587ec1d33d93e9609d806cf302b1d2ee537b90d98b0"
+   }
+  },
+  "shadowedAreaKm2": 24601,
+  "highestSunShare": 0.892,
+  "medianSunShare": 0.388,
+  "outputs": [
+   "public/assets/psr-north-240m.png",
+   "public/assets/heat-north-480m.webp"
+  ]
+ }
+}

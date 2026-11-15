@@ -245,6 +245,11 @@ canvas{display:block;touch-action:none}
 #sunlight{color:var(--label2)}
 #sunlight[aria-pressed=true]{color:var(--sun)}
 #psr[aria-pressed=true]{color:var(--blue)}
+#heat[aria-pressed=true]{color:var(--green)}
+.heat-legend{position:absolute;top:50px;left:calc(var(--map-left) + (100vw - var(--map-left))/2);transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:14px;background:rgba(28,28,30,.86);border:.5px solid var(--sep);color:var(--label);font-size:12.5px;font-weight:600;white-space:nowrap}
+.heat-legend[hidden]{display:none}
+.heat-legend .swatch{width:54px;height:8px;border-radius:4px;background:linear-gradient(90deg,transparent,var(--heat))}
+.heat-legend small{font-weight:400;color:var(--label2);font-size:11.5px}
 .compass{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;font-size:13px;font-weight:700}
 .compass i{position:absolute;top:5px;left:50%;margin-left:-4px;border:4px solid transparent;border-top:0;border-bottom:7px solid var(--red)}
 .compass span{margin-top:8px}
@@ -396,9 +401,13 @@ dialog .close{position:absolute;right:14px;top:14px}
  .rail-app{width:30px;height:30px;border-radius:8px;font-size:17px}
  .rail-home{order:1;width:30px;height:30px}
  .rail-home img{width:30px;height:30px}
- .planner{top:auto;left:8px;right:8px;width:auto;bottom:128px;max-height:38vh;padding:6px 12px 12px;border-radius:16px}
- .planner:has(#site-card:not([hidden])){max-height:46vh}
- .handle{display:block;width:36px;height:5px;border-radius:3px;background:var(--label3);margin:2px auto 8px}
+ /* The planner is a bottom sheet: drag its handle (or pull the content down from the top) to resize. */
+ .planner{top:auto;left:8px;right:8px;width:auto;bottom:128px;height:var(--sheet,40vh);max-height:none;padding:0 12px 12px;border-radius:16px;overflow-x:hidden;overscroll-behavior:contain;transition:height .22s ease}
+ .planner.dragging{transition:none}
+ .planner[data-sheet=peek]{overflow:hidden}
+ .handle{display:block;position:sticky;top:0;z-index:3;height:24px;margin:0 -12px 2px;background:rgb(28,28,30);border-radius:16px 16px 0 0;touch-action:none;cursor:grab}
+ .handle::before{content:'';position:absolute;left:50%;top:9px;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:var(--label3)}
+ .heat-legend{top:58px;left:8px;transform:none;font-size:11.5px;padding:5px 10px}
  .list-title{font-size:17px;margin:12px 2px 8px}
  .place-title h1{font-size:21px}
  .map-status{display:none}

@@ -7,6 +7,7 @@ import { stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { getTerrain } from './terrain-service.mjs';
 import { parseHorizons, DAY } from './src/ephemeris.mjs';
+import { sites } from './src/sites.mjs';
 const PRODUCTION=process.env.NODE_ENV==='production';
 const PORT=Number(process.env.PORT)||4174,HOST=process.env.HOST||(PRODUCTION?'0.0.0.0':'127.0.0.1');
 const CACHE_LIMIT=PRODUCTION?600:100;
@@ -29,6 +30,28 @@ async function query(target,lat,lon,date,altitude=0) {
   cache.set(key,promise);
   if(cache.size>CACHE_LIMIT) cache.delete(cache.keys().next().value);
   try{return await promise;}catch(e){cache.delete(key);throw e;}
+}
+// Everything the app needs for one site and date: terrain horizon plus Sun and Earth from JPL.
+async function ephemeris(lat,lon,date,reference=false){
+  const terrain=reference?null:await getTerrain(lat,lon);
+  const altitude=terrain?(terrain.elevationMeters+terrain.observerHeightMeters)/1000:0;
+  const [sun,earth]=await Promise.all([query(10,lat,lon,date,altitude),query(399,lat,lon,date,altitude)]);
+  return {sun,earth,lat,lon,date,days:SERIES_DAYS,terrain,altitudeKm:altitude,source:'NASA/JPL Horizons + NASA LOLA',model:'Airless apparent body-center elevation and observer range; 1737.4 km reference sphere; observer at sampled DEM elevation + 2 m; hourly ephemerides. Finite DEM, azimuth and time sampling; eclipses not evaluated.'};
+}
+// The app opens on today's date (UTC), so the curated sites are fetched for today when the server
+// starts and again when the date changes. Visitors then share those answers instead of each
+// waiting in the one-at-a-time JPL queue. Requests go through the normal path and cache.
+let warmedDate=null,warming=false;
+async function warm(){
+  const today=new Date().toISOString().slice(0,10);
+  if(warming||warmedDate===today)return;
+  warming=true;const started=Date.now();let ready=0;
+  try{
+    await ephemeris(0,0,today,true).catch(()=>{}); // the globe's default lighting
+    for(const site of sites){try{await ephemeris(site.lat,site.lon,today);ready++;}catch{}}
+    if(ready===sites.length)warmedDate=today;
+    console.log(`Warm-up for ${today}: ${ready}/${sites.length} sites in ${Math.round((Date.now()-started)/1000)} s`);
+  }finally{warming=false;}
 }
 // A public server gets a per-visitor ceiling so one client cannot monopolise the JPL queue.
 const RATE_WINDOW=5*60000,RATE_LIMIT=400,visitors=new Map();
@@ -76,17 +99,16 @@ const server=http.createServer(async(req,res)=>{
     if(!allowed(req)){res.writeHead(429,{'Retry-After':'60'});res.end(JSON.stringify({error:'Too many requests from this connection. Please wait a minute and retry.'}));return;}
     if(req.method!=='GET'||!url.searchParams.has('lat')||!url.searchParams.has('lon')||!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180||!valid){res.writeHead(400);res.end(JSON.stringify({error:'Choose valid lunar coordinates and a date from 1950–2099.'}));return;}
     try {
-      const terrain=url.searchParams.get('reference')==='1'?null:await getTerrain(lat,lon);
-      const altitude=terrain?(terrain.elevationMeters+terrain.observerHeightMeters)/1000:0;
-      const [sun,earth]=await Promise.all([query(10,lat,lon,date,altitude),query(399,lat,lon,date,altitude)]);
-      res.end(JSON.stringify({sun,earth,lat,lon,date,days:SERIES_DAYS,terrain,altitudeKm:altitude,source:'NASA/JPL Horizons + NASA LOLA',model:'Airless apparent body-center elevation and observer range; 1737.4 km reference sphere; observer at sampled DEM elevation + 2 m; hourly ephemerides. Finite DEM, azimuth and time sampling; eclipses not evaluated.'}));
+      const body=JSON.stringify(await ephemeris(lat,lon,date,url.searchParams.get('reference')==='1'));
+      res.setHeader('Cache-Control','public, max-age=900');res.end(body);
     }catch(e){res.writeHead(502);res.end(JSON.stringify({error:'Terrain or NASA/JPL data is unavailable. Please retry. No reference-only result has been substituted.'}));}
     return;
   }
   if(vite)vite.middlewares(req,res);else serveBuilt(req,res,url).catch(()=>{if(!res.headersSent)res.writeHead(500);res.end();});
 });
 server.listen(PORT,HOST,()=>console.log(`Zoriana → http://${HOST}:${PORT}${PRODUCTION?' (production build)':''}`));
-// Load the terrain grids now, so the first visitor does not wait for about 260 MB to be read.
-if(PRODUCTION)getTerrain(-89.5,0).then(()=>console.log('Terrain ready')).catch(e=>console.error('Terrain warm-up failed:',e.message));
+// Load the terrain grids now, so the first visitor does not wait for about 260 MB to be read,
+// then fetch today's data for the curated sites, and keep doing so as the date rolls over.
+if(PRODUCTION){getTerrain(-89.5,0).then(()=>{console.log('Terrain ready');return warm();}).catch(e=>console.error('Terrain warm-up failed:',e.message));setInterval(warm,10*60000).unref();}
 // Let the host stop the server cleanly on deploys.
 for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>{server.close(()=>process.exit(0));setTimeout(()=>process.exit(0),3000).unref();});

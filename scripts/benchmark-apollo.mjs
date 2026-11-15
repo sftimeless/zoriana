@@ -5,7 +5,9 @@
 // https://www.nasa.gov/wp-content/uploads/static/history/alsj/WOTM/WOTM-ThermalEnvrnmnt.html
 // Needs the app's server running: node scripts/benchmark-apollo.mjs
 import {writeFile} from 'node:fs/promises';
-import {sampleAt,nextCrossing} from '../src/ephemeris.mjs';
+import {sampleAt,nextCrossing,skyDirection} from '../src/ephemeris.mjs';
+// Where on the Moon the Sun is overhead, worked back from a Sun azimuth and elevation at a site.
+const DEG=180/Math.PI,subSolar=(lat,lon,az,el)=>{const v=skyDirection(lat,lon,az,el);return {lat:+(Math.asin(v[1])*DEG).toFixed(2),lon:+(Math.atan2(-v[2],v[0])*DEG).toFixed(2)};};
 const cases=[
  {mission:'Apollo 11',lat:0.67416,lon:23.47314,sunrise:'1969-07-20T00:06Z',landing:['1969-07-20T20:18Z',10.3,88.1],lastEva:['1969-07-21T05:12Z',14.8,88.2]},
  {mission:'Apollo 12',lat:-3.0128,lon:-23.4219,sunrise:'1969-11-18T21:37Z',landing:['1969-11-19T06:55Z',4.7,90.4],lastEva:['1969-11-20T07:44Z',17.3,89.8]},
@@ -21,7 +23,9 @@ for(const c of cases){
  if(d.error)throw new Error(`${c.mission}: ${d.error}`);
  for(const [event,[iso,elevation,azimuth]] of [['landing',c.landing],['end of last EVA',c.lastEva]]){
   const s=sampleAt(d.sun,Date.parse(iso));
-  rows.push({mission:c.mission,event,utc:iso,published:{elevation,azimuth},app:{elevation:+s.el.toFixed(2),azimuth:+s.az.toFixed(2)},difference:{elevation:+(s.el-elevation).toFixed(2),azimuth:+(((s.az-azimuth+540)%360)-180).toFixed(2)}});
+  rows.push({mission:c.mission,event,utc:iso,published:{elevation,azimuth},app:{elevation:+s.el.toFixed(2),azimuth:+s.az.toFixed(2)},difference:{elevation:+(s.el-elevation).toFixed(2),azimuth:+(((s.az-azimuth+540)%360)-180).toFixed(2)},
+   // The overhead-Sun point each pair of angles implies: this shows where the two sources part ways.
+   subSolar:{jpl:subSolar(c.lat,c.lon,s.az,s.el),table:subSolar(c.lat,c.lon,azimuth,elevation)}});
  }
  // Sunrise against a level horizon (the published table does not use terrain).
  const rise=nextCrossing(d.sun,d.sun[0].time);
@@ -30,5 +34,7 @@ for(const c of cases){
 const angles=rows.filter(r=>r.difference.elevation!==undefined);
 const summary={cases:angles.length,maxElevationDifference:Math.max(...angles.map(r=>Math.abs(r.difference.elevation))),maxAzimuthDifference:Math.max(...angles.map(r=>Math.abs(r.difference.azimuth))),maxSunriseDifferenceMinutes:Math.max(...rows.filter(r=>r.difference.minutes!==undefined).map(r=>Math.abs(r.difference.minutes)))};
 for(const r of rows)console.log(r.mission.padEnd(10),r.event.padEnd(16),r.difference.minutes!==undefined?`published ${r.published.utc}  app ${r.app.utc}  ${r.difference.minutes>=0?'+':''}${r.difference.minutes} min`:`published ${String(r.published.elevation).padStart(5)}° ${String(r.published.azimuth).padStart(6)}°  app ${String(r.app.elevation).padStart(6)}° ${String(r.app.azimuth).padStart(7)}°  Δ ${r.difference.elevation>=0?'+':''}${r.difference.elevation}° ${r.difference.azimuth>=0?'+':''}${r.difference.azimuth}°`);
+const lonOffsets=angles.map(r=>r.subSolar.table.lon-r.subSolar.jpl.lon),latOffsets=angles.map(r=>r.subSolar.table.lat-r.subSolar.jpl.lat);
+summary.subSolar={note:'Overhead-Sun point implied by the table minus the one from JPL Horizons, in degrees. The Sun can never be more than about 1.6° from the lunar equator.',longitudeOffsetMean:+(lonOffsets.reduce((a,b)=>a+b)/lonOffsets.length).toFixed(2),longitudeOffsetRange:[+Math.min(...lonOffsets).toFixed(2),+Math.max(...lonOffsets).toFixed(2)],latitudeOffsetRange:[+Math.min(...latOffsets).toFixed(2),+Math.max(...latOffsets).toFixed(2)],maxLatitudeJpl:Math.max(...angles.map(r=>Math.abs(r.subSolar.jpl.lat))),maxLatitudeTable:Math.max(...angles.map(r=>Math.abs(r.subSolar.table.lat)))};
 console.log(JSON.stringify(summary));
 await writeFile(new URL('../data/benchmark-apollo.json',import.meta.url),JSON.stringify({source:'https://www.nasa.gov/wp-content/uploads/static/history/alsj/WOTM/WOTM-ThermalEnvrnmnt.html',generated:new Date().toISOString(),summary,rows},null,2)+'\n');

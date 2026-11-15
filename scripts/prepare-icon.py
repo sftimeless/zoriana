@@ -2,11 +2,13 @@
 """Make the app's icon files from the team's official icon image.
 
 The source is a 1254 x 1254 picture of a rounded-square icon on a white canvas, made with ChatGPT,
-an AI image tool. This script crops it to the rounded square, makes the corners transparent, adds the
-visible "AI-generated" mark (shortened to "AI" on the small sizes, where the full words would be unreadable) that NASA Space Apps requires on AI-generated images, and writes the
-three sizes the app uses. Nothing in the artwork is redrawn.
+an AI image tool. This script crops it to the rounded square, makes the corners transparent and writes the
+three sizes the app uses. Nothing in the artwork is redrawn. The team chose to disclose the AI
+origin in words (in the app when the icon is clicked, in the method sheet, the page metadata, the
+demo slide and the documents) rather than on the icon itself. Pass --mark to stamp a visible
+"AI-generated" label on the icon files instead.
 
-Usage: python3 scripts/prepare-icon.py "/path/to/icon source.png"
+Usage: python3 scripts/prepare-icon.py "/path/to/icon source.png" [--mark]
 """
 import pathlib, sys
 from PIL import Image, ImageDraw, ImageFont
@@ -43,4 +45,5 @@ def marked(icon, size, text):
 if __name__ == '__main__':
     icon = squircle(Image.open(sys.argv[1]))
     for size, name, text in ((512, 'icon-512.png', 'AI-generated'), (192, 'icon-192.png', 'AI'), (64, 'favicon.png', 'AI')):
-        marked(icon, size, text).save(OUT / name, optimize=True); print('wrote', name)
+        image = marked(icon, size, text) if '--mark' in sys.argv else icon.resize((size, size), Image.LANCZOS)
+        image.save(OUT / name, optimize=True); print('wrote', name)

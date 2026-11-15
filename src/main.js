@@ -14,8 +14,9 @@ import { createTerrainShadows } from './terrain-shadows.mjs';
 import { createSurfacePatch } from './surface-patch.mjs';
 import { quickMapUrl, moonTrekUrl } from './links.mjs';
 import { toCsv } from './export.mjs';
+import { sites } from './sites.mjs';
 import { discSeries, discAt, discHours, limbEvents, SUN_RADIUS_KM, EARTH_RADIUS_KM } from './disc.mjs';
-import { PSR, psrPixel, shadowNear, addPsrOverlay } from './psr.mjs';
+import { POLAR, HEAT, poleOf, polarPixel, polarLatLon, shadowNear, bestCell, addPolarOverlay } from './psr.mjs';
 import './style.css';
 
 const $=s=>document.querySelector(s);
@@ -23,11 +24,7 @@ const HOUR=3600000;
 const SUN_COLOR='#ffd60a',EARTH_COLOR='#0a84ff',BOTH_COLOR='#30d158';
 const icon=(name,cls='')=>`<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 
-// Coordinates: Apollo Lunar Modules from NASA's NSSDC table (LRO-derived, mean-Earth frame, updated
-// 2017); IM-1 and Blue Ghost from NASA/LROC
-// published site locations; Chandrayaan-3 from the IAU Statio Shiv Shakti entry; SLIM from the
-// JAXA target point. Future targets are announced regions, not landing points: each uses the centre
-// of the named feature (or a published candidate point) and says so in its note. See REFERENCES.md.
+// The curated sites and the sources of their coordinates are in sites.mjs.
 const categories={
  pole:{label:'South Pole',icon:'crater'},
  future:{label:'Future',icon:'target'},
@@ -38,26 +35,6 @@ const categories={
 };
 // A site may carry its own icon; otherwise it takes its category's.
 const siteIcon=s=>s.icon??categories[s.cat].icon;
-const sites=[
- {id:'shackleton',name:'Shackleton region',lat:-89.5,lon:0,cat:'pole',type:'Exploration point',description:'Near the lunar south pole'},
- {id:'malapert',name:'Malapert region',lat:-85.95,lon:0,cat:'pole',type:'Exploration point',description:'Southern highlands'},
- {id:'bluemoon1',name:'Blue Moon Pathfinder 1',lat:-89.45,lon:-137.31,cat:'future',icon:'bluemoon',type:'Planned landing · 2027',description:'Shackleton connecting ridge · Blue Origin',note:'Approximate. The mission names the Shackleton connecting ridge; this is candidate point “Site 001” on that ridge (89.45°S, 222.69°E), not an announced landing point.'},
- {id:'griffin1',name:'Griffin Mission One',lat:-85.28,lon:53.27,cat:'future',icon:'griffin',type:'Planned CLPS landing · early 2027',description:'Nobile region · Astrobotic',note:'Approximate. The mission names the Nobile region near Mons Mouton; this is the centre of Nobile crater, not an announced landing point.'},
- {id:'im4',name:'IM-4',lat:-84.6,lon:31,cat:'future',icon:'novac',type:'Planned CLPS landing · 2027',description:'Mons Mouton plateau · Intuitive Machines',note:'Approximate. The mission names the Mons Mouton plateau; this is the centre of Mons Mouton, not an announced landing point.'},
- {id:'im3',name:'IM-3 Trinity',lat:7.5,lon:-59,cat:'future',icon:'novac',type:'Planned CLPS landing · early 2027',description:'Reiner Gamma swirl · Intuitive Machines',note:'Approximate. The mission names the Reiner Gamma region; this is the centre of the swirl, not an announced landing point.'},
- {id:'blueghost3',name:'Blue Ghost Mission 3',lat:36.56,lon:-40.72,cat:'future',icon:'blueghost',type:'Planned CLPS landing · 2028',description:'Mons Gruithuisen Gamma · Firefly Aerospace',note:'Approximate. The mission names Mons Gruithuisen Gamma; this is the centre of the dome, not an announced landing point.'},
- {id:'im2',name:'IM-2 Athena',lat:-84.7906,lon:29.1957,cat:'clps',icon:'novac',type:'CLPS landing site · 2025',description:'Mons Mouton · Intuitive Machines'},
- {id:'im1',name:'IM-1 Odysseus',lat:-80.13,lon:1.44,cat:'clps',icon:'novac',type:'CLPS landing site · 2024',description:'Malapert A · Intuitive Machines'},
- {id:'blueghost1',name:'Blue Ghost M1',lat:18.56,lon:61.81,cat:'clps',icon:'blueghost',type:'CLPS landing site · 2025',description:'Mare Crisium · Firefly Aerospace'},
- {id:'chandrayaan3',name:'Chandrayaan-3',lat:-69.373,lon:32.319,cat:'intl',icon:'vikram',type:'ISRO landing site · 2023',description:'Statio Shiv Shakti · ISRO'},
- {id:'slim',name:'SLIM',lat:-13.316,lon:25.251,cat:'intl',icon:'slim',type:'JAXA landing site · 2024',description:'Near Shioli crater · JAXA'},
- {id:'apollo11',name:'Apollo 11',lat:0.67416,lon:23.47314,cat:'apollo',type:'Apollo landing site · July 1969',description:'Sea of Tranquility · Near side'},
- {id:'apollo12',name:'Apollo 12',lat:-3.0128,lon:-23.4219,cat:'apollo',type:'Apollo landing site · November 1969',description:'Ocean of Storms · Near side'},
- {id:'apollo14',name:'Apollo 14',lat:-3.64589,lon:-17.47194,cat:'apollo',type:'Apollo landing site · February 1971',description:'Fra Mauro · Near side'},
- {id:'apollo15',name:'Apollo 15',lat:26.13239,lon:3.6333,cat:'apollo',type:'Apollo landing site · July 1971',description:'Hadley–Apennine · Near side'},
- {id:'apollo16',name:'Apollo 16',lat:-8.9734,lon:15.5011,cat:'apollo',type:'Apollo landing site · April 1972',description:'Descartes Highlands · Near side'},
- {id:'apollo17',name:'Apollo 17',lat:20.1911,lon:30.7723,cat:'apollo',type:'Apollo landing site · December 1972',description:'Taurus–Littrow · Near side'}
-];
 
 let selected=null,mode='explore',pinning=false,data=null,selectedRequest=0,playing=false,flight=null,compared=[],playTimer=null;
 let restoring=true; // true until the address has been read at start-up
@@ -118,34 +95,91 @@ const sun=new THREE.DirectionalLight(0xffffff,2.65);sun.position.set(-2,.2,-4);s
 let sunlightEnabled=true;
 const shadows=createTerrainShadows(renderer,material,invalidate,text=>{if(sunlightEnabled)$('#map-status').textContent=text;});
 const patch=createSurfacePatch(scene,shadows);
-// Permanently shadowed regions: NASA's LOLA map drawn as a blue tint on every Moon material.
-const psrUniforms={psrMask:{value:null},psrVisible:{value:0}};
-let psrEnabled=true,psrImage=null;
-for(const m of [material,satelliteMaterial,patch.material])addPsrOverlay(m,psrUniforms);
-function setPsr(value){psrEnabled=value;$('#psr').setAttribute('aria-pressed',String(value));psrUniforms.psrVisible.value=value&&psrUniforms.psrMask.value?1:0;invalidate();}
-$('#psr').onclick=()=>{setPsr(!psrEnabled);toast(psrEnabled?(psrImage?'Blue patches: areas that never get direct sunlight. NASA LOLA map, 75°S to the south pole.':'The permanent shadow map is still loading.'):'Permanent shadow map hidden.');syncUrl();};
-// Whether a place lies in permanent shadow, and how far the nearest one is, read from the same mask.
-const psrCanvas=document.createElement('canvas'),PSR_WINDOW=101;psrCanvas.width=psrCanvas.height=PSR_WINDOW;
-const psrMemo=new Map();
+// NASA's polar maps, drawn on every Moon material: permanently shadowed regions (blue tint) and
+// the long-term average visibility of the Sun and Earth (the "where to land" heat map).
+const polarUniforms={psrSouth:{value:null},psrNorth:{value:null},heatSouth:{value:null},heatNorth:{value:null},psrVisible:{value:0},heatMode:{value:0}};
+for(const m of [material,satelliteMaterial,patch.material])addPolarOverlay(m,polarUniforms);
+const polarLoader=new THREE.TextureLoader(),polarImages={psr:{},heat:{}},polarPending={};
+let psrEnabled=true,heatMode='off';
+// Loads one map once. Resolves to its image, or null if it could not be loaded.
+function loadPolar(kind,pole){
+ return polarPending[kind+pole]??=new Promise(resolve=>polarLoader.load(POLAR[kind].path(pole),texture=>{
+  texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());polarUniforms[kind+pole[0].toUpperCase()+pole.slice(1)].value=texture;polarImages[kind][pole]=texture.image;
+  if(selected){$('#site-shadow').innerHTML=psrFact(selected);$('#site-average').innerHTML=averageFact(selected);}
+  invalidate();resolve(texture.image);
+ },undefined,()=>resolve(null)));
+}
+function setPsr(value){psrEnabled=value;$('#psr').setAttribute('aria-pressed',String(value));polarUniforms.psrVisible.value=value?1:0;invalidate();}
+$('#psr').onclick=()=>{setPsr(!psrEnabled);toast(psrEnabled?'Blue patches: ground that never gets direct sunlight. NASA LOLA maps, within 15° of each pole.':'Permanent shadow map hidden.');syncUrl();};
+loadPolar('psr','south');loadPolar('psr','north');
+// A square window of map pixels around a site, or null when the site is outside the maps or the
+// map has not loaded yet.
+const polarCanvas=document.createElement('canvas');
+function polarWindow(kind,site,width){
+ const pixel=polarPixel(site.lat,site.lon,POLAR[kind].size),image=pixel&&polarImages[kind][pixel.pole];if(!image)return null;
+ polarCanvas.width=polarCanvas.height=width;const ctx=polarCanvas.getContext('2d',{willReadFrequently:true}),half=(width-1)/2;
+ ctx.drawImage(image,Math.floor(pixel.x)-half,Math.floor(pixel.y)-half,width,width,0,0,width,width);
+ return {pixel,rgba:ctx.getImageData(0,0,width,width).data};
+}
+const PSR_WINDOW=101,NOT_MAPPED='<small>NASA’s maps cover within 15° of each pole</small>';
+const psrMemo=new Map(),siteKey=site=>`${site.lat.toFixed(4)}:${site.lon.toFixed(4)}`;
+// Whether a place lies in permanent shadow, and how far the nearest one is.
 function psrAt(site){
- const pixel=psrPixel(site.lat,site.lon);if(!pixel)return {covered:false};if(!psrImage)return null;
- const key=`${site.lat.toFixed(4)}:${site.lon.toFixed(4)}`;if(psrMemo.has(key))return psrMemo.get(key);
- const ctx=psrCanvas.getContext('2d',{willReadFrequently:true}),half=(PSR_WINDOW-1)/2;
- ctx.clearRect(0,0,PSR_WINDOW,PSR_WINDOW);ctx.drawImage(psrImage,Math.floor(pixel[0])-half,Math.floor(pixel[1])-half,PSR_WINDOW,PSR_WINDOW,0,0,PSR_WINDOW,PSR_WINDOW);
- const rgba=ctx.getImageData(0,0,PSR_WINDOW,PSR_WINDOW).data,values=new Uint8Array(PSR_WINDOW*PSR_WINDOW);
- for(let i=0;i<values.length;i++)values[i]=rgba[i*4];
- const result={covered:true,...shadowNear(values,PSR_WINDOW)};psrMemo.set(key,result);return result;
+ if(!poleOf(site.lat))return {covered:false};if(psrMemo.has(siteKey(site)))return psrMemo.get(siteKey(site));
+ const window=polarWindow('psr',site,PSR_WINDOW);if(!window)return null;
+ const values=new Uint8Array(PSR_WINDOW*PSR_WINDOW);for(let i=0;i<values.length;i++)values[i]=window.rgba[i*4];
+ const result={covered:true,...shadowNear(values,PSR_WINDOW)};psrMemo.set(siteKey(site),result);return result;
 }
 function psrFact(site){
  const r=site?psrAt(site):undefined;if(r===undefined)return '—';if(r===null)return 'Loading map';
- if(!r.covered)return 'Not mapped here<small>NASA’s map covers 75°S to the south pole</small>';
+ if(!r.covered)return 'Not mapped here'+NOT_MAPPED;
  if(r.inside)return 'Yes<small>NASA maps this spot as never sunlit</small>';
  return r.nearestMeters===null?`No<small>none within ${Math.round(r.reachMeters/1000)} km</small>`:`No<small>nearest is ${r.nearestMeters<1000?`${Math.round(r.nearestMeters/10)*10} m`:`${(r.nearestMeters/1000).toFixed(1)} km`} away</small>`;
 }
+// NASA's long-term average for a place: the share of time some of the Sun's, and of Earth's, disc
+// is above the terrain. The heat maps are fetched the first time a polar site needs them.
+function averageAt(site){
+ const pole=poleOf(site.lat);if(!pole)return {covered:false};
+ const window=polarWindow('heat',site,1);if(!window){loadPolar('heat',pole);return null;}
+ return {covered:true,sun:window.rgba[0]/255,earth:window.rgba[1]/255};
+}
+const percent=v=>`${Math.round(v*100)}%`;
+function averageFact(site){
+ const r=site?averageAt(site):undefined;if(r===undefined)return '—';if(r===null)return 'Loading map';
+ if(!r.covered)return 'Polar regions only'+NOT_MAPPED;
+ return `Sun ${percent(r.sun)} · Earth ${percent(r.earth)}<small>of the time over many years, NASA model</small>`;
+}
+// Heat map: off, or one of the HEAT modes. The button and its legend both step through them.
+const heatOrder=['off','sun','earth','both'];
+function setHeat(name){
+ heatMode=HEAT[name]?name:'off';const h=HEAT[heatMode];
+ polarUniforms.heatMode.value=h?h.code:0;$('#heat').setAttribute('aria-pressed',String(Boolean(h)));$('#heat-legend').hidden=!h;
+ if(h){loadPolar('heat','south');loadPolar('heat','north');$('#heat-legend').style.setProperty('--heat',h.color);$('#heat-name').textContent=h.label;$('#heat-range').textContent=heatMode==='both'?'low → high':`${percent(h.from)} → ${percent(h.to)}+ of the time`;}
+ invalidate();syncUrl();
+}
+$('#heat').onclick=$('#heat-legend').onclick=()=>{
+ setHeat(heatOrder[(heatOrder.indexOf(heatMode)+1)%heatOrder.length]);
+ if(heatMode==='off'){toast('Heat map hidden.');return;}
+ toast(`${HEAT[heatMode].label}: brighter is better. NASA long-term maps, within 15° of each pole. Click again for the next map.`);
+ // From a view of the equator there is nothing to see, so turn to the south pole.
+ if(!surface&&!selected&&Math.abs(camera.position.y)/camera.position.length()<.8)startFlight({to:new THREE.Vector3(...coordinatesToVector(-84,15)).multiplyScalar(2.4)});
+};
+// Suggests the best cell within 15 km of the selected site on NASA's long-term maps.
+const BEST_RADIUS_KM=15;
+$('#best-nearby').onclick=async()=>{
+ const site=selected,pole=site&&poleOf(site.lat);if(!pole)return;
+ if(!await loadPolar('heat',pole)){toast('The long-term maps could not be loaded. Please retry.');return;}
+ const radius=Math.round(BEST_RADIUS_KM*1000/POLAR.heat.gridMeters),window=polarWindow('heat',site,2*radius+1),best=window&&bestCell(window.rgba,2*radius+1,radius);
+ if(!best){toast(`Nothing within ${BEST_RADIUS_KM} km has both sunlight and a view of Earth on NASA’s long-term maps.`);return;}
+ if(best.distance<1.5){toast(`This spot is already the best within ${BEST_RADIUS_KM} km on NASA’s long-term maps (Sun ${percent(best.sun)}, Earth ${percent(best.earth)}).`);return;}
+ const place=polarLatLon(pole,Math.floor(window.pixel.x)+best.dx+.5,Math.floor(window.pixel.y)+best.dy+.5,POLAR.heat.size);
+ const spot={id:`pin-${place.lat.toFixed(4)}_${place.lon.toFixed(4)}`,name:'Best nearby spot',type:`Suggested from NASA long-term maps, near ${site.name}`,cat:'pin',lat:place.lat,lon:place.lon};
+ addCustom(spot);selectSite(spot);
+ toast(`Best within ${BEST_RADIUS_KM} km: Sun ${percent(best.sun)} and Earth ${percent(best.earth)} of the time, ${(best.distance*POLAR.heat.gridMeters/1000).toFixed(1)} km away. Long-term averages over a 480 m cell: check your own dates here.`);
+};
 function setSunlight(value){sunlightEnabled=value;$('#sunlight').setAttribute('aria-pressed',String(value));shadows.setEnabled(value);moon.material=value?material:satelliteMaterial;patch.setLit(value);bodies.earth.mesh.material=value?earthLit:earthUnlit;}
 $('#sunlight').onclick=()=>{setSunlight(!sunlightEnabled);$('#map-status').textContent=sunlightEnabled?'Sunlight · updating':'NASA / LRO · imagery';invalidate();};
 const loader=new THREE.TextureLoader();
-loader.load(PSR.path,texture=>{texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());psrUniforms.psrMask.value=texture;psrImage=texture.image;setPsr(psrEnabled);if(selected)$('#site-shadow').innerHTML=psrFact(selected);},undefined,()=>{$('#psr').disabled=true;$('#psr').title='Permanent shadow map unavailable';});
 loader.load('/assets/moon-lroc-8k.jpg',texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());material.map=texture;satelliteMaterial.map=texture;patch.setMap(texture);material.needsUpdate=true;satelliteMaterial.needsUpdate=true;$('#map-status').textContent='NASA / LRO · 8K lunar mosaic';invalidate();},undefined,()=>{$('#map-status').textContent='NASA imagery failed to load';});
 fetch('/assets/terrain-visual.f32').then(r=>{if(!r.ok)throw new Error('Terrain texture unavailable');return r.arrayBuffer();}).then(buffer=>{
  const texture=new THREE.DataTexture(new Float32Array(buffer),720,360,THREE.RedFormat,THREE.FloatType);texture.flipY=true;const linear=renderer.extensions.has('OES_texture_float_linear');texture.minFilter=linear?THREE.LinearFilter:THREE.NearestFilter;texture.magFilter=linear?THREE.LinearFilter:THREE.NearestFilter;texture.wrapS=THREE.RepeatWrapping;texture.needsUpdate=true;
@@ -408,7 +442,30 @@ function zoom(factor){
 }
 function goHome(){if(surface)setMode('explore',homePosition());else startFlight({to:homePosition()});}
 $('#zoom-in').onclick=()=>zoom(.8);$('#zoom-out').onclick=()=>zoom(1.25);
-$('#home').onclick=goHome;$('#rail-home').onclick=goHome;
+$('#home').onclick=goHome;$('#rail-home').onclick=()=>{goHome();toast('Zoriana. The app icon is an AI-generated image (made with ChatGPT).');};
+// Phone layout: the planner is a bottom sheet with three heights. Drag the handle, tap it to step
+// through them, or pull the content down from its top to shrink it.
+const sheet=$('#planner'),sheetHandle=$('.handle'),phone=matchMedia('(max-width:900px)'),sheetOrder=['peek','mid','full'];
+let sheetState='mid',sheetDrag=null,sheetPull=null;
+const sheetHeights=()=>{const mid=Math.round(innerHeight*.4);return {peek:78,mid,full:Math.max(mid+80,innerHeight-128-64)};};
+function setSheet(state){sheetState=state;sheet.dataset.sheet=state;if(phone.matches)sheet.style.setProperty('--sheet',sheetHeights()[state]+'px');else sheet.style.removeProperty('--sheet');}
+const dragSheetTo=height=>{const h=sheetHeights();sheet.style.setProperty('--sheet',Math.max(h.peek,Math.min(h.full,height))+'px');};
+// Where a released sheet settles: the nearest height, nudged by how fast it was moving (px per ms, down is positive).
+function settleSheet(velocity=0){const h=sheetHeights(),target=sheet.getBoundingClientRect().height-velocity*180;sheet.classList.remove('dragging');setSheet(sheetOrder.reduce((a,b)=>Math.abs(h[b]-target)<Math.abs(h[a]-target)?b:a));}
+sheetHandle.addEventListener('pointerdown',e=>{if(!phone.matches)return;sheetDrag={y:e.clientY,height:sheet.getBoundingClientRect().height,moved:false,lastY:e.clientY,lastTime:e.timeStamp,velocity:0};sheetHandle.setPointerCapture(e.pointerId);sheet.classList.add('dragging');});
+sheetHandle.addEventListener('pointermove',e=>{if(!sheetDrag)return;const dy=e.clientY-sheetDrag.y;if(Math.abs(dy)>4)sheetDrag.moved=true;dragSheetTo(sheetDrag.height-dy);sheetDrag.velocity=(e.clientY-sheetDrag.lastY)/Math.max(1,e.timeStamp-sheetDrag.lastTime);sheetDrag.lastY=e.clientY;sheetDrag.lastTime=e.timeStamp;});
+const endSheetDrag=()=>{if(!sheetDrag)return;const {moved,velocity}=sheetDrag;sheetDrag=null;if(moved)settleSheet(velocity);else{sheet.classList.remove('dragging');setSheet(sheetOrder[(sheetOrder.indexOf(sheetState)+1)%3]);}};
+sheetHandle.addEventListener('pointerup',endSheetDrag);sheetHandle.addEventListener('pointercancel',endSheetDrag);
+sheetHandle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setSheet(sheetOrder[(sheetOrder.indexOf(sheetState)+1)%3]);}});
+sheet.addEventListener('touchstart',e=>{sheetPull=phone.matches&&sheet.scrollTop<=0&&!e.target.closest('input,select,.handle,.chips')?{y:e.touches[0].clientY,height:sheet.getBoundingClientRect().height,active:false}:null;},{passive:true});
+sheet.addEventListener('touchmove',e=>{
+ if(!sheetPull)return;const dy=e.touches[0].clientY-sheetPull.y;
+ if(!sheetPull.active){if(dy>8&&sheet.scrollTop<=0){sheetPull.active=true;sheet.classList.add('dragging');}else{if(dy<-8)sheetPull=null;return;}}
+ e.preventDefault();dragSheetTo(sheetPull.height-dy);
+},{passive:false});
+sheet.addEventListener('touchend',()=>{if(sheetPull?.active)settleSheet();sheetPull=null;});
+$('#search').addEventListener('focus',()=>{if(sheetState==='peek')setSheet('mid');});
+addEventListener('resize',()=>setSheet(sheetState));setSheet('mid');
 $('#north').onclick=()=>{if(surface)face(0);else{camera.up.set(0,1,0);controls.update();invalidate();}};
 $('#recenter').onclick=()=>{if(!selected)return;if(mode==='landing')enterSurface(selected);else fly(selected,2.2);};
 function setPin(value){pinning=value;$('#pin').classList.toggle('active',value);$('#globe').classList.toggle('pinning',value);$('#hint').classList.toggle('gone',!value);$('#hint').textContent=value?'Click anywhere on the Moon to place your pin':'Drag to explore · Scroll to zoom · Right-click to drop a pin';if(value)toast('Click the lunar surface to choose your location.');}
@@ -431,7 +488,7 @@ function addCustom(site){for(let i=labels.length-1;i>=0;i--){if(labels[i].site.i
 // ---- Data ----
 async function ephemeris(site,{reference=false,date=$('#date').value}={}){const key=[reference,site.lat,site.lon,date].join(':');if(clientCache.has(key))return clientCache.get(key);const promise=fetch(`/api/ephemeris?${new URLSearchParams({lat:site.lat.toFixed(6),lon:site.lon.toFixed(6),date,reference:reference?'1':'0'})}`).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load NASA data.');if(d.terrain)d.adjusted={sun:clearanceSeries(d.sun,d.terrain),earth:clearanceSeries(d.earth,d.terrain)};return d;});clientCache.set(key,promise);if(clientCache.size>40)clientCache.delete(clientCache.keys().next().value);try{return await promise;}catch(e){clientCache.delete(key);throw e;}}
 async function selectSite(site,move=true){
- selected=site;$('#planner').scrollTop=0;$('#browse').hidden=true;$('#site-card').hidden=false;$('#search-results').innerHTML='';$('#search').value='';
+ selected=site;$('#planner').scrollTop=0;if(sheetState==='peek')setSheet('mid');$('#browse').hidden=true;$('#site-card').hidden=false;$('#search-results').innerHTML='';$('#search').value='';
  $('#site-name').textContent=site.name;$('#site-type').textContent=site.type;$('#site-coords').textContent=coord(site);
  $('#site-note').hidden=!site.note;$('#site-note').textContent=site.note||'';
  $('#site-badge').className=`badge big cat-${site.cat}`;$('#site-badge').innerHTML=icon(siteIcon(site));
@@ -541,7 +598,7 @@ function refreshMetrics(){
  $('#site-grid').textContent=data?.terrain?data.terrain.source:'—';
  const slope=data?.terrain?.slopeDegrees,baseline=data?.terrain?.slopeBaselineMeters;
  $('#site-slope').innerHTML=Number.isFinite(slope)?`${slope.toFixed(1)}°<small>${baseline>=1000?`regional, over ${(baseline/1000).toFixed(1)} km`:`over ${baseline} m`}</small>`:'—';
- $('#site-shadow').innerHTML=psrFact(selected);
+ $('#site-shadow').innerHTML=psrFact(selected);$('#site-average').innerHTML=averageFact(selected);$('#best-row').hidden=!(selected&&poleOf(selected.lat));
  $('#compare').disabled=!data;$('#compare span').textContent=compared.some(s=>selected&&s.id===optionId(selected,$('#date').value,landingHour))?`Comparing (${compared.length})`:'Compare';
  $('#compare-count').hidden=!compared.length;$('#compare-count').textContent=compared.length;
  $('#terrain-toggle').setAttribute('aria-pressed',String(terrainEnabled));$('#terrain-toggle').textContent=terrainEnabled?'Terrain on':'Terrain off';
@@ -749,7 +806,7 @@ function writeUrl(){
  if(selected)p.set('site',siteToken(selected));
  p.set('date',$('#date').value);if(landingHour)p.set('hour',landingHour);
  if(Number($('#time').value)!==12)p.set('t',$('#time').value);
- if(duration!==72)p.set('stay',duration);if(!terrainEnabled)p.set('terrain','off');if(!psrEnabled)p.set('psr','off');if(mode!=='explore')p.set('view',mode);if(!$('#ranking').hidden)p.set('panel','rank');
+ if(duration!==72)p.set('stay',duration);if(!terrainEnabled)p.set('terrain','off');if(!psrEnabled)p.set('psr','off');if(heatMode!=='off')p.set('heat',heatMode);if(mode!=='explore')p.set('view',mode);if(!$('#ranking').hidden)p.set('panel','rank');
  if(compared.length)p.set('compare',compared.map(o=>`${siteToken(o.site)}@${o.date}T${String(o.hour).padStart(2,'0')}`).join('~'));
  try{history.replaceState(null,'',`${location.pathname}?${p}`);}catch{}
 }
@@ -762,6 +819,7 @@ function restoreFromUrl(){
  const stay=Number(p.get('stay'));if([24,72,168].includes(stay)){duration=stay;$('#duration').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.duration)===stay)));}
  if(p.get('terrain')==='off')terrainEnabled=false;
  if(p.get('psr')==='off')setPsr(false);
+ if(HEAT[p.get('heat')])setHeat(p.get('heat'));
  const t=Number(p.get('t'));if(p.has('t')&&t>=0&&t<=TIMELINE_HOURS)$('#time').value=t;
  for(const entry of (p.get('compare')||'').split('~').filter(Boolean).slice(0,MAX_OPTIONS)){
   const [token,when]=entry.split('@'),site=siteFromToken(token),m=(when||'').match(/^(\d{4}-\d{2}-\d{2})(?:T(\d{2}))?$/);

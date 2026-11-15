@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <meta name="description" content="Zoriana is a lunar landing site navigator: compare sites and dates, and see Sun and Earth positions over real LOLA terrain with NASA/JPL Horizons.">
-<meta name="ai-assistance" content="Code written with AI coding assistance (OpenAI Codex, Anthropic Claude Code) under human direction. The app icon is an AI-generated image and carries a visible AI mark. See README.md.">
+<meta name="ai-assistance" content="Code written with AI coding assistance (OpenAI Codex, Anthropic Claude Code) under human direction. The app icon is an AI-generated image (ChatGPT). See README.md.">
 <link rel="icon" type="image/png" href="/assets/favicon.png">
 <link rel="apple-touch-icon" href="/assets/icon-192.png">
 <title>Zoriana — Lunar Landing Site Navigator</title>
@@ -40,6 +40,7 @@
  <symbol id="i-griffin" viewBox="0 0 24 24"><g stroke-width="1.700"><path d="M3.500 11h17l-2 4.500h-13zM9 11V7.500h6V11M12 7.500V5.300M10.500 5.300h3M6 15.500L2.500 20.500M18 15.500l3.500 5M1 20.500h3M20 20.500h3M10.500 15.500v2M13.500 15.500v2"/></g></symbol>
  <symbol id="i-slim" viewBox="0 0 24 24"><g stroke-width="1.700"><path d="M9 6.500a3 3 0 0 1 6 0M5.500 6.500h13v8h-13zM9.800 6.500v8M14.200 6.500v8M5.500 10.500h13M9.500 14.500h5v2h-5zM7 14.500L4.500 20M17 14.500l2.500 5.500M3 20h3M18 20h3"/></g></symbol>
  <symbol id="i-lander" viewBox="0 0 24 24"><path d="M4.500 3.500h15v3.500h-15zM9.500 3.500v3.500M14.500 3.500v3.500M12 7v3M7.500 10h9l1.500 3.500-1.500 3.500h-9L6 13.500zM8 17l-2.500 3.500M16 17l2.500 3.500M4 20.500h3M17 20.500h3"/></symbol>
+ <symbol id="i-heat" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="12" r="5.6"/><circle cx="12" cy="12" r="9" stroke-opacity=".5"/></symbol>
  <symbol id="i-shade" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></symbol>
  <symbol id="i-rank" viewBox="0 0 24 24"><path d="M4 6.500h16M4 12h11M4 17.500h6" stroke-width="2.600"/></symbol>
  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3.500M8 7l4-4 4 4M6 11.500v8.500h12v-8.500"/></symbol>
@@ -67,11 +68,11 @@
    <button id="rail-rank" class="rail-app orange" aria-label="Rank landing sites" title="Rank landing sites"><svg class="ic"><use href="#i-rank"/></svg></button>
    <button id="about" class="rail-app gray" aria-label="About the data and method" title="Data and method"><svg class="ic"><use href="#i-info"/></svg></button>
   </div>
-  <button id="rail-home" class="rail-home" aria-label="Zoriana: show whole Moon" title="Show whole Moon"><img src="/assets/icon-192.png" alt="" width="46" height="46"></button>
+  <button id="rail-home" class="rail-home" aria-label="Zoriana: show whole Moon" title="Show whole Moon · the icon is an AI-generated image"><img src="/assets/icon-192.png" alt="" width="46" height="46"></button>
  </nav>
 
  <aside id="planner" class="planner">
-  <div class="handle"></div>
+  <div class="handle" role="button" tabindex="0" aria-label="Resize the panel"></div>
   <div class="search-wrap"><svg class="ic"><use href="#i-search"/></svg><input id="search" aria-label="Search lunar places or coordinates" placeholder="Search the Moon or enter lat, lon" autocomplete="off" spellcheck="false"></div>
   <div id="search-results"></div>
 
@@ -84,7 +85,7 @@
    <div class="explain">
     <details><summary>How to read this app</summary><p>Gold always means the Sun and blue always means Earth. Pick a site and a landing date, and the app works out where both sit in that site’s sky, using NASA’s real terrain. A site needs the Sun above the surrounding ground for solar power, and Earth above it for a direct radio line home. “Above terrain” is how far a body sits above the real skyline: positive means it is visible, negative means hills or a crater rim hide it.</p></details>
     <details><summary>Why land near the south pole?</summary><p>Craters near the Moon’s south pole are thought to hold water ice and other resources scientists want to study, which is why many upcoming missions are aimed there. The catch is the light. Near the pole the Sun never climbs more than a few degrees above the horizon, so mountains and crater rims decide whether a spot is sunlit or dark, and whether Earth is in view. Moving a short distance, or landing a few days later, can change everything.</p></details>
-    <details><summary>Why do some craters never see the Sun?</summary><p>The Moon is tilted only about 1.5°, so at its poles the Sun circles just above the horizon all year and never rises high. The floor of a deep crater sits below its own rim, and a Sun that low can never clear it. Those floors stay dark and extremely cold, which is how ice can survive there. The blue patches near the south pole are NASA’s map of ground that never gets direct sunlight, worked out from LOLA terrain. The shadows the app draws for your chosen date and time are a separate, live calculation.</p></details>
+    <details><summary>Why do some craters never see the Sun?</summary><p>The Moon is tilted only about 1.5°, so at its poles the Sun circles just above the horizon all year and never rises high. The floor of a deep crater sits below its own rim, and a Sun that low can never clear it. Those floors stay dark and extremely cold, which is how ice can survive there. The blue patches near the poles are NASA’s map of ground that never gets direct sunlight, worked out from LOLA terrain. The shadows the app draws for your chosen date and time are a separate, live calculation.</p></details>
    </div>
    <p class="tiny center">Pick a site. Pick a date. See your Sun and Earth windows.</p>
   </div>
@@ -171,6 +172,8 @@
     <div><span>Surface elevation</span><b id="site-elevation" class="mono">—</b></div>
     <div><span>Surface slope</span><b id="site-slope" class="mono">—</b></div>
     <div><span>Permanent shadow</span><b id="site-shadow">—</b></div>
+    <div><span>Long-term average</span><b id="site-average">—</b></div>
+    <div id="best-row" hidden><span>Look nearby</span><b><button id="best-nearby" class="mini-toggle" title="Finds the cell with the best mix of average sunlight and Earth view on NASA’s long-term maps">Find best spot within 15 km</button></b></div>
     <div><span>Terrain data</span><b id="site-grid">—</b></div>
     <div><span>Ephemeris</span><b>NASA/JPL Horizons · hourly</b></div>
     <div><span>Open this site in</span><b class="links"><a id="link-quickmap" target="_blank" rel="noopener">QuickMap ↗</a><a id="link-trek" target="_blank" rel="noopener">Moon Trek ↗</a></b></div>
@@ -180,11 +183,14 @@
 
  <div class="map-status"><span class="live-dot"></span><span id="map-status">Loading NASA imagery</span></div>
 
+ <button id="heat-legend" class="heat-legend" hidden title="Click for the next map"><i class="swatch"></i><span id="heat-name"></span><small id="heat-range"></small></button>
+
  <div class="map-tools">
   <div class="mat toolgroup">
    <button id="map-mode" aria-label="Choose map" aria-expanded="false" title="Choose map"><svg class="ic"><use href="#i-map"/></svg></button>
    <button id="sunlight" aria-label="Sunlight layer" aria-pressed="true" title="Sunlight layer"><svg class="ic"><use href="#i-sun"/></svg></button>
-   <button id="psr" aria-label="Permanent shadow map" aria-pressed="true" title="Permanent shadow map (south pole)"><svg class="ic"><use href="#i-shade"/></svg></button>
+   <button id="psr" aria-label="Permanent shadow map" aria-pressed="true" title="Permanent shadow map (both poles)"><svg class="ic"><use href="#i-shade"/></svg></button>
+   <button id="heat" aria-label="Where-to-land heat map" aria-pressed="false" title="Where-to-land heat map: long-term Sun and Earth averages"><svg class="ic"><use href="#i-heat"/></svg></button>
   </div>
   <div class="mat toolgroup">
    <button id="pin" aria-label="Drop a pin" title="Drop a pin"><svg class="ic"><use href="#i-scope"/></svg></button>
@@ -270,7 +276,7 @@
    <dt>Rendering</dt><dd>8K NASA CGI Moon Kit mosaic with a downsampled LOLA relief texture. Full elevation grids are processed separately for site visibility. The Sunlight layer traces rays toward the JPL Sun through LOLA elevations on a curved Moon. Ridges and crater walls cast moving shadows. For responsive interaction, visual elevations are averaged to 160 m south of 85°S and 3.8 km elsewhere; shadow masks refine after time scrubbing stops (about 300 m polar pixels and 5.3 km equatorial pixels). Sparse ray steps up to 500 km, height bias and map sampling can miss small obstacles or narrow shadows. This is approximate visual coverage, separate from the finer site horizon calculations. The mosaic contains some baked lighting which cannot move. Satellite defaults to unlit imagery; use the Sun button to show sunlight in any mode.</dd>
   </dl>
   <div class="source-links"><a href="https://svs.gsfc.nasa.gov/4720/" target="_blank" rel="noopener">NASA imagery ↗</a><a href="https://pds-geosciences.wustl.edu/missions/lro/lola.htm" target="_blank" rel="noopener">LOLA terrain ↗</a><a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener">JPL Horizons ↗</a></div>
-  <p class="tiny">Fresh implementation · NASA Space Apps 2026 · Not affiliated with or endorsed by NASA. Code written with AI coding assistance (OpenAI Codex and Anthropic Claude Code) under human direction; see the README for details. The app icon is an AI-generated image, marked “AI”.</p>
+  <p class="tiny">Fresh implementation · NASA Space Apps 2026 · Not affiliated with or endorsed by NASA. Code written with AI coding assistance (OpenAI Codex and Anthropic Claude Code) under human direction; see the README for details. The app icon is an AI-generated image made with ChatGPT.</p>
  </dialog>
 </div>
 <script type="module" src="/src/main.js"></script>
