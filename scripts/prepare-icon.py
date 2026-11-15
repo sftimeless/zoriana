@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Make the app's icon files from the team's official icon image.
 
-The source is a 1254 x 1254 picture of a rounded-square icon on a white canvas, made with an AI
-image tool. This script crops it to the rounded square, makes the corners transparent, adds the
+The source is a 1254 x 1254 picture of a rounded-square icon on a white canvas, made with ChatGPT,
+an AI image tool. This script crops it to the rounded square, makes the corners transparent, adds the
 visible "AI-generated" mark (shortened to "AI" on the small sizes, where the full words would be unreadable) that NASA Space Apps requires on AI-generated images, and writes the
 three sizes the app uses. Nothing in the artwork is redrawn.
 

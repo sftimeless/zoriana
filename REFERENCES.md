@@ -55,7 +55,7 @@ Last checked against the code on November 14, 2026.
 - Fonts: the app uses the device's system font; no font files are downloaded or bundled. The demo slides use Space Grotesk and Inter from Google Fonts (both SIL Open Font License). https://fonts.google.com/specimen/Space+Grotesk · https://fonts.google.com/specimen/Inter
 - Demo slides (`demo/zoriana-demo.pdf`, source `demo/slides.html`): seven slides whose pictures are screenshots of the running app (`demo/img/`) and the app icon. No stock photos or third-party artwork.
 - Interface icons: original SVG drawings in `index.html`. The mission icons (Apollo Lunar Module, Nova-C, Blue Ghost, Chandrayaan-3, SLIM, Blue Moon, Griffin) were drawn after looking at general reference pictures of each spacecraft; no artwork was traced, copied or included.
-- App icon: the team's official icon, supplied on November 14, 2026 (source image dated November 14, 2026, 7:44 pm Pacific). The app ships three copies of it (`public/assets/icon-512.png`, `icon-192.png`, `favicon.png`), cropped to the rounded square with transparent corners and resized; nothing was redrawn. The icon is an AI-generated image. Each copy carries a visible mark: "AI-generated" on the 512 px file, and "AI" on the 192 px and 64 px files, where the full words would be unreadable. **Team: name the AI image tool here.**
+- App icon: the team's official icon, supplied on November 14, 2026 (source image dated November 14, 2026, 7:44 pm Pacific). The app ships three copies of it (`public/assets/icon-512.png`, `icon-192.png`, `favicon.png`), cropped to the rounded square with transparent corners and resized; nothing was redrawn. The icon is an AI-generated image made with ChatGPT (OpenAI). Each copy carries a visible mark: "AI-generated" on the 512 px file, and "AI" on the 192 px and 64 px files, where the full words would be unreadable.
 - Apart from the NASA Moon mosaic and NASA Blue Marble Earth image listed above, no photographs, music, video or third-party artwork are included in the app.
 
 **Design inspiration**
@@ -68,11 +68,12 @@ Last checked against the code on November 14, 2026.
 Yes. AI coding assistants were used to write code under the team's direction:
 
 - **OpenAI Codex**: first build of the app, the terrain horizon model, and the terrain shadow layer.
+- **OpenAI ChatGPT**: generated the app icon image (see below).
 - **Anthropic Claude Code**: the map-style interface, landing view, site list, date comparison and lunar-day view, the 80°S terrain tier and slope, links to QuickMap and Moon Trek, icons, the permanent-shadow layer, the Sun and Earth disc measure, the Apollo benchmark script, the production server mode and deployment files, the demo slides, added unit tests, and this reference list.
 
 The acknowledgment appears in the app's "Data & method" sheet, in a `meta` tag in `index.html`, in `package.json`, in source file headers, and in `README.md`.
 
-**AI-generated image:** the app icon was made with an AI image tool (**Team: name the tool**). It carries a visible "AI-generated" or "AI" mark wherever it appears (the app, the browser tab and the demo slides), and the app's "Data & method" sheet and page metadata say so. No other image, video or audio in the app or the demo is AI-generated: the rest are NASA data products, screenshots of the app, and SVG icons written as code.
+**AI-generated image:** the app icon was made with ChatGPT (OpenAI). It carries a visible "AI-generated" or "AI" mark wherever it appears (the app, the browser tab and the demo slides), and the app's "Data & method" sheet and page metadata say so. No other image, video or audio in the app or the demo is AI-generated: the rest are NASA data products, screenshots of the app, and SVG icons written as code.
 
 The project idea, the choice of challenge, and the decisions about what to build were the team's. **Team: add one line here describing who did what.**
 
@@ -80,7 +81,7 @@ The project idea, the choice of challenge, and the decisions about what to build
 
 ## Before submitting, confirm
 
-- [ ] The AI image tool used for the icon is named above (two places marked **Team**). The visible AI mark is already on the icon.
+- [x] The AI image tool used for the icon is named above (ChatGPT). The visible AI mark is on the icon.
 - [ ] Any image used in the demo video or slides is listed here and watermarked if AI-generated. This includes the pictures in `Zoriana/`, which are dated November 13 and are not used by the app.
 - [ ] Team member names and contributions are filled in.
 - [x] Demo: 7 slides, in English, at https://github.com/sftimeless/zoriana/blob/main/demo/zoriana-demo.pdf (public once the repository is public).

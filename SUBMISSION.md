@@ -63,7 +63,6 @@ JavaScript (Node.js server, browser client), Three.js, Vite, Python with NumPy a
 
 ## Before you submit
 
-- [ ] Name the AI image tool used for the icon in REFERENCES.md (two places marked **Team**).
 - [ ] Open the demo link and the app link in a private browser window to confirm neither asks for a login.
 - [ ] Paste the three reference fields from REFERENCES.md.
 - [ ] Optional: request a web filter classification for zoriana.fly.dev (FortiGuard form mentioned in the organisers' guide) so judges on filtered networks can open it.
