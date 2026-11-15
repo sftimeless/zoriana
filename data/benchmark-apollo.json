@@ -1,0 +1,294 @@
+{
+  "source": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/WOTM/WOTM-ThermalEnvrnmnt.html",
+  "generated": "2026-11-15T03:46:30.156Z",
+  "summary": {
+    "cases": 12,
+    "maxElevationDifference": 0.7,
+    "maxAzimuthDifference": 2.57,
+    "maxSunriseDifferenceMinutes": 73
+  },
+  "rows": [
+    {
+      "mission": "Apollo 11",
+      "event": "landing",
+      "utc": "1969-07-20T20:18Z",
+      "published": {
+        "elevation": 10.3,
+        "azimuth": 88.1
+      },
+      "app": {
+        "elevation": 10.71,
+        "azimuth": 88.81
+      },
+      "difference": {
+        "elevation": 0.41,
+        "azimuth": 0.71
+      }
+    },
+    {
+      "mission": "Apollo 11",
+      "event": "end of last EVA",
+      "utc": "1969-07-21T05:12Z",
+      "published": {
+        "elevation": 14.8,
+        "azimuth": 88.2
+      },
+      "app": {
+        "elevation": 15.24,
+        "azimuth": 88.84
+      },
+      "difference": {
+        "elevation": 0.44,
+        "azimuth": 0.64
+      }
+    },
+    {
+      "mission": "Apollo 11",
+      "event": "local sunrise",
+      "published": {
+        "utc": "1969-07-20T00:06Z"
+      },
+      "app": {
+        "utc": "1969-07-19T23:17Z"
+      },
+      "difference": {
+        "minutes": -49
+      }
+    },
+    {
+      "mission": "Apollo 12",
+      "event": "landing",
+      "utc": "1969-11-19T06:55Z",
+      "published": {
+        "elevation": 4.7,
+        "azimuth": 90.4
+      },
+      "app": {
+        "elevation": 5.15,
+        "azimuth": 91.18
+      },
+      "difference": {
+        "elevation": 0.45,
+        "azimuth": 0.78
+      }
+    },
+    {
+      "mission": "Apollo 12",
+      "event": "end of last EVA",
+      "utc": "1969-11-20T07:44Z",
+      "published": {
+        "elevation": 17.3,
+        "azimuth": 89.8
+      },
+      "app": {
+        "elevation": 17.69,
+        "azimuth": 90.58
+      },
+      "difference": {
+        "elevation": 0.39,
+        "azimuth": 0.78
+      }
+    },
+    {
+      "mission": "Apollo 12",
+      "event": "local sunrise",
+      "published": {
+        "utc": "1969-11-18T21:37Z"
+      },
+      "app": {
+        "utc": "1969-11-18T20:43Z"
+      },
+      "difference": {
+        "minutes": -53
+      }
+    },
+    {
+      "mission": "Apollo 14",
+      "event": "landing",
+      "utc": "1971-02-05T09:18Z",
+      "published": {
+        "elevation": 10,
+        "azimuth": 91.4
+      },
+      "app": {
+        "elevation": 10.35,
+        "azimuth": 89.56
+      },
+      "difference": {
+        "elevation": 0.35,
+        "azimuth": -1.84
+      }
+    },
+    {
+      "mission": "Apollo 14",
+      "event": "end of last EVA",
+      "utc": "1971-02-06T12:44Z",
+      "published": {
+        "elevation": 23.9,
+        "azimuth": 90.5
+      },
+      "app": {
+        "elevation": 24.2,
+        "azimuth": 88.56
+      },
+      "difference": {
+        "elevation": 0.3,
+        "azimuth": -1.94
+      }
+    },
+    {
+      "mission": "Apollo 14",
+      "event": "local sunrise",
+      "published": {
+        "utc": "1971-02-04T13:28Z"
+      },
+      "app": {
+        "utc": "1971-02-04T12:48Z"
+      },
+      "difference": {
+        "minutes": -39
+      }
+    },
+    {
+      "mission": "Apollo 15",
+      "event": "landing",
+      "utc": "1971-07-30T22:16Z",
+      "published": {
+        "elevation": 12.4,
+        "azimuth": 93.9
+      },
+      "app": {
+        "elevation": 12.02,
+        "azimuth": 95.72
+      },
+      "difference": {
+        "elevation": -0.38,
+        "azimuth": 1.82
+      }
+    },
+    {
+      "mission": "Apollo 15",
+      "event": "end of last EVA",
+      "utc": "1971-08-02T13:42Z",
+      "published": {
+        "elevation": 40.6,
+        "azimuth": 111.7
+      },
+      "app": {
+        "elevation": 39.97,
+        "azimuth": 113.99
+      },
+      "difference": {
+        "elevation": -0.63,
+        "azimuth": 2.29
+      }
+    },
+    {
+      "mission": "Apollo 15",
+      "event": "local sunrise",
+      "published": {
+        "utc": "1971-07-29T19:04Z"
+      },
+      "app": {
+        "utc": "1971-07-29T19:54Z"
+      },
+      "difference": {
+        "minutes": 51
+      }
+    },
+    {
+      "mission": "Apollo 16",
+      "event": "landing",
+      "utc": "1972-04-21T02:24Z",
+      "published": {
+        "elevation": 14.6,
+        "azimuth": 87.9
+      },
+      "app": {
+        "elevation": 14.76,
+        "azimuth": 86
+      },
+      "difference": {
+        "elevation": 0.16,
+        "azimuth": -1.9
+      }
+    },
+    {
+      "mission": "Apollo 16",
+      "event": "end of last EVA",
+      "utc": "1972-04-23T21:06Z",
+      "published": {
+        "elevation": 47.9,
+        "azimuth": 80.1
+      },
+      "app": {
+        "elevation": 47.9,
+        "azimuth": 77.53
+      },
+      "difference": {
+        "elevation": 0,
+        "azimuth": -2.57
+      }
+    },
+    {
+      "mission": "Apollo 16",
+      "event": "local sunrise",
+      "published": {
+        "utc": "1972-04-19T21:20Z"
+      },
+      "app": {
+        "utc": "1972-04-19T20:57Z"
+      },
+      "difference": {
+        "minutes": -22
+      }
+    },
+    {
+      "mission": "Apollo 17",
+      "event": "landing",
+      "utc": "1972-12-11T19:55Z",
+      "published": {
+        "elevation": 12.8,
+        "azimuth": 96.3
+      },
+      "app": {
+        "elevation": 13.35,
+        "azimuth": 95.85
+      },
+      "difference": {
+        "elevation": 0.55,
+        "azimuth": -0.45
+      }
+    },
+    {
+      "mission": "Apollo 17",
+      "event": "end of last EVA",
+      "utc": "1972-12-14T05:41Z",
+      "published": {
+        "elevation": 39.5,
+        "azimuth": 109.7
+      },
+      "app": {
+        "elevation": 40.2,
+        "azimuth": 109.14
+      },
+      "difference": {
+        "elevation": 0.7,
+        "azimuth": -0.56
+      }
+    },
+    {
+      "mission": "Apollo 17",
+      "event": "local sunrise",
+      "published": {
+        "utc": "1972-12-10T17:03Z"
+      },
+      "app": {
+        "utc": "1972-12-10T15:50Z"
+      },
+      "difference": {
+        "minutes": -73
+      }
+    }
+  ]
+}

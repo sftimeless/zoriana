@@ -12,6 +12,8 @@ Last checked against the code on November 14, 2026.
 - **LRO LOLA polar elevation model, LDEM_85S_40M V2.0** (NASA PDS Geosciences Node). 40 m south-polar grid used for the terrain horizon at sites south of 85°S, and averaged to 160 m for the shadow layer and landing-view terrain. https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_85s_40m.lbl
 - **LRO LOLA polar elevation model, LDEM_80S_80M V2.0** (NASA PDS Geosciences Node). 80 m grid from 80°S to the pole, used for the terrain horizon and surface slope at sites between 80°S and 85°S. https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_80s_80m.lbl
 - **LRO LOLA global elevation, LDEM_16 float TIFF** (NASA Scientific Visualization Studio, CGI Moon Kit). 16 pixels per degree; used for the terrain horizon elsewhere and for distant terrain, and averaged to 3.8 km for the shadow layer and landing-view terrain. https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_16.tif
+- **LRO LOLA permanently shadowed regions map, LPSR_75S_120M_201608** (NASA PDS Geosciences Node; LOLA team, Goddard Space Flight Center; data set LRO-L-LOLA-4-GDR-V1.0). 120 m south-polar grid, 75°S to the pole, marking ground that never receives direct sunlight. Averaged to 240 m and drawn as the blue permanent-shadow layer, and read for each site's "Permanent shadow" fact. https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/lpsr_75s_120m_201608.lbl · method: Mazarico, Neumann, Smith, Zuber and Torrence (2011), "Illumination conditions of the lunar polar regions using LOLA topography", Icarus 211, 1066–1081.
+- **Apollo Lunar Surface Journal, "Working on the Moon: Thermal Environment"** (NASA). Table of Sun elevation and azimuth during the six Apollo surface stays, used only to check the app's Sun angles (`scripts/benchmark-apollo.mjs`). https://www.nasa.gov/wp-content/uploads/static/history/alsj/WOTM/WOTM-ThermalEnvrnmnt.html
 - **LRO LROC color mosaic, 8K** (NASA Scientific Visualization Studio, CGI Moon Kit, Ernie Wright). Globe imagery. https://svs.gsfc.nasa.gov/4720/ · file: https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_poles_8k.tif
 - **Blue Marble: Next Generation with topography and bathymetry, December 2004** (NASA Earth Observatory, Reto Stöckli). Earth imagery for the globe shown in the Moon's sky, resized to 2048×1024. https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography-bathymetry/december/world.topo.bathy.200412.3x5400x2700.jpg
 - **Apollo Landing Site Coordinates** (NASA NSSDC, LRO-derived, updated March 6, 2017). Lunar Module coordinates for Apollo 11, 12, 14, 15, 16 and 17. https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html
@@ -43,14 +45,14 @@ Last checked against the code on November 14, 2026.
 - Three.js 0.181.2 (MIT License), including its OrbitControls and Line2 add-ons. https://threejs.org/
 - Vite 7.3.8 (MIT License), development server and bundler. https://vite.dev/
 - Node.js 25.9 runtime (22.12 or later required).
-- Python 3 with NumPy and Pillow, used once by `scripts/prepare-terrain.py` to convert the NASA elevation files into the app's grids.
+- Python 3 with NumPy and Pillow, used once by `scripts/prepare-terrain.py` to convert the NASA elevation files into the app's grids, once by `scripts/prepare-psr.py` to make the permanent-shadow mask, and once to crop and resize the app icon.
 - macOS `sips`, used once to convert the NASA color mosaic from TIFF to JPEG and once to resize the Blue Marble image.
 - IAU WGCCRE rotation elements for the Moon (pole and prime-meridian series) and the IAU Earth rotation angle, implemented in `src/earth-orientation.mjs` to orient the Earth image.
 
 **Fonts, icons and images**
 - Fonts: the device's system font. No font files are downloaded or bundled.
 - Interface icons: original SVG drawings in `index.html`. The mission icons (Apollo Lunar Module, Nova-C, Blue Ghost, Chandrayaan-3, SLIM, Blue Moon, Griffin) were drawn after looking at general reference pictures of each spacecraft; no artwork was traced, copied or included.
-- App icon: `public/assets/icon.svg`, a placeholder drawn in code on November 14, 2026. **Update this line when the final icon is made.** If the final icon is AI-generated it needs a visible watermark.
+- App icon: the team's official icon, supplied on November 14, 2026 (source image dated November 14, 2026, 7:44 pm Pacific). The app ships three copies of it (`public/assets/icon-512.png`, `icon-192.png`, `favicon.png`), cropped to the rounded square with transparent corners and resized; nothing was redrawn. **Team: state here how the icon was made and with which tool. If an AI image generator was used, the icon needs a visible watermark before it ships, and the tool belongs in the AI field below.**
 - Apart from the NASA Moon mosaic and NASA Blue Marble Earth image listed above, no photographs, music, video or third-party artwork are included in the app.
 
 **Design inspiration**
@@ -63,11 +65,11 @@ Last checked against the code on November 14, 2026.
 Yes. AI coding assistants were used to write code under the team's direction:
 
 - **OpenAI Codex**: first build of the app, the terrain horizon model, and the terrain shadow layer.
-- **Anthropic Claude Code**: the map-style interface, landing view, site list, date comparison and lunar-day view, the 80°S terrain tier and slope, links to QuickMap and Moon Trek, icons, added unit tests, and this reference list.
+- **Anthropic Claude Code**: the map-style interface, landing view, site list, date comparison and lunar-day view, the 80°S terrain tier and slope, links to QuickMap and Moon Trek, icons, the permanent-shadow layer, the Sun and Earth disc measure, the Apollo benchmark script, added unit tests, and this reference list.
 
 The acknowledgment appears in the app's "Data & method" sheet, in a `meta` tag in `index.html`, in `package.json`, in source file headers, and in `README.md`.
 
-No AI-generated images, video or audio are included in the app. The placeholder app icon is an SVG written as code with AI assistance.
+Apart from the app icon, no images, video or audio in the app could be AI-generated: the rest are NASA data products and SVG icons written as code. **Team: say whether the app icon was made with an AI image tool. If it was, name the tool here and add a visible watermark to the icon.**
 
 The project idea, the choice of challenge, and the decisions about what to build were the team's. **Team: add one line here describing who did what.**
 
@@ -75,7 +77,7 @@ The project idea, the choice of challenge, and the decisions about what to build
 
 ## Before submitting, confirm
 
-- [ ] Final icon is listed above, was made during the hackathon, and carries a watermark if AI-generated.
+- [ ] The official icon's origin is filled in above (who made it, with what tool), it was made during the hackathon, and it carries a visible watermark if AI-generated.
 - [ ] Any image used in the demo video or slides is listed here and watermarked if AI-generated. This includes the pictures in `Zoriana/`, which are dated November 13 and are not used by the app.
 - [ ] Team member names and contributions are filled in.
 - [ ] Demo is 30 seconds or less (video) or 7 slides or fewer, in English, at a public link.

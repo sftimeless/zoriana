@@ -24,6 +24,8 @@ Open http://127.0.0.1:4174. On this Mac, double-click `Start Zoriana.command`.
 - Live Sun and Earth apparent azimuth/elevation and distance from NASA/JPL Horizons for the exact coordinates, at DEM elevation plus a two-meter observer height.
 - Thirty-one-day hourly series from the landing date (one full lunar day plus room for a landing hour), interactive time interpolation/playback over the 30 days after landing, and side-by-side comparison of up to four site-and-date options.
 - "Sun and Earth together": the time when both body centres are above the selected horizon at once, shown on the site card, in the comparison and in the ranking (`together` and `stayMetrics` in `src/windows.mjs`). It is a geometric overlap, not a power or link budget.
+- Permanently shadowed regions near the south pole, drawn in blue from NASA's LOLA map, with a per-site "Permanent shadow" fact (inside one, or how far the nearest is).
+- Sun and Earth as discs: each tile shows how much of the disc clears the skyline, and the stay summary gives hours of full Sun, hours with any Sun, and the next first light and full disc.
 - Mission durations of 24, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle.
 - Browser/session caches and a serialized, bounded-cache JPL service. Network failures never substitute synthetic observations.
 
@@ -42,7 +44,7 @@ NASA's CGI mosaic is optimized for aesthetics, including polar gap filling. It i
 - NASA/JPL Horizons observer ephemerides: https://ssd.jpl.nasa.gov/horizons/ and https://ssd-api.jpl.nasa.gov/doc/horizons.html
 - Three.js (MIT) and Vite (MIT); exact versions in package-lock.json.
 - Typography uses the system font stack (no web fonts are downloaded). Interface icons are original inline SVG drawings.
-- App icon: `public/assets/icon.svg`, a placeholder mark drawn in code on November 14, 2026. The earlier bitmap icon (dated November 13) was removed from the app. Replacement artwork must be made during the hackathon, and AI-generated images need a visible watermark.
+- App icon: the team's official icon, supplied on November 14, 2026 (source file dated that evening). `public/assets/icon-512.png`, `icon-192.png` and `favicon.png` are that image cropped to its rounded square, given transparent corners and resized with Pillow; nothing was redrawn. The code-drawn placeholder and the earlier bitmap icon (dated November 13) are no longer in the app. If the icon was made with an AI image tool it needs a visible watermark; see REFERENCES.md.
 
 NASA imagery does not imply NASA endorsement. AI coding assistance: OpenAI Codex (first build, terrain and shadow model) and Anthropic Claude Code (map-style interface redesign and landing view on November 14, 2026). No code or assets were copied from the earlier Zoriana project.
 
@@ -94,7 +96,7 @@ Visibility now compares Sun/Earth body centers with a sampled local LOLA terrain
 - Elsewhere and for distant terrain: quantitative NASA SVS LOLA LDEM_16 float TIFF, 16 pixels per degree (about 1.9 km north/south spacing). TIFF kilometer heights are converted to half-meter signed integers; the scientific data is not taken from the decorative bump image.
 - Skyline: great-circle rays every 0.25°, out to 300 km, including lunar curvature. Radial samples adapt to raster spacing and distance. Bilinear raster and angular interpolation can miss small or narrow ridges. Coarse global results are particularly limited; grid spacing is not an accuracy guarantee.
 - Slope: a central difference across one grid cell either side of the site (80 m baseline south of 85°S, 160 m from 80°S to 85°S, 3.8 km elsewhere, where it is labelled regional). It describes the DEM at that scale; rocks, small craters and lander-scale hazards are not resolved. Check: the IM-1 site reads 11.5° over 160 m, in line with the roughly 12° slope reported for that landing site.
-- Events: five-minute terrain-clearance samples made from hourly JPL positions; partial Sun/Earth disks and eclipses are not evaluated. No ground-station or link-budget guarantees.
+- Events: five-minute terrain-clearance samples made from hourly JPL positions. Disc shares are reported for the selected site (see "Sun and Earth as discs"); hour totals, the ranking and the comparison count body centres. Eclipses are not evaluated. No ground-station or link-budget guarantees.
 - The global and polar products use different versions of the lunar mean-Earth frame and resolutions; small registration differences and coarse/fine boundary discontinuities remain possible. This is an exploratory model, not a validated landing-safety tool.
 
 Eclipses and the other listed engineering factors remain out of scope. The Sunlight layer now renders approximate terrain-cast shadows; the local horizon chart and site metrics use finer, separate calculations.
@@ -104,6 +106,34 @@ Eclipses and the other listed engineering factors remain out of scope. The Sunli
 Performance: terrain computations live in a Node worker and are cached by location across dates. The browser receives only compact horizon profiles. Rendering stops after camera damping settles, labels use CSS transforms, pixel ratio is capped at 1.5, and the large panel avoids backdrop blur. The 8K color texture is retained.
 
 For an opt-in browser check, open http://127.0.0.1:4174/?diagnostics=1 and choose “Run 6-second motion check”. This animates orbit and zoom and reports actual rendered frames with GPU completion waits, not just requestAnimationFrame callbacks. GPU waits add benchmark overhead and do not run in normal use. Run it in native Safari to obtain Safari-specific evidence.
+
+## Permanently shadowed regions
+
+The map button with the half-filled circle shows or hides NASA's map of ground that never receives direct sunlight. It is on by default and is carried in share links (`psr=off` when hidden).
+
+- Source: LRO LOLA product LPSR_75S_120M_201608 (data set LRO-L-LOLA-4-GDR-V1.0, product version 1.05, created September 15, 2016), a 7624 × 7624 binary grid at 120 m per pixel in south polar stereographic projection covering 75°S to the pole. Method: Mazarico et al. 2011, Icarus 211, 1066–1081. https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/lpsr_75s_120m_201608.lbl
+- `python3 scripts/prepare-psr.py` averages 2 × 2 blocks into `public/assets/psr-south-240m.png` (3812 × 3812, 240 m cells, each pixel the shadowed share of its cell). The source file's SHA-256 is recorded in `data/terrain-manifest.json`.
+- Drawing: `src/psr.mjs` adds a tint to the globe, satellite and landing-view materials, looked up per pixel from the surface direction.
+- Site fact: the app reads a 24 km window of the mask around the site. A cell counts as shadowed when at least half of it is. The card says "Yes", or "No" with the distance to the nearest shadowed cell, or "Not mapped here" north of 75°S.
+- Checks: the floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus read as shadowed; the Malapert massif point and a Shackleton ridge point do not.
+- Limits: south pole only. The north pole and small shadows at lower latitudes are not shown. The map is NASA's long-term result and is independent of the date you pick; the live shadow layer is a separate, coarser calculation, so the two can disagree at edges. A permanently shadowed spot is not proof of ice.
+
+## Sun and Earth as discs
+
+`src/disc.mjs` measures how much of the Sun's or Earth's disc is above the skyline. The angular radius comes from the JPL distance (Sun about 0.27°, Earth about 0.95°). The disc is cut into 15 vertical strips and each strip is compared with the terrain horizon at its own azimuth, so a ridge to one side hides only that side. The disc is a plain circle of even brightness (no limb darkening), sampled every five minutes.
+
+- Tiles: "Disc showing" percentage for the Sun and for Earth; the status reads "partly hidden" while the share is between 0 and 100%.
+- Stay summary: hours with the full Sun, hours with at least part of it, and the next two limb events (first light, full disc, start of covering, last light).
+- CSV exports carry `sun_full_disc_hours` and `sun_any_disc_hours`.
+- Sunlit and Earth-in-view hours, the 30-day bands, the ranking and the comparison still count the centre of the body. Example: at the Shackleton region point from November 15, 2026 the Sun's centre rises on November 24 at 02:35 UTC, while the first edge shows at about 20:45 on November 23 and the full disc is not clear until about 20:35 on November 24.
+
+## Benchmark against published Apollo Sun angles
+
+`node scripts/benchmark-apollo.mjs` (with the server running) compares the app's Sun elevation and azimuth with NASA's table "Solar Phase Angles during the Apollo Lunar Stays" in the Apollo Lunar Surface Journal's "Working on the Moon: Thermal Environment" page, for the landing and the end of the last moonwalk of Apollo 11, 12, 14, 15, 16 and 17. Results are saved in `data/benchmark-apollo.json`.
+
+- 12 angle cases: largest elevation difference 0.7°, largest azimuth difference 2.57°.
+- 6 sunrises (level horizon, Sun's centre): 22 to 73 minutes from the table's times.
+- For Apollo 11 the Journal's JPL-based touchdown figure (10.65°, 88.81° at 20:17:39 UTC) and this app (10.71°, 88.81° at 20:18) agree to 0.06°, while the table gives 10.3°, 88.1°. The table is rounded to 0.1° and how it was computed is not stated, so we treat it as a looser yardstick. We did not find the cause of the roughly 2° azimuth differences at Apollo 14, 15 and 16.
 
 ## Interactive terrain shadows
 

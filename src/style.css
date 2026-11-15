@@ -244,6 +244,7 @@ canvas{display:block;touch-action:none}
 #north{transition:transform .12s linear}
 #sunlight{color:var(--label2)}
 #sunlight[aria-pressed=true]{color:var(--sun)}
+#psr[aria-pressed=true]{color:var(--blue)}
 .compass{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;font-size:13px;font-weight:700}
 .compass i{position:absolute;top:5px;left:50%;margin-left:-4px;border:4px solid transparent;border-top:0;border-bottom:7px solid var(--red)}
 .compass span{margin-top:8px}

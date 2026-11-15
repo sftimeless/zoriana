@@ -74,6 +74,7 @@ ${projectionGLSL}
   return built;
  }
  return {
+  material,
   build,
   setMap(texture){material.map=texture;material.needsUpdate=true;},
   setLit(value){own.surfaceLit.value=value?1:0;own.surfaceFill.value=value?.12:.85;},

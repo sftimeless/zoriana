@@ -6,6 +6,7 @@ data/*.tif
 data/*.img
 data/*.i16
 data/lola_80s_80m/*.img
+data/lola_psr_75s_120m/*.img
 
 # Kept out of version control: pre-hackathon reference images and the organisers' guide
 Zoriana/

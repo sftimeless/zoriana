@@ -14,6 +14,8 @@ import { createTerrainShadows } from './terrain-shadows.mjs';
 import { createSurfacePatch } from './surface-patch.mjs';
 import { quickMapUrl, moonTrekUrl } from './links.mjs';
 import { toCsv } from './export.mjs';
+import { discSeries, discAt, discHours, limbEvents, SUN_RADIUS_KM, EARTH_RADIUS_KM } from './disc.mjs';
+import { PSR, psrPixel, shadowNear, addPsrOverlay } from './psr.mjs';
 import './style.css';
 
 const $=s=>document.querySelector(s);
@@ -63,6 +65,9 @@ let terrainEnabled=true,duration=72,filter='all',landingHour=0; // landing hour:
 let surface=null; // landing view state: {site,frame,north,east,target,radius,info,distance,controls}
 const clientCache=new Map();
 const visibilityRows=(d,name)=>terrainEnabled&&d.terrain?d.adjusted[name]:d[name];
+// Share of the Sun's or Earth's disc above the same horizon, worked out once per loaded site.
+const discRows=(d,name)=>{const terrain=terrainEnabled&&d.terrain?d.terrain:null,key=(terrain?'terrain:':'flat:')+name;d.discMemo??={};return d.discMemo[key]??=discSeries(d[name],terrain,name==='sun'?SUN_RADIUS_KM:EARTH_RADIUS_KM);};
+const withDisc=(metrics,d,start,end)=>metrics&&{...metrics,sunDisc:discHours(discRows(d,'sun'),start,end)};
 const TIMELINE_HOURS=720; // the time slider spans the 30 days after landing
 const dayStart=date=>Date.parse(date+'T00:00:00Z');
 // The landing moment: the start of the stay and the zero of the timeline.
@@ -113,9 +118,34 @@ const sun=new THREE.DirectionalLight(0xffffff,2.65);sun.position.set(-2,.2,-4);s
 let sunlightEnabled=true;
 const shadows=createTerrainShadows(renderer,material,invalidate,text=>{if(sunlightEnabled)$('#map-status').textContent=text;});
 const patch=createSurfacePatch(scene,shadows);
+// Permanently shadowed regions: NASA's LOLA map drawn as a blue tint on every Moon material.
+const psrUniforms={psrMask:{value:null},psrVisible:{value:0}};
+let psrEnabled=true,psrImage=null;
+for(const m of [material,satelliteMaterial,patch.material])addPsrOverlay(m,psrUniforms);
+function setPsr(value){psrEnabled=value;$('#psr').setAttribute('aria-pressed',String(value));psrUniforms.psrVisible.value=value&&psrUniforms.psrMask.value?1:0;invalidate();}
+$('#psr').onclick=()=>{setPsr(!psrEnabled);toast(psrEnabled?(psrImage?'Blue patches: areas that never get direct sunlight. NASA LOLA map, 75°S to the south pole.':'The permanent shadow map is still loading.'):'Permanent shadow map hidden.');syncUrl();};
+// Whether a place lies in permanent shadow, and how far the nearest one is, read from the same mask.
+const psrCanvas=document.createElement('canvas'),PSR_WINDOW=101;psrCanvas.width=psrCanvas.height=PSR_WINDOW;
+const psrMemo=new Map();
+function psrAt(site){
+ const pixel=psrPixel(site.lat,site.lon);if(!pixel)return {covered:false};if(!psrImage)return null;
+ const key=`${site.lat.toFixed(4)}:${site.lon.toFixed(4)}`;if(psrMemo.has(key))return psrMemo.get(key);
+ const ctx=psrCanvas.getContext('2d',{willReadFrequently:true}),half=(PSR_WINDOW-1)/2;
+ ctx.clearRect(0,0,PSR_WINDOW,PSR_WINDOW);ctx.drawImage(psrImage,Math.floor(pixel[0])-half,Math.floor(pixel[1])-half,PSR_WINDOW,PSR_WINDOW,0,0,PSR_WINDOW,PSR_WINDOW);
+ const rgba=ctx.getImageData(0,0,PSR_WINDOW,PSR_WINDOW).data,values=new Uint8Array(PSR_WINDOW*PSR_WINDOW);
+ for(let i=0;i<values.length;i++)values[i]=rgba[i*4];
+ const result={covered:true,...shadowNear(values,PSR_WINDOW)};psrMemo.set(key,result);return result;
+}
+function psrFact(site){
+ const r=site?psrAt(site):undefined;if(r===undefined)return '—';if(r===null)return 'Loading map';
+ if(!r.covered)return 'Not mapped here<small>NASA’s map covers 75°S to the south pole</small>';
+ if(r.inside)return 'Yes<small>NASA maps this spot as never sunlit</small>';
+ return r.nearestMeters===null?`No<small>none within ${Math.round(r.reachMeters/1000)} km</small>`:`No<small>nearest is ${r.nearestMeters<1000?`${Math.round(r.nearestMeters/10)*10} m`:`${(r.nearestMeters/1000).toFixed(1)} km`} away</small>`;
+}
 function setSunlight(value){sunlightEnabled=value;$('#sunlight').setAttribute('aria-pressed',String(value));shadows.setEnabled(value);moon.material=value?material:satelliteMaterial;patch.setLit(value);bodies.earth.mesh.material=value?earthLit:earthUnlit;}
 $('#sunlight').onclick=()=>{setSunlight(!sunlightEnabled);$('#map-status').textContent=sunlightEnabled?'Sunlight · updating':'NASA / LRO · imagery';invalidate();};
 const loader=new THREE.TextureLoader();
+loader.load(PSR.path,texture=>{texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());psrUniforms.psrMask.value=texture;psrImage=texture.image;setPsr(psrEnabled);if(selected)$('#site-shadow').innerHTML=psrFact(selected);},undefined,()=>{$('#psr').disabled=true;$('#psr').title='Permanent shadow map unavailable';});
 loader.load('/assets/moon-lroc-8k.jpg',texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());material.map=texture;satelliteMaterial.map=texture;patch.setMap(texture);material.needsUpdate=true;satelliteMaterial.needsUpdate=true;$('#map-status').textContent='NASA / LRO · 8K lunar mosaic';invalidate();},undefined,()=>{$('#map-status').textContent='NASA imagery failed to load';});
 fetch('/assets/terrain-visual.f32').then(r=>{if(!r.ok)throw new Error('Terrain texture unavailable');return r.arrayBuffer();}).then(buffer=>{
  const texture=new THREE.DataTexture(new Float32Array(buffer),720,360,THREE.RedFormat,THREE.FloatType);texture.flipY=true;const linear=renderer.extensions.has('OES_texture_float_linear');texture.minFilter=linear?THREE.LinearFilter:THREE.NearestFilter;texture.magFilter=linear?THREE.LinearFilter:THREE.NearestFilter;texture.wrapS=THREE.RepeatWrapping;texture.needsUpdate=true;
@@ -475,7 +505,9 @@ function refreshMetrics(){
   $(`#${name}-clear`).textContent=current?signedDeg(clear):'—';
   $(`#${name}-range`).textContent=current?.range?(name==='sun'?`${(current.range/1e6).toFixed(1)}M km`:`${Math.round(current.range).toLocaleString()} km`):'—';
   const state=$(`#${name}-state`);state.className=`state${up?' ok':terrainBlocked?' blocked':''}`;
-  state.textContent=current?(up?(name==='sun'?'Sunlit':'Earth in view'):(terrainBlocked?'Blocked by terrain':'Below horizon')):(selected?'Awaiting terrain & JPL':'No site selected');
+  const share=data&&current?discAt(discRows(data,name),time):null,partial=share!==null&&share>.001&&share<.999;
+  $(`#${name}-disc`).textContent=share===null?'—':`${Math.round(share*100)}%`;
+  state.textContent=current?(partial?`${name==='sun'?'Sun':'Earth'} partly hidden · ${Math.round(share*100)}% showing`:up?(name==='sun'?'Sunlit':'Earth in view'):(terrainBlocked?'Blocked by terrain':'Below horizon')):(selected?'Awaiting terrain & JPL':'No site selected');
   const hours=data?visibleHours(visibilityRows(data,name),startDate(),end):null;
   $(`#${name}-window`).textContent=hours===null?'—':`≈ ${number(hours)} h · ${Math.round(hours/duration*100)}%`;
   $(`#${name}-bar`).style.width=hours===null?'0':`${Math.min(100,hours/duration*100)}%`;
@@ -499,12 +531,17 @@ function refreshMetrics(){
  $('#sky-note').textContent=[skyLine('sun','Sun'),skyLine('earth','Earth')].filter(Boolean).join(' ');
  const stay=data?stayMetrics(visibilityRows(data,'sun'),visibilityRows(data,'earth'),data.sun,startDate(),end):null;
  $('#stay-summary').textContent=stay?staySentence(stay,duration):'';
+ const sunDisc=data?discHours(discRows(data,'sun'),startDate(),end):null;
+ const limbWord={first:'first light',full:'full disc',dim:'Sun starts to be covered',last:'last light'};
+ const limbs=data?limbEvents(discRows(data,'sun'),time).map(e=>`${limbWord[e.kind]} ${stamp(e.time)}`):[];
+ $('#disc-note').textContent=sunDisc&&stay?`Counting the Sun’s whole disc, not just its centre: full Sun ${number(sunDisc.full)} h, at least part of it ${number(sunDisc.any)} h.${limbs.length?` Next: ${limbs.join(', then ')}.`:''}`:'';
  updateBanner(time);
  $('#next-event').textContent=`From ${stamp(startDate())} to ${stamp(end)} · ${terrainEnabled?'terrain included':'reference horizon'}`;
  $('#site-elevation').textContent=data?.terrain?`${data.terrain.elevationMeters<0?'−':'+'}${Math.abs(Math.round(data.terrain.elevationMeters)).toLocaleString()} m`:'—';
  $('#site-grid').textContent=data?.terrain?data.terrain.source:'—';
  const slope=data?.terrain?.slopeDegrees,baseline=data?.terrain?.slopeBaselineMeters;
  $('#site-slope').innerHTML=Number.isFinite(slope)?`${slope.toFixed(1)}°<small>${baseline>=1000?`regional, over ${(baseline/1000).toFixed(1)} km`:`over ${baseline} m`}</small>`:'—';
+ $('#site-shadow').innerHTML=psrFact(selected);
  $('#compare').disabled=!data;$('#compare span').textContent=compared.some(s=>selected&&s.id===optionId(selected,$('#date').value,landingHour))?`Comparing (${compared.length})`:'Compare';
  $('#compare-count').hidden=!compared.length;$('#compare-count').textContent=compared.length;
  $('#terrain-toggle').setAttribute('aria-pressed',String(terrainEnabled));$('#terrain-toggle').textContent=terrainEnabled?'Terrain on':'Terrain off';
@@ -616,7 +653,7 @@ async function renderComparison(){
   try{
    const d=await ephemeris(s.site,{date:s.date});if(token!==comparisonToken)return;
    const start=optionStart(s),end=start+duration*HOUR;
-   const metrics=stayMetrics(visibilityRows(d,'sun'),visibilityRows(d,'earth'),d.sun,start,end);
+   const metrics=withDisc(stayMetrics(visibilityRows(d,'sun'),visibilityRows(d,'earth'),d.sun,start,end),d,start,end);
    if(!metrics)throw new Error('Series does not cover the stay.');
    totals.push({id:s.id,card,...metrics});lastComparison.push({option:s,metrics,terrain:d.terrain});
    const lane=(name,y,hours)=>`<div class="lane"><div class="track"><svg viewBox="0 ${y} 100 4.4" preserveAspectRatio="none" aria-hidden="true">${lanes(d,start,end)}</svg></div><b data-total="${name}">${number(hours)} h</b></div>`;
@@ -653,7 +690,7 @@ async function renderRanking(){
  rankResults=new Map();drawRanking(date,0);
  let done=0;
  for(const site of rankList){
-  try{const d=await ephemeris(site,{date});if(token!==rankToken)return;const m=stayMetrics(visibilityRows(d,'sun'),visibilityRows(d,'earth'),d.sun,start,end);rankResults.set(site.id,m?{...m,terrain:d.terrain}:{error:true});}
+  try{const d=await ephemeris(site,{date});if(token!==rankToken)return;const m=withDisc(stayMetrics(visibilityRows(d,'sun'),visibilityRows(d,'earth'),d.sun,start,end),d,start,end);rankResults.set(site.id,m?{...m,terrain:d.terrain}:{error:true});}
   catch(e){if(token!==rankToken)return;rankResults.set(site.id,{error:true});}
   drawRanking(date,++done);
  }
@@ -680,8 +717,8 @@ $('#close-ranking').onclick=()=>showRanking(false);
 $('#rail-rank').onclick=()=>showRanking($('#ranking').hidden);$('#rank-from-list').onclick=()=>showRanking(true);
 
 // ---- Export: the comparison and the ranking as CSV files ----
-const exportHeader=['site','latitude_deg','longitude_deg_east','landing_utc','stay_hours','horizon_model','sunlit_hours','earth_in_view_hours','sun_and_earth_hours','sun_height_avg_deg','sun_height_peak_deg','surface_elevation_m','slope_deg','slope_baseline_m','terrain_data','location_approximate','source'];
-const exportRow=(site,start,m,terrain)=>[site.name,site.lat.toFixed(5),site.lon.toFixed(5),new Date(start).toISOString().slice(0,16)+'Z',duration,terrainEnabled?'terrain horizon':'flat reference horizon',m.sun.toFixed(2),m.earth.toFixed(2),m.both.toFixed(2),m.sunHeight===null?'':m.sunHeight.toFixed(2),m.sunPeak===null?'':m.sunPeak.toFixed(2),terrain?Math.round(terrain.elevationMeters):'',Number.isFinite(terrain?.slopeDegrees)?terrain.slopeDegrees.toFixed(2):'',terrain?.slopeBaselineMeters??'',terrain?.source??'',site.note?'yes':'no','NASA/JPL Horizons + NASA LOLA via Zoriana; geometry only'];
+const exportHeader=['site','latitude_deg','longitude_deg_east','landing_utc','stay_hours','horizon_model','sunlit_hours','earth_in_view_hours','sun_and_earth_hours','sun_full_disc_hours','sun_any_disc_hours','sun_height_avg_deg','sun_height_peak_deg','surface_elevation_m','slope_deg','slope_baseline_m','terrain_data','location_approximate','source'];
+const exportRow=(site,start,m,terrain)=>[site.name,site.lat.toFixed(5),site.lon.toFixed(5),new Date(start).toISOString().slice(0,16)+'Z',duration,terrainEnabled?'terrain horizon':'flat reference horizon',m.sun.toFixed(2),m.earth.toFixed(2),m.both.toFixed(2),m.sunDisc?m.sunDisc.full.toFixed(2):'',m.sunDisc?m.sunDisc.any.toFixed(2):'',m.sunHeight===null?'':m.sunHeight.toFixed(2),m.sunPeak===null?'':m.sunPeak.toFixed(2),terrain?Math.round(terrain.elevationMeters):'',Number.isFinite(terrain?.slopeDegrees)?terrain.slopeDegrees.toFixed(2):'',terrain?.slopeBaselineMeters??'',terrain?.source??'',site.note?'yes':'no','NASA/JPL Horizons + NASA LOLA via Zoriana; geometry only'];
 function saveCsv(name,rows){
  const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([toCsv(rows)],{type:'text/csv;charset=utf-8'}));link.download=name;
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),2000);
@@ -712,7 +749,7 @@ function writeUrl(){
  if(selected)p.set('site',siteToken(selected));
  p.set('date',$('#date').value);if(landingHour)p.set('hour',landingHour);
  if(Number($('#time').value)!==12)p.set('t',$('#time').value);
- if(duration!==72)p.set('stay',duration);if(!terrainEnabled)p.set('terrain','off');if(mode!=='explore')p.set('view',mode);
+ if(duration!==72)p.set('stay',duration);if(!terrainEnabled)p.set('terrain','off');if(!psrEnabled)p.set('psr','off');if(mode!=='explore')p.set('view',mode);
  if(compared.length)p.set('compare',compared.map(o=>`${siteToken(o.site)}@${o.date}T${String(o.hour).padStart(2,'0')}`).join('~'));
  try{history.replaceState(null,'',`${location.pathname}?${p}`);}catch{}
 }
@@ -724,6 +761,7 @@ function restoreFromUrl(){
  const hour=Number(p.get('hour'));if(p.has('hour')&&Number.isInteger(hour)&&hour>=0&&hour<24){landingHour=hour;$('#hour').value=String(hour);}
  const stay=Number(p.get('stay'));if([24,72,168].includes(stay)){duration=stay;$('#duration').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.duration)===stay)));}
  if(p.get('terrain')==='off')terrainEnabled=false;
+ if(p.get('psr')==='off')setPsr(false);
  const t=Number(p.get('t'));if(p.has('t')&&t>=0&&t<=TIMELINE_HOURS)$('#time').value=t;
  for(const entry of (p.get('compare')||'').split('~').filter(Boolean).slice(0,MAX_OPTIONS)){
   const [token,when]=entry.split('@'),site=siteFromToken(token),m=(when||'').match(/^(\d{4}-\d{2}-\d{2})(?:T(\d{2}))?$/);

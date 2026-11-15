@@ -16,7 +16,8 @@
   "sha256": {
     "ldem_16.tif": "1ea42bf44f7e9d694f79c3afa7145f97fbf06cc67372067d9fe73dce43bad796",
     "ldem_85s_40m.img": "1609e9b860748e0b9952a7239c51b37d3b2a799d35e9fc3c258526711cc1e51d",
-    "ldem_80s_80m.img": "e6591eeea35402ca5e124ca00f5bf0774381a2d4fa919144b455d82b8ff65fdc"
+    "ldem_80s_80m.img": "e6591eeea35402ca5e124ca00f5bf0774381a2d4fa919144b455d82b8ff65fdc",
+    "lpsr_75s_120m_201608.img": "f47c537432528ca6852e94d11c2c0ca08e2dcd972ef73d20ea2270ea8e6beff4"
   },
   "referenceRadiusMeters": 1737400,
   "observerHeightMeters": 2,
@@ -28,5 +29,15 @@
     "path": "data/lola_80s_80m/ldem_80s_80m.img",
     "source": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_80s_80m.img",
     "note": "Optional. Used directly by terrain-worker.mjs for site horizons and slope between 80°S and 85°S; not converted."
+  },
+  "permanentShadow": {
+    "width": 7624,
+    "height": 7624,
+    "gridMeters": 120,
+    "path": "data/lola_psr_75s_120m/lpsr_75s_120m_201608.img",
+    "source": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/lpsr_75s_120m_201608.img",
+    "product": "LPSR_75S_120M_201608 V1.05 (LRO-L-LOLA-4-GDR-V1.0)",
+    "derived": "public/assets/psr-south-240m.png (3812 x 3812, 240 m, shadowed share per cell) via scripts/prepare-psr.py",
+    "note": "Samples are +20000 (permanent shadow) or -20000. South polar stereographic, 75°S to the pole, 0° longitude up, 90°E right."
   }
 }
