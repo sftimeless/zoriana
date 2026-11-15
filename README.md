@@ -41,7 +41,9 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 - Past missions show their full landing date, with a "See it at touchdown" button that sets the date and hour to the real landing time. Future missions show only the announced year, because no landing date has been published.
 - The best landing hour in the next 30 days for Sun and Earth together, a step-by-step "How was this worked out?" under each sky chart, and a global Earth view showing where Earth is up and where it rises and sets.
 - Sun and Earth as discs: each tile shows how much of the disc clears the skyline, and the stay summary gives hours of full Sun, hours with any Sun, and the next first light and full disc.
-- Mission durations of 24, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle.
+- Mission durations of 24, 48, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle. Under the totals the stay is also written out as times: when there is no sunlight, when Earth is out of view, and when both are available together.
+- The timeline opens at the landing time (T+0), so the clock and the Sun and Earth angles first shown are those for the landing date and hour chosen; the clock shows the year. A visit with no date in the link opens on the present hour. Share links written before this change that carry no `t` value now open at the landing time instead of twelve hours after it.
+- Pins you drop are named Pin A, Pin B and so on, in the order they first appear, and the comparison prints their coordinates to three decimals (about 30 m) so that nearby pins can be told apart.
 - Browser/session caches and a serialized, bounded-cache JPL service. Network failures never substitute synthetic observations.
 
 ## Scientific scope

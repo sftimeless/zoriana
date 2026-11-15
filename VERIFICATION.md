@@ -282,3 +282,14 @@
   - Known limit: if the content is flicked and the handle is grabbed while it is still coasting, Safari treats that drag as a scroll, so the content returns to the top and the sheet stays open; a second drag collapses it. Two attempts to work around this did not help and were removed.
   - The simulator's first screenshot after a tap is one frame behind; every result above was read from a second screenshot.
 - Not verified: a real phone; desktop Safari; Android.
+
+## Audit and three fixes — November 15, 2026 (UTC)
+
+- A 90-question audit was run on the live site and written to `AUDIT_90.md`: 45 working, 42 partial, 3 not implemented; no wrong core result. It includes a convergence check run for the audit: stay totals at three sites were identical to 0.01 h for time steps of 15, 5, 2 and 1 minutes, and the app's interpolation between hourly JPL positions was within 0.00003° of JPL asked directly at 10-minute steps (IM-4 point, Sun, 73 samples).
+- Three fixes followed, checked on the live site:
+  - The timeline opens at the landing time and the clock shows the year. `?site=apollo11&date=1969-07-20&hour=20` reads "20:00 · Jul 20, 1969 · UTC", "T+0 h · landing", Sun 10.6°. With no date in the link the clock opened on the present UTC hour.
+  - Pins are named Pin A, Pin B…; the comparison prints pin coordinates to three decimals ("89.450°S 137.310°W", "89.417°S 137.310°W").
+  - A 48 h stay was added, and each stay is written out as times. Ridge point, 48 h from Nov 15 12:00: sunlit 48.0 h, Earth 4.0 h; "No sunlight: never during this stay. Earth out of view: Nov 15 12:00 to Nov 17 08:00 (1 d 20 h). Sun and Earth together: Nov 17 08:00 to Nov 17 12:00 (3 h 59 m)." IM-4, 48 h (local): "No sunlight: Nov 15 12:00 to Nov 17 11:54 (1 d 23 h)."
+- Phone width: at 375 px the year pushed "Now" off the timeline; the repeated "UTC" beside the clock's date is hidden below 480 px. Confirmed to fit at 375 px in Chromium and in Safari on the simulated iPhone 17 Pro.
+- Seventy-five Node tests pass (one new: the stretches with Sun and Earth together, and their gaps). `npx vite build` succeeds. No console errors in either check.
+- Not verified: the new stay lists on a real phone; pin letters beyond Z. Share links without a `t` value made before this change now open at the landing time.

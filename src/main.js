@@ -63,10 +63,17 @@ const coord=s=>`${Math.abs(s.lat).toFixed(4)}° ${s.lat<0?'S':'N'}   ${Math.abs(
 const shortCoord=s=>`${Math.abs(s.lat).toFixed(1)}°${s.lat<0?'S':'N'}`;
 const shortLon=s=>`${Math.abs(s.lon).toFixed(1)}°${s.lon<0?'W':'E'}`;
 const fullDay=date=>new Date(date+'T00:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
-const stayLabel=()=>duration===24?'24 h':`${duration/24} d`;
+const stayLabel=()=>duration<72?`${duration} h`:`${duration/24} d`;
+// Pins the user makes are lettered in the order they first appear, so two of them can be told apart.
+const pinNames=new Map();
+const pinName=(lat,lon)=>{const key=`${lat.toFixed(4)},${lon.toFixed(4)}`;if(!pinNames.has(key)){const n=pinNames.size;pinNames.set(key,`Pin ${n<26?String.fromCharCode(65+n):n+1}`);}return pinNames.get(key);};
+const coordText=s=>s.cat==='pin'?`${Math.abs(s.lat).toFixed(3)}°${s.lat<0?'S':'N'} ${Math.abs(s.lon).toFixed(3)}°${s.lon<0?'W':'E'}`:`${shortCoord(s)} ${shortLon(s)}`;
 const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const day=t=>new Date(t).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
 const stamp=t=>`${day(t)}, ${new Date(t).toISOString().slice(11,16)} UTC`;
+const shortStamp=t=>`${day(t)} ${new Date(t).toISOString().slice(11,16)}`;
+// A list of time stretches in words, at most four of them.
+const stretches=(items,none)=>items.length?items.slice(0,4).map(([a,b])=>`${shortStamp(a)} to ${shortStamp(b)} (${span(b-a)})`).join('; ')+(items.length>4?`; and ${items.length-4} more`:''):none;
 
 $('#date').value=new Date().toISOString().slice(0,10);
 let lastValidDate=$('#date').value;
@@ -586,7 +593,7 @@ function dropPinAt(clientX,clientY){
  const hit=ray.intersectObject(moon)[0];if(!hit)return false;
  const v=hit.point.normalize();
  const lat=THREE.MathUtils.radToDeg(Math.asin(v.y)),lon=THREE.MathUtils.radToDeg(Math.atan2(-v.z,v.x));
- const site={id:'pin-'+Date.now(),name:'Dropped pin',type:describePlace(lat,lon),cat:'pin',lat,lon};
+ const site={id:'pin-'+Date.now(),name:pinName(lat,lon),type:describePlace(lat,lon),cat:'pin',lat,lon};
  addCustom(site);setPin(false);selectSite(site,false);return true;
 }
 renderer.domElement.addEventListener('pointerup',e=>{if(!pinning||e.button!==0||!pointerStart||Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)>6)return;dropPinAt(e.clientX,e.clientY);});
@@ -623,7 +630,7 @@ $('#site-landed').onclick=()=>{
  applyDate(selected.landed.slice(0,10));
 };
 $('#rail-search').onclick=()=>{if(selected)closeSite();$('#search').focus();};
-$('#search').oninput=()=>{const q=$('#search').value.trim().toLowerCase();const results=$('#search-results');if(!q){results.innerHTML='';return;}const coords=q.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);if(coords){const lat=Number(coords[1]),lon=Number(coords[2]);if(Math.abs(lat)<=90&&Math.abs(lon)<=180){results.innerHTML=`<button id="coordinate-result" class="row cat-pin"><span class="badge">${icon('pin')}</span><span class="row-text"><strong>Go to ${safe(q)}</strong><small>Latitude, east longitude</small></span>${icon('chevron','chev')}</button>`;$('#coordinate-result').onclick=()=>{const s={id:'pin-'+Date.now(),name:'Dropped pin',lat,lon,cat:'pin',type:describePlace(lat,lon)};addCustom(s);selectSite(s);};return;}}const found=sites.filter(s=>[s.name,s.description,s.type,categories[s.cat].label].join(' ').toLowerCase().includes(q));const named=searchFeatures(features,q,6).filter(f=>!found.some(s=>s.name.toLowerCase()===f[0].toLowerCase()));
+$('#search').oninput=()=>{const q=$('#search').value.trim().toLowerCase();const results=$('#search-results');if(!q){results.innerHTML='';return;}const coords=q.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);if(coords){const lat=Number(coords[1]),lon=Number(coords[2]);if(Math.abs(lat)<=90&&Math.abs(lon)<=180){results.innerHTML=`<button id="coordinate-result" class="row cat-pin"><span class="badge">${icon('pin')}</span><span class="row-text"><strong>Go to ${safe(q)}</strong><small>Latitude, east longitude</small></span>${icon('chevron','chev')}</button>`;$('#coordinate-result').onclick=()=>{const s={id:'pin-'+Date.now(),name:pinName(lat,lon),lat,lon,cat:'pin',type:describePlace(lat,lon)};addCustom(s);selectSite(s);};return;}}const found=sites.filter(s=>[s.name,s.description,s.type,categories[s.cat].label].join(' ').toLowerCase().includes(q));const named=searchFeatures(features,q,6).filter(f=>!found.some(s=>s.name.toLowerCase()===f[0].toLowerCase()));
  results.innerHTML=found.map(siteRow).join('')+named.map((f,i)=>`<button class="row cat-pin" data-feature="${i}"><span class="badge">${icon('crater')}</span><span class="row-text"><strong>${safe(f[0])}</strong><small>${safe(f[4])} · ${f[3]>=10?Math.round(f[3]):f[3]} km across</small></span><span class="row-meta mono">${Math.abs(f[1]).toFixed(1)}°${f[1]<0?'S':'N'}</span>${icon('chevron','chev')}</button>`).join('')||`<p>No matching place${features?'':' yet (the list of named features is still loading)'}. Try latitude, longitude (for example −85, 20), or drop a pin.</p>`;
  results.querySelectorAll('[data-feature]').forEach(button=>button.onclick=()=>{const f=named[Number(button.dataset.feature)];const s={id:`pin-${f[1].toFixed(4)}_${f[2].toFixed(4)}`,name:f[0],type:`${f[4]} · ${f[3]>=10?Math.round(f[3]):f[3]} km across · centre of the IAU-named feature`,cat:'pin',lat:f[1],lon:f[2]};addCustom(s);selectSite(s);});
 };
@@ -706,7 +713,7 @@ function refreshMetrics(){
  const bothHours=data?visibleHours(together(visibilityRows(data,'sun'),visibilityRows(data,'earth')),startDate(),end):null;
  $('#both-window').textContent=bothHours===null?'—':`≈ ${number(bothHours)} h · ${Math.round(bothHours/duration*100)}%`;$('#both-bar').style.width=bothHours===null?'0':`${Math.min(100,bothHours/duration*100)}%`;
  document.querySelectorAll('.clear-label').forEach(el=>el.textContent=profile?'Above terrain':'Above horizon');
- $('#terrain-source').textContent=data?.terrain?(terrainEnabled?`${data.terrain.source} · dotted paths show the next ${duration===24?'24 hours':duration/24+' days'}`:'Reference horizon only · terrain ignored'):'Loading terrain…';
+ $('#terrain-source').textContent=data?.terrain?(terrainEnabled?`${data.terrain.source} · dotted paths show the next ${duration<72?duration+' hours':duration/24+' days'}`:'Reference horizon only · terrain ignored'):'Loading terrain…';
  drawSky(currents,profile);
  // The same picture in words: where each body is, and what hides it when something does.
  const distanceText=m=>m<1000?`${Math.max(10,Math.round(m/10)*10)} m`:`${(m/1000).toFixed(m<10000?1:0)} km`;
@@ -736,6 +743,10 @@ function refreshMetrics(){
  $('#how-steps').innerHTML=data?`<ol>${steps('sun','Sun')}</ol><ol>${steps('earth','Earth')}</ol><p>The app repeats this test every five minutes for 30 days. The stretches where the answer is “in view” are the windows, totals and countdowns you see.</p>`:'';
  const stay=data?stayMetrics(visibilityRows(data,'sun'),visibilityRows(data,'earth'),data.sun,startDate(),end):null;
  $('#stay-summary').textContent=stay?staySentence(stay,duration):'';
+ // The same stay as lists of times (UTC): when sunlight or the view of Earth is interrupted, and when both hold.
+ if(stay){const from=startDate(),sunRows=visibilityRows(data,'sun'),earthRows=visibilityRows(data,'earth'),never='never during this stay';
+  $('#stay-windows').innerHTML=`<b>No sunlight:</b> ${stretches(gaps(segments(sunRows,from,end),from,end),never)}.<br><b>Earth out of view:</b> ${stretches(gaps(segments(earthRows,from,end),from,end),never)}.<br><b>Sun and Earth together:</b> ${stretches(segments(together(sunRows,earthRows),from,end),never)}.`;
+ }else $('#stay-windows').textContent='';
  const sunDisc=data?discHours(discRows(data,'sun'),startDate(),end):null;
  const limbWord={first:'first light',full:'full disc',dim:'Sun starts to be covered',last:'last light'};
  const limbs=data?limbEvents(discRows(data,'sun'),time).map(e=>`${limbWord[e.kind]} ${stamp(e.time)}`):[];
@@ -759,8 +770,8 @@ $('#duration').onclick=e=>{const b=e.target.closest('[data-duration]');if(!b)ret
 // ---- Time ----
 function updateClock(){
  const time=observationTime(),iso=new Date(time).toISOString(),hours=Number($('#time').value),d=Math.floor(hours/24),h=hours-d*24;
- $('#clock').textContent=iso.slice(11,16);$('#clock-date').textContent=day(time);$('#rail-clock').textContent=iso.slice(11,16);$('#rail-clock').dateTime=iso;
- $('#met').textContent=`T+${d?d+' d ':''}${Number.isInteger(h)?h:h.toFixed(2)} h`;
+ $('#clock').textContent=iso.slice(11,16);$('#clock-date').textContent=`${day(time)}, ${iso.slice(0,4)}`;$('#rail-clock').textContent=iso.slice(11,16);$('#rail-clock').dateTime=iso;
+ $('#met').textContent=hours===0?'T+0 h · landing':`T+${d?d+' d ':''}${Number.isInteger(h)?h:h.toFixed(2)} h`;
  $('#range-start').textContent=day(startDate());$('#date').title=`Observation: ${iso.replace('T',' ').slice(0,16)} UTC`;$('#clock').title=iso;
 }
 function updateCursor(){const hours=Number($('#time').value);$('#comparison-cards').style.setProperty('--cursor',hours<=duration?`${hours/duration*100}%`:'-10%');$('#lunar-plot').style.setProperty('--lunar-cursor',`${hours/(LUNAR_DAYS*24)*100}%`);}
@@ -806,7 +817,6 @@ function renderLunar(){
  status.textContent='';chart.hidden=false;$('#lunar-range').textContent=`${day(start)} – ${day(end)}`;
  const sunRows=visibilityRows(data,'sun'),earthRows=visibilityRows(data,'earth');
  const lit=segments(sunRows,start,end),dark=gaps(lit,start,end),seen=segments(earthRows,start,end),outages=gaps(seen,start,end);
- const shortStamp=t=>`${day(t)} ${new Date(t).toISOString().slice(11,16)}`;
  const total=list=>list.reduce((sum,[a,b])=>sum+b-a,0),share=list=>Math.round(total(list)/(end-start)*100);
  // A stretch that touches either edge of the window may continue beyond it, so it is a minimum.
  const stretch=list=>{const best=longest(list);if(!best)return 'None';return `${best[0]<=start||best[1]>=end?'≥ ':''}${span(best[1]-best[0])}<small>from ${day(best[0])}</small>`;};
@@ -865,7 +875,7 @@ async function renderComparison(){
  if(!compared.length){$('#comparison').hidden=true;$('#comparison-cards').innerHTML='';lastComparison=[];syncUrl();return;}
  $('#comparison-method').textContent=`${stayLabel()} stay from each landing time · ${terrainEnabled?'terrain included':'reference horizon'}`;
  const token=++comparisonToken,totals=[];lastComparison=[];syncUrl();
- $('#comparison-cards').innerHTML=compared.map((s,i)=>`<article class="compare-card" data-compare="${safe(s.id)}"><div class="compare-head cat-${s.site.cat}"><span class="badge">${icon(siteIcon(s.site))}</span><strong>${safe(s.site.name)}</strong><button aria-label="Remove ${safe(s.site.name)}, ${fullDay(s.date)}" data-remove>${icon('x')}</button></div><small><b>Lands ${fullDay(s.date)}${s.hour?`, ${hourText(s.hour)} UTC`:''}</b> · <span class="mono">${shortCoord(s.site)} ${shortLon(s.site)}</span></small><div class="tags">${i===0&&compared.length>1?'<span class="tag base">Baseline</span>':''}</div><div class="results"><p class="waiting">Loading NASA/JPL…</p></div><div class="card-actions"><button class="go" data-go>Open</button><span class="shift">Delay<button data-shift="1">+1 d</button><button data-shift="3">+3 d</button><button data-shift="7">+7 d</button><button data-shift="14">+14 d</button><button data-shift="30">+30 d</button></span></div></article>`).join('');
+ $('#comparison-cards').innerHTML=compared.map((s,i)=>`<article class="compare-card" data-compare="${safe(s.id)}"><div class="compare-head cat-${s.site.cat}"><span class="badge">${icon(siteIcon(s.site))}</span><strong>${safe(s.site.name)}</strong><button aria-label="Remove ${safe(s.site.name)}, ${fullDay(s.date)}" data-remove>${icon('x')}</button></div><small><b>Lands ${fullDay(s.date)}${s.hour?`, ${hourText(s.hour)} UTC`:''}</b> · <span class="mono">${coordText(s.site)}</span></small><div class="tags">${i===0&&compared.length>1?'<span class="tag base">Baseline</span>':''}</div><div class="results"><p class="waiting">Loading NASA/JPL…</p></div><div class="card-actions"><button class="go" data-go>Open</button><span class="shift">Delay<button data-shift="1">+1 d</button><button data-shift="3">+3 d</button><button data-shift="7">+7 d</button><button data-shift="14">+14 d</button><button data-shift="30">+30 d</button></span></div></article>`).join('');
  const cards=[...$('#comparison-cards').children];
  for(const [i,s] of compared.entries()){
   const card=cards[i];
@@ -959,7 +969,7 @@ function siteFromToken(token){
  const known=sites.find(s=>s.id===token);if(known)return known;
  const m=String(token).match(/^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/);if(!m)return null;
  const lat=Number(m[1]),lon=Number(m[2]);if(Math.abs(lat)>90||Math.abs(lon)>180)return null;
- return {id:`pin-${lat.toFixed(4)}_${lon.toFixed(4)}`,name:'Dropped pin',type:'Custom lunar coordinates',cat:'pin',lat,lon};
+ return {id:`pin-${lat.toFixed(4)}_${lon.toFixed(4)}`,name:pinName(lat,lon),type:'Custom lunar coordinates',cat:'pin',lat,lon};
 }
 let urlTimer;
 function writeUrl(){
@@ -967,7 +977,7 @@ function writeUrl(){
  if(new URLSearchParams(location.search).has('diagnostics'))p.set('diagnostics','1');
  if(selected)p.set('site',siteToken(selected));
  p.set('date',$('#date').value);if(landingHour)p.set('hour',landingHour);
- if(Number($('#time').value)!==12)p.set('t',$('#time').value);
+ if(Number($('#time').value)!==0)p.set('t',$('#time').value);
  if(duration!==72)p.set('stay',duration);if(!terrainEnabled)p.set('terrain','off');if(!psrEnabled)p.set('psr','off');if(heatMode!=='off')p.set('heat',heatMode);if(mode!=='explore')p.set('view',mode);if(!$('#ranking').hidden)p.set('panel','rank');
  if(compared.length)p.set('compare',compared.map(o=>`${siteToken(o.site)}@${o.date}T${String(o.hour).padStart(2,'0')}`).join('~'));
  try{history.replaceState(null,'',`${location.pathname}?${p}`);}catch{}
@@ -978,7 +988,7 @@ function restoreFromUrl(){
  const p=new URLSearchParams(location.search);
  const date=p.get('date');if(date&&/^\d{4}-\d{2}-\d{2}$/.test(date)&&date>=DATE_MIN&&date<=DATE_MAX&&Number.isFinite(dayStart(date))){$('#date').value=date;lastValidDate=date;}
  const hour=Number(p.get('hour'));if(p.has('hour')&&Number.isInteger(hour)&&hour>=0&&hour<24){landingHour=hour;$('#hour').value=String(hour);}
- const stay=Number(p.get('stay'));if([24,72,168].includes(stay)){duration=stay;$('#duration').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.duration)===stay)));}
+ const stay=Number(p.get('stay'));if([24,48,72,168].includes(stay)){duration=stay;$('#duration').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.duration)===stay)));}
  if(p.get('terrain')==='off')terrainEnabled=false;
  if(p.get('psr')==='off')setPsr(false);
  if(HEAT[p.get('heat')])setHeat(p.get('heat'));
@@ -1006,5 +1016,7 @@ $('#share').onclick=$('#share-compare').onclick=async()=>{
 };
 
 for(const id of ['about','details','sources'])$('#'+id).onclick=()=>$('#info').showModal();$('#close-info').onclick=()=>$('#info').close();$('#info').onclick=e=>{if(e.target===$('#info')){const r=$('#info').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#info').close();}};
-restoreFromUrl();restoring=false;
+restoreFromUrl();
+{const p=new URLSearchParams(location.search);if(!['date','hour','t','site','compare'].some(k=>p.has(k)))$('#time').value=new Date().getUTCHours();} // nothing asked for: open on now, like the Now button
+restoring=false;
 updateClock();refreshMetrics();if(!selected)referenceLight();invalidate();

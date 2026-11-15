@@ -145,13 +145,14 @@
    <section class="group">
     <header><h3>Surface stay</h3>
      <div id="duration" class="segmented" role="group" aria-label="Mission duration">
-      <button data-duration="24" aria-pressed="false">24 h</button><button data-duration="72" aria-pressed="true">3 d</button><button data-duration="168" aria-pressed="false">7 d</button>
+      <button data-duration="24" aria-pressed="false">24 h</button><button data-duration="48" aria-pressed="false">48 h</button><button data-duration="72" aria-pressed="true">3 d</button><button data-duration="168" aria-pressed="false">7 d</button>
      </div>
     </header>
     <div class="stay-row sun"><span>Sunlit time</span><b id="sun-window">—</b><i class="bar"><i id="sun-bar"></i></i></div>
     <div class="stay-row earth"><span>Earth in view</span><b id="earth-window">—</b><i class="bar"><i id="earth-bar"></i></i></div>
     <div class="stay-row both"><span>Sun and Earth together</span><b id="both-window">—</b><i class="bar"><i id="both-bar"></i></i></div>
     <p id="stay-summary" class="plain"></p>
+    <p id="stay-windows" class="tiny windows"></p>
     <p id="disc-note" class="tiny"></p>
     <p id="next-event" class="tiny"></p>
     <p class="tiny caution">Geometry only. Sunlight is not usable power, Earth in view is not a working radio link, and nothing here assesses landing safety. Totals agree with NASA’s long-term maps to a few percentage points on ordinary ground; times at grazing angles are approximate.</p>
@@ -257,7 +258,7 @@
  <section class="timeline mat" aria-label="Date and time">
   <div class="timeline-top">
    <button id="play" class="play" aria-label="Play time animation"><svg class="ic"><use href="#i-play"/></svg></button>
-   <div class="clock-block"><span id="clock">12:00</span><small><span id="clock-date"></span> · UTC</small></div>
+   <div class="clock-block"><span id="clock">00:00</span><small><span id="clock-date"></span><span class="utc"> · UTC</span></small></div>
    <div class="met"><small>Mission time</small><span id="met" class="mono">T+0 h</span></div>
    <div class="legend"><span class="lg sun">Sunlit</span><span class="lg earth">Earth in view</span></div>
    <label class="date-label"><small>Landing date · UTC</small><input id="date" type="date" min="1950-01-01" max="2099-12-24" aria-label="Landing date in UTC"></label>
@@ -267,7 +268,7 @@
   <div class="scrub">
    <svg id="bands" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"></svg>
    <span class="scrub-empty">Select a site to see its sunlight and Earth windows</span>
-   <input id="time" type="range" min="0" max="720" step="0.25" value="12" aria-label="Hours after landing">
+   <input id="time" type="range" min="0" max="720" step="0.25" value="0" aria-label="Hours after landing">
   </div>
   <div class="timeline-ticks"><span id="range-start"></span><span>+5 d</span><span>+10 d</span><span>+15 d</span><span>+20 d</span><span>+25 d</span><span>+30 d</span></div>
  </section>

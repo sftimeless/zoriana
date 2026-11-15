@@ -73,3 +73,4 @@ test('crossingSpread: a fast sunrise is pinned down, a grazing one is not',()=>{
  assert.equal(crossingSpread(null,{time:0,rising:true}),null);assert.equal(crossingSpread(fast,null),null);
  assert.ok(rise);
 });
+test('the stretches with Sun and Earth together are where both are up, and their gaps are the rest',()=>{const sun=rows([2,2,2,-2,-2,2]),earth=rows([-2,2,2,2,2,2]),both=segments(together(sun,earth),0,5*H);assert.deepEqual(both,[[.5*H,2.5*H],[4.5*H,5*H]]);assert.deepEqual(gaps(both,0,5*H),[[0,.5*H],[2.5*H,4.5*H]]);});

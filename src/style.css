@@ -261,6 +261,8 @@ canvas{display:block;touch-action:none}
 .map-tools [data-label]::after{content:attr(data-label);position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);white-space:nowrap;padding:4px 9px;border-radius:8px;background:rgba(28,28,30,.94);border:.5px solid var(--sep);color:var(--label);font-size:12px;font-weight:600;letter-spacing:0;opacity:0;pointer-events:none;transition:opacity .15s}
 .map-tools.hints [data-label]::after{opacity:1}
 .map-tools.hints{z-index:9}
+/* Narrow phones: the clock's date now carries the year, so its "UTC" (also on the top bar and beside the landing date) gives way. */
+@media(max-width:480px){.clock-block .utc{display:none}}
 @media(hover:hover){.map-tools:hover [data-label]::after{opacity:1}}
 .layer-picker{width:300px}
 .layer-list{display:grid;gap:2px;margin:10px 0 8px}
