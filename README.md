@@ -21,9 +21,9 @@ The NASA terrain grids are too large for git. `data/terrain-manifest.json` lists
 
 ## Run in production and deploy
 
-`npm run build && npm start` serves the built app from `dist/` with `NODE_ENV=production`. In that mode the server needs no npm packages, listens on `PORT` (default 4174) on all interfaces, sends gzip copies of files that have a `.gz` twin, answers `/healthz`, limits each visitor to 400 API requests per five minutes, loads the terrain grids at start-up, and then fetches today's data (UTC) for the 18 curated sites, again whenever the date changes, so visitors share those answers instead of each waiting in the one-at-a-time JPL queue.
+`npm run build && npm start` serves the built app from `dist/` with `NODE_ENV=production`. In that mode the server needs no npm packages, listens on `PORT` (default 4174) on all interfaces, sends gzip copies of files that have a `.gz` twin, answers `/healthz`, limits each visitor to 400 API requests per five minutes, loads the terrain grids at start-up (about 375 MB of LOLA terrain with the north-polar grid), and then fetches today's data (UTC) for the 18 curated sites, again whenever the date changes, so visitors share those answers instead of each waiting in the one-at-a-time JPL queue.
 
-The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repository: one always-on shared-CPU machine with 1 GB of memory in San Jose (the server holds about 260 MB of LOLA terrain in memory; measured use is about 370 MB). Deploy with `fly deploy --ha=false` from a checkout that has the terrain files in `data/`. Measured on November 15, 2026: a site that has not been requested before answers in about 1 second (terrain horizon under 1 second, plus two JPL Horizons requests).
+The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repository: one always-on shared-CPU machine with 1 GB of memory in San Jose (the server holds about 375 MB of LOLA terrain in memory; the machine showed about 600 MB in use and 387 MB available on November 15, 2026). Deploy with `fly deploy --ha=false` from a checkout that has the terrain files in `data/`. Measured on November 15, 2026: a site that has not been requested before answers in about 1 second (terrain horizon under 1 second, plus two JPL Horizons requests).
 
 ## First-build features
 
@@ -35,7 +35,9 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 - Thirty-one-day hourly series from the landing date (one full lunar day plus room for a landing hour), interactive time interpolation/playback over the 30 days after landing, and side-by-side comparison of up to four site-and-date options.
 - "Sun and Earth together": the time when both body centres are above the selected horizon at once, shown on the site card, in the comparison and in the ranking (`together` and `stayMetrics` in `src/windows.mjs`). It is a geometric overlap, not a power or link budget.
 - Permanently shadowed regions at both poles, drawn in blue from NASA's LOLA maps, with a per-site "Permanent shadow" fact (inside one, or how far the nearest is).
-- A where-to-land heat map from NASA's long-term average Sun and Earth visibility maps, a long-term average for each polar site, and a button that finds the best spot within 15 km.
+- A where-to-land heat map from NASA's long-term average Sun and Earth visibility maps, a long-term average for each polar site, and a button that finds the best spot within 15 km for the chosen landing time and stay.
+- Search across the 9,087 IAU-named lunar features; pins and blocking terrain are described by the named feature they fall in.
+- The best landing hour in the next 30 days for Sun and Earth together, a step-by-step "How was this worked out?" under each sky chart, and a global Earth view showing where Earth is up and where it rises and sets.
 - Sun and Earth as discs: each tile shows how much of the disc clears the skyline, and the stay summary gives hours of full Sun, hours with any Sun, and the next first light and full disc.
 - Mission durations of 24, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle.
 - Browser/session caches and a serialized, bounded-cache JPL service. Network failures never substitute synthetic observations.
@@ -55,7 +57,7 @@ NASA's CGI mosaic is optimized for aesthetics, including polar gap filling. It i
 - NASA/JPL Horizons observer ephemerides: https://ssd.jpl.nasa.gov/horizons/ and https://ssd-api.jpl.nasa.gov/doc/horizons.html
 - Three.js (MIT) and Vite (MIT); exact versions in package-lock.json.
 - Typography uses the system font stack (no web fonts are downloaded). Interface icons are original inline SVG drawings.
-- App icon: the team's official icon, supplied on November 14, 2026 (source file dated that evening). `public/assets/icon-512.png`, `icon-192.png` and `favicon.png` are that image cropped to its rounded square, given transparent corners and resized with Pillow; nothing was redrawn (`scripts/prepare-icon.py`). The icon was made with ChatGPT (OpenAI), an AI image tool. The team chose to say so in words rather than on the icon: clicking the icon in the app shows a note, and the method sheet, the page metadata, the demo's first slide and these documents state it. (`prepare-icon.py --mark` stamps a visible "AI-generated" label on the files instead.) The code-drawn placeholder and the earlier bitmap icon (dated November 13) are no longer in the app.
+- App icon: the team's official icon, supplied on November 14, 2026 (source file dated that evening). `public/assets/icon-512.png`, `icon-192.png` and `favicon.png` are that image cropped to its rounded square, given transparent corners and resized with Pillow; nothing was redrawn (`scripts/prepare-icon.py`). The icon was made with ChatGPT (OpenAI), an AI image tool, so each copy carries a visible "AI" mark in its lower-right corner, as the organisers' guide requires for AI-generated images. Clicking the icon in the app also says so, as do the method sheet, the page metadata and the demo's first slide.
 
 Licence: the code is under the MIT License (see LICENSE). That licence does not cover the NASA data and imagery in `public/assets/` and `demo/img/`, which remain under NASA's own terms (generally free to use with credit), or the app icon.
 
@@ -106,11 +108,13 @@ The interface takes its inspiration from everyday map and navigation apps, so a 
 Visibility now compares Sun/Earth body centers with a sampled local LOLA terrain skyline. JPL observer altitude uses the DEM elevation plus 2 meters. The terrain toggle compares those same observations against the reference horizon. Comparisons use the same selected model.
 
 - South of 85°S: PDS LOLA LDEM_85S_40M V2.0, 40-meter polar stereographic grid (spacing at the pole), half-meter height units relative to 1,737,400 meters. Source: https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_85s_40m.lbl
+- North of 80°N: PDS LOLA LDEM_80N_80M, 80-meter polar stereographic grid (0° longitude points down the image; the south-polar grids point it up). Optional in the same way as the 80°S grid. Its orientation was confirmed against the global grid: 61 m RMS difference over 4,000 points, against 1,160 m with the other orientation. Source: https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_80n_80m.lbl
 - From 80°S to 85°S: PDS LOLA LDEM_80S_80M V2.0, 80-meter polar stereographic grid, same units and reference radius. Optional: when `data/lola_80s_80m/ldem_80s_80m.img` is absent this band falls back to the global grid. It feeds site horizons and slope only; the shadow layer and landing-view relief still use the 160 m (south of 85°S) and 3.8 km grids. Source: https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_80s_80m.lbl
 - Elsewhere and for distant terrain: quantitative NASA SVS LOLA LDEM_16 float TIFF, 16 pixels per degree (about 1.9 km north/south spacing). TIFF kilometer heights are converted to half-meter signed integers; the scientific data is not taken from the decorative bump image.
 - Skyline: great-circle rays every 0.25°, out to 300 km, including lunar curvature. Radial samples adapt to raster spacing and distance. Bilinear raster and angular interpolation can miss small or narrow ridges. Coarse global results are particularly limited; grid spacing is not an accuracy guarantee.
 - Slope: a central difference across one grid cell either side of the site (80 m baseline south of 85°S, 160 m from 80°S to 85°S, 3.8 km elsewhere, where it is labelled regional). It describes the DEM at that scale; rocks, small craters and lander-scale hazards are not resolved. Check: the IM-1 site reads 11.5° over 160 m, in line with the roughly 12° slope reported for that landing site.
 - Events: five-minute terrain-clearance samples made from hourly JPL positions. Disc shares are reported for the selected site (see "Sun and Earth as discs"); hour totals, the ranking and the comparison count body centres. Eclipses are not evaluated. No ground-station or link-budget guarantees.
+- JPL Horizons reports `MEAN_ME (high precision)` as the lunar frame for surface sites (checked November 15, 2026), the same mean-Earth frame as the LOLA products and the Apollo coordinates.
 - The global and polar products use different versions of the lunar mean-Earth frame and resolutions; small registration differences and coarse/fine boundary discontinuities remain possible. This is an exploratory model, not a validated landing-safety tool.
 
 Eclipses and the other listed engineering factors remain out of scope. The Sunlight layer now renders approximate terrain-cast shadows; the local horizon chart and site metrics use finer, separate calculations.
@@ -139,7 +143,8 @@ The map button with the concentric rings steps through Off, Average sunlight, Av
 - Sources: LRO LOLA products AVGVISIB_75S_120M_201608 and AVGVISIB_75N_120M_201608, and their `_EARTH` versions (same data set and directory as above). Each value is the share of time steps, in NASA's long-term simulation, in which any part of the Sun's (or Earth's) disc was visible from that 120 m pixel.
 - `scripts/prepare-illumination.py` averages 4 × 4 blocks into `public/assets/heat-south-480m.webp` and `heat-north-480m.webp` (1906 × 1906, lossless): red = mean Sun share, green = mean Earth share, blue = the highest Sun share among the 16 source pixels. They are downloaded only when the heat map or a polar site needs them (about 5 MB each).
 - Drawing: one colour per map (yellow, blue, green) whose strength fades in over the range in the legend (sunlight 15% to 55%, Earth 10% to 90%, score 0.08 to 0.48). At 480 m, ordinary polar ground is sunlit about 40% of the time and the best 1% of cells about 50%, so shadowed ground stays clear, ordinary ground is tinted and the best ground glows. Within 5° of the south pole the score's 95th percentile is 0.20 and its 99.9th is 0.47; farther out, open near-side plains score about 0.45 because Earth is always in view there.
-- Site card: "Long-term average" gives the Sun and Earth shares for the site's cell. "Find best spot within 15 km" scans the cells within 15 km for the highest Sun × Earth score and drops a pin there (`bestCell` in `src/psr.mjs`).
+- Site card: "Long-term average" gives the Sun and Earth shares for the site's cell. "Find best spot within 15 km" works in two steps: `topCells` in `src/psr.mjs` picks the six best-scoring cells within 15 km that are at least 1.9 km apart, then each is run through the full calculation for the chosen landing time and stay, and the one with the most hours of Sun and Earth together gets a pin. If none beats the current site, the app says so.
+- Earth view: outside the polar maps the Earth map is plain geometry, not NASA's product: a blue wash where Earth is above level ground at the selected time, and a brighter band within about 8° of the edge of the mean near side, where libration makes Earth rise and set.
 - Limits: long-term averages over a 480 m cell, counted when any part of the disc shows. They say nothing about a particular date, which is what the rest of the app is for. The score multiplies two averages; it is a guide to where to look, not a measured overlap. A small peak can be diluted by its cell: the best 120 m pixel reads 90%, the best 480 m cell 63%.
 
 ## Sun and Earth as discs
@@ -159,6 +164,32 @@ The map button with the concentric rings steps through Off, Average sunlight, Av
 - 6 sunrises (level horizon, Sun's centre): 22 to 73 minutes from the table's times.
 - For Apollo 11 the Journal's JPL-based touchdown figure (10.65°, 88.81° at 20:17:39 UTC) and this app (10.71°, 88.81° at 20:18) agree to 0.06°, while the table gives 10.3°, 88.1°. The table is rounded to 0.1° and how it was computed is not stated, so we treat it as a looser yardstick.
 - Where the difference comes from: the script works back from each pair of angles to the point on the Moon where the Sun is overhead. The table's point is a steady 0.42° east of JPL's (0.35° to 0.47°, about 50 minutes of Sun motion, which accounts for the elevation and sunrise offsets) and between 1.79° south and 1.80° north of it. The table's point reaches 2.01° from the lunar equator, where the Sun can never be more than about 1.6° (JPL's largest value in these cases is 1.56°). That latitude error is what produces the azimuth gaps of about 2° at Apollo 14, 15 and 16. So the difference lies in the Sun position the table used, not in the sites or in this app. How the table was computed is not stated on the page.
+
+## Check against NASA's long-term maps
+
+`node scripts/validate-illumination.mjs` (with the server running and NASA's maps in `data/`) asks the app for the share of time that any part of the Sun's, and of Earth's, disc is above its own terrain skyline over 347 days from January 1, 2026 (about one cycle of lunar seasons), at ten polar points, and compares it with NASA's AVGVISIB 120 m pixel at the same place. Results are saved in `data/validation-illumination.json`.
+
+| Point | Sun: app | Sun: NASA (neighbours) | Earth: app | Earth: NASA (neighbours) |
+|---|---|---|---|---|
+| Shackleton region | 11.7% | 12.1% (12–14) | 42.5% | 46.8% (46–48) |
+| Blue Moon Pathfinder 1 point | 83.5% | 67.7% (51–85) | 50.8% | 52.3% (44–58) |
+| Best spot near Shackleton | 51.0% | 46.4% (37–71) | 53.9% | 56.7% (52–57) |
+| Malapert region | 44.1% | 44.0% (40–44) | 100.0% | 100.0% |
+| Griffin Mission One point | 34.4% | 35.8% (36–36) | 26.6% | 29.9% (30–30) |
+| IM-2 Athena | 45.9% | 46.8% (43–47) | 93.6% | 93.1% (79–93) |
+| IM-4 point | 32.1% | 33.9% (27–36) | 57.9% | 62.1% (59–64) |
+| IM-1 Odysseus | 40.1% | 35.6% (34–40) | 100.0% | 100.0% |
+| North pole rim point (89.3°N 125°E) | 7.6% | 8.0% (3–10) | 2.5% | 0.9% (0–6) |
+| 86°N 30°E | 23.2% | 22.2% (18–24) | 54.6% | 50.2% (40–54) |
+
+- Sun: mean absolute difference 3.1 percentage points, largest 15.8. Earth: mean 2.3, largest 4.5.
+- Nine of the ten Sun values are within 5 points. The exception is the knife-edge ridge beside Shackleton, where NASA's own neighbouring 120 m pixels run from 51% to 85%; the app's 84% lies inside that range.
+- The two are not the same calculation: the app uses 40 m and 80 m terrain with an observer 2 m up and one year; NASA used a 120 m grid and a longer period. Agreement to a few points on ordinary ground is the claim; on sharp ridges a result depends on exactly where the point is.
+- This checks long-run totals. It does not check individual rise and set times, which at grazing angles can move by hours with small changes in terrain or height.
+
+## Place names
+
+`python3 -I scripts/prepare-features.py` turns the IAU and USGS "Planetary Nomenclature of the Moon" centre points (public domain, 9,087 features) into `public/assets/features.json`. `src/features.mjs` searches it and names places: a point takes the smallest round feature whose circle reaches it ("inside Shackleton", "near the rim of Malapert A", "on Mons Mouton"). Seas and mountains are used only when the point is well inside their circle, and long thin features such as rilles are never used, because a centre and a diameter describe them poorly. When terrain hides the Sun or Earth, the app works out where that terrain is, names it if a feature covers it, and marks it on the map when zoomed in.
 
 ## Interactive terrain shadows
 

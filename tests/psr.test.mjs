@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { POLAR, HEAT, poleOf, polarPixel, polarLatLon, shadowNear, bestCell } from '../src/psr.mjs';
+import { POLAR, HEAT, poleOf, polarPixel, polarLatLon, shadowNear, bestCell, topCells } from '../src/psr.mjs';
 
 const SIZE=POLAR.psr.size,centre=SIZE/2;
 
@@ -63,4 +63,14 @@ test('bestCell picks the highest Sun times Earth score inside the radius',()=>{
 test('heat modes have distinct shader codes and sensible ranges',()=>{
  assert.deepEqual(Object.values(HEAT).map(h=>h.code),[1,2,3]);
  for(const h of Object.values(HEAT))assert.ok(0<h.from&&h.from<h.to&&h.to<=1);
+});
+
+test('topCells returns the best cells first and keeps them apart',()=>{
+ const width=21,rgba=new Uint8ClampedArray(width*width*4),put=(x,y,sun,earth)=>rgba.set([sun,earth,sun,255],(y*width+x)*4);
+ put(10,10,100,100);put(14,10,250,250);put(15,10,240,240);put(10,3,200,200);put(0,0,255,255);put(3,10,255,0);
+ const picked=topCells(rgba,width,8,3,4);
+ assert.deepEqual(picked.map(c=>[c.dx,c.dy]),[[4,0],[0,-7],[0,0]]);   // the neighbour of the best cell is skipped; the corner is out of range; no-Earth cell scores nothing
+ assert.ok(picked[0].score>picked[1].score&&picked[1].score>picked[2].score);
+ assert.equal(topCells(rgba,width,8,1,4).length,1);
+ assert.deepEqual(topCells(new Uint8ClampedArray(width*width*4),width),[]);
 });

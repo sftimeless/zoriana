@@ -2,14 +2,19 @@
 import { DAY, visibleHours, sampleAt } from './ephemeris.mjs';
 
 // Intervals [start, end] in ms during which a body is above the horizon (el > 0), clipped to
-// the requested range. Transitions are placed at sample times, so precision equals the row spacing.
+// the requested range. Each rise and set is placed where a straight line between the two
+// neighbouring samples crosses zero, the same rule nextCrossing uses, so the two always agree.
 export function segments(rows,start,end){
- const out=[];let open=null,last=start;
+ const out=[];let open=null,last=start,previous=null;
+ const crossing=(a,b)=>a.time+(b.time-a.time)*(-a.el)/(b.el-a.el);
  for(const r of rows||[]){
-  if(r.time<start||r.time>end)continue;
-  last=r.time;
-  if(r.el>0){if(open===null)open=r.time;}
-  else if(open!==null){out.push([open,r.time]);open=null;}
+  if(r.time>end)break;
+  if(r.time>=start){
+   last=r.time;
+   if(r.el>0){if(open===null)open=previous&&previous.el<=0?Math.max(start,crossing(previous,r)):r.time;}
+   else if(open!==null){out.push([open,previous&&previous.el>0?crossing(previous,r):r.time]);open=null;}
+  }
+  previous=r;
  }
  if(open!==null)out.push([open,last]);
  return out;
@@ -53,6 +58,20 @@ export function bestLandingDay(scores){
  for(const s of scores){
   if(!s)continue;
   if(!best||s.sun>best.sun+1e-6||(Math.abs(s.sun-best.sun)<=1e-6&&s.earth>best.earth+1e-6))best=s;
+ }
+ return best;
+}
+
+// The best hour to land within `days` days of `start`: the stay with the most hours of Sun and
+// Earth together; more sunlight breaks ties; the earliest hour wins a full tie. Stays that would
+// run past the end of the series are not considered.
+export function bestLandingTime(sunRows,earthRows,start,days,stayHours){
+ const both=together(sunRows,earthRows);let best=null;
+ for(let hour=0;hour<days*24;hour++){
+  const from=start+hour*3600000,to=from+stayHours*3600000,shared=visibleHours(both,from,to);
+  if(shared===null)break;
+  const sun=visibleHours(sunRows,from,to);
+  if(!best||shared>best.both+1e-6||(Math.abs(shared-best.both)<=1e-6&&sun>best.sun+1e-6))best={start:from,hour,both:shared,sun,earth:visibleHours(earthRows,from,to)};
  }
  return best;
 }

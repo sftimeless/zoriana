@@ -34,12 +34,14 @@ Source code: https://github.com/sftimeless/zoriana
 - Ranks every listed site for the chosen date and stay, and compares up to four site-and-date options side by side. Results export to CSV and any view can be shared as a link.
 - Landing view: a tilted camera over the site with true-scale terrain, facing Earth.
 - Draws NASA's maps of permanently shadowed regions at both poles and says whether a site is inside one.
-- Where-to-land heat map: NASA's long-term average sunlight and Earth visibility near the poles, plus a button that finds the best spot within 15 km of any polar site.
+- Where-to-land heat map: NASA's long-term average sunlight and Earth visibility near the poles, plus a button that finds the best spot within 15 km of any polar site for your landing time and stay.
+- Finds the best landing day and hour in the next 30 days.
+- Search across the 9,087 IAU-named lunar features, and names the terrain that is blocking the Sun or Earth.
 - Shows Earth in the lunar sky at its true size, distance and phase.
 
 **How it works**
 
-A small Node.js server asks NASA/JPL Horizons for the apparent position and distance of the Sun and Earth as seen from the exact site, hourly for 31 days. It builds the site's skyline from LOLA elevation data (40 m and 80 m grids near the south pole, a global grid elsewhere) by sampling terrain out to 300 km in every direction on a curved Moon. The browser compares the two: a body is visible when it clears the skyline. The Sun and Earth are also measured as discs, so the app can report first light and full Sun separately. The globe, terrain shadows and landing view are drawn with Three.js.
+A small Node.js server asks NASA/JPL Horizons for the apparent position and distance of the Sun and Earth as seen from the exact site, hourly for 31 days. It builds the site's skyline from LOLA elevation data (40 m and 80 m grids near the south pole, 80 m near the north pole, a global grid elsewhere) by sampling terrain out to 300 km in every direction on a curved Moon. The browser compares the two: a body is visible when it clears the skyline. The Sun and Earth are also measured as discs, so the app can report first light and full Sun separately. The globe, terrain shadows and landing view are drawn with Three.js.
 
 **How we checked it**
 
@@ -47,7 +49,8 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - Across all six Apollo landings it is within 0.7° in elevation of NASA's older published table.
 - The floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus craters read as permanently shadowed; nearby ridges do not.
 - The differences from that older table trace to the Sun position it used (it places the Sun up to 2.0° from the lunar equator, more than is physically possible), not to the app.
-- 60 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, disc geometry and exports.
+- At ten polar points, the app's yearly share of sunlight is within 3 percentage points of NASA's long-term illumination maps on average (Earth visibility within 2).
+- 68 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry and exports.
 
 **Benefits and what we hope to achieve**
 
@@ -55,7 +58,7 @@ Anyone, from a student to a mission planner doing a first pass, can see in secon
 
 **What comes next**
 
-Eclipses, relay satellites, slope and hazard layers for landing safety, and a search over whole regions for a chosen date rather than long-term averages.
+Eclipses, relay satellites, slope and hazard layers for landing safety, and ranking every cell of a region for a chosen date.
 
 **Tools, languages and software**
 

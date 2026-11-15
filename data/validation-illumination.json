@@ -1,0 +1,289 @@
+{
+ "generated": "2026-11-15T08:13:57.175Z",
+ "note": "App: share of 5-minute samples with any part of the disc above the app's terrain skyline, over 347 days from 2026-01-01. NASA: AVGVISIB 120 m pixel at the same place, with the range of its eight neighbours.",
+ "summary": {
+  "points": 10,
+  "days": 347,
+  "from": "2026-01-01",
+  "sun": {
+   "meanAbsoluteDifference": 0.031,
+   "largestDifference": 0.158
+  },
+  "earth": {
+   "meanAbsoluteDifference": 0.023,
+   "largestDifference": 0.045
+  }
+ },
+ "rows": [
+  {
+   "name": "Shackleton region",
+   "lat": -89.5,
+   "lon": 0,
+   "terrain": "NASA LOLA · 40 m south-pole grid",
+   "days": 347,
+   "sun": {
+    "app": 0.117,
+    "appCentreOnly": 0.1,
+    "nasa": 0.121,
+    "nasaNeighbours": [
+     0.116,
+     0.139
+    ],
+    "difference": -0.003
+   },
+   "earth": {
+    "app": 0.425,
+    "appCentreOnly": 0.382,
+    "nasa": 0.468,
+    "nasaNeighbours": [
+     0.461,
+     0.481
+    ],
+    "difference": -0.043
+   }
+  },
+  {
+   "name": "Blue Moon Pathfinder 1 point",
+   "lat": -89.45,
+   "lon": -137.31,
+   "terrain": "NASA LOLA · 40 m south-pole grid",
+   "days": 347,
+   "sun": {
+    "app": 0.835,
+    "appCentreOnly": 0.796,
+    "nasa": 0.677,
+    "nasaNeighbours": [
+     0.51,
+     0.847
+    ],
+    "difference": 0.158
+   },
+   "earth": {
+    "app": 0.508,
+    "appCentreOnly": 0.464,
+    "nasa": 0.523,
+    "nasaNeighbours": [
+     0.443,
+     0.582
+    ],
+    "difference": -0.014
+   }
+  },
+  {
+   "name": "Best spot near Shackleton",
+   "lat": -89.7475,
+   "lon": 57.8043,
+   "terrain": "NASA LOLA · 40 m south-pole grid",
+   "days": 347,
+   "sun": {
+    "app": 0.51,
+    "appCentreOnly": 0.477,
+    "nasa": 0.464,
+    "nasaNeighbours": [
+     0.369,
+     0.71
+    ],
+    "difference": 0.046
+   },
+   "earth": {
+    "app": 0.539,
+    "appCentreOnly": 0.493,
+    "nasa": 0.567,
+    "nasaNeighbours": [
+     0.521,
+     0.567
+    ],
+    "difference": -0.028
+   }
+  },
+  {
+   "name": "Malapert region",
+   "lat": -85.95,
+   "lon": 0,
+   "terrain": "NASA LOLA · 40 m south-pole grid",
+   "days": 347,
+   "sun": {
+    "app": 0.441,
+    "appCentreOnly": 0.437,
+    "nasa": 0.44,
+    "nasaNeighbours": [
+     0.396,
+     0.443
+    ],
+    "difference": 0.001
+   },
+   "earth": {
+    "app": 1,
+    "appCentreOnly": 1,
+    "nasa": 1,
+    "nasaNeighbours": [
+     1,
+     1
+    ],
+    "difference": 0
+   }
+  },
+  {
+   "name": "Griffin Mission One point",
+   "lat": -85.28,
+   "lon": 53.27,
+   "terrain": "NASA LOLA · 40 m south-pole grid",
+   "days": 347,
+   "sun": {
+    "app": 0.344,
+    "appCentreOnly": 0.333,
+    "nasa": 0.358,
+    "nasaNeighbours": [
+     0.357,
+     0.358
+    ],
+    "difference": -0.014
+   },
+   "earth": {
+    "app": 0.266,
+    "appCentreOnly": 0.207,
+    "nasa": 0.299,
+    "nasaNeighbours": [
+     0.296,
+     0.301
+    ],
+    "difference": -0.033
+   }
+  },
+  {
+   "name": "IM-2 Athena",
+   "lat": -84.7906,
+   "lon": 29.1957,
+   "terrain": "NASA LOLA · 80 m south-polar grid",
+   "days": 347,
+   "sun": {
+    "app": 0.459,
+    "appCentreOnly": 0.442,
+    "nasa": 0.468,
+    "nasaNeighbours": [
+     0.426,
+     0.47
+    ],
+    "difference": -0.01
+   },
+   "earth": {
+    "app": 0.936,
+    "appCentreOnly": 0.796,
+    "nasa": 0.931,
+    "nasaNeighbours": [
+     0.794,
+     0.934
+    ],
+    "difference": 0.005
+   }
+  },
+  {
+   "name": "IM-4 point",
+   "lat": -84.6,
+   "lon": 31,
+   "terrain": "NASA LOLA · 80 m south-polar grid",
+   "days": 347,
+   "sun": {
+    "app": 0.321,
+    "appCentreOnly": 0.291,
+    "nasa": 0.339,
+    "nasaNeighbours": [
+     0.273,
+     0.356
+    ],
+    "difference": -0.018
+   },
+   "earth": {
+    "app": 0.579,
+    "appCentreOnly": 0.529,
+    "nasa": 0.621,
+    "nasaNeighbours": [
+     0.593,
+     0.638
+    ],
+    "difference": -0.042
+   }
+  },
+  {
+   "name": "IM-1 Odysseus",
+   "lat": -80.13,
+   "lon": 1.44,
+   "terrain": "NASA LOLA · 80 m south-polar grid",
+   "days": 347,
+   "sun": {
+    "app": 0.401,
+    "appCentreOnly": 0.395,
+    "nasa": 0.356,
+    "nasaNeighbours": [
+     0.342,
+     0.403
+    ],
+    "difference": 0.046
+   },
+   "earth": {
+    "app": 1,
+    "appCentreOnly": 1,
+    "nasa": 1,
+    "nasaNeighbours": [
+     1,
+     1
+    ],
+    "difference": 0
+   }
+  },
+  {
+   "name": "North pole rim point",
+   "lat": 89.3,
+   "lon": 125,
+   "terrain": "NASA LOLA · 80 m north-polar grid",
+   "days": 347,
+   "sun": {
+    "app": 0.076,
+    "appCentreOnly": 0.064,
+    "nasa": 0.08,
+    "nasaNeighbours": [
+     0.033,
+     0.102
+    ],
+    "difference": -0.004
+   },
+   "earth": {
+    "app": 0.025,
+    "appCentreOnly": 0,
+    "nasa": 0.009,
+    "nasaNeighbours": [
+     0,
+     0.058
+    ],
+    "difference": 0.016
+   }
+  },
+  {
+   "name": "North 86°N 30°E",
+   "lat": 86,
+   "lon": 30,
+   "terrain": "NASA LOLA · 80 m north-polar grid",
+   "days": 347,
+   "sun": {
+    "app": 0.232,
+    "appCentreOnly": 0.219,
+    "nasa": 0.222,
+    "nasaNeighbours": [
+     0.18,
+     0.242
+    ],
+    "difference": 0.011
+   },
+   "earth": {
+    "app": 0.546,
+    "appCentreOnly": 0.501,
+    "nasa": 0.502,
+    "nasaNeighbours": [
+     0.395,
+     0.539
+    ],
+    "difference": 0.045
+   }
+  }
+ ]
+}

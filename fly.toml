@@ -1,5 +1,5 @@
 # Fly.io deployment for the public demo. One always-on 1 GB machine: the server keeps about
-# 260 MB of NASA LOLA terrain in memory. Deploy with: fly deploy --ha=false
+# 375 MB of NASA LOLA terrain in memory. Deploy with: fly deploy --ha=false
 app = 'zoriana'
 primary_region = 'sjc'
 

@@ -18,6 +18,7 @@ COPY package.json server.mjs terrain-service.mjs terrain-worker.mjs ./
 COPY src ./src
 COPY data/global-height.i16 data/ldem_85s_40m.img ./data/
 COPY data/lola_80s_80m/ldem_80s_80m.img ./data/lola_80s_80m/
+COPY data/lola_80n_80m/ldem_80n_80m.img ./data/lola_80n_80m/
 COPY --from=build /app/dist ./dist
 USER node
 EXPOSE 8080

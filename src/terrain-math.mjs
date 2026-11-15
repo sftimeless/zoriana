@@ -20,6 +20,11 @@ export function southPolarPixel(lat,lon,metersPerPixel,poleOffset){
  const rho=2*RADIUS*Math.tan((90+lat)*RAD/2),l=lon*RAD;
  return [poleOffset+rho*Math.sin(l)/metersPerPixel,poleOffset-rho*Math.cos(l)/metersPerPixel];
 }
+// The north-polar LOLA grids are turned the other way: 0° longitude points down the image.
+export function northPolarPixel(lat,lon,metersPerPixel,poleOffset){
+ const rho=2*RADIUS*Math.tan((90-lat)*RAD/2),l=lon*RAD;
+ return [poleOffset+rho*Math.sin(l)/metersPerPixel,poleOffset+rho*Math.cos(l)/metersPerPixel];
+}
 // Surface slope in degrees from central differences east-west and north-south over `baseline`
 // metres. It describes the DEM at that scale only; rocks and small craters are not resolved.
 export function slopeAt(lat,lon,sample,baseline){

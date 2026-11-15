@@ -53,6 +53,25 @@ export function bestCell(rgba,width,radius=(width-1)/2){
  return best;
 }
 
+// The `count` best-scoring cells within `radius` cells of the centre, kept at least `separation`
+// cells apart so they are genuinely different places. Best first. Used to pick candidates that
+// are then checked for the chosen dates.
+export function topCells(rgba,width,radius=(width-1)/2,count=6,separation=4){
+ const centre=(width-1)/2,cells=[];
+ for(let y=0;y<width;y++)for(let x=0;x<width;x++){
+  const distance=Math.hypot(x-centre,y-centre);if(distance>radius)continue;
+  const i=(y*width+x)*4,sun=rgba[i]/255,earth=rgba[i+1]/255;
+  if(sun*earth>0)cells.push({dx:x-centre,dy:y-centre,distance,sun,earth,peakSun:rgba[i+2]/255,score:sun*earth});
+ }
+ cells.sort((a,b)=>b.score-a.score||a.distance-b.distance);
+ const picked=[];
+ for(const cell of cells){
+  if(picked.length>=count)break;
+  if(picked.every(p=>Math.hypot(p.dx-cell.dx,p.dy-cell.dy)>=separation))picked.push(cell);
+ }
+ return picked;
+}
+
 // Heat-map modes: which value is drawn, in which colour, and the range over which it fades in.
 // The ranges span what the 480 m maps actually hold: ordinary polar ground is sunlit about 40% of
 // the time and the best cells about 50%, so shadowed ground stays clear and good ground glows.
@@ -63,8 +82,9 @@ export const HEAT={
 };
 
 // Adds both overlays to a Three.js material without disturbing shader patches already on it.
-// `uniforms` holds psrSouth, psrNorth, heatSouth, heatNorth (textures), psrVisible (0 or 1) and
-// heatMode (0 off, or a HEAT code), and is shared between materials.
+// `uniforms` holds psrSouth, psrNorth, heatSouth, heatNorth (textures), psrVisible (0 or 1),
+// heatMode (0 off, or a HEAT code) and earthDirection (unit vector from the Moon's centre toward
+// Earth in Moon-fixed coordinates), and is shared between materials.
 export function addPolarOverlay(material,uniforms){
  const before=material.onBeforeCompile,key=material.customProgramCacheKey;
  const scale=(2*RADIUS_KM/POLAR.extentKm).toFixed(6),rgb=hex=>`vec3(${[1,3,5].map(i=>(parseInt(hex.slice(i,i+2),16)/255).toFixed(3)).join(',')})`;
@@ -74,7 +94,7 @@ export function addPolarOverlay(material,uniforms){
   program.vertexShader='varying vec3 polarDirection;\n'+program.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\npolarDirection=position;');
   // Polar stereographic lookups straight from the surface direction: no trigonometry and no seam.
   // Both poles are sampled and one is chosen, so texture filtering never sees a branch.
-  program.fragmentShader='varying vec3 polarDirection;\nuniform sampler2D psrSouth;\nuniform sampler2D psrNorth;\nuniform sampler2D heatSouth;\nuniform sampler2D heatNorth;\nuniform float psrVisible;\nuniform float heatMode;\n'+program.fragmentShader.replace('#include <opaque_fragment>',`
+  program.fragmentShader='varying vec3 polarDirection;\nuniform sampler2D psrSouth;\nuniform sampler2D psrNorth;\nuniform sampler2D heatSouth;\nuniform sampler2D heatNorth;\nuniform float psrVisible;\nuniform float heatMode;\nuniform vec3 earthDirection;\n'+program.fragmentShader.replace('#include <opaque_fragment>',`
   vec3 polarUnit=normalize(polarDirection);
   float polarNorth=step(0.0,polarUnit.y),polarInside=step(0.9659258,abs(polarUnit.y)),heatOn=step(.5,heatMode);
   vec2 polarS=${scale}*vec2(-polarUnit.z,polarUnit.x)/max(1.0-polarUnit.y,.5)+.5;
@@ -87,8 +107,15 @@ export function addPolarOverlay(material,uniforms){
   vec2 heatRange=heatMode<1.5?vec2(${HEAT.sun.from},${HEAT.sun.to}):heatMode<2.5?vec2(${HEAT.earth.from},${HEAT.earth.to}):vec2(${HEAT.both.from},${HEAT.both.to});
   float heatShare=smoothstep(heatRange.x,heatRange.y,heatValue)*polarInside*heatOn;
   outgoingLight=mix(outgoingLight,outgoingLight*.45+heatColor*.6,heatShare*.72);
+  // Earth view outside the polar maps is plain geometry: a blue wash where Earth is above level
+  // ground at the selected time, and a brighter band within about 8° of the edge of the mean
+  // near side (the x axis points at the mean Earth), where libration makes Earth rise and set.
+  float earthNow=smoothstep(-.01,.03,dot(polarUnit,earthDirection))*step(.5,length(earthDirection));
+  float earthBand=1.0-smoothstep(.125,.15,abs(polarUnit.x));
+  float earthShare=(earthNow*.34+earthBand*.3)*(1.0-polarInside)*step(1.5,heatMode)*(1.0-step(2.5,heatMode));
+  outgoingLight=mix(outgoingLight,outgoingLight*.45+heatColor*.6,earthShare);
   #include <opaque_fragment>`);
  };
- material.customProgramCacheKey=()=>key.call(material)+'+polar-v2';
+ material.customProgramCacheKey=()=>key.call(material)+'+polar-v3';
  material.needsUpdate=true;
 }

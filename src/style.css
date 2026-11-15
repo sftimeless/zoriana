@@ -57,6 +57,12 @@ canvas{display:block;touch-action:none}
 .sky-chip.blocked::after{content:'hidden';font-weight:500;font-size:10px;color:var(--label2)}
 
 /* Overhead points on the globe, and names under the Sun and Earth themselves */
+.blocker{position:absolute;top:0;left:0;width:14px;height:14px;pointer-events:auto;cursor:help;z-index:2}
+.blocker[hidden]{display:none}
+.blocker .marker{position:absolute;inset:0;border-radius:3px;transform:rotate(45deg);background:rgba(20,20,22,.85);border:2px solid currentColor}
+.blocker .name{position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10.5px;font-weight:600;text-shadow:0 0 3px #000,0 1px 4px #000}
+.blocker.sun{color:var(--sun)}
+.blocker.earth{color:#409cff}
 .overhead{position:absolute;top:0;left:0;width:22px;height:22px;pointer-events:auto;cursor:help}
 .overhead .marker{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;font-size:12px;background:rgba(20,20,22,.82);border:1.5px dashed currentColor}
 .overhead .name{position:absolute;top:calc(100% + 3px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10.5px;font-weight:600;text-shadow:0 0 3px #000,0 1px 4px #000,0 0 10px rgba(0,0,0,.9)}
@@ -125,6 +131,13 @@ canvas{display:block;touch-action:none}
 .circle-btn{flex:none;width:30px;height:30px;border-radius:50%;background:var(--fill);display:grid;place-items:center;font-size:15px;color:var(--label2)}
 .circle-btn:hover{background:rgba(120,120,128,.4);color:#fff}
 .coords{font-size:12px;color:var(--label2);margin:8px 0 0 55px}
+.site-why{margin:8px 0 0;color:var(--label2);line-height:1.4}
+.how{margin-top:8px;font-size:12px;color:var(--label2)}
+.how summary{cursor:pointer;color:var(--blue);font-weight:600}
+.how ol{margin:8px 0 0 18px;padding:0;display:grid;gap:5px;line-height:1.4}
+.how ol+ol{margin-top:10px}
+.how p{margin-top:8px;line-height:1.4}
+.how b{color:var(--label)}
 .site-note{margin:8px 0 0;padding:8px 10px;border-radius:10px;background:rgba(40,167,69,.14);color:var(--label2)}
 .actions{display:flex;gap:8px;margin-top:14px}
 .pill{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:52px;border-radius:12px;background:var(--fill);color:var(--blue);font-size:11.5px;font-weight:600;white-space:nowrap}

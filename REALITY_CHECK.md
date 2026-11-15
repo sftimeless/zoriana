@@ -1,14 +1,14 @@
-# Zoriana — 30-question product reality check (second run)
+# Zoriana — 30-question product reality check (second run, updated after fixes)
 
-Evaluated November 15, 2026 (UTC morning) against commit `cdb9bb6`, on the public site https://zoriana.fly.dev/ with live JPL Horizons data.
+Evaluated November 15, 2026 (UTC morning) on the public site https://zoriana.fly.dev/ with live JPL Horizons data: first against commit `cdb9bb6`, then again for the changed answers after the fixes that followed.
 
-**This is the second run.** The first, at commit `e105d83` on November 14, scored 12 working, 14 partial, 4 not implemented. It is kept in the git history of this file. This run scores **22 working, 8 partial, 0 not implemented, 0 unverified**.
+**This is the second run.** The first, at commit `e105d83` on November 14, scored 12 working, 14 partial, 4 not implemented. It is kept in the git history of this file. The second run scored 22 working, 8 partial. The eight partial items and the four new findings were then worked on, and the affected questions were re-tested on the live site. **Current score: 29 working, 1 partial, 0 not implemented, 0 unverified.** Entries changed by the fixes are marked "(re-tested after fixes)".
 
 **Who ran it.** The same AI assistant that wrote most of the code, so it is not an outside audit. To keep it honest, every "answer given" below is text read from the running site during this run, not recalled or taken from the documents, and where the app cannot answer, the entry says so.
 
 **Naming.** The brief calls the product "Luna Maps by Zoriana". That name appears nowhere in the code, the site or the documents. The app's title is "Zoriana — Lunar Landing Site Navigator". This report evaluates that app.
 
-**How it was tested.** The desktop app's built-in Chromium browser against the live site, plus direct requests to its API. Example unless stated otherwise: landing date 2026-11-15, 3-day stay, terrain on, timeline at 12:00 UTC. 60 unit tests pass (`npm test`). Not tested in this run: Safari, a real phone, slow graphics hardware.
+**How it was tested.** The desktop app's built-in Chromium browser against the live site, plus direct requests to its API. Example unless stated otherwise: landing date 2026-11-15, 3-day stay, terrain on, timeline at 12:00 UTC. 68 unit tests pass (`npm test`). Not tested in this run: Safari, a real phone, slow graphics hardware.
 
 **Status key.** WORKING: implemented, exercised, gives a supported result. PARTIAL: some of the question is answered. NOT IMPLEMENTED: the function does not exist. UNVERIFIED: may exist, not confirmed.
 
@@ -18,7 +18,7 @@ Evaluated November 15, 2026 (UTC morning) against commit `cdb9bb6`, on the publi
 
 Zoriana answers NASA's one firm requirement (show where the Sun and Earth sit relative to the horizon at a chosen site and date) with real ephemerides and real terrain, and it now covers almost all of the optional ideas in the brief: curated past and future sites, side-by-side comparison, any date from 1950 to 2099, countdowns, stay metrics, 3D and tilted views, playback, and plain-language text for newcomers. Since the first run it has gained a way to answer "where" beyond the curated list: NASA's long-term illumination maps drawn as a heat map, a best-spot finder, and permanent shadow maps at both poles.
 
-It is a credible first-pass planning and teaching tool, and it says clearly that it is geometry only. It is not a mission tool. The main weaknesses are: the area search uses long-term averages rather than the chosen date; the best landing time is a day, not an hour; the terrain model has only one external check (Sun angles at Apollo sites) and none for terrain-blocked windows; terrain away from the south pole, including the whole north pole, is 1.9 km coarse; and place search knows only its 18 sites.
+It is a credible first-pass planning and teaching tool, and it says clearly that it is geometry only. It is not a mission tool. After the fixes, the best-spot finder checks its candidates against the chosen dates, the app recommends a landing hour as well as a day, search covers 9,087 IAU-named features, the north pole has 80 m terrain, and the terrain model has been checked against NASA's long-term maps (within 3 percentage points on average at ten polar points). The remaining weaknesses are: individual rise and set times at grazing angles carry no error bar; terrain between 80°S and 80°N is 1.9 km coarse; sharp ridges can differ a lot from NASA's pixel; and the map draws no place-name labels.
 
 ---
 
@@ -26,38 +26,38 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 
 | # | Audience | Question (short) | Status | Evidence | Primary gap |
 |---|---|---|---|---|---|
-| 1 | Planner | Where to land near the south pole | WORKING | Ranking; heat map; best spot | Area search is long-term, not for the chosen date |
-| 2 | Planner | When to land | PARTIAL | "Most sunlit landing day" | Recommends a day, not an hour; 30 days ahead only |
+| 1 | Planner | Where to land near the south pole | WORKING | Ranking; heat map; date-checked best spot | Best spot checks six candidates, not every cell |
+| 2 | Planner | When to land | WORKING | Best landing day and hour | 30 days ahead only |
 | 3 | Planner | How long is sunlight | WORKING | Stay totals, 30-day facts, disc times | Not usable power |
 | 4 | Planner | Earth outages | WORKING | Outage list with start, end, length | Line of sight is not a link |
 | 5 | Planner | Delay by 3, 7, 14 days | WORKING | Delay buttons in comparison | Four options at most |
 | 6 | Planner | Compare three sites | WORKING | Comparison cards, CSV | Totals, not hour-by-hour differences |
-| 7 | Planner | What terrain blocks the Sun | PARTIAL | Distance, direction, height of blocker | No feature names; not marked on the map |
+| 7 | Planner | What terrain blocks the Sun | WORKING | Distance, direction, height, IAU name, map marker | Named only where an IAU feature covers the spot |
 | 8 | Planner | Longest darkness | WORKING | "Longest darkness" | Capped at 30 days |
-| 9 | Planner | Reliability | PARTIAL | Method sheet, Apollo benchmark | No error bars; terrain windows not validated |
+| 9 | Planner | Reliability | WORKING | Method sheet; Apollo and NASA-map checks | No error bar on individual event times |
 | 10 | Planner | Save, export, share | WORKING | Share link, two CSV exports | No saved projects |
 | 11 | Educator | Why the south pole | WORKING | Explainer in the site list | Three sentences only |
 | 12 | Educator | Why permanent shadow | WORKING | Explainer; shadow map | — |
 | 13 | Educator | Sun's position in the sky | WORKING | Tiles, sky chart, sight line | Flat strip chart, not a dome |
-| 14 | Educator | Earth from everywhere? | PARTIAL | Pins; Earth heat map near poles | No far-side shading; one pin at a time |
+| 14 | Educator | Earth from everywhere? | WORKING | Earth view on the whole globe; explainer | Level-ground geometry outside the polar maps |
 | 15 | Educator | Why neighbours differ | WORKING | Blocking note; terrain toggle | Reason is per site, not in the comparison |
 | 16 | Educator | Advance time | WORKING | Play; 30-day slider | No speed control |
 | 17 | Educator | Apollo 11, July 20, 1969 | WORKING | Loads; matches published angle | Regional terrain only |
 | 18 | Educator | Plan own missions | WORKING | Pins, dates, compare, share | Pins cannot be named |
 | 19 | Educator | Change the date | WORKING | Date field, day bars | — |
-| 20 | Educator | Understand the method | PARTIAL | "How to read this app"; terrain toggle | No step-by-step walk-through; method sheet is technical |
-| 21 | Public | Explore like a maps app | PARTIAL | Rotate, zoom, pin, tilt | Search knows 18 sites; no named features |
+| 20 | Educator | Understand the method | WORKING | "How was this worked out?" steps; explainers | Method sheet itself is still technical |
+| 21 | Public | Explore like a maps app | PARTIAL | Rotate, zoom, pin, tilt; search of 9,087 names | No place-name labels on the map; soft imagery up close |
 | 22 | Public | Historic landing sites | WORKING | Six Apollo sites | Crewed sites only from Apollo, as expected |
-| 23 | Public | Terrain and horizon of a point | WORKING | Sky chart, elevation, slope | 1.9 km terrain outside 80°S |
+| 23 | Public | Terrain and horizon of a point | WORKING | Sky chart, elevation, slope | 1.9 km terrain between 80°S and 80°N |
 | 24 | Public | See Earth at a time | WORKING | Earth tile with disc share | — |
 | 25 | Public | Permanently shadowed regions | WORKING | Shadow layer, both poles | Within 15° of the poles |
 | 26 | Public | Sunlight right now | WORKING | "Now"; lit globe; Sun overhead | Snaps to the hour |
-| 27 | Public | Future missions and why | PARTIAL | Five targets with notes | Positions approximate; purpose per mission not given |
-| 28 | Public | Where to see an Earthrise | PARTIAL | Countdown per site; Earth heat map | No search for where; no explanation |
+| 27 | Public | Future missions and why | WORKING | Five targets with a purpose line each | Positions approximate |
+| 28 | Public | Where to see an Earthrise | WORKING | Earthrise band on the globe; explainer; per-site countdown | Band is level-ground geometry |
 | 29 | Public | Differences between locations | WORKING | Ranking of all sites; heat map | First ranking of a new date takes time |
 | 30 | Public | Simple trade-off explanation | WORKING | Sentences on card and comparison | One sentence per option, no verdict |
 
-**Totals: WORKING 22 · PARTIAL 8 · NOT IMPLEMENTED 0 · UNVERIFIED 0.**
+**Totals: WORKING 29 · PARTIAL 1 · NOT IMPLEMENTED 0 · UNVERIFIED 0.** (Second run before fixes: 22 and 8. First run: 12, 14 and 4 not implemented.)
 
 ---
 
@@ -69,13 +69,13 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 | API | `GET /api/ephemeris?lat&lon&date&reference`: 31 days of hourly Sun and Earth azimuth, elevation and distance, plus the site's terrain horizon. | `server.mjs:35,95` |
 | Ephemerides | Live NASA/JPL Horizons observer tables per site and date: apparent, airless, observer at DEM elevation + 2 m. Nothing precomputed or mocked. Cached in memory; today's data for the 18 sites is fetched at start-up. | `server.mjs:18,45`, `src/ephemeris.mjs:2` |
 | Terrain horizon | Computed on the server from LOLA elevation: a ray every 0.25° out to 300 km on a curved Moon. | `src/terrain-math.mjs:65`, `terrain-worker.mjs:12` |
-| Terrain data | 40 m grid south of 85°S; 80 m from 80°S to 85°S; 1.9 km everywhere else, including the north pole. | `terrain-worker.mjs`, `data/terrain-manifest.json` |
+| Terrain data | 40 m grid south of 85°S; 80 m from 80°S to 85°S and north of 80°N; 1.9 km everywhere else. | `terrain-worker.mjs`, `data/terrain-manifest.json` |
 | Visibility | Body centre above the terrain horizon, sampled every 5 minutes between hourly JPL points. Disc share reported alongside. | `src/terrain-math.mjs:59`, `src/disc.mjs:31` |
 | Long-term maps | NASA LOLA permanent-shadow and average-visibility maps (120 m source) within 15° of each pole, drawn and looked up; not computed by the app. | `src/psr.mjs`, `scripts/prepare-illumination.py` |
-| Sites | 18 curated points in five groups, search by name or coordinates, pins. | `src/sites.mjs:9`, `src/main.js:476,504` |
+| Sites and names | 18 curated points in five groups, search by name or coordinates across 9,087 IAU-named features, pins. | `src/sites.mjs`, `src/features.mjs`, `src/main.js` |
 | Date and time | Landing date 1950-01-01 to 2099-12-24, landing hour, 30-day slider in 15-minute steps. | `index.html:246`, `server.mjs:95` |
 | Comparison and ranking | Up to four site-and-date options; ranking of all listed sites. Both export CSV. | `src/main.js:702,740,787` |
-| Tests | 60 unit tests: parsing and interpolation (8), terrain and horizon (10), windows and sentences (16), polar maps (8), disc (6), Earth orientation (4), links (4), shadows (3), CSV (1). A separate script compares Sun angles with NASA's Apollo values; it needs the server and is not part of `npm test`. | `tests/*.mjs`, `scripts/benchmark-apollo.mjs` |
+| Tests | 68 unit tests: parsing and interpolation (8), terrain and horizon (11), windows and sentences (18), polar maps (9), disc (6), place names (4), Earth orientation (4), links (4), shadows (3), CSV (1). Two separate scripts compare results with outside sources (NASA's Apollo Sun angles; NASA's long-term visibility maps); they need the server and are not part of `npm test`. | `tests/*.mjs`, `scripts/benchmark-apollo.mjs`, `scripts/validate-illumination.mjs` |
 
 **Date limits, checked on the live API in this run:**
 
@@ -95,19 +95,19 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 
 ### Audience 1: Mission planners
 
-**1. Where should we land? — WORKING**
+**1. Where should we land? — WORKING (re-tested after fixes)**
 - **How:** orange **Rank landing sites** rail button; the ring-shaped **Where-to-land heat map** button; on a polar site card, **Find best spot within 15 km**.
-- **Answer given:** Ranking, 3 d from Nov 15 (Sun + Earth / Sunlit / Earth / Sun height): IM-2 Athena 65.8 / 65.8 / 72.0 h / 3.7°; Blue Moon Pathfinder 1 16.0 / 72.0 / 16.0 h / 1.2°; IM-4 12.1 / 12.1 / 32.6 h / 5.0°; Griffin Mission One 0.0 / 72.0 / 0.0 h; Malapert 0.0 / 0.0 / 72.0 h; Shackleton 0.0 / 0.0 / 0.0 h. Shackleton point long-term: "Sun 12% · Earth 47%". Best spot from there: "Best within 15 km: Sun 50% and Earth 56% of the time, 12.3 km away", a pin at 89.8084°S 51.7098°E whose own 30-day figures read "Sunlit 60% · 17.9 d", Earth in view 47%.
-- **Evidence:** `renderRanking` (`src/main.js:740`), `setHeat` (`:154`), best-spot handler (`:169`), `bestCell` (`src/psr.mjs:46`), tests `tests/psr.test.mjs`, `tests/windows.test.mjs`.
-- **Limits:** The heat map and best-spot finder use NASA's long-term averages over 480 m cells, not the chosen date: the suggested pin above gets 0 h of sunlight in the first three days from Nov 15. The score is two averages multiplied, not a measured overlap. Slope and hazards are not part of it.
-- **Smallest fix:** Science: run the app's own date-specific calculation over a grid of points near a site and rank them.
+- **Answer given:** Ranking, 3 d from Nov 15 (Sun + Earth / Sunlit / Earth / Sun height): IM-2 Athena 65.8 / 65.8 / 72.0 h / 3.7°; Blue Moon Pathfinder 1 16.0 / 72.0 / 16.0 h / 1.2°; IM-4 12.1 / 12.1 / 32.6 h / 5.0°; Griffin Mission One 0.0 / 72.0 / 0.0 h; Malapert 0.0 / 0.0 / 72.0 h; Shackleton 0.0 / 0.0 / 0.0 h. Shackleton point long-term: "Sun 12% · Earth 47%". Best spot from there: "Checked 6 spots for your 3 d stay from Nov 15. This one, 12.7 km away, has 13.1 h of Sun and Earth together and 72.0 h of sunlight (long-term: Sun 49%, Earth 56%)", a pin at 89.7475°S 57.8043°E.
+- **Evidence:** `renderRanking`, `setHeat`, best-spot handler (`src/main.js`), `topCells` (`src/psr.mjs`), tests `tests/psr.test.mjs`, `tests/windows.test.mjs`.
+- **Limits:** The heat map itself is NASA's long-term average over 480 m cells. The best-spot finder now checks its candidates for the chosen landing time and stay, but only the six most promising cells, not every cell. The score is two averages multiplied. Slope and hazards are not part of it.
+- **Smallest fix:** Science: rank every cell of a region for the chosen dates.
 
-**2. When should we land? — PARTIAL**
-- **How:** site card → **Lunar day ahead** bars and **Most sunlit landing day**; **Hour** selector on the timeline.
-- **Answer given:** IM-4: "Most sunlit landing day for a 3 d stay: Nov 18 · 72.0 h sunlit · 72.0 h Earth". Shackleton point: Nov 25.
-- **Evidence:** `renderLunar` (`src/main.js:648`), `landingDays`, `bestLandingDay` (`src/windows.mjs:41,51`).
-- **Limits:** The search steps by whole days at the chosen landing hour; it does not recommend an hour. It looks 30 days ahead. "Best" is most sunlit hours, with Earth hours as tie-break.
-- **Smallest fix:** Science: search landing hours as well, and offer "most Sun and Earth together" as the criterion.
+**2. When should we land? — WORKING (re-tested after fixes)**
+- **How:** site card → **Lunar day ahead** bars, **Most sunlit landing day** and **Best landing time**; **Use this time** sets the date and hour.
+- **Answer given:** IM-4: "Most sunlit landing day for a 3 d stay: Nov 18 · 72.0 h sunlit · 72.0 h Earth" and "Best landing time for Sun and Earth together: Nov 17 12:00 UTC · 72.0 h together · 72.0 h sunlit". Pressing **Use this time** set the date to 2026-11-17 and the hour to 12, and the stay read "Sunlit for the whole stay. Earth in view throughout."
+- **Evidence:** `renderLunar` (`src/main.js`), `landingDays`, `bestLandingDay`, `bestLandingTime` (`src/windows.mjs`), `tests/windows.test.mjs`.
+- **Limits:** Searches hourly starts within 30 days of the chosen date. The criterion is geometric (most hours with both in view), not a mission optimum.
+- **Smallest fix:** None required.
 
 **3. How long will we have sunlight? — WORKING**
 - **How:** banner countdown; **Surface stay** → **Sunlit time**; **Lunar day ahead** → **Longest sunlight**.
@@ -116,12 +116,12 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 - **Limits:** Sunlight is not usable power. The disc is a plain circle of even brightness.
 - **Smallest fix:** None required.
 
-**4. When will Earth be obstructed, and for how long? — WORKING**
+**4. When will Earth be obstructed, and for how long? — WORKING (re-tested after fixes)**
 - **How:** banner; blue band on the timeline; **Lunar day ahead** → outage list.
-- **Answer given:** IM-4: "1 d 3 h until Earthrise · Nov 16, 15:26 UTC"; "Earth out of view: Nov 15 00:00 to Nov 16 15:30 (1 d 15 h); Dec 1 07:40 to Dec 13 16:15 (12 d 8 h)"; "Longest Earth outage 12 d 8 h from Dec 1"; Earth in view 53% of 30 days.
-- **Evidence:** `renderLunar` (`src/main.js:648`), `gaps`, `longest` (`src/windows.mjs:25,33`).
-- **Limits:** The banner gives 15:26 and the list 15:30 for the same Earthrise, because the list rounds to five-minute samples. Uses Earth's centre for the hours. Not a communications assessment.
-- **Smallest fix:** Presentation: use the interpolated time in the list.
+- **Answer given:** IM-4: "1 d 3 h until Earthrise · Nov 16, 15:26 UTC"; "Earth out of view: Nov 15 00:00 to Nov 16 15:26 (1 d 15 h); Dec 1 07:38 to Dec 13 16:11 (12 d 8 h)"; "Longest Earth outage 12 d 8 h from Dec 1"; Earth in view 53% of 30 days.
+- **Evidence:** `renderLunar` (`src/main.js`), `segments`, `gaps`, `longest` (`src/windows.mjs`).
+- **Limits:** Uses Earth's centre for the hours. Not a communications assessment. The banner and the list now give the same time (they differed by up to five minutes before the fix).
+- **Smallest fix:** None required.
 
 **5. Delay by 3, 7 or 14 days — WORKING**
 - **How:** **Compare**, then **+3 d**, **+7 d**, **+14 d** on the card.
@@ -144,12 +144,12 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 - **Limits:** Totals and bands; no hour-by-hour difference view.
 - **Smallest fix:** None required.
 
-**7. Which terrain features obstruct the Sun? — PARTIAL**
-- **How:** site card → note under **Sky from the surface**.
-- **Answer given:** IM-4: "Sun: up at 2.7° but hidden by terrain 360 m away to the east-northeast, which rises to 7.9°. Earth: up at 1.5° but hidden by terrain 5.0 km away to the northwest, which rises to 2.9°."
-- **Evidence:** `obstructionAt` (`src/terrain-math.mjs:53`), `refreshMetrics` (`src/main.js:553`), `tests/terrain.test.mjs`.
-- **Limits:** Distance, direction and height, but no feature name, and the blocker is not marked on the map. The distance is that of the highest point along that bearing, at 0.25° steps.
-- **Smallest fix:** Presentation: mark the blocking point on the map. Data: a named-feature list.
+**7. Which terrain features obstruct the Sun? — WORKING (re-tested after fixes)**
+- **How:** site card → note under **Sky from the surface**; a diamond marker on the map when zoomed in.
+- **Answer given:** IM-4: "Sun: up at 2.7° but hidden by terrain 360 m away to the east-northeast (on Mons Mouton), which rises to 7.9°. Earth: up at 1.5° but hidden by terrain 5.0 km away to the northwest (on Mons Mouton), which rises to 2.9°." Shackleton region point: "hidden by terrain 2.2 km away to the east-southeast, which rises to 7.8°" (no IAU feature covers that spot, so no name is given).
+- **Evidence:** `obstructionAt`, `destination` (`src/terrain-math.mjs`), `placeName` (`src/features.mjs`), `setBlocker` (`src/main.js`), `tests/features.test.mjs`.
+- **Limits:** A name appears only where an IAU-named round feature covers the blocking point; features are treated as circles. The marker shows only when zoomed in far enough to stand apart from the site's pin.
+- **Smallest fix:** None required.
 
 **8. Longest period without direct sunlight — WORKING**
 - **Answer given:** IM-4: "Longest darkness ≥ 15 d 8 h from Nov 29". A far-side pin at 0°N 180°E: "15 d 8 h from Nov 16". Shackleton point: "≥ 14 d 0 h from Nov 30".
@@ -157,12 +157,12 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 - **Limits:** Capped at 30 days; "≥" marks a stretch that runs past the window.
 - **Smallest fix:** Science: a longer series for a year-long search.
 
-**9. How reliable are the predictions? — PARTIAL**
-- **How:** **Method** on the site card or the grey rail button.
-- **Answer given:** Eleven sections: Visibility, Libration & orbit, Sampling, Lunar day & comparison, Benchmark, Permanent shadow, Where to land, Terrain & location, Map, Landing view, Rendering. The benchmark section reports the Apollo 11 match and the comparison with NASA's Apollo table.
-- **Evidence:** `index.html:261`, `README.md`, `VERIFICATION.md`, `data/benchmark-apollo.json`, `data/terrain-manifest.json`, `data/illumination-manifest.json`.
-- **Limits:** Datasets, resolutions and assumptions are stated, but no result carries an error bar. The only external check is of Sun angles at flat Apollo sites. No terrain-blocked sunrise, sunset or Earth outage has been compared with an independent source.
-- **Smallest fix:** Science: compare the app's sunlit share at a few polar points over a full year with NASA's average-visibility value for the same pixel, and report the difference.
+**9. How reliable are the predictions? — WORKING (re-tested after fixes)**
+- **How:** **Method** on the site card or the grey rail button; the last line of every **Surface stay** panel.
+- **Answer given:** Twelve sections including Benchmark and Place names. Benchmark now reports two outside checks: Sun angles at the Apollo sites, and the terrain model against NASA's long-term maps ("differs from NASA's by 3 percentage points on average… Nine of the ten are within 5 points. The exception is a knife-edge ridge beside Shackleton, where the app gives 84% and NASA's pixel 68%"). The stay panel ends "Totals agree with NASA's long-term maps to a few percentage points on ordinary ground; times at grazing angles are approximate."
+- **Evidence:** `index.html` method sheet, `scripts/validate-illumination.mjs`, `data/validation-illumination.json`, `data/benchmark-apollo.json`.
+- **Limits:** The check is of year-long totals at ten points. No individual sunrise, sunset or outage time has been checked against an outside source, and no time carries an error bar.
+- **Smallest fix:** Science: compare one terrain-blocked event time with a published value, if one can be found.
 
 **10. Save, export or share — WORKING**
 - **Answer given:** **Share** put the view in the address: `?site=apollo11&date=1969-07-20&hour=20&t=0.25&stay=24`, and showed "The address bar now holds a link to this view. Copy it from there to share." (the automated browser refused clipboard access, so the fallback appeared). **Export CSV** on the ranking produced 20 lines with columns for coordinates, landing time, stay, horizon model, sunlit, Earth, combined, full-disc and any-disc hours, Sun height, elevation, slope, terrain data, approximate flag and source.
@@ -186,11 +186,12 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 - **Evidence:** `refreshMetrics`, `drawSky` (`src/main.js:553,539`), `tests/ephemeris.test.mjs`.
 - **Limits:** The chart is a flat strip of direction against height.
 
-**14. Can Earth be seen from everywhere? — PARTIAL**
-- **Answer given:** Pin at 0°N 180°E: Earth −85.7°, "Below horizon", "Earth stays out of view through Dec 16", Earth in view 0% of 30 days. Apollo 11: Earth 59.2° up. The Earth heat map shows how visibility varies, but only within 15° of the poles.
-- **Evidence:** `dropPinAt` (`src/main.js:476`), `updateBodies` (`:263`).
-- **Limits:** Away from the poles the answer is found one pin at a time. No shading of the hemisphere that never sees Earth; no explanation of why Earth barely moves in the lunar sky.
-- **Smallest fix:** Presentation: shade the far side from the Earth-overhead point, with one sentence of explanation.
+**14. Can Earth be seen from everywhere? — WORKING (re-tested after fixes)**
+- **How:** the list explainer "Can you see Earth from everywhere on the Moon?"; press the heat-map button twice for the Earth view; or drop pins.
+- **Answer given:** Explainer: "No. The Moon always keeps the same face toward Earth, so Earth hangs almost still in its sky. On the near side Earth is always up; on the far side it is never seen…". Earth view legend: "poles: long-term · elsewhere: Earth up now · band: Earth rises and sets"; the near side is washed blue, the far side is not. Pin at 0°N 180°E: Earth −85.7°, "Earth stays out of view through Dec 16".
+- **Evidence:** `addPolarOverlay` (`src/psr.mjs`), `index.html:85`.
+- **Limits:** Outside the polar maps the Earth view is level-ground geometry for the selected time; local terrain is only in the per-site numbers.
+- **Smallest fix:** None required.
 
 **15. Why do nearby places differ? — WORKING**
 - **Answer given:** Blue Moon Pathfinder 1 point and Shackleton point, both at 89.5°S: 72.0 h against 0.0 h of sunlight in the same three days. IM-4's note names the cause (terrain 360 m away to the east-northeast rising to 7.9°). Turning **Terrain off** on IM-4 changes sunlit time from 12.1 h to 72.0 h.
@@ -216,29 +217,30 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 - **Answer given:** Malapert: Nov 15 "No direct sunlight during the stay"; Nov 18 "Sunlit for about 72 of 72 hours".
 - **Evidence:** `applyDate` (`src/main.js:626`).
 
-**20. Understand how the results arise — PARTIAL**
-- **Answer given:** "How to read this app": "Gold always means the Sun and blue always means Earth… A site needs the Sun above the surrounding ground for solar power, and Earth above it for a direct radio line home…". The terrain toggle shows the effect of terrain directly.
-- **Evidence:** `index.html:85,261`.
-- **Limits:** No step-by-step "Sun angle, then skyline, then result" walk-through. The method sheet runs to about 8,300 characters of technical text.
-- **Smallest fix:** Presentation: a three-step illustrated explainer beside the sky chart.
+**20. Understand how the results arise — WORKING (re-tested after fixes)**
+- **How:** site card → **How was this worked out?** under the sky chart; the list explainers; **Terrain on / off**.
+- **Answer given:** IM-4: "Where the Sun is. NASA/JPL Horizons puts it 2.7° above level ground, toward the east-northeast, at Nov 15, 12:00 UTC. How high the ground is that way. NASA's LOLA terrain reaches 7.9° in that direction, from ground 360 m away. Compare. 2.7° is below 7.9°, so the Sun is hidden." followed by "The app repeats this test every five minutes for 30 days…".
+- **Evidence:** `refreshMetrics` (`src/main.js`), `index.html`.
+- **Limits:** The steps are text, not a diagram. The method sheet itself is still long and technical.
+- **Smallest fix:** None required.
 
 ### Audience 3: General public
 
-**21. Explore like a maps app — PARTIAL**
-- **Answer given:** Drag, zoom, right-click to pin, Explore / Landing / Satellite, a draggable sheet on phones. Search "apollo" lists all six; "Tycho" returns "No matching place. Try latitude, longitude…".
-- **Evidence:** search (`src/main.js:504`), `setMode` (`:636`), sheet (`:448`).
-- **Limits:** Search knows only the 18 sites. No named craters, seas or mountains. Imagery is soft when zoomed in.
-- **Smallest fix:** Data: add the IAU list of major named features to search and labels.
+**21. Explore like a maps app — PARTIAL (re-tested after fixes)**
+- **Answer given:** Drag, zoom, right-click to pin, Explore / Landing / Satellite, a draggable sheet on phones. Search now covers IAU names: "Tycho" returns Tycho (crater, 85 km across) and its satellite craters; "copern" returns Copernicus; "mare ser" returns Mare Serenitatis. Choosing one drops a pin at its centre with full results.
+- **Evidence:** `searchFeatures` (`src/features.mjs`), search handler and `setMode` (`src/main.js`), `tests/features.test.mjs`.
+- **Limits:** The map still draws no place-name labels as you move around, and the imagery is soft when zoomed in (about 1.3 km per pixel).
+- **Smallest fix:** Presentation: label the largest named features on the globe by zoom level.
 
 **22. Historic human landing sites — WORKING**
 - **Answer given:** The Apollo group lists Apollo 11, 12, 14, 15, 16 and 17, each with data and links to QuickMap and Moon Trek.
 - **Evidence:** `src/sites.mjs:9`.
 
-**23. Terrain and horizon of a point — WORKING**
-- **Answer given:** IM-4: +5,040 m, slope "9.5° over 160 m", "NASA LOLA · 80 m south-polar grid", a 360° skyline chart. A north-polar pin (87.8°N 47.1°W): slope "22.8° regional, over 3.8 km", "NASA LOLA · 1.9 km global grid".
-- **Evidence:** `computeHorizon`, `slopeAt` (`src/terrain-math.mjs:65,25`), `enterSurface` (`src/main.js:399`).
-- **Limits:** Outside 80°S, and at the whole north pole, terrain is 1.9 km coarse.
-- **Smallest fix:** Data: add the LOLA north-polar elevation grids.
+**23. Terrain and horizon of a point — WORKING (re-tested after fixes)**
+- **Answer given:** IM-4: +5,040 m, slope "9.5° over 160 m", "NASA LOLA · 80 m south-polar grid", a 360° skyline chart. A north-polar pin (87.8°N 47.1°W): slope "25.8° over 160 m", "NASA LOLA · 80 m north-polar grid" (it read "22.8° regional, over 3.8 km" on the 1.9 km grid before the fix).
+- **Evidence:** `computeHorizon`, `slopeAt`, `northPolarPixel` (`src/terrain-math.mjs`), `terrain-worker.mjs`, `enterSurface` (`src/main.js`).
+- **Limits:** Between 80°S and 80°N terrain is 1.9 km coarse.
+- **Smallest fix:** Data: a finer mid-latitude model.
 
 **24. Could I see Earth at a date and time? — WORKING**
 - **Answer given:** IM-4, Nov 15 12:00 UTC: Earth 1.5°, "Blocked by terrain", −1.4° above terrain, disc 0%, 403,806 km. Apollo 11 in 1969: 59.2°, "Earth in view".
@@ -254,17 +256,17 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 - **Evidence:** today handler (`src/main.js:628`), `updateBodies` (`:263`).
 - **Limits:** Snaps to the hour.
 
-**27. Future missions and why — PARTIAL**
-- **Answer given:** Five targets: Blue Moon Pathfinder 1, Griffin Mission One, IM-4, IM-3 Trinity, Blue Ghost Mission 3, each with year, operator and a note such as "Approximate. The mission names the Mons Mouton plateau; this is the centre of Mons Mouton, not an announced landing point."
-- **Evidence:** `src/sites.mjs:9`, sources in `README.md`.
-- **Limits:** Positions are approximate and several come from Wikipedia. The only "why" is the general south-pole explainer; the reasons for Reiner Gamma and Gruithuisen are not given.
-- **Smallest fix:** Presentation: one sentence of purpose per mission.
+**27. Future missions and why — WORKING (re-tested after fixes)**
+- **Answer given:** Five targets, each with year, operator, an "Approximate" note and now a purpose line, for example IM-4: "Why here: An Intuitive Machines delivery for NASA's CLPS programme to high ground near the south pole, the kind of terrain crewed landings are being planned for."
+- **Evidence:** `src/sites.mjs`, sources in `README.md` and `REFERENCES.md`.
+- **Limits:** Positions are approximate. The purpose lines paraphrase encyclopedia summaries and are one sentence each.
+- **Smallest fix:** None required.
 
-**28. Where could I see an Earthrise? — PARTIAL**
-- **Answer given:** Per site: IM-4 "1 d 3 h until Earthrise · Nov 16, 15:26 UTC". The Earth heat map marks polar ground where Earth is in view only part of the time, which is where it rises and sets.
-- **Evidence:** `updateBanner` (`src/main.js:520`).
-- **Limits:** No search for the next Earthrise across places, and no sentence explaining that it happens only near the edge of the near side and the poles.
-- **Smallest fix:** Presentation: one explanatory sentence; label the Earth heat map's in-between zone.
+**28. Where could I see an Earthrise? — WORKING (re-tested after fixes)**
+- **Answer given:** The explainer says where: "there is a band about 8° wide around the edge of the near side, and near the poles, where Earth slowly rises and sets over a month. That band is the only place an Earthrise can be watched from the ground." The Earth view draws that band on the globe. Per site, with terrain: IM-4 "1 d 3 h until Earthrise · Nov 16, 15:26 UTC".
+- **Evidence:** `addPolarOverlay` (`src/psr.mjs`), `updateBanner` (`src/main.js`), `index.html:85`.
+- **Limits:** The band is level-ground geometry around the mean near-side edge; whether a particular spot sees it depends on local terrain, which the per-site countdown includes.
+- **Smallest fix:** None required.
 
 **29. How do conditions change between locations? — WORKING**
 - **Answer given:** Ranking of all 18 for Nov 15, 3 d: Blue Ghost M1, Chandrayaan-3 and Apollo 17 at 72.0 h of Sun and Earth together; Apollo 11 71.2 h; IM-2 Athena 65.8 h; SLIM 64.3 h; Apollo 16 52.8 h; Blue Moon Pathfinder 1 16.0 h; Apollo 15 12.9 h; IM-4 12.1 h; eight sites 0.0 h.
@@ -282,20 +284,20 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 
 | | Answers it today? | Defensible basis? | Clear to a newcomer? | Inspectable by an expert? | Reproducible? | Separates favorable from safe? |
 |---|---|---|---|---|---|---|
-| **WHERE** | Yes, three ways: ranking, heat map, best spot | Ranking: yes. Heat map: NASA's own long-term product. Score: a rough product of two averages | Mostly; the heat map needs its legend read | Yes: method sheet, source hashes | Yes: share link, CSV | Yes: "geometry only" line; slope shown but not scored |
-| **WHEN** | A best day within 30 days; no best hour | Yes for what it computes | Yes: bars and one line | Yes | Yes | Yes |
+| **WHERE** | Yes, three ways: ranking, heat map, date-checked best spot | Ranking and best spot: the app's own calculation. Heat map: NASA's long-term product | Mostly; the heat map needs its legend read | Yes: method sheet, source hashes | Yes: share link, CSV | Yes: "geometry only" line; slope shown but not scored |
+| **WHEN** | A best day and a best hour within 30 days | Yes for what it computes | Yes: bars and one line | Yes | Yes | Yes |
 | **SUNLIGHT** | Yes: windows, totals, disc times, longest dark | Yes: JPL plus LOLA skyline; Sun angles checked at Apollo sites | Yes: countdown and sentence | Yes | Yes | Yes: "not usable power" |
 | **EARTH** | Yes: outages listed with start, end, length | Yes, same model; Earth's centre for totals | Yes | Yes | Yes | Yes: "not a working radio link" |
 | **COMPARE** | Yes: four options, deltas, tags, CSV | Yes | Yes: sentences per option | Yes | Yes | Yes |
 
-**Scientific correctness versus presentation.** The Sun and Earth directions are as good as JPL Horizons. The weakest scientific link is terrain: fine near the south pole (40 m), coarse elsewhere, and unvalidated for blocked windows. Presentation is ahead of validation: the interface states results to the minute and tenth of an hour without an uncertainty beside them.
+**Scientific correctness versus presentation.** The Sun and Earth directions are as good as JPL Horizons. Terrain is the weaker link: 40 m near the south pole, 80 m near the north, coarse in between. Year-long totals now agree with NASA's long-term maps to about 3 percentage points on average, but individual event times are still shown to the minute without an uncertainty beside them, and on sharp ridges a result depends heavily on the exact point.
 
 ---
 
 ## 6. Scientific integrity review
 
 - **Coordinate conventions.** Planetocentric latitude, east-positive longitude, 1,737.4 km sphere throughout (`src/terrain-math.mjs`, `src/psr.mjs`). Polar map orientation is unit-tested for both poles and was confirmed against NASA's Earth-visibility maps.
-- **Lunar reference frames.** The LOLA products and Apollo coordinates are in the mean-Earth/polar-axis frame. **Not verified:** which lunar body-fixed frame Horizons uses for a surface site given as longitude, latitude and height. A mismatch between mean-Earth and principal-axis frames would shift a site by under a kilometre: negligible on the 1.9 km grid, but several cells on the 40 m grid.
+- **Lunar reference frames.** The LOLA products and Apollo coordinates are in the mean-Earth/polar-axis frame, and JPL Horizons reports `MEAN_ME (high precision)` for a surface site (checked November 15, 2026), so the site positions and the terrain share a frame. The global and polar LOLA products are different releases of that frame; small offsets between them remain possible.
 - **Time.** All times are UTC as returned by Horizons; the interface labels them UTC. The Earth-picture orientation uses a fixed TT−UTC of 69.184 s, which is about 30 s off in 1969; that affects only how the Earth image is turned, not any number.
 - **Ephemerides.** Live Horizons, apparent and airless, at DEM height plus 2 m. Hourly samples are interpolated linearly; near the zenith (a far-side pin peaked at 88.6°) azimuth interpolation is poor, which affects the sight line's direction only.
 - **Terrain and horizon.** 0.25° azimuth steps to 300 km. Narrow ridges between rays and small features below the grid size can be missed. The observer is 2 m above the surface; a lander's mast or array height would change grazing events.
@@ -303,7 +305,9 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 - **Earth visibility.** Line of sight to Earth's centre for hours; disc share reported separately. No ground stations, antennas or relays.
 - **Long-term maps.** NASA's values count any part of the disc as visible, and the app averages them to 480 m. They are not comparable one-to-one with the app's 30-day, centre-based figures (Shackleton point: 12% long-term against 22% for the next 30 days).
 - **Dates.** 1950 to 2099 accepted; only 1969–1972 and 2026 have been exercised. Nothing suggests other dates fail, but they were not tested.
-- **Resolution and coverage.** 40 m south of 85°S, 80 m to 80°S, 1.9 km elsewhere. The north pole has fine shadow and visibility maps but only the coarse elevation grid, so the app's own windows there are much rougher than the maps drawn beside them.
+- **Resolution and coverage.** 40 m south of 85°S, 80 m from 80°S to 85°S and north of 80°N, 1.9 km elsewhere. The north-polar grid's orientation was confirmed against the global grid (61 m RMS difference, against 1,160 m the other way round).
+- **Validation.** Year-long Sun and Earth visibility at ten polar points was compared with NASA's AVGVISIB maps: mean absolute difference 3.1 and 2.3 percentage points, largest 15.8 at a knife-edge ridge where NASA's own neighbouring pixels span 51% to 85%.
+- **Place names.** Features are circles from a centre and a diameter; seas and mountains are named only well inside the circle, and linear features never.
 - **Caching and placeholders.** Results are cached in memory by site, date and height; nothing is precomputed except NASA's long-term maps, and no placeholder values exist. If JPL or terrain is unavailable the app shows an error rather than a substitute.
 - **Site positions.** Future targets are feature centres or candidate points, flagged "Approximate" in the card, ranking and CSV.
 
@@ -323,14 +327,15 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 
 ## 8. Prioritized improvements
 
-1. **Validate terrain-blocked results** against an independent source (NASA's average visibility over a year at a few polar pixels) and publish the difference. This is the largest gap between what the app displays and what it has shown to be true.
-2. **Date-specific area search**: rank a grid of points around a site with the app's own calculation, so "where" matches the chosen date.
-3. **Best landing hour**, and "most Sun and Earth together" as a criterion.
-4. **North-polar elevation grids**, so the north pole's numbers match its maps.
-5. **Named features** in search and on the map.
-6. **Far-side shading and a sentence on Earthrise**.
-7. **Confirm the Horizons lunar frame** and note it in the method sheet.
-8. **Small presentation fixes**: interpolated times in the outage list; label the map buttons; a purpose line per future mission.
+Done since the second run: validation against NASA's long-term maps; date-checked best spot; best landing hour; north-polar terrain; named features in search and blocking notes; Earth view with the Earthrise band and an explainer; the Horizons frame confirmed; exact outage times; a purpose line per future mission; a step-by-step explanation.
+
+Still open, in order:
+
+1. **An outside check of one terrain-blocked event time**, and an uncertainty note beside times.
+2. **Rank every cell of a region for a chosen date**, rather than six candidates.
+3. **Place-name labels on the map.**
+4. **Finer terrain between 80°S and 80°N.**
+5. **Label the map buttons** for first-time visitors.
 
 ---
 
@@ -345,5 +350,5 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 
 ## Defects found during this run
 
-- The Earthrise time in the banner (15:26) and in the outage list (15:30) differ by up to five minutes because the list uses sampled times.
+- The Earthrise time in the banner (15:26) and in the outage list (15:30) differed by up to five minutes; fixed, both now read 15:26.
 - No others. The stale comparison card noted in the first run is gone.
