@@ -29,6 +29,13 @@ Last checked against the code on November 14, 2026.
 
 **Other coordinate sources**
 - IM-1 Odysseus landing site, 80.13°S 1.44°E (Malapert A): https://en.wikipedia.org/wiki/IM-1
+- IM-2 Athena landing site, 84.7906°S 29.1957°E (Mons Mouton): https://en.wikipedia.org/wiki/IM-2 ; intended site per LROC: https://www.lroc.asu.edu/images/1401
+- Future mission targets (approximate; announced regions, not landing points):
+  - Blue Moon Pathfinder Mission 1, Shackleton connecting ridge, candidate point "Site 001" 89.45°S 222.69°E: Boazman et al. 2022, Planetary Science Journal 3:275; https://en.wikipedia.org/wiki/Blue_Moon_Pathfinder_Mission_1
+  - Griffin Mission One, Nobile crater centre 85.28°S 53.27°E: https://en.wikipedia.org/wiki/Griffin_Mission_One ; https://en.wikipedia.org/wiki/Nobile_(crater)
+  - IM-4, Mons Mouton centre 84.6°S 31.0°E: https://en.wikipedia.org/wiki/IM-4 ; https://en.wikipedia.org/wiki/Mons_Mouton
+  - IM-3, Reiner Gamma centre 7.5°N 59.0°W: https://en.wikipedia.org/wiki/IM-3 ; https://en.wikipedia.org/wiki/Reiner_Gamma
+  - Blue Ghost Mission 3, Mons Gruithuisen Gamma centre 36.56°N 40.72°W: https://en.wikipedia.org/wiki/Mons_Gruithuisen_Gamma
 - Shackleton region (89.5°S, 0°E) and Malapert region (85.95°S, 0°E) are exploration points chosen by the team. They are not mission landing sites.
 
 **Software**

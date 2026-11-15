@@ -82,3 +82,14 @@
 - In-app browser, live data, no console errors: slope, terrain source and both links appear on site cards; mid-latitude sites label slope as regional (3.8 km baseline).
 - Link formats opened against the live tools: QuickMap accepted a lon/lat `extent` box and a south-polar `prjExtent` box (it requested south-polar tiles centred on the pole region); Moon Trek opened on the Apollo 11 area and, in its south-polar projection, on Shackleton crater. North-polar links were not opened.
 - Limits: the 80 m grid improves horizons and slope only. The shadow layer and landing-view relief between 80°S and 85°S still use the 3.8 km grid. Slope is a DEM-scale figure, not a hazard assessment.
+
+## Future mission targets — November 14, 2026 (evening)
+
+- Added a Future group with five planned missions (Blue Moon Pathfinder Mission 1, Griffin Mission One, IM-4, IM-3, Blue Ghost Mission 3) and one past CLPS landing (IM-2 Athena). Targets and schedules were read from the missions' Wikipedia articles (revisions dated October–November 2026); coordinates are feature centres or a published candidate point, as listed in README.md, and each future entry shows an "approximate" note in the app.
+- A longitude I had recalled for IM-2 (2.24°E) was wrong; the sources give 29.1957°E, and that value is used.
+- In-app browser, live JPL data, landing date 2027-02-01, no console errors. All six sites loaded terrain, slope, Sun/Earth angles and the lunar-day summary:
+  - Connecting-ridge point (89.45°S 137.31°W): 40 m grid, elevation +1,955 m, slope 2.7° over 80 m, 96% sunlit over 30 days.
+  - Nobile crater centre: 40 m grid, 35% sunlit. Mons Mouton centre: 80 m grid, elevation +5,040 m, 33% sunlit.
+  - IM-2 Athena site: 80 m grid, elevation +5,321 m, slope 2.1° over 160 m.
+  - Reiner Gamma and Mons Gruithuisen Gamma: global grid, Earth in view, about half of the 30 days sunlit.
+- Not verified: the exact landing points, which the missions have not published, and whether schedules have changed since the articles were last edited.

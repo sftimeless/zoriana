@@ -21,9 +21,11 @@ const icon=(name,cls='')=>`<svg class="ic ${cls}" aria-hidden="true"><use href="
 
 // Coordinates: Apollo from NASA SP-4029 mission summaries; IM-1 and Blue Ghost from NASA/LROC
 // published site locations; Chandrayaan-3 from the IAU Statio Shiv Shakti entry; SLIM from the
-// JAXA target point. See README and REFERENCES.md.
+// JAXA target point. Future targets are announced regions, not landing points: each uses the centre
+// of the named feature (or a published candidate point) and says so in its note. See REFERENCES.md.
 const categories={
  pole:{label:'South Pole',icon:'crater'},
+ future:{label:'Future',icon:'target'},
  clps:{label:'CLPS',icon:'lander'},
  intl:{label:'International',icon:'flag'},
  apollo:{label:'Apollo',icon:'lm'},
@@ -34,6 +36,12 @@ const siteIcon=s=>s.icon??categories[s.cat].icon;
 const sites=[
  {id:'shackleton',name:'Shackleton region',lat:-89.5,lon:0,cat:'pole',type:'Exploration point',description:'Near the lunar south pole'},
  {id:'malapert',name:'Malapert region',lat:-85.95,lon:0,cat:'pole',type:'Exploration point',description:'Southern highlands'},
+ {id:'bluemoon1',name:'Blue Moon Pathfinder 1',lat:-89.45,lon:-137.31,cat:'future',type:'Planned landing · 2027',description:'Shackleton connecting ridge · Blue Origin',note:'Approximate. The mission names the Shackleton connecting ridge; this is candidate point “Site 001” on that ridge (89.45°S, 222.69°E), not an announced landing point.'},
+ {id:'griffin1',name:'Griffin Mission One',lat:-85.28,lon:53.27,cat:'future',type:'Planned CLPS landing · early 2027',description:'Nobile region · Astrobotic',note:'Approximate. The mission names the Nobile region near Mons Mouton; this is the centre of Nobile crater, not an announced landing point.'},
+ {id:'im4',name:'IM-4',lat:-84.6,lon:31,cat:'future',type:'Planned CLPS landing · 2027',description:'Mons Mouton plateau · Intuitive Machines',note:'Approximate. The mission names the Mons Mouton plateau; this is the centre of Mons Mouton, not an announced landing point.'},
+ {id:'im3',name:'IM-3 Trinity',lat:7.5,lon:-59,cat:'future',type:'Planned CLPS landing · early 2027',description:'Reiner Gamma swirl · Intuitive Machines',note:'Approximate. The mission names the Reiner Gamma region; this is the centre of the swirl, not an announced landing point.'},
+ {id:'blueghost3',name:'Blue Ghost Mission 3',lat:36.56,lon:-40.72,cat:'future',type:'Planned CLPS landing · 2028',description:'Mons Gruithuisen Gamma · Firefly Aerospace',note:'Approximate. The mission names Mons Gruithuisen Gamma; this is the centre of the dome, not an announced landing point.'},
+ {id:'im2',name:'IM-2 Athena',lat:-84.7906,lon:29.1957,cat:'clps',icon:'novac',type:'CLPS landing site · 2025',description:'Mons Mouton · Intuitive Machines'},
  {id:'im1',name:'IM-1 Odysseus',lat:-80.13,lon:1.44,cat:'clps',icon:'novac',type:'CLPS landing site · 2024',description:'Malapert A · Intuitive Machines'},
  {id:'blueghost1',name:'Blue Ghost M1',lat:18.56,lon:61.81,cat:'clps',icon:'blueghost',type:'CLPS landing site · 2025',description:'Mare Crisium · Firefly Aerospace'},
  {id:'chandrayaan3',name:'Chandrayaan-3',lat:-69.373,lon:32.319,cat:'intl',icon:'vikram',type:'ISRO landing site · 2023',description:'Statio Shiv Shakti · ISRO'},
@@ -284,6 +292,7 @@ async function ephemeris(site,{reference=false,date=$('#date').value}={}){const 
 async function selectSite(site,move=true){
  selected=site;$('#planner').scrollTop=0;$('#browse').hidden=true;$('#site-card').hidden=false;$('#search-results').innerHTML='';$('#search').value='';
  $('#site-name').textContent=site.name;$('#site-type').textContent=site.type;$('#site-coords').textContent=coord(site);
+ $('#site-note').hidden=!site.note;$('#site-note').textContent=site.note||'';
  $('#site-badge').className=`badge big cat-${site.cat}`;$('#site-badge').innerHTML=icon(siteIcon(site));
  $('#link-quickmap').href=quickMapUrl(site.lat,site.lon);$('#link-trek').href=moonTrekUrl(site.lat,site.lon);
  if(mode==='landing')enterSurface(site);else if(move)fly(site,2.6);invalidate();await loadSelected();

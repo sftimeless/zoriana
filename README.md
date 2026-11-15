@@ -53,13 +53,23 @@ Other curated site coordinates (rounded published values; verify against the pri
 - Blue Ghost Mission 1, 18.56°N 61.81°E (Mare Crisium): https://www.lroc.im-ldi.com/images/1400
 - Chandrayaan-3, 69.373°S 32.319°E (Statio Shiv Shakti): https://en.wikipedia.org/wiki/Statio_Shiv_Shakti
 - SLIM, 13.3160°S 25.2510°E (JAXA target point; touchdown was about 55 m away): https://darts.isas.jaxa.jp/en/missions/slim
+- IM-2 Athena, 84.7906°S 29.1957°E (Mons Mouton, landed 2025): https://en.wikipedia.org/wiki/IM-2 ; LROC lists the intended site as 84.78°S 29.13°E at https://www.lroc.asu.edu/images/1401
+
+Future mission targets (checked November 14, 2026). These missions have announced a region, not a landing point. Each entry uses the centre of the named feature, or a published candidate point, and the app shows a note saying so:
+- Blue Moon Pathfinder Mission 1 (Blue Origin, planned 2027), Shackleton connecting ridge: candidate point "Site 001", 89.45°S 222.69°E, from Boazman et al. 2022, Planetary Science Journal 3:275. Mission: https://en.wikipedia.org/wiki/Blue_Moon_Pathfinder_Mission_1
+- Griffin Mission One (Astrobotic, CLPS, planned early 2027), Nobile region: centre of Nobile crater, 85.28°S 53.27°E. https://en.wikipedia.org/wiki/Griffin_Mission_One and https://en.wikipedia.org/wiki/Nobile_(crater)
+- IM-4 (Intuitive Machines, CLPS, planned 2027), Mons Mouton plateau: centre of Mons Mouton, 84.6°S 31.0°E. https://en.wikipedia.org/wiki/IM-4 and https://en.wikipedia.org/wiki/Mons_Mouton
+- IM-3 Trinity (Intuitive Machines, CLPS, planned early 2027), Reiner Gamma: centre of the swirl, 7.5°N 59.0°W. https://en.wikipedia.org/wiki/IM-3 and https://en.wikipedia.org/wiki/Reiner_Gamma
+- Blue Ghost Mission 3 (Firefly, CLPS, planned 2028), Mons Gruithuisen Gamma: centre of the dome, 36.56°N 40.72°W. https://en.wikipedia.org/wiki/Mons_Gruithuisen_Gamma
+- Not listed: Blue Ghost Mission 2 (far side, no coordinates found) and Artemis IV (no landing site selected).
+- Schedules and targets change. Re-check them before relying on these entries.
 
 ## Navigator interface
 
 The interface takes its inspiration from everyday map and navigation apps, so a first-time user can read it without training. All layout, icons and code are original to this project:
 
 - **Status rail** (left): mission clock for the selected time, an Earth-link indicator and a sunlight indicator for the selected site, and shortcuts to search, comparison and the method sheet. The indicators are binary (body center above or below the selected horizon); they are not link-budget or power estimates.
-- **Site list and place card**: sites are grouped as South Pole, CLPS, International and Apollo. The place card leads with a next-event banner: a countdown to the next sunrise, sunset, Earthrise or Earthset at that site, followed by the other body's next event. Icons are original drawings: a shadowed crater (South Pole), a solar-panel lander (CLPS), a flag (International), and a Lunar Module front view (Apollo). Four missions have their own icons: a tall tower on wide legs (IM-1 Odysseus), a low wide body with a dish (Blue Ghost), a box with a rover ramp (Chandrayaan-3) and a panel-covered box with a dome (SLIM). They were drawn after looking at general reference pictures of each spacecraft (supplied by the team for Apollo and SLIM, Wikipedia article photographs for the others); nothing was traced or copied. No mission patches or agency insignia are used.
+- **Site list and place card**: sites are grouped as South Pole, Future, CLPS, International and Apollo. Future entries are announced target regions for planned missions and carry an "approximate" note. The place card leads with a next-event banner: a countdown to the next sunrise, sunset, Earthrise or Earthset at that site, followed by the other body's next event. Icons are original drawings: a shadowed crater (South Pole), a solar-panel lander (CLPS), a flag (International), and a Lunar Module front view (Apollo). Four missions have their own icons: a tall tower on wide legs (IM-1 Odysseus), a low wide body with a dish (Blue Ghost), a box with a rover ramp (Chandrayaan-3) and a panel-covered box with a dome (SLIM). They were drawn after looking at general reference pictures of each spacecraft (supplied by the team for Apollo and SLIM, Wikipedia article photographs for the others); nothing was traced or copied. No mission patches or agency insignia are used.
 - **Sight lines**: gold and blue lines on the globe point from the selected site toward the Sun and Earth at the selected time, dashed when the body is hidden. Their length follows the zoom level and has no physical meaning.
 - **Sky from the surface**: 360° terrain horizon with the current Sun and Earth positions and dotted paths over the selected stay.
 - **Timeline**: the scrubber sits on two bands (gold = sunlit, blue = Earth in view) for the first seven days after the landing date, with the stay length marked.
