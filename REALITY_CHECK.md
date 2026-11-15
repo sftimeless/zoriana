@@ -8,7 +8,7 @@ Evaluated November 15, 2026 (UTC) on the public site https://zoriana.fly.dev/ wi
 
 **Naming.** The brief calls the product "Luna Maps by Zoriana". That name appears nowhere in the code, the site or the documents. The app's title is "Zoriana — Lunar Landing Site Navigator".
 
-**How it was tested.** The desktop app's built-in Chromium browser against the live site, plus direct requests to its API. Example unless stated otherwise: landing date 2026-11-15, 3-day stay, terrain on, timeline at 12:00 UTC. 73 unit tests pass (`npm test`). Not tested: Safari and a real phone.
+**How it was tested.** The desktop app's built-in Chromium browser against the live site, plus direct requests to its API. Example unless stated otherwise: landing date 2026-11-15, 3-day stay, terrain on, timeline at 12:00 UTC. 73 unit tests passed at the time of the run (74 after the follow-up below). Not tested during the run: Safari and a real phone.
 
 **Status key.** WORKING: implemented, exercised, gives a supported result. PARTIAL: some of the question is answered. NOT IMPLEMENTED: the function does not exist. UNVERIFIED: may exist, not confirmed.
 
@@ -20,7 +20,7 @@ Zoriana meets NASA's one firm requirement (show where the Sun and Earth sit rela
 
 Beyond the brief it now answers "where" for whole regions (NASA's long-term maps, a best-spot finder checked against the chosen dates, permanent shadow and slope layers), "when" down to the hour, and it accounts for eclipses. Its results have been checked against four outside sources: published Apollo Sun angles, NASA's long-term illumination maps, the published contact times of the 2026 eclipses, and NASA's eclipse list through 2030.
 
-It remains a first-pass planning and teaching tool, and says so on every stay panel: geometry only, not power, not a radio link, not landing safety. The honest weak points are: no error bar on an individual sunrise, sunset or outage time; 1.9 km terrain between 80°S and 80°N; results on knife-edge ridges that depend on the exact point; a best-spot search that checks six candidates rather than every cell; and no test yet on Safari or a real phone.
+It remains a first-pass planning and teaching tool, and says so on every stay panel: geometry only, not power, not a radio link, not landing safety. The honest weak points at the time of the run were: no error bar on an individual sunrise, sunset or outage time; 1.9 km terrain between 80°S and 80°N; results on knife-edge ridges that depend on the exact point; a best-spot search that checks six candidates rather than every cell; and no test yet on Safari or a real phone. The section "After this run" at the end says what was done about each.
 
 ---
 
@@ -267,3 +267,18 @@ It remains a first-pass planning and teaching tool, and says so on every stay pa
 
 - A pin opened from a share link read "Custom lunar coordinates" even when it sat inside a named feature, because the link was read before the list of names had loaded. Fixed during this run: such pins are now described once the names arrive.
 - The test browser's pane was hidden for part of the run, and the map does not redraw while hidden, so map labels had to be re-checked with a screenshot. This affects testing, not visitors.
+
+---
+
+## After this run — November 15, 2026
+
+The six open items above were worked on the same day. What changed, and what is still open:
+
+| Item from the run | Now | Still open |
+|---|---|---|
+| No outside check or error bar on a single event time | Each rise and set time in the countdown banner carries a "±": how far it moves if the skyline is 0.1° off (IM-4: "Earthrise · Nov 16, 15:26 UTC ± 2 h"; Apollo 11: "sunset · Nov 29, 19:39 UTC ± 12 min"). Checked against a real lander (`scripts/check-event-times.mjs`): Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025, and the app ends totality at that site at 08:30. | For the same lander's sunset on March 16, 2025 the app is 1.1 to 2.2 hours later than Firefly's account (night "just over 5 hours" before 23:15 UTC). JPL's sub-solar point agrees with the app, so the cause is either what Firefly counted as night or ground smaller than the terrain grid. Unresolved, and reported as found. The "±" is a sensitivity figure, not a statistical error bar. |
+| Five map layers on one button | A **Map layers** menu with a name and one line for each of the five choices. Icon buttons show their names for a few seconds on a first visit and on hover. | — |
+| Best spot checks six candidates | It checks twenty, in batches of five, and shows progress. Same winner as before from the Shackleton point (89.7475°S 57.8043°E). About 30 to 45 seconds. | Still not every cell of the area. |
+| 1.9 km terrain between 80°S and 80°N | NASA's 474 m global grid (LOLA LDEM_64) is used there. New pins answer in about a second on the live site, up to 84° latitude. | Rocks, small craters and anything smaller than about 500 m are still not resolved away from the poles. |
+| Safari and a real phone untested | The live site was opened in Safari on a simulated iPhone 17 Pro (iOS 26.5): the globe, markers, site sheet and timeline draw and the data loads. | Touch gestures (dragging the sheet, pinch to zoom) in Safari, and a real phone, are still untested. |
+| Method sheet about 12,000 characters | About 2,600 characters in seven short entries; the full text is in `METHOD.md`. | — |

@@ -18,7 +18,8 @@
     "ldem_85s_40m.img": "1609e9b860748e0b9952a7239c51b37d3b2a799d35e9fc3c258526711cc1e51d",
     "ldem_80s_80m.img": "e6591eeea35402ca5e124ca00f5bf0774381a2d4fa919144b455d82b8ff65fdc",
     "lpsr_75s_120m_201608.img": "f47c537432528ca6852e94d11c2c0ca08e2dcd972ef73d20ea2270ea8e6beff4",
-    "ldem_80n_80m.img": "dfaa75f2d1337258eaf5e13c0195fcad0d70794911b2daf689026ed12dce2233"
+    "ldem_80n_80m.img": "dfaa75f2d1337258eaf5e13c0195fcad0d70794911b2daf689026ed12dce2233",
+    "ldem_64.img": "1c4958699d4cffd7e777d51421b6044bba300aa0bef286a544309efb082cdbd6"
   },
   "referenceRadiusMeters": 1737400,
   "observerHeightMeters": 2,
@@ -49,5 +50,15 @@
     "path": "data/lola_80n_80m/ldem_80n_80m.img",
     "source": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_80n_80m.img",
     "note": "Optional. Used directly by terrain-worker.mjs for site horizons and slope north of 80°N. 0° longitude points down the image (the south-polar grids point it up)."
+  },
+  "global64": {
+    "width": 23040,
+    "height": 11520,
+    "scaleMeters": 0.5,
+    "pixelsPerDegree": 64,
+    "gridMeters": 474,
+    "path": "data/lola_global_64/ldem_64.img",
+    "source": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_64.img",
+    "note": "Optional. Read in windows from disk by terrain-worker.mjs for site horizons and slope within 84° of the equator. Longitude 0° to 360° from the left edge, latitude 90° at the top."
   }
 }

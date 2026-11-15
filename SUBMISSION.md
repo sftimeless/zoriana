@@ -42,7 +42,7 @@ Source code: https://github.com/sftimeless/zoriana
 
 **How it works**
 
-A small Node.js server asks NASA/JPL Horizons for the apparent position and distance of the Sun and Earth as seen from the exact site, hourly for 31 days. It builds the site's skyline from LOLA elevation data (40 m and 80 m grids near the south pole, 80 m near the north pole, a global grid elsewhere) by sampling terrain out to 300 km in every direction on a curved Moon. The browser compares the two: a body is visible when it clears the skyline. The Sun and Earth are also measured as discs, so the app can report first light and full Sun separately. The globe, terrain shadows and landing view are drawn with Three.js.
+A small Node.js server asks NASA/JPL Horizons for the apparent position and distance of the Sun and Earth as seen from the exact site, hourly for 31 days. It builds the site's skyline from LOLA elevation data (40 m and 80 m grids near the south pole, 80 m near the north pole, a 474 m global grid elsewhere) by sampling terrain out to 300 km in every direction on a curved Moon. The browser compares the two: a body is visible when it clears the skyline. The Sun and Earth are also measured as discs, so the app can report first light and full Sun separately. The globe, terrain shadows and landing view are drawn with Three.js.
 
 **How we checked it**
 
@@ -52,7 +52,9 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - The differences from that older table trace to the Sun position it used (it places the Sun up to 2.0° from the lunar equator, more than is physically possible), not to the app.
 - At ten polar points, the app's yearly share of sunlight is within 3 percentage points of NASA's long-term illumination maps on average (Earth visibility within 2).
 - The eclipse calculation reproduces the two lunar eclipses of 2026: every site's times fall inside the published contact times.
-- 72 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry and exports.
+- Against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025; the app ends totality at that site at 08:30. For the same lander's sunset two days later the app is 1 to 2 hours later than Firefly's account, and we say so.
+- Each rise and set time carries a "±" showing how far it moves if the skyline is 0.1° off.
+- 74 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry and exports.
 
 **Benefits and what we hope to achieve**
 

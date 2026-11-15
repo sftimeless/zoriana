@@ -62,6 +62,29 @@ export function bestLandingDay(scores){
  return best;
 }
 
+// How much a rise or set time depends on the skyline being exactly right. Given the crossing
+// found by nextCrossing, returns the times at which the body is `delta` degrees below and above
+// the skyline either side of it. If the terrain model's skyline were `delta` too low or too high,
+// the true rise or set would fall at one of those times. `minutes` is half the gap between them.
+// Returns null when the body does not reach both levels within `limitHours` of the crossing, as
+// when it skims along the skyline.
+export function crossingSpread(rows,crossing,delta=.1,limitHours=72){
+ if(!rows?.length||!crossing)return null;
+ const limit=limitHours*3600000,sign=crossing.rising?1:-1; // rising: -delta comes first, then +delta
+ const reach=(target,direction)=>{ // direction -1 searches back in time, +1 forward
+  const at=rows.findIndex(r=>r.time>=crossing.time);if(at<0)return null;
+  // Pairs of neighbouring samples, starting with the pair that holds the crossing itself.
+  for(let i=direction<0?at:Math.max(0,at-1);(direction<0?i>=1:i<rows.length-1)&&Math.abs(rows[i].time-crossing.time)<=limit;i+=direction){
+   const a=direction<0?rows[i-1]:rows[i],b=direction<0?rows[i]:rows[i+1];
+   if((a.el-target)*(b.el-target)<=0&&a.el!==b.el)return a.time+(b.time-a.time)*(target-a.el)/(b.el-a.el);
+  }
+  return null;
+ };
+ const before=reach(-sign*delta,-1),after=reach(sign*delta,1);
+ if(before===null||after===null)return null;
+ return {before,after,minutes:(after-before)/120000};
+}
+
 // The best hour to land within `days` days of `start`: the stay with the most hours of Sun and
 // Earth together; more sunlight breaks ties; the earliest hour wins a full tie. Stays that would
 // run past the end of the series are not considered.

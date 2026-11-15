@@ -9,6 +9,7 @@ data/lola_80s_80m/*.img
 data/lola_psr_75s_120m/*.img
 data/lola_illumination/*.img
 data/lola_80n_80m/*.img
+data/lola_global_64/*.img
 data/iau/
 
 # Kept out of version control: pre-hackathon reference images and the organisers' guide

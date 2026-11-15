@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {bestLandingTime,segments,span,gaps,longest,landingDays,bestLandingDay,together,stayMetrics,compassPoint,staySentence} from '../src/windows.mjs';
+import {bestLandingTime,crossingSpread,segments,span,gaps,longest,landingDays,bestLandingDay,together,stayMetrics,compassPoint,staySentence} from '../src/windows.mjs';
 import {nextCrossing} from '../src/ephemeris.mjs';
 const H=3600000,rows=els=>els.map((el,i)=>({time:i*H,az:0,el}));
 test('segments finds each interval above the horizon',()=>{const found=segments(rows([-1,2,3,-1,-2,4,5,-3]),0,7*H),expected=[[H/3,2.75*H],[4*H+H/3,6.625*H]];assert.equal(found.length,2);found.flat().forEach((t,i)=>assert.ok(Math.abs(t-expected.flat()[i])<1));});
@@ -59,4 +59,17 @@ test('bestLandingTime prefers Sun and Earth together, then sunlight, then the ea
  const never=bestLandingTime(rows([-1,-1,-1,-1]),rows([1,1,1,1]),0,1,1);
  assert.equal(never.hour,0);assert.equal(never.both,0);  // nothing to choose between: the earliest
  assert.equal(bestLandingTime(sun,earth,0,1,20),null);  // no stay fits in the series
+});
+test('crossingSpread: a fast sunrise is pinned down, a grazing one is not',()=>{
+ const fast=rows([-2,-1,0,1,2]),rise=nextCrossing(rows([-2,-1,.0001,1,2]),0);   // 1 degree per hour
+ const spread=crossingSpread(fast,{time:2*H,rising:true},.1);
+ assert.ok(Math.abs(spread.minutes-6)<1e-6);                                   // 0.1 degree takes six minutes
+ assert.ok(Math.abs(spread.before-1.9*H)<1&&Math.abs(spread.after-2.1*H)<1);
+ const setting=crossingSpread(rows([2,1,0,-1,-2]),{time:2*H,rising:false},.1);
+ assert.ok(Math.abs(setting.minutes-6)<1e-6&&setting.before<setting.after);
+ const slow=rows(Array.from({length:41},(_,i)=>-.2+i*.01));                    // 0.01 degree per hour
+ assert.ok(Math.abs(crossingSpread(slow,{time:20*H,rising:true},.1).minutes-600)<1e-3); // ten hours either way
+ assert.equal(crossingSpread(rows([-.05,-.02,0,.02,.05]),{time:2*H,rising:true},.1),null); // never gets 0.1 degree clear
+ assert.equal(crossingSpread(null,{time:0,rising:true}),null);assert.equal(crossingSpread(fast,null),null);
+ assert.ok(rise);
 });

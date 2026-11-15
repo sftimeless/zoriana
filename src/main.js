@@ -6,7 +6,7 @@ import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { DAY, sampleAt, visibleHours, nextCrossing, coordinatesToVector, skyDirection, centredPosition } from './ephemeris.mjs';
-import { segments, span, gaps, longest, landingDays, bestLandingDay, bestLandingTime, together, stayMetrics, compassPoint, staySentence } from './windows.mjs';
+import { segments, span, gaps, longest, landingDays, bestLandingDay, bestLandingTime, crossingSpread, together, stayMetrics, compassPoint, staySentence } from './windows.mjs';
 import { earthMeshRotation } from './earth-orientation.mjs';
 import { horizonAt, obstructionAt, clearanceSeries, destination, RADIUS } from './terrain-math.mjs';
 import { createRenderDiagnostics } from './performance.mjs';
@@ -155,41 +155,61 @@ function averageFact(site){
  return `Sun ${percent(r.sun)} · Earth ${percent(r.earth)}<small>of the time over many years, NASA model</small>`;
 }
 // Heat map: off, or one of the HEAT modes. The button and its legend both step through them.
-const heatOrder=['off','sun','earth','both','slope'];
 function setHeat(name){
  heatMode=HEAT[name]?name:'off';const h=HEAT[heatMode];
  polarUniforms.heatMode.value=h?h.code:0;$('#heat').setAttribute('aria-pressed',String(Boolean(h)));$('#heat-legend').hidden=!h;
  if(h){const kind=heatMode==='slope'?'slope':'heat';loadPolar(kind,'south');loadPolar(kind,'north');$('#heat-legend').style.setProperty('--heat',h.color);$('#heat-legend').classList.toggle('caution-scale',heatMode==='slope');$('#heat-name').textContent=h.label;$('#heat-range').textContent=heatMode==='slope'?`amber: ${h.from}° to ${h.to}° · red: over ${h.to}°`:heatMode==='both'?'low → high':heatMode==='earth'?'poles: long-term · elsewhere: Earth up now · band: Earth rises and sets':`${percent(h.from)} → ${percent(h.to)}+ of the time`;}
+ for(const b of document.querySelectorAll('#layer-picker [data-heat]'))b.setAttribute('aria-checked',String(b.dataset.heat===heatMode));
  invalidate();syncUrl();
 }
-$('#heat').onclick=$('#heat-legend').onclick=()=>{
- setHeat(heatOrder[(heatOrder.indexOf(heatMode)+1)%heatOrder.length]);
- if(heatMode==='off'){toast('Heat map hidden.');return;}
- toast(heatMode==='slope'?'Slope, measured over 160 m from NASA’s LOLA terrain within 10° of each pole: amber is 5° to 10°, red is steeper than 10°. It is not a hazard map: rocks and small craters are not resolved. Click again to hide.':heatMode==='earth'?'Earth view. Near the poles: NASA’s long-term average. Elsewhere: blue where Earth is above level ground now, and a brighter band where Earth rises and sets over a month. Click again for the next map.':`${HEAT[heatMode].label}: brighter is better. NASA long-term maps, within 15° of each pole. Click again for the next map.`);
- // From a view of the equator there is nothing to see, so turn to the south pole.
- if(!surface&&!selected&&Math.abs(camera.position.y)/camera.position.length()<.8)startFlight({to:new THREE.Vector3(...coordinatesToVector(-84,15)).multiplyScalar(2.4)});
+// The layers are chosen by name from a small menu (the ring-shaped button, or the legend).
+function showLayers(value){$('#layer-picker').hidden=!value;$('#heat').setAttribute('aria-expanded',String(value));if(value)showPicker(false);}
+$('#heat').onclick=$('#heat-legend').onclick=()=>showLayers($('#layer-picker').hidden);
+$('#close-layers').onclick=()=>showLayers(false);
+document.addEventListener('pointerdown',e=>{if(!$('#layer-picker').hidden&&!e.target.closest('#layer-picker,#heat,#heat-legend'))showLayers(false);});
+const heatNotes={
+ sun:'Average sunlight: brighter is better. NASA’s long-term maps, within 15° of each pole.',
+ earth:'Earth view. Near the poles: NASA’s long-term average. Elsewhere: blue where Earth is above level ground now, and a brighter band where Earth rises and sets over a month.',
+ both:'Sun × Earth score: brighter is better. NASA’s long-term maps, within 15° of each pole.',
+ slope:'Slope, measured over 160 m from NASA’s LOLA terrain within 10° of each pole: amber is 5° to 10°, red is steeper than 10°. It is not a hazard map: rocks and small craters are not resolved.'
+};
+$('#layer-picker').onclick=e=>{
+ const choice=e.target.closest('[data-heat]');if(!choice)return;
+ setHeat(choice.dataset.heat);
+ if(heatMode==='off'){toast('Map layer hidden.');return;}
+ toast(heatNotes[heatMode]);
+ // From a view of the equator a polar layer shows nothing, so turn to the south pole.
+ if(heatMode!=='earth'&&!surface&&!selected&&Math.abs(camera.position.y)/camera.position.length()<.8)startFlight({to:new THREE.Vector3(...coordinatesToVector(-84,15)).multiplyScalar(2.4)});
 };
 // Finds a better spot within 15 km of the selected site, in two steps: NASA's long-term maps pick
 // a handful of promising, well-separated cells, then each one is run through the full calculation
 // for the chosen landing time and stay, and the best of them for those dates gets a pin.
-const BEST_RADIUS_KM=15,BEST_CANDIDATES=6;
+const BEST_RADIUS_KM=15,BEST_CANDIDATES=20,BEST_BATCH=5;
 $('#best-nearby').onclick=async()=>{
  const site=selected,pole=site&&poleOf(site.lat),button=$('#best-nearby');if(!pole||button.disabled)return;
  button.disabled=true;
  try{
   if(!await loadPolar('heat',pole)){toast('The long-term maps could not be loaded. Please retry.');return;}
   const radius=Math.round(BEST_RADIUS_KM*1000/POLAR.heat.gridMeters),window=polarWindow('heat',site,2*radius+1);
-  const cells=window?topCells(window.rgba,2*radius+1,radius,BEST_CANDIDATES,4).filter(c=>c.distance>=1.5):[];
+  const cells=window?topCells(window.rgba,2*radius+1,radius,BEST_CANDIDATES,3).filter(c=>c.distance>=1.5):[];
   if(!cells.length){toast(`Nothing else within ${BEST_RADIUS_KM} km has both sunlight and a view of Earth on NASA’s long-term maps.`);return;}
   toast(`Checking the ${cells.length} most promising spots within ${BEST_RADIUS_KM} km for your dates…`);
   const date=$('#date').value,start=startDate(),end=start+duration*HOUR;
   const measure=d=>stayMetrics(visibilityRows(d,'sun'),visibilityRows(d,'earth'),d.sun,start,end);
-  const checked=(await Promise.allSettled(cells.map(async cell=>{
+  // A few at a time, so the terrain service is not flooded, with progress shown as it goes.
+  const check=async cell=>{
    const place=polarLatLon(pole,Math.floor(window.pixel.x)+cell.dx+.5,Math.floor(window.pixel.y)+cell.dy+.5,POLAR.heat.size);
    const spot={id:`pin-${place.lat.toFixed(4)}_${place.lon.toFixed(4)}`,name:'Best nearby spot',type:`Best of ${cells.length} spots checked for ${day(start)}, near ${site.name}`,cat:'pin',lat:place.lat,lon:place.lon};
    const d=await ephemeris(spot,{date});
    return {cell,spot,metrics:measure(d),slope:d.terrain?.slopeDegrees};
-  }))).filter(r=>r.status==='fulfilled'&&r.value.metrics).map(r=>r.value);
+  };
+  const checked=[];
+  for(let n=0;n<cells.length;n+=BEST_BATCH){
+   const batch=await Promise.allSettled(cells.slice(n,n+BEST_BATCH).map(check));
+   for(const r of batch)if(r.status==='fulfilled'&&r.value.metrics)checked.push(r.value);
+   if(selected!==site||$('#date').value!==date)return; // the user moved on while this ran
+   if(n+BEST_BATCH<cells.length)toast(`Checked ${Math.min(cells.length,n+BEST_BATCH)} of ${cells.length} spots for your dates…`);
+  }
   if(selected!==site||$('#date').value!==date)return; // the user moved on while this ran
   if(!checked.length){toast('The candidate spots could not be calculated. Please retry.');return;}
   // Ground gentler than 10° comes first; among those, the most Sun and Earth together, then sunlight.
@@ -551,6 +571,9 @@ sheet.addEventListener('touchmove',e=>{
 sheet.addEventListener('touchend',()=>{if(sheetPull?.active)settleSheet();sheetPull=null;});
 $('#search').addEventListener('focus',()=>{if(sheetState==='peek')setSheet('mid');});
 addEventListener('resize',()=>setSheet(sheetState));setSheet('mid');
+// First visit: name the map buttons for a few seconds. After that the names show when the pointer
+// is over the button column.
+try{if(!localStorage.getItem('zoriana-hints')){localStorage.setItem('zoriana-hints','1');const tools=$('.map-tools');tools.classList.add('hints');const hide=()=>tools.classList.remove('hints');setTimeout(hide,9000);tools.addEventListener('pointerdown',hide,{once:true});}}catch{}
 $('#north').onclick=()=>{if(surface)face(0);else{camera.up.set(0,1,0);controls.update();invalidate();}};
 $('#recenter').onclick=()=>{if(!selected)return;if(mode==='landing')enterSurface(selected);else fly(selected,2.2);};
 function setPin(value){pinning=value;$('#pin').classList.toggle('active',value);$('#globe').classList.toggle('pinning',value);$('#hint').classList.toggle('gone',!value);$('#hint').textContent=value?'Click anywhere on the Moon to place your pin':'Drag to explore · Scroll to zoom · Right-click to drop a pin';if(value)toast('Click the lunar surface to choose your location.');}
@@ -622,10 +645,13 @@ function drawBands(){
 function updateBanner(time){
  const banner=$('#event-banner');
  if(!data){banner.className='banner';$('#event-icon').innerHTML=icon('clock');$('#event-count').textContent='—';$('#event-label').textContent='Calculating Sun and Earth windows';$('#event-sub').textContent='';return;}
- const events=['sun','earth'].map(name=>{const rows=visibilityRows(data,name),now=sampleAt(rows,time);return {name,cross:nextCrossing(rows,time),up:now?now.el>0:false};});
+ const events=['sun','earth'].map(name=>{const rows=visibilityRows(data,name),now=sampleAt(rows,time);return {name,rows,cross:nextCrossing(rows,time),up:now?now.el>0:false};});
  // A Sun "rise" or "set" caused by Earth moving off or onto the Sun is named for what it is.
  const byEclipse=e=>e.name==='sun'&&eclipseAt(data.eclipse,e.cross.time)?.coverage>.2;
  const word=e=>e.name==='sun'?(byEclipse(e)?(e.cross.rising?'end of eclipse':'eclipse by Earth'):(e.cross.rising?'sunrise':'sunset')):(e.cross.rising?'Earthrise':'Earthset');
+ // How far the time would move if the skyline were 0.1° higher or lower than the terrain model says.
+ // Skipped with terrain off, and for eclipses, which do not depend on terrain.
+ const give=e=>{if(!(terrainEnabled&&data.terrain)||byEclipse(e))return '';const spread=crossingSpread(e.rows,e.cross,.1);if(!spread)return ' ± more than 3 d';const m=spread.minutes;return m<1?'':` ± ${m<90?`${Math.round(m)} min`:m<2880?`${Math.round(m/60)} h`:`${Math.round(m/1440)} d`}`;};
  const until=day(data.sun.at(-1).time);
  const steady=e=>e.name==='sun'?(e.up?`Sun stays up through ${until}`:`No sunlight through ${until}`):(e.up?`Earth stays in view through ${until}`:`Earth stays out of view through ${until}`);
  const next=events.filter(e=>e.cross).sort((a,b)=>a.cross.time-b.cross.time)[0];
@@ -637,8 +663,9 @@ function updateBanner(time){
  banner.className=`banner ${next.name}`;
  $('#event-icon').innerHTML=icon(next.name==='sun'?'sun':'globe')+icon(next.cross.rising?'up':'down','arrow');
  $('#event-count').textContent=span(next.cross.time-time);
- $('#event-label').textContent=`until ${word(next)} · ${stamp(next.cross.time)}`;
- $('#event-sub').innerHTML=other.cross?`<b>${word(other).replace(/^./,c=>c.toUpperCase())}</b> in ${span(other.cross.time-time)} · ${stamp(other.cross.time)}`:steady(other);
+ $('#event-label').textContent=`until ${word(next)} · ${stamp(next.cross.time)}${give(next)}`;
+ $('#event-label').title=give(next)?'The ± shows how far this time moves if the skyline is 0.1° higher or lower than the terrain model says.':'';
+ $('#event-sub').innerHTML=other.cross?`<b>${word(other).replace(/^./,c=>c.toUpperCase())}</b> in ${span(other.cross.time-time)} · ${stamp(other.cross.time)}${give(other)}`:steady(other);
 }
 function drawSky(currents,profile){
  const L=8,R=312,T=8,B=108;
@@ -723,7 +750,7 @@ function refreshMetrics(){
  $('#compare').disabled=!data;$('#compare span').textContent=compared.some(s=>selected&&s.id===optionId(selected,$('#date').value,landingHour))?`Comparing (${compared.length})`:'Compare';
  $('#compare-count').hidden=!compared.length;$('#compare-count').textContent=compared.length;
  $('#terrain-toggle').setAttribute('aria-pressed',String(terrainEnabled));$('#terrain-toggle').textContent=terrainEnabled?'Terrain on':'Terrain off';
- if(data?.terrain)$('#terrain-detail').textContent=`${data.terrain.source}. Observer ${(data.terrain.elevationMeters+2).toFixed(1)} m above the 1,737.4 km reference radius (2 m above the DEM). Horizon sampled every 0.25° to 300 km; 40 m polar grid south of 85°S, 80 m grids from 80°S to 85°S and north of 80°N, 1.9 km global background. Slope is a central difference across one grid cell either side of the site and is not a hazard assessment. Grid spacing is not an accuracy guarantee. Small obstacles and narrow ridges may be missed.`;
+ if(data?.terrain)$('#terrain-detail').textContent=`${data.terrain.source}. The ground here is ${Math.abs(Math.round(data.terrain.elevationMeters)).toLocaleString()} m ${data.terrain.elevationMeters<0?'below':'above'} the 1,737.4 km reference radius, and the view is from 2 m above it. The skyline is traced every 0.25° out to 300 km. Grids: 40 m south of 85°S, 80 m near both poles, 474 m elsewhere. Small obstacles and narrow ridges can be missed.`;
  drawBands();updateBeams();updateCursor();renderLunar();syncUrl();
 }
 $('#terrain-toggle').onclick=()=>{terrainEnabled=!terrainEnabled;refreshMetrics();renderComparison();renderRanking();};
@@ -752,7 +779,7 @@ $('#today').onclick=()=>{landingHour=0;$('#hour').value='0';$('#date').value=new
 $('#hour').onchange=()=>{landingHour=Number($('#hour').value);stop();updateClock();refreshMetrics();updateLight();renderRanking();};
 
 // ---- Map chooser ----
-function showPicker(value){$('#map-picker').hidden=!value;$('#map-mode').setAttribute('aria-expanded',String(value));}
+function showPicker(value){$('#map-picker').hidden=!value;$('#map-mode').setAttribute('aria-expanded',String(value));if(value)$('#layer-picker').hidden=true;}
 $('#map-mode').onclick=()=>showPicker($('#map-picker').hidden);
 $('#close-picker').onclick=()=>showPicker(false);
 document.addEventListener('pointerdown',e=>{if(!$('#map-picker').hidden&&!e.target.closest('#map-picker,#map-mode'))showPicker(false);});

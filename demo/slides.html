@@ -169,7 +169,7 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <h2>Built on open NASA data</h2>
 <div class="cards">
 <div class="card"><p class="src">JPL HORIZONS</p><p class="use">Sun and Earth direction and distance for any point on the Moon, any date from 1950 to 2099.</p></div>
-<div class="card"><p class="src">LOLA ELEVATION</p><p class="use">40 m and 80 m polar grids plus a global grid form each site’s terrain skyline.</p></div>
+<div class="card"><p class="src">LOLA ELEVATION</p><p class="use">40 m and 80 m polar grids plus a 474 m global grid form each site’s terrain skyline.</p></div>
 <div class="card"><p class="src">LOLA ILLUMINATION MAPS</p><p class="use">Permanent shadow and long-term Sun and Earth visibility, within 15° of each pole.</p></div>
 <div class="card"><p class="src">LROC MOSAIC</p><p class="use">The 8K Moon imagery on the globe, from the Lunar Reconnaissance Orbiter.</p></div>
 <div class="card"><p class="src">BLUE MARBLE</p><p class="use">Earth in the lunar sky, at its true size, distance and phase.</p></div>
@@ -177,9 +177,9 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 </div>
 <div class="check">
 <p class="num">0.06°</p>
-<p class="why">Checked two ways. Apollo 11: the Sun’s height at touchdown matches the published JPL-based figure to 0.06°. Terrain: yearly sunlight at ten polar points is within 3 percentage points of NASA’s long-term maps on average.</p>
+<p class="why">Checked three ways. Apollo 11: the Sun’s height at touchdown matches the published JPL-based figure to 0.06°. Terrain: yearly sunlight at ten polar points is within 3 percentage points of NASA’s long-term maps on average. A real lander: Blue Ghost saw the 2025 eclipse end at 08:30 UTC, and so does the app.</p>
 </div>
-<aside>Nothing is simulated. Positions come live from JPL Horizons, terrain from the Lunar Orbiter Laser Altimeter, imagery from LROC. We checked the Sun-angle chain against published Apollo values: Apollo 11 matches to 0.06 degrees, and all six landings are within 0.7 degrees of NASA's older table, whose remaining differences trace to the Sun position that table used. The terrain model was checked against NASA's long-term illumination maps at ten polar points.</aside>
+<aside>Nothing is simulated. Positions come live from JPL Horizons, terrain from the Lunar Orbiter Laser Altimeter, imagery from LROC. We checked the Sun-angle chain against published Apollo values: Apollo 11 matches to 0.06 degrees, and all six landings are within 0.7 degrees of NASA's older table, whose remaining differences trace to the Sun position that table used. The terrain model was checked against NASA's long-term illumination maps at ten polar points. And against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025, the same time the app gives. For that lander's sunset two days later the app is one to two hours later than Firefly's account, and the documents say so.</aside>
 </section>
 
 <section id="next" data-transition="fade">
@@ -190,11 +190,11 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <h3 class="earth">Honest about today</h3>
 <p>Geometry only: sunlight is not usable power, and Earth in view is not a working radio link.</p>
 <p>Future mission points are approximate, and labelled so.</p>
-<p>72 automated tests. Every number traces to a NASA source.</p>
+<p>74 automated tests. Every number traces to a NASA source.</p>
 </div>
 <div class="col">
 <h3 class="sun">Next</h3>
-<p>Scan a whole area, not just six spots, for the best place to land on your dates.</p>
+<p>Scan every cell of an area, not just the twenty best candidates, for your dates.</p>
 <p>Add relay satellites, for places that cannot see Earth.</p>
 <p>Add maps of rocks and small craters, to judge whether a spot is safe to land on.</p>
 </div>

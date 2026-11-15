@@ -1,0 +1,66 @@
+{
+ "generated": "2026-11-15T09:22:47.842Z",
+ "sources": [
+  "https://fireflyspace.com/news/firefly-aerospace-successfully-completes-14-days-of-surface-operations-on-the-moon",
+  "https://spacepolicyonline.com/news/fireflys-dazzling-images-of-earth-eclipsing-the-sun/",
+  "https://en.wikipedia.org/wiki/March_2025_lunar_eclipse"
+ ],
+ "site": "Blue Ghost Mission 1, 18.56°N 61.81°E",
+ "terrain": "NASA LOLA · 474 m global grid",
+ "eclipse": {
+  "published": {
+   "firefly": {
+    "firstLook": "2025-03-14T05:30Z",
+    "diamondRingAsTotalityEnds": "2025-03-14T08:30Z",
+    "note": "both given as \"around\", in CDT"
+   },
+   "wholeMoonContactsUTC": {
+    "penumbra": [
+     "03:57",
+     "10:00"
+    ],
+    "partial": [
+     "05:09",
+     "08:48"
+    ],
+    "total": [
+     "06:26",
+     "07:32"
+    ]
+   }
+  },
+  "app": {
+   "sunStartsToBeCovered": "2025-03-14T05:05Z",
+   "totalityStarts": "2025-03-14T06:20Z",
+   "totalityEnds": "2025-03-14T08:30Z",
+   "sunFullyClear": "2025-03-14T09:50Z",
+   "stepMinutes": 5
+  },
+  "checks": {
+   "totalityEndsMinusFireflyDiamondRingMinutes": 0,
+   "coverStartsBeforeFireflyFirstLook": true,
+   "coverStartsWhilePenumbraCrossesMoon": true,
+   "totalityStartsWhileUmbraCrossesMoon": true,
+   "totalityEndsWhileUmbraLeavesMoon": true,
+   "clearWhilePenumbraLeavesMoon": true
+  }
+ },
+ "sunset": {
+  "published": {
+   "firefly": "final data around 2025-03-16T23:15Z, just over 5 hours into the lunar night",
+   "impliedStartOfNight": "shortly before 2025-03-16T18:15Z"
+  },
+  "app": {
+   "sunStartsToBeCovered": "2025-03-16T19:20Z",
+   "centreSets": "2025-03-16T19:48Z",
+   "plusMinusMinutesFor0p1DegreeOfSkyline": 12,
+   "lastLight": "2025-03-16T20:25Z",
+   "centreSetsOnSmoothSphere": "2025-03-16T20:10Z"
+  },
+  "hoursLaterThanFirefly": {
+   "sunStartsToBeCovered": 1.1,
+   "centreSets": 1.6,
+   "lastLight": 2.2
+  }
+ }
+}
