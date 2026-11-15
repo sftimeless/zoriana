@@ -2,7 +2,7 @@
 
 Evaluated November 15, 2026 (UTC morning) on the public site https://zoriana.fly.dev/ with live JPL Horizons data: first against commit `cdb9bb6`, then again for the changed answers after the fixes that followed.
 
-**This is the second run.** The first, at commit `e105d83` on November 14, scored 12 working, 14 partial, 4 not implemented. It is kept in the git history of this file. The second run scored 22 working, 8 partial. The eight partial items and the four new findings were then worked on, and the affected questions were re-tested on the live site. **Current score: 29 working, 1 partial, 0 not implemented, 0 unverified.** Entries changed by the fixes are marked "(re-tested after fixes)".
+**This is the second run.** The first, at commit `e105d83` on November 14, scored 12 working, 14 partial, 4 not implemented. It is kept in the git history of this file. The second run scored 22 working, 8 partial. The eight partial items and the four new findings were then worked on, and the affected questions were re-tested on the live site. **Current score: 30 working, 0 partial, 0 not implemented, 0 unverified.** Entries changed by the fixes are marked "(re-tested after fixes)".
 
 **Who ran it.** The same AI assistant that wrote most of the code, so it is not an outside audit. To keep it honest, every "answer given" below is text read from the running site during this run, not recalled or taken from the documents, and where the app cannot answer, the entry says so.
 
@@ -18,7 +18,7 @@ Evaluated November 15, 2026 (UTC morning) on the public site https://zoriana.fly
 
 Zoriana answers NASA's one firm requirement (show where the Sun and Earth sit relative to the horizon at a chosen site and date) with real ephemerides and real terrain, and it now covers almost all of the optional ideas in the brief: curated past and future sites, side-by-side comparison, any date from 1950 to 2099, countdowns, stay metrics, 3D and tilted views, playback, and plain-language text for newcomers. Since the first run it has gained a way to answer "where" beyond the curated list: NASA's long-term illumination maps drawn as a heat map, a best-spot finder, and permanent shadow maps at both poles.
 
-It is a credible first-pass planning and teaching tool, and it says clearly that it is geometry only. It is not a mission tool. After the fixes, the best-spot finder checks its candidates against the chosen dates, the app recommends a landing hour as well as a day, search covers 9,087 IAU-named features, the north pole has 80 m terrain, and the terrain model has been checked against NASA's long-term maps (within 3 percentage points on average at ten polar points). The remaining weaknesses are: individual rise and set times at grazing angles carry no error bar; terrain between 80°S and 80°N is 1.9 km coarse; sharp ridges can differ a lot from NASA's pixel; and the map draws no place-name labels.
+It is a credible first-pass planning and teaching tool, and it says clearly that it is geometry only. It is not a mission tool. After the fixes, the best-spot finder checks its candidates against the chosen dates, the app recommends a landing hour as well as a day, search covers 9,087 IAU-named features, the north pole has 80 m terrain, and the terrain model has been checked against NASA's long-term maps (within 3 percentage points on average at ten polar points). The map now labels named features and the Landing view takes fine detail from NASA's 100 m imagery. The remaining weaknesses are: individual rise and set times at grazing angles carry no error bar; terrain between 80°S and 80°N is 1.9 km coarse; and sharp ridges can differ a lot from NASA's pixel.
 
 ---
 
@@ -46,7 +46,7 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 | 18 | Educator | Plan own missions | WORKING | Pins, dates, compare, share | Pins cannot be named |
 | 19 | Educator | Change the date | WORKING | Date field, day bars | — |
 | 20 | Educator | Understand the method | WORKING | "How was this worked out?" steps; explainers | Method sheet itself is still technical |
-| 21 | Public | Explore like a maps app | PARTIAL | Rotate, zoom, pin, tilt; search of 9,087 names | No place-name labels on the map; soft imagery up close |
+| 21 | Public | Explore like a maps app | WORKING | Rotate, zoom, pin, tilt; search of 9,087 names; place labels; 100 m imagery in Landing view | Globe imagery itself stays 1.3 km per pixel |
 | 22 | Public | Historic landing sites | WORKING | Six Apollo sites | Crewed sites only from Apollo, as expected |
 | 23 | Public | Terrain and horizon of a point | WORKING | Sky chart, elevation, slope | 1.9 km terrain between 80°S and 80°N |
 | 24 | Public | See Earth at a time | WORKING | Earth tile with disc share | — |
@@ -57,7 +57,7 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 | 29 | Public | Differences between locations | WORKING | Ranking of all sites; heat map | First ranking of a new date takes time |
 | 30 | Public | Simple trade-off explanation | WORKING | Sentences on card and comparison | One sentence per option, no verdict |
 
-**Totals: WORKING 29 · PARTIAL 1 · NOT IMPLEMENTED 0 · UNVERIFIED 0.** (Second run before fixes: 22 and 8. First run: 12, 14 and 4 not implemented.)
+**Totals: WORKING 30 · PARTIAL 0 · NOT IMPLEMENTED 0 · UNVERIFIED 0.** (Second run before fixes: 22 and 8. First run: 12, 14 and 4 not implemented.)
 
 ---
 
@@ -226,11 +226,11 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 
 ### Audience 3: General public
 
-**21. Explore like a maps app — PARTIAL (re-tested after fixes)**
-- **Answer given:** Drag, zoom, right-click to pin, Explore / Landing / Satellite, a draggable sheet on phones. Search now covers IAU names: "Tycho" returns Tycho (crater, 85 km across) and its satellite craters; "copern" returns Copernicus; "mare ser" returns Mare Serenitatis. Choosing one drops a pin at its centre with full results.
-- **Evidence:** `searchFeatures` (`src/features.mjs`), search handler and `setMode` (`src/main.js`), `tests/features.test.mjs`.
-- **Limits:** The map still draws no place-name labels as you move around, and the imagery is soft when zoomed in (about 1.3 km per pixel).
-- **Smallest fix:** Presentation: label the largest named features on the globe by zoom level.
+**21. Explore like a maps app — WORKING (re-tested after fixes)**
+- **Answer given:** Drag, zoom, right-click to pin, Explore / Landing / Satellite, a draggable sheet on phones. Search covers IAU names: "Tycho" returns Tycho (crater, 85 km across) and its satellite craters; "copern" returns Copernicus; "mare ser" returns Mare Serenitatis. The map now labels features as you move: the whole-Moon view shows Mare Tranquillitatis, Mare Fecunditatis and Mare Nubium; the Landing view at Apollo 15 shows Montes Apenninus, Mons Hadley, Rimae Fresnel and Conon. In that Landing view 81 NASA Moon Trek tiles loaded and Hadley Rille is resolved.
+- **Evidence:** `searchFeatures` (`src/features.mjs`), `placeFeatureNames` (`src/main.js`), `loadDetail` (`src/surface-patch.mjs`), `tests/features.test.mjs`.
+- **Limits:** The globe's own image is still about 1.3 km per pixel; the sharper imagery appears only in the Landing view, within 78° of the equator, and needs NASA's tile server to answer. Labels cannot be clicked.
+- **Smallest fix:** None required.
 
 **22. Historic human landing sites — WORKING**
 - **Answer given:** The Apollo group lists Apollo 11, 12, 14, 15, 16 and 17, each with data and links to QuickMap and Moon Trek.
@@ -333,9 +333,10 @@ Still open, in order:
 
 1. **An outside check of one terrain-blocked event time**, and an uncertainty note beside times.
 2. **Rank every cell of a region for a chosen date**, rather than six candidates.
-3. **Place-name labels on the map.**
-4. **Finer terrain between 80°S and 80°N.**
-5. **Label the map buttons** for first-time visitors.
+3. **Eclipses**, when Earth's shadow dims the Sun: the data needed is already loaded.
+4. **A slope map near the south pole**, and slope as a filter in the best-spot finder.
+5. **Finer terrain between 80°S and 80°N.**
+6. **Label the map buttons** for first-time visitors.
 
 ---
 

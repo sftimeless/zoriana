@@ -97,6 +97,9 @@ export function addPolarOverlay(material,uniforms){
   program.fragmentShader='varying vec3 polarDirection;\nuniform sampler2D psrSouth;\nuniform sampler2D psrNorth;\nuniform sampler2D heatSouth;\nuniform sampler2D heatNorth;\nuniform float psrVisible;\nuniform float heatMode;\nuniform vec3 earthDirection;\n'+program.fragmentShader.replace('#include <opaque_fragment>',`
   vec3 polarUnit=normalize(polarDirection);
   float polarNorth=step(0.0,polarUnit.y),polarInside=step(0.9659258,abs(polarUnit.y)),heatOn=step(.5,heatMode);
+  // NASA's maps stop at 75° latitude. The heat map fades in over the next five degrees rather than
+  // ending on a hard circle, which read as a disc pasted on the Moon.
+  float heatFade=smoothstep(0.9659258,0.9848078,abs(polarUnit.y));
   vec2 polarS=${scale}*vec2(-polarUnit.z,polarUnit.x)/max(1.0-polarUnit.y,.5)+.5;
   vec2 polarN=${scale}*vec2(-polarUnit.z,-polarUnit.x)/max(1.0+polarUnit.y,.5)+.5;
   float psrShare=mix(texture2D(psrSouth,polarS).r,texture2D(psrNorth,polarN).r,polarNorth)*psrVisible*polarInside*(1.0-heatOn);
@@ -105,17 +108,17 @@ export function addPolarOverlay(material,uniforms){
   float heatValue=heatMode<1.5?heat.r:heatMode<2.5?heat.g:heat.r*heat.g;
   vec3 heatColor=heatMode<1.5?${rgb(HEAT.sun.color)}:heatMode<2.5?${rgb(HEAT.earth.color)}:${rgb(HEAT.both.color)};
   vec2 heatRange=heatMode<1.5?vec2(${HEAT.sun.from},${HEAT.sun.to}):heatMode<2.5?vec2(${HEAT.earth.from},${HEAT.earth.to}):vec2(${HEAT.both.from},${HEAT.both.to});
-  float heatShare=smoothstep(heatRange.x,heatRange.y,heatValue)*polarInside*heatOn;
-  outgoingLight=mix(outgoingLight,outgoingLight*.45+heatColor*.6,heatShare*.72);
+  float heatShare=smoothstep(heatRange.x,heatRange.y,heatValue)*heatFade*heatOn;
+  outgoingLight=mix(outgoingLight,outgoingLight*.5+heatColor*.55,heatShare*.62);
   // Earth view outside the polar maps is plain geometry: a blue wash where Earth is above level
   // ground at the selected time, and a brighter band within about 8° of the edge of the mean
   // near side (the x axis points at the mean Earth), where libration makes Earth rise and set.
   float earthNow=smoothstep(-.01,.03,dot(polarUnit,earthDirection))*step(.5,length(earthDirection));
   float earthBand=1.0-smoothstep(.125,.15,abs(polarUnit.x));
-  float earthShare=(earthNow*.34+earthBand*.3)*(1.0-polarInside)*step(1.5,heatMode)*(1.0-step(2.5,heatMode));
+  float earthShare=(earthNow*.34+earthBand*.3)*(1.0-heatFade)*step(1.5,heatMode)*(1.0-step(2.5,heatMode));
   outgoingLight=mix(outgoingLight,outgoingLight*.45+heatColor*.6,earthShare);
   #include <opaque_fragment>`);
  };
- material.customProgramCacheKey=()=>key.call(material)+'+polar-v3';
+ material.customProgramCacheKey=()=>key.call(material)+'+polar-v4';
  material.needsUpdate=true;
 }

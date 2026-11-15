@@ -221,3 +221,12 @@
 - Sixty-eight Node tests pass; `npx vite build` succeeds; demo PDF rebuilt (7 pages).
 - Live machine after adding the north grid: 988 MB total, 387 MB available; warm-up "18/18 sites in 12 s".
 - Not verified: the blocker marker by eye at close zoom; Safari and a real phone; the new features on a slow connection (the named-feature list is a 478 KB download, 211 KB compressed).
+
+## Map labels, heat-map edge and sharper Landing imagery — November 15, 2026 (UTC)
+
+- Heat map: the team reported that the map's hard circular edge at 75° latitude looked like "a moon within a moon". It now fades out between 75° and 80°. Seen in the Sun and score maps: no visible edge.
+- Place names: up to 22 labels from the IAU list, largest features first, more as you zoom in. Whole-Moon view showed Mare Tranquillitatis, Mare Fecunditatis and Mare Nubium; the Landing view at Apollo 15 showed Montes Apenninus, Mons Hadley, Rimae Fresnel, Sinus Fidei and Conon.
+- Sharper imagery: NASA Moon Trek's LRO WAC mosaic tiles (zoom 8, 9 × 9 tiles) answered with `Access-Control-Allow-Origin: *`. In the Landing view at Apollo 15, 81 tiles loaded and Hadley Rille is resolved. Two earlier attempts were rejected: using the tiles directly gave a darker square, and matching average brightness still left the seas darker than their surroundings because the two mosaics differ in contrast. The version kept takes only fine detail (brightness relative to a 5 km blur) and multiplies the 8K mosaic, which showed no patch at Apollo 15 or Tycho.
+- The last slide's "Next" list was reworded in plain language.
+- Sixty-eight Node tests pass; `npx vite build` succeeds; no console errors locally.
+- Not verified: what the Landing view does when NASA's tile server is slow or down (by design it keeps the 8K image), and the labels on a real phone.

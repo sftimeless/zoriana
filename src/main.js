@@ -300,7 +300,37 @@ sites.forEach(addLabel);
 // IAU names for craters, seas and mountains: used by search, to describe pins, and to name the
 // terrain that hides the Sun or Earth. Loaded after the page is up; everything works without it.
 let features=null;
-fetch('/assets/features.json').then(r=>r.ok?r.json():null).then(list=>{features=list;if(selected)refreshMetrics();}).catch(()=>{});
+fetch('/assets/features.json').then(r=>r.ok?r.json():null).then(list=>{
+ features=list;
+ if(list){featurePoints=new Float32Array(list.length*3);list.forEach((f,i)=>featurePoints.set(coordinatesToVector(f[1],f[2]),i*3));}
+ if(selected)refreshMetrics();invalidate();
+}).catch(()=>{});
+// Place names on the map: the largest named features in view, more of them as you zoom in.
+// A fixed pool of labels is reused every frame; they never take clicks, so dragging is unaffected.
+let featurePoints=null;
+const FEATURE_LABELS=22,featureLabels=Array.from({length:FEATURE_LABELS},()=>{const el=document.createElement('div');el.className='feature-label';el.hidden=true;$('#labels').appendChild(el);return el;});
+const featurePoint=new THREE.Vector3();
+function placeFeatureNames(occupied){
+ let used=0;
+ if(features&&featurePoints){
+  const altitudeKm=(camera.position.length()-1)*1737.4,smallest=Math.max(5,altitudeKm/9),sampler=surface?shadows.sampler():null;
+  const facing=towardCamera.copy(camera.position).normalize(),limit=1/camera.position.length(); // beyond the limb when the dot product is below this
+  for(let i=0;i<features.length&&used<FEATURE_LABELS;i++){
+   const f=features[i];if(f[3]<smallest)break;                       // sorted by size, so nothing further qualifies
+   if(f[3]>altitudeKm*3&&f[3]>600)continue;                           // far larger than the view: its centre says little
+   const x=featurePoints[i*3],y=featurePoints[i*3+1],z=featurePoints[i*3+2];
+   if(x*facing.x+y*facing.y+z*facing.z<limit+.02)continue;
+   featurePoint.set(x,y,z).multiplyScalar(sampler?1+sampler(f[1],f[2])/1737.4+.0003:1.002);
+   const p=projected.copy(featurePoint).project(camera);if(Math.abs(p.x)>.96||Math.abs(p.y)>.92||p.z>1)continue;
+   const sx=(p.x+1)*innerWidth/2,sy=(1-p.y)*innerHeight/2;
+   if(occupied.some(q=>Math.abs(q[0]-sx)<96&&sy-q[1]>-26&&sy-q[1]<48))continue;   // a site's name sits below its pin, so keep clear of that too
+   occupied.push([sx,sy]);
+   const el=featureLabels[used++];if(el.textContent!==f[0])el.textContent=f[0];
+   el.hidden=false;el.classList.toggle('major',f[4]==='Mare'||f[4]==='Oceanus');el.style.transform=`translate3d(${sx.toFixed(1)}px,${sy.toFixed(1)}px,0) translate(-50%,-50%)`;
+  }
+ }
+ for(let i=used;i<FEATURE_LABELS;i++)featureLabels[i].hidden=true;
+}
 const describePlace=(lat,lon)=>{const place=features&&placeName(features,lat,lon);return place?`Custom lunar coordinates · ${place.text}`:'Custom lunar coordinates';};
 // Small markers on the ground where terrain is hiding the Sun or Earth from the selected site.
 const blockers={};
@@ -331,6 +361,7 @@ function updateLabels(){
   const hidden=!visible||Math.abs(p.x)>1||Math.abs(p.y)>1||collision;el.hidden=hidden;if(hidden)continue;
   occupied.push([x,y]);el.style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) translate(-50%,-50%)`;el.classList.toggle('selected',site.id===selected?.id);
  }
+ placeFeatureNames(occupied);
  for(const b of Object.values(blockers)){
   if(!b.active){b.el.hidden=true;continue;}
   const p=projected.copy(b.point).project(camera),x=(p.x+1)*innerWidth/2,y=(1-p.y)*innerHeight/2;
@@ -441,6 +472,8 @@ function surfaceHeading(){ // degrees east of north that the camera faces
 function enterSurface(site){
  const lat=THREE.MathUtils.clamp(site.lat,-89.95,89.95),frame={lat,lon:site.lon,up:siteVector(site)};
  const info=patch.build(site),radius=info?.radius??1.0006,distance=(info?.polar??lat< -86.6)?.05:.2;
+ // Sharper NASA imagery for the ground near the site, fetched now and blended in when it has all arrived.
+ patch.loadDetail(site,`${site.lat.toFixed(5)}:${site.lon.toFixed(5)}`,()=>{invalidate();if(surface?.site===site&&patch.detailStatus()==='ready')$('#map-status').textContent='Landing view · LOLA relief at true scale · LRO imagery at about 100 m';});
  surface?.controls?.dispose();controls.enabled=false;
  surface={site,frame,north:new THREE.Vector3(...skyDirection(lat,site.lon,0,0)),east:new THREE.Vector3(...skyDirection(lat,site.lon,90,0)),target:frame.up.clone().multiplyScalar(radius),radius,info,distance,controls:null,awaitingEarth:false};
  const view=framing('earth',site,surface.target,frame,distance);surface.awaitingEarth=!view;

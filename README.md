@@ -142,6 +142,7 @@ The map button with the concentric rings steps through Off, Average sunlight, Av
 
 - Sources: LRO LOLA products AVGVISIB_75S_120M_201608 and AVGVISIB_75N_120M_201608, and their `_EARTH` versions (same data set and directory as above). Each value is the share of time steps, in NASA's long-term simulation, in which any part of the Sun's (or Earth's) disc was visible from that 120 m pixel.
 - `scripts/prepare-illumination.py` averages 4 × 4 blocks into `public/assets/heat-south-480m.webp` and `heat-north-480m.webp` (1906 × 1906, lossless): red = mean Sun share, green = mean Earth share, blue = the highest Sun share among the 16 source pixels. They are downloaded only when the heat map or a polar site needs them (about 5 MB each).
+- NASA's maps end 15° from each pole. The heat map fades out over the last five degrees (75° to 80°) instead of stopping on a hard circle, which looked like a disc pasted on the Moon.
 - Drawing: one colour per map (yellow, blue, green) whose strength fades in over the range in the legend (sunlight 15% to 55%, Earth 10% to 90%, score 0.08 to 0.48). At 480 m, ordinary polar ground is sunlit about 40% of the time and the best 1% of cells about 50%, so shadowed ground stays clear, ordinary ground is tinted and the best ground glows. Within 5° of the south pole the score's 95th percentile is 0.20 and its 99.9th is 0.47; farther out, open near-side plains score about 0.45 because Earth is always in view there.
 - Site card: "Long-term average" gives the Sun and Earth shares for the site's cell. "Find best spot within 15 km" works in two steps: `topCells` in `src/psr.mjs` picks the six best-scoring cells within 15 km that are at least 1.9 km apart, then each is run through the full calculation for the chosen landing time and stay, and the one with the most hours of Sun and Earth together gets a pin. If none beats the current site, the app says so.
 - Earth view: outside the polar maps the Earth map is plain geometry, not NASA's product: a blue wash where Earth is above level ground at the selected time, and a brighter band within about 8° of the edge of the mean near side, where libration makes Earth rise and set.
@@ -189,7 +190,16 @@ The map button with the concentric rings steps through Off, Average sunlight, Av
 
 ## Place names
 
-`python3 -I scripts/prepare-features.py` turns the IAU and USGS "Planetary Nomenclature of the Moon" centre points (public domain, 9,087 features) into `public/assets/features.json`. `src/features.mjs` searches it and names places: a point takes the smallest round feature whose circle reaches it ("inside Shackleton", "near the rim of Malapert A", "on Mons Mouton"). Seas and mountains are used only when the point is well inside their circle, and long thin features such as rilles are never used, because a centre and a diameter describe them poorly. When terrain hides the Sun or Earth, the app works out where that terrain is, names it if a feature covers it, and marks it on the map when zoomed in.
+`python3 -I scripts/prepare-features.py` turns the IAU and USGS "Planetary Nomenclature of the Moon" centre points (public domain, 9,087 features) into `public/assets/features.json`. The map labels the largest named features in view and adds smaller ones as you zoom in (22 labels at most, never over a site's own label). `src/features.mjs` searches the list and names places: a point takes the smallest round feature whose circle reaches it ("inside Shackleton", "near the rim of Malapert A", "on Mons Mouton"). Seas and mountains are used only when the point is well inside their circle, and long thin features such as rilles are never used, because a centre and a diameter describe them poorly. When terrain hides the Sun or Earth, the app works out where that terrain is, names it if a feature covers it, and marks it on the map when zoomed in.
+
+## Sharper imagery in the Landing view
+
+The globe uses one 8K image (about 1.3 km per pixel at the equator), which is soft when zoomed in. When the Landing view opens on a site within 78° of the equator, `src/surface-patch.mjs` fetches a 9 × 9 block of 256-pixel tiles of the LRO wide-angle camera global mosaic from NASA Moon Trek (zoom level 8, about 83 m per pixel at the equator; the mosaic's native scale is about 100 m), covering roughly 190 km around the site.
+
+- Only fine detail is taken from the tiles: each pixel's brightness relative to a blurred copy of the same mosaic (about 5 km) multiplies the 8K image. Broad tone and tint stay those of the 8K image, so the detailed area does not show as a patch. (Using the tiles directly made a visibly darker square; matching average brightness still left dark seas, because the two mosaics differ in contrast.)
+- The tiles are requested from `trek.nasa.gov` by the visitor's browser, about 2 MB per site. Nothing is shown until all 81 have arrived; if any fails, the view keeps the 8K image.
+- Near the poles this is not used: the mosaic is equirectangular, stretched there, and mostly in shadow.
+- Like the 8K image, the mosaic carries the lighting of the day it was photographed. The app's own shadows are drawn on top of it.
 
 ## Interactive terrain shadows
 
