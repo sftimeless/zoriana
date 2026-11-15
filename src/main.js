@@ -679,7 +679,7 @@ $('#close-compare').onclick=()=>{$('#comparison').hidden=true;};
 // ---- Ranking: every site for the chosen landing date and stay, in one table ----
 const rankColumns=[['both','Sun + Earth','Hours with the Sun and Earth both above the horizon: power and a direct link at the same time'],['sun','Sunlit','Hours of sunlight'],['earth','Earth','Hours with Earth in view'],['sunHeight','Sun height','Average Sun elevation while the site is sunlit']];
 let rankFilter='all',rankSort='both',rankToken=0,rankList=[],rankResults=new Map();
-function showRanking(value){$('#ranking').hidden=!value;if(value){$('#comparison').hidden=true;renderRanking();}else rankToken++;}
+function showRanking(value){$('#ranking').hidden=!value;if(value){$('#comparison').hidden=true;renderRanking();}else rankToken++;syncUrl();}
 async function renderRanking(){
  if($('#ranking').hidden)return;
  const token=++rankToken,date=$('#date').value,start=startDate(),end=start+duration*HOUR;
@@ -749,7 +749,7 @@ function writeUrl(){
  if(selected)p.set('site',siteToken(selected));
  p.set('date',$('#date').value);if(landingHour)p.set('hour',landingHour);
  if(Number($('#time').value)!==12)p.set('t',$('#time').value);
- if(duration!==72)p.set('stay',duration);if(!terrainEnabled)p.set('terrain','off');if(!psrEnabled)p.set('psr','off');if(mode!=='explore')p.set('view',mode);
+ if(duration!==72)p.set('stay',duration);if(!terrainEnabled)p.set('terrain','off');if(!psrEnabled)p.set('psr','off');if(mode!=='explore')p.set('view',mode);if(!$('#ranking').hidden)p.set('panel','rank');
  if(compared.length)p.set('compare',compared.map(o=>`${siteToken(o.site)}@${o.date}T${String(o.hour).padStart(2,'0')}`).join('~'));
  try{history.replaceState(null,'',`${location.pathname}?${p}`);}catch{}
 }
@@ -777,6 +777,7 @@ function restoreFromUrl(){
   if(view==='landing'){selected=site;setMode('landing');}else selectSite(site);
  }
  if(compared.length){$('#comparison').hidden=false;renderComparison();}
+ if(p.get('panel')==='rank')showRanking(true); // a shared link can open straight on the ranking
 }
 $('#share').onclick=$('#share-compare').onclick=async()=>{
  clearTimeout(urlTimer);writeUrl();

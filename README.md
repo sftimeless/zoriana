@@ -1,6 +1,8 @@
 # Zoriana
 
-Fresh NASA Space Apps 2026 lunar landing-site explorer, started November 14, 2026. See FRESH_START.md for provenance and disclosed prior research.
+Lunar landing site navigator for the NASA Space Apps Challenge 2026 ("Lunar Landing Site Navigator"), started fresh on November 14, 2026. See FRESH_START.md for provenance and disclosed prior research.
+
+**Live app: https://zoriana.fly.dev/** · Demo slides: [demo/zoriana-demo.pdf](demo/zoriana-demo.pdf) · Form text: [SUBMISSION.md](SUBMISSION.md) · References: [REFERENCES.md](REFERENCES.md)
 
 ## Run locally
 
@@ -13,7 +15,15 @@ npm run dev
 
 Open http://127.0.0.1:4174. On this Mac, double-click `Start Zoriana.command`.
 
-`npm test` verifies the Horizons parser, time interpolation, visibility integration, and coordinate transforms. `npm run build` bundles the frontend. The built frontend still needs the `/api/ephemeris` backend; this is a local development app, not a deployed service.
+`npm test` verifies the Horizons parser, time interpolation, visibility integration, and coordinate transforms. `npm run build` bundles the frontend. The built frontend still needs the `/api/ephemeris` backend, which is the same Node server.
+
+The NASA terrain grids are too large for git. `data/terrain-manifest.json` lists each file's source URL and SHA-256; download them into `data/` and run `python3 scripts/prepare-terrain.py` before starting the server.
+
+## Run in production and deploy
+
+`npm run build && npm start` serves the built app from `dist/` with `NODE_ENV=production`. In that mode the server needs no npm packages, listens on `PORT` (default 4174) on all interfaces, sends gzip copies of files that have a `.gz` twin, answers `/healthz`, limits each visitor to 400 API requests per five minutes, and loads the terrain grids at start-up so the first visitor does not wait.
+
+The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repository: one always-on shared-CPU machine with 1 GB of memory in San Jose (the server holds about 260 MB of LOLA terrain in memory; measured use is about 370 MB). Deploy with `fly deploy --ha=false` from a checkout that has the terrain files in `data/`. Measured on November 15, 2026: a site that has not been requested before answers in about 1 second (terrain horizon under 1 second, plus two JPL Horizons requests).
 
 ## First-build features
 
@@ -44,7 +54,7 @@ NASA's CGI mosaic is optimized for aesthetics, including polar gap filling. It i
 - NASA/JPL Horizons observer ephemerides: https://ssd.jpl.nasa.gov/horizons/ and https://ssd-api.jpl.nasa.gov/doc/horizons.html
 - Three.js (MIT) and Vite (MIT); exact versions in package-lock.json.
 - Typography uses the system font stack (no web fonts are downloaded). Interface icons are original inline SVG drawings.
-- App icon: the team's official icon, supplied on November 14, 2026 (source file dated that evening). `public/assets/icon-512.png`, `icon-192.png` and `favicon.png` are that image cropped to its rounded square, given transparent corners and resized with Pillow; nothing was redrawn. The code-drawn placeholder and the earlier bitmap icon (dated November 13) are no longer in the app. If the icon was made with an AI image tool it needs a visible watermark; see REFERENCES.md.
+- App icon: the team's official icon, supplied on November 14, 2026 (source file dated that evening). `public/assets/icon-512.png`, `icon-192.png` and `favicon.png` are that image cropped to its rounded square, given transparent corners and resized with Pillow; nothing was redrawn (`scripts/prepare-icon.py`). The icon was made with an AI image tool, so each copy carries a visible mark as the hackathon rules require: "AI-generated" on the 512 px file and "AI" on the two small ones, where the full words would be unreadable. The code-drawn placeholder and the earlier bitmap icon (dated November 13) are no longer in the app.
 
 NASA imagery does not imply NASA endorsement. AI coding assistance: OpenAI Codex (first build, terrain and shadow model) and Anthropic Claude Code (map-style interface redesign and landing view on November 14, 2026). No code or assets were copied from the earlier Zoriana project.
 

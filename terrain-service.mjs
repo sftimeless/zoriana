@@ -7,5 +7,5 @@ function ensureWorker(){if(worker)return worker;const w=new Worker(new URL('./te
 export async function getTerrain(lat,lon){const key=`${lat.toFixed(6)}:${lon.toFixed(6)}`;if(cache.has(key))return cache.get(key);
  if(pending.size>=12)throw new Error('Terrain service is busy. Please retry.');
  const result=new Promise((resolve,reject)=>{const w=ensureWorker(),id=++sequence;const timer=setTimeout(()=>{const job=pending.get(id);pending.delete(id);job?.reject(new Error('Terrain calculation timed out.'));},60000);pending.set(id,{resolve,reject,timer});w.postMessage({id,lat,lon});});
- cache.set(key,result);if(cache.size>64)cache.delete(cache.keys().next().value);
+ cache.set(key,result);if(cache.size>(process.env.NODE_ENV==='production'?400:64))cache.delete(cache.keys().next().value);
  try{return await result;}catch(e){cache.delete(key);throw e;}}

@@ -39,9 +39,9 @@ export function addPsrOverlay(material,uniforms){
   vec3 psrUnit=normalize(psrDirection);
   vec2 psrUv=${(2*RADIUS_KM).toFixed(1)}*vec2(-psrUnit.z,psrUnit.x)/max(1.0-psrUnit.y,.5)/${PSR.extentKm.toFixed(2)}+.5;
   float psrShare=texture2D(psrMask,psrUv).r*psrVisible*step(psrUnit.y,-0.9659258);
-  outgoingLight=mix(outgoingLight,outgoingLight*.3+vec3(.10,.42,1.0)*.8,psrShare*.85);
+  outgoingLight=mix(outgoingLight,outgoingLight*.5+vec3(.10,.42,1.0)*.5,psrShare*.8);
   #include <opaque_fragment>`);
  };
- material.customProgramCacheKey=()=>key.call(material)+'+psr-v1';
+ material.customProgramCacheKey=()=>key.call(material)+'+psr-v2';
  material.needsUpdate=true;
 }

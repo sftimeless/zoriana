@@ -1,0 +1,12 @@
+.git
+.claude
+node_modules
+dist
+Zoriana
+untitled folder
+*.pdf
+*.md
+tests
+data/ldem_16.tif
+data/lola_psr_75s_120m
+demo

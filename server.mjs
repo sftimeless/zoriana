@@ -1,7 +1,15 @@
+// Zoriana server: the JPL/terrain API plus the web app. In development it runs Vite; with
+// NODE_ENV=production it serves the built files in dist/ and needs no npm packages.
 import http from 'node:http';
-import { createServer } from 'vite';
+import path from 'node:path';
+import { createReadStream } from 'node:fs';
+import { stat } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { getTerrain } from './terrain-service.mjs';
 import { parseHorizons, DAY } from './src/ephemeris.mjs';
+const PRODUCTION=process.env.NODE_ENV==='production';
+const PORT=Number(process.env.PORT)||4174,HOST=process.env.HOST||(PRODUCTION?'0.0.0.0':'127.0.0.1');
+const CACHE_LIMIT=PRODUCTION?600:100;
 const cache=new Map();
 const SERIES_DAYS=31; // hourly series: a full lunar day (29.5 days) plus room for a landing hour later than 00:00
 let queue=Promise.resolve();
@@ -19,16 +27,53 @@ async function query(target,lat,lon,date,altitude=0) {
     return parseHorizons(data.result||'');
   });
   cache.set(key,promise);
-  if(cache.size>100) cache.delete(cache.keys().next().value);
+  if(cache.size>CACHE_LIMIT) cache.delete(cache.keys().next().value);
   try{return await promise;}catch(e){cache.delete(key);throw e;}
 }
-const vite=await createServer({server:{middlewareMode:true},appType:'spa'});
+// A public server gets a per-visitor ceiling so one client cannot monopolise the JPL queue.
+const RATE_WINDOW=5*60000,RATE_LIMIT=400,visitors=new Map();
+function allowed(req){
+  if(!PRODUCTION)return true;
+  const who=req.headers['fly-client-ip']||req.socket.remoteAddress||'unknown',now=Date.now();
+  let entry=visitors.get(who);if(!entry||now-entry.start>RATE_WINDOW){entry={start:now,count:0};visitors.set(who,entry);}
+  if(visitors.size>5000)for(const [key,value] of visitors)if(now-value.start>RATE_WINDOW)visitors.delete(key);
+  return ++entry.count<=RATE_LIMIT;
+}
+const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon','.f32':'application/octet-stream'};
+const DIST=fileURLToPath(new URL('./dist/',import.meta.url));
+// Serves the built app. Files with a .gz twin (made at build time) are sent compressed.
+async function serveBuilt(req,res,url){
+  if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405,{Allow:'GET, HEAD'});res.end();return;}
+  let relative;try{relative=decodeURIComponent(url.pathname);}catch{res.writeHead(400);res.end();return;}
+  let file=path.join(DIST,path.normalize(relative));
+  if(!file.startsWith(DIST)){res.writeHead(403);res.end();return;}
+  let info=await stat(file).catch(()=>null);
+  if(!info?.isFile()){
+    // Unknown asset paths are real 404s; anything else is the single-page app.
+    if(path.extname(relative)){res.writeHead(404,{'Content-Type':'text/plain'});res.end('Not found');return;}
+    file=path.join(DIST,'index.html');info=await stat(file).catch(()=>null);
+    if(!info){res.writeHead(500,{'Content-Type':'text/plain'});res.end('The app has not been built. Run: npx vite build');return;}
+  }
+  const ext=path.extname(file),hashed=/[\\/]assets[\\/]index-[\w-]+\.(js|css)$/.test(file);
+  const headers={'Content-Type':TYPES[ext]||'application/octet-stream','Cache-Control':ext==='.html'?'no-cache':hashed?'public, max-age=31536000, immutable':'public, max-age=86400','Last-Modified':info.mtime.toUTCString(),'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin',Vary:'Accept-Encoding'};
+  const since=Date.parse(req.headers['if-modified-since']||'');
+  if(Number.isFinite(since)&&Math.floor(info.mtimeMs/1000)*1000<=since){res.writeHead(304,headers);res.end();return;}
+  const zipped=/\bgzip\b/.test(req.headers['accept-encoding']||'')?await stat(file+'.gz').catch(()=>null):null;
+  if(zipped){file+='.gz';headers['Content-Encoding']='gzip';}
+  headers['Content-Length']=(zipped||info).size;
+  res.writeHead(200,headers);
+  if(req.method==='HEAD'){res.end();return;}
+  createReadStream(file).on('error',()=>res.destroy()).pipe(res);
+}
+const vite=PRODUCTION?null:await (await import('vite')).createServer({server:{middlewareMode:true},appType:'spa'});
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
+  if(url.pathname==='/healthz'){res.writeHead(200,{'Content-Type':'text/plain','Cache-Control':'no-store'});res.end('ok');return;}
   if(url.pathname==='/api/ephemeris') {
     const lat=Number(url.searchParams.get('lat')),lon=Number(url.searchParams.get('lon')),date=url.searchParams.get('date');
     const valid=date&&/^(19[5-9]\d|20\d\d)-\d{2}-\d{2}$/.test(date)&&Number.isFinite(Date.parse(date))&&new Date(date).toISOString().slice(0,10)===date;
     res.setHeader('Content-Type','application/json');
+    if(!allowed(req)){res.writeHead(429,{'Retry-After':'60'});res.end(JSON.stringify({error:'Too many requests from this connection. Please wait a minute and retry.'}));return;}
     if(req.method!=='GET'||!url.searchParams.has('lat')||!url.searchParams.has('lon')||!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180||!valid){res.writeHead(400);res.end(JSON.stringify({error:'Choose valid lunar coordinates and a date from 1950–2099.'}));return;}
     try {
       const terrain=url.searchParams.get('reference')==='1'?null:await getTerrain(lat,lon);
@@ -38,6 +83,10 @@ const server=http.createServer(async(req,res)=>{
     }catch(e){res.writeHead(502);res.end(JSON.stringify({error:'Terrain or NASA/JPL data is unavailable. Please retry. No reference-only result has been substituted.'}));}
     return;
   }
-  vite.middlewares(req,res);
+  if(vite)vite.middlewares(req,res);else serveBuilt(req,res,url).catch(()=>{if(!res.headersSent)res.writeHead(500);res.end();});
 });
-server.listen(4174,'127.0.0.1',()=>console.log('Zoriana → http://127.0.0.1:4174'));
+server.listen(PORT,HOST,()=>console.log(`Zoriana → http://${HOST}:${PORT}${PRODUCTION?' (production build)':''}`));
+// Load the terrain grids now, so the first visitor does not wait for about 260 MB to be read.
+if(PRODUCTION)getTerrain(-89.5,0).then(()=>console.log('Terrain ready')).catch(e=>console.error('Terrain warm-up failed:',e.message));
+// Let the host stop the server cleanly on deploys.
+for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>{server.close(()=>process.exit(0));setTimeout(()=>process.exit(0),3000).unref();});
