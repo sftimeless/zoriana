@@ -24,7 +24,7 @@ Open http://127.0.0.1:4174. On this Mac, double-click `Start Zoriana.command`.
 - Live Sun and Earth apparent azimuth/elevation and distance from NASA/JPL Horizons for the exact coordinates, at DEM elevation plus a two-meter observer height.
 - Thirty-one-day hourly series from the landing date (one full lunar day plus room for a landing hour), interactive time interpolation/playback over the 30 days after landing, and side-by-side comparison of up to four site-and-date options.
 - "Sun and Earth together": the time when both body centres are above the selected horizon at once, shown on the site card, in the comparison and in the ranking (`together` and `stayMetrics` in `src/windows.mjs`). It is a geometric overlap, not a power or link budget.
-- Mission durations of 24, 72, or 168 hours from midnight UTC on the start date, with a terrain-aware horizon toggle.
+- Mission durations of 24, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle.
 - Browser/session caches and a serialized, bounded-cache JPL service. Network failures never substitute synthetic observations.
 
 ## Scientific scope
