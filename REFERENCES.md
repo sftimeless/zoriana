@@ -47,7 +47,7 @@ Last checked against the code on November 14, 2026.
 
 **Fonts, icons and images**
 - Fonts: the device's system font. No font files are downloaded or bundled.
-- Interface icons: original SVG drawings in `index.html`. The mission icons (Apollo Lunar Module, IM-1, Blue Ghost, Chandrayaan-3, SLIM) were drawn after looking at general reference pictures of each spacecraft; no artwork was traced, copied or included.
+- Interface icons: original SVG drawings in `index.html`. The mission icons (Apollo Lunar Module, Nova-C, Blue Ghost, Chandrayaan-3, SLIM, Blue Moon, Griffin) were drawn after looking at general reference pictures of each spacecraft; no artwork was traced, copied or included.
 - App icon: `public/assets/icon.svg`, a placeholder drawn in code on November 14, 2026. **Update this line when the final icon is made.** If the final icon is AI-generated it needs a visible watermark.
 - No photographs, music, video or third-party artwork are included in the app.
 
