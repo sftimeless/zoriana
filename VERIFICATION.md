@@ -93,3 +93,8 @@
   - IM-2 Athena site: 80 m grid, elevation +5,321 m, slope 2.1° over 160 m.
   - Reiner Gamma and Mons Gruithuisen Gamma: global grid, Earth in view, about half of the 30 days sunlit.
 - Not verified: the exact landing points, which the missions have not published, and whether schedules have changed since the articles were last edited.
+
+## Right-click pin and Blue Moon icon — November 14, 2026 (evening)
+
+- Right-clicking the globe now drops a pin directly. In the in-app browser a real right-click on the surface created a pin at 19.9924°S 56.2458°E, which loaded terrain, slope and Sun/Earth data with no console errors. The long-press path on touch screens uses the same browser event and was not tried on a device.
+- The Blue Moon icon was redrawn from a NASA photograph of the Mark 1 lander (Wikimedia Commons, taken 12 February 2026).
