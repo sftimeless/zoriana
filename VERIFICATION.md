@@ -230,3 +230,16 @@
 - The last slide's "Next" list was reworded in plain language.
 - Sixty-eight Node tests pass; `npx vite build` succeeds; no console errors locally.
 - Not verified: what the Landing view does when NASA's tile server is slow or down (by design it keeps the 8K image), and the labels on a real phone.
+
+## Eclipses and the slope layer — November 15, 2026 (UTC)
+
+- Eclipses: `src/eclipse.mjs` (four unit tests: disc overlap against the closed formula, a synthetic pass of the Sun behind Earth with contact times to five minutes, no-eclipse and empty cases, and vector interpolation near the zenith). The Sun's centre now counts as hidden while behind Earth's disc.
+- Check against published contact times (UTC), local server with live JPL data:
+  - March 3, 2026 (published: penumbral 08:44 to 14:23, umbral 09:50 to 13:17, whole-Moon totality 11:04 to 12:03). Apollo 11: 09:30 to 14:00, total 10:35 to 12:50. Apollo 17: 09:30 to 14:05, total 10:35 to 13:00. South pole point: 09:30 to 13:30, total 10:55 to 12:05. North pole point: 09:20 to 14:00, total 10:20 to 12:55.
+  - August 28, 2026 (published: penumbral 01:23 to 07:02, umbral 02:33 to 05:52, 93% partial). South pole point: 01:55 to 06:40, total 03:00 to 05:30. Apollo 11: 02:15 to 06:40, total 03:30 to 05:25. Far side 0°N 180°E: 02:00 to 06:20, total 03:15 to 05:05. North pole point: 02:15 to 06:05, 96% at most, never total.
+  - Every partial phase is inside the penumbral contacts, every total phase inside the umbral contacts, and on March 3 all sites are total throughout the whole-Moon totality.
+- In the app at Apollo 11 from 2026-03-01: at 07:00 "3 h 00 m until eclipse by Earth · Mar 3, 09:59 UTC"; at 09:30 "Eclipse: Earth covers 2% of the Sun"; at 11:30 "Eclipsed by Earth", disc 0%, "1 h 57 m until end of eclipse · Mar 3, 13:26 UTC", and the globe is dark; at 15:00 "Sunlit". The 3-day stay reads "Sunlit for about 69 of 72 hours". From 2026-11-15: "Eclipses by Earth: None in these 30 days".
+- Slope layer: computed from LDEM_80S_80M and LDEM_80N_80M over a 160 m baseline, reduced to 320 m cells. Spot checks (mean / steepest in the cell): IM-1 11.5° / 14.5° (site card 11.5°); IM-4 8.8° / 12.5°; Malapert 8.8° / 10.0°; Shackleton point 5.2° / 6.8°; Blue Moon Pathfinder 1 point 2.0° / 4.0°; Shackleton floor 4.0° / 7.5°. South: 29% of cells under 5°, 38% over 10°, median 7.9°. North: 35%, 33%, 7.0°. Seen at both poles and in the Landing view; the first version ended on a hard circle and was changed to fade out between 84° and 80°.
+- Best-spot finder: candidates on ground gentler than 10° now come first and the message gives the slope.
+- Seventy-two Node tests pass; `npx vite build` succeeds; demo PDF rebuilt (7 pages).
+- Not verified: eclipses outside 2026; the slope layer on a phone.

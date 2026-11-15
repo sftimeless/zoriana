@@ -36,7 +36,7 @@ async function ephemeris(lat,lon,date,reference=false){
   const terrain=reference?null:await getTerrain(lat,lon);
   const altitude=terrain?(terrain.elevationMeters+terrain.observerHeightMeters)/1000:0;
   const [sun,earth]=await Promise.all([query(10,lat,lon,date,altitude),query(399,lat,lon,date,altitude)]);
-  return {sun,earth,lat,lon,date,days:SERIES_DAYS,terrain,altitudeKm:altitude,source:'NASA/JPL Horizons + NASA LOLA',model:'Airless apparent body-center elevation and observer range; 1737.4 km reference sphere; observer at sampled DEM elevation + 2 m; hourly ephemerides. Finite DEM, azimuth and time sampling; eclipses not evaluated.'};
+  return {sun,earth,lat,lon,date,days:SERIES_DAYS,terrain,altitudeKm:altitude,source:'NASA/JPL Horizons + NASA LOLA',model:'Airless apparent body-center elevation and observer range; 1737.4 km reference sphere; observer at sampled DEM elevation + 2 m; hourly ephemerides. Finite DEM, azimuth and time sampling. Eclipses of the Sun by Earth are evaluated in the browser from these positions.'};
 }
 // The app opens on today's date (UTC), so the curated sites are fetched for today when the server
 // starts and again when the date changes. Visitors then share those answers instead of each

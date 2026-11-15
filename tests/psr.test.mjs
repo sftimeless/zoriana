@@ -61,8 +61,9 @@ test('bestCell picks the highest Sun times Earth score inside the radius',()=>{
 });
 
 test('heat modes have distinct shader codes and sensible ranges',()=>{
- assert.deepEqual(Object.values(HEAT).map(h=>h.code),[1,2,3]);
- for(const h of Object.values(HEAT))assert.ok(0<h.from&&h.from<h.to&&h.to<=1);
+ assert.deepEqual(Object.values(HEAT).map(h=>h.code),[1,2,3,4]);
+ for(const [name,h] of Object.entries(HEAT))assert.ok(0<h.from&&h.from<h.to&&(name==='slope'||h.to<=1));
+ assert.equal(POLAR.slope.size*POLAR.slope.gridMeters/1000,POLAR.slope.extentKm);   // 1900 cells of 320 m span the 608 km grid
 });
 
 test('topCells returns the best cells first and keeps them apart',()=>{

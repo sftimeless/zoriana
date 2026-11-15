@@ -8,7 +8,7 @@ Evaluated November 15, 2026 (UTC morning) on the public site https://zoriana.fly
 
 **Naming.** The brief calls the product "Luna Maps by Zoriana". That name appears nowhere in the code, the site or the documents. The app's title is "Zoriana — Lunar Landing Site Navigator". This report evaluates that app.
 
-**How it was tested.** The desktop app's built-in Chromium browser against the live site, plus direct requests to its API. Example unless stated otherwise: landing date 2026-11-15, 3-day stay, terrain on, timeline at 12:00 UTC. 68 unit tests pass (`npm test`). Not tested in this run: Safari, a real phone, slow graphics hardware.
+**How it was tested.** The desktop app's built-in Chromium browser against the live site, plus direct requests to its API. Example unless stated otherwise: landing date 2026-11-15, 3-day stay, terrain on, timeline at 12:00 UTC. 72 unit tests pass (`npm test`). Not tested in this run: Safari, a real phone, slow graphics hardware.
 
 **Status key.** WORKING: implemented, exercised, gives a supported result. PARTIAL: some of the question is answered. NOT IMPLEMENTED: the function does not exist. UNVERIFIED: may exist, not confirmed.
 
@@ -75,7 +75,7 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 | Sites and names | 18 curated points in five groups, search by name or coordinates across 9,087 IAU-named features, pins. | `src/sites.mjs`, `src/features.mjs`, `src/main.js` |
 | Date and time | Landing date 1950-01-01 to 2099-12-24, landing hour, 30-day slider in 15-minute steps. | `index.html:246`, `server.mjs:95` |
 | Comparison and ranking | Up to four site-and-date options; ranking of all listed sites. Both export CSV. | `src/main.js:702,740,787` |
-| Tests | 68 unit tests: parsing and interpolation (8), terrain and horizon (11), windows and sentences (18), polar maps (9), disc (6), place names (4), Earth orientation (4), links (4), shadows (3), CSV (1). Two separate scripts compare results with outside sources (NASA's Apollo Sun angles; NASA's long-term visibility maps); they need the server and are not part of `npm test`. | `tests/*.mjs`, `scripts/benchmark-apollo.mjs`, `scripts/validate-illumination.mjs` |
+| Tests | 72 unit tests: parsing and interpolation (8), terrain and horizon (11), windows and sentences (18), polar maps (9), disc (6), place names (4), eclipses (4), Earth orientation (4), links (4), shadows (3), CSV (1). Two separate scripts compare results with outside sources (NASA's Apollo Sun angles; NASA's long-term visibility maps); they need the server and are not part of `npm test`. | `tests/*.mjs`, `scripts/benchmark-apollo.mjs`, `scripts/validate-illumination.mjs` |
 
 **Date limits, checked on the live API in this run:**
 
@@ -301,7 +301,7 @@ It is a credible first-pass planning and teaching tool, and it says clearly that
 - **Time.** All times are UTC as returned by Horizons; the interface labels them UTC. The Earth-picture orientation uses a fixed TT−UTC of 69.184 s, which is about 30 s off in 1969; that affects only how the Earth image is turned, not any number.
 - **Ephemerides.** Live Horizons, apparent and airless, at DEM height plus 2 m. Hourly samples are interpolated linearly; near the zenith (a far-side pin peaked at 88.6°) azimuth interpolation is poor, which affects the sight line's direction only.
 - **Terrain and horizon.** 0.25° azimuth steps to 300 km. Narrow ridges between rays and small features below the grid size can be missed. The observer is 2 m above the surface; a lander's mast or array height would change grazing events.
-- **Illumination and shadow.** Site numbers use the fine skyline; the drawn shadow layer uses 160 m (south pole) or 3.8 km grids, so the picture and the numbers can disagree at edges. Eclipses are not evaluated.
+- **Illumination and shadow.** Site numbers use the fine skyline; the drawn shadow layer uses 160 m (south pole) or 3.8 km grids, so the picture and the numbers can disagree at edges. Eclipses of the Sun by Earth are now evaluated geometrically and were checked against the two 2026 lunar eclipses; Earth's atmosphere is ignored.
 - **Earth visibility.** Line of sight to Earth's centre for hours; disc share reported separately. No ground stations, antennas or relays.
 - **Long-term maps.** NASA's values count any part of the disc as visible, and the app averages them to 480 m. They are not comparable one-to-one with the app's 30-day, centre-based figures (Shackleton point: 12% long-term against 22% for the next 30 days).
 - **Dates.** 1950 to 2099 accepted; only 1969–1972 and 2026 have been exercised. Nothing suggests other dates fail, but they were not tested.
@@ -333,10 +333,10 @@ Still open, in order:
 
 1. **An outside check of one terrain-blocked event time**, and an uncertainty note beside times.
 2. **Rank every cell of a region for a chosen date**, rather than six candidates.
-3. **Eclipses**, when Earth's shadow dims the Sun: the data needed is already loaded.
-4. **A slope map near the south pole**, and slope as a filter in the best-spot finder.
-5. **Finer terrain between 80°S and 80°N.**
-6. **Label the map buttons** for first-time visitors.
+3. **Finer terrain between 80°S and 80°N.**
+4. **Label the map buttons** for first-time visitors.
+
+Added after this list was first written: eclipses of the Sun by Earth (in every sunlight figure and on the globe), and a slope layer near both poles with slope as a preference in the best-spot finder.
 
 ---
 

@@ -6,12 +6,16 @@
 //   psr-{south,north}-240m.png    share of each 240 m cell in permanent shadow
 //   heat-{south,north}-480m.webp  R = average share of time some of the Sun's disc is visible,
 //                                 G = the same for Earth, B = the highest Sun share inside the cell
+//   slope-{south,north}-320m.webp R = mean slope of each 320 m cell, G = steepest slope in it,
+//                                 in quarter-degrees, over a 160 m baseline (scripts/prepare-slope.py)
 // Each is a polar stereographic grid 914.88 km across, covering 75° to the pole. In the south image
 // 0° longitude points up; in the north image it points down; 90°E is to the right in both.
 const RADIUS_KM=1737.4,RAD=Math.PI/180;
 export const POLAR={extentKm:914.88,limit:75,
  psr:{size:3812,gridMeters:240,path:pole=>`/assets/psr-${pole}-240m.png`},
- heat:{size:1906,gridMeters:480,path:pole=>`/assets/heat-${pole}-480m.webp`}};
+ heat:{size:1906,gridMeters:480,path:pole=>`/assets/heat-${pole}-480m.webp`},
+ // Slope from the LOLA 80 m grids: a smaller square, 608 km across, covering 80° to the pole.
+ slope:{size:1900,gridMeters:320,extentKm:608,path:pole=>`/assets/slope-${pole}-320m.webp`}};
 
 export const poleOf=lat=>lat<=-POLAR.limit?'south':lat>=POLAR.limit?'north':null;
 
@@ -78,11 +82,13 @@ export function topCells(rgba,width,radius=(width-1)/2,count=6,separation=4){
 export const HEAT={
  sun:{code:1,label:'Average sunlight',color:'#ffd60a',from:.15,to:.55},
  earth:{code:2,label:'Average Earth view',color:'#4da3ff',from:.10,to:.90},
- both:{code:3,label:'Sun × Earth score',color:'#30d158',from:.08,to:.48}
+ both:{code:3,label:'Sun × Earth score',color:'#30d158',from:.08,to:.48},
+ // Slope is a caution layer rather than a score: amber from `from` degrees, red from `to` degrees.
+ slope:{code:4,label:'Slope',color:'#ff453a',from:5,to:10}
 };
 
 // Adds both overlays to a Three.js material without disturbing shader patches already on it.
-// `uniforms` holds psrSouth, psrNorth, heatSouth, heatNorth (textures), psrVisible (0 or 1),
+// `uniforms` holds psrSouth, psrNorth, heatSouth, heatNorth, slopeSouth, slopeNorth (textures), psrVisible (0 or 1),
 // heatMode (0 off, or a HEAT code) and earthDirection (unit vector from the Moon's centre toward
 // Earth in Moon-fixed coordinates), and is shared between materials.
 export function addPolarOverlay(material,uniforms){
@@ -94,15 +100,15 @@ export function addPolarOverlay(material,uniforms){
   program.vertexShader='varying vec3 polarDirection;\n'+program.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\npolarDirection=position;');
   // Polar stereographic lookups straight from the surface direction: no trigonometry and no seam.
   // Both poles are sampled and one is chosen, so texture filtering never sees a branch.
-  program.fragmentShader='varying vec3 polarDirection;\nuniform sampler2D psrSouth;\nuniform sampler2D psrNorth;\nuniform sampler2D heatSouth;\nuniform sampler2D heatNorth;\nuniform float psrVisible;\nuniform float heatMode;\nuniform vec3 earthDirection;\n'+program.fragmentShader.replace('#include <opaque_fragment>',`
+  program.fragmentShader='varying vec3 polarDirection;\nuniform sampler2D psrSouth;\nuniform sampler2D psrNorth;\nuniform sampler2D heatSouth;\nuniform sampler2D heatNorth;\nuniform sampler2D slopeSouth;\nuniform sampler2D slopeNorth;\nuniform float psrVisible;\nuniform float heatMode;\nuniform vec3 earthDirection;\n'+program.fragmentShader.replace('#include <opaque_fragment>',`
   vec3 polarUnit=normalize(polarDirection);
-  float polarNorth=step(0.0,polarUnit.y),polarInside=step(0.9659258,abs(polarUnit.y)),heatOn=step(.5,heatMode);
+  float polarNorth=step(0.0,polarUnit.y),polarInside=step(0.9659258,abs(polarUnit.y)),layerOn=step(.5,heatMode),heatOn=layerOn*(1.0-step(3.5,heatMode));
   // NASA's maps stop at 75° latitude. The heat map fades in over the next five degrees rather than
   // ending on a hard circle, which read as a disc pasted on the Moon.
   float heatFade=smoothstep(0.9659258,0.9848078,abs(polarUnit.y));
   vec2 polarS=${scale}*vec2(-polarUnit.z,polarUnit.x)/max(1.0-polarUnit.y,.5)+.5;
   vec2 polarN=${scale}*vec2(-polarUnit.z,-polarUnit.x)/max(1.0+polarUnit.y,.5)+.5;
-  float psrShare=mix(texture2D(psrSouth,polarS).r,texture2D(psrNorth,polarN).r,polarNorth)*psrVisible*polarInside*(1.0-heatOn);
+  float psrShare=mix(texture2D(psrSouth,polarS).r,texture2D(psrNorth,polarN).r,polarNorth)*psrVisible*polarInside*(1.0-layerOn);
   outgoingLight=mix(outgoingLight,outgoingLight*.5+vec3(.10,.42,1.0)*.5,psrShare*.8);
   vec3 heat=mix(texture2D(heatSouth,polarS).rgb,texture2D(heatNorth,polarN).rgb,polarNorth);
   float heatValue=heatMode<1.5?heat.r:heatMode<2.5?heat.g:heat.r*heat.g;
@@ -117,8 +123,17 @@ export function addPolarOverlay(material,uniforms){
   float earthBand=1.0-smoothstep(.125,.15,abs(polarUnit.x));
   float earthShare=(earthNow*.34+earthBand*.3)*(1.0-heatFade)*step(1.5,heatMode)*(1.0-step(2.5,heatMode));
   outgoingLight=mix(outgoingLight,outgoingLight*.45+heatColor*.6,earthShare);
+  // Slope layer (mode 4): amber where the 320 m cell averages 5° to 10°, red above 10°. Its
+  // square is 608 km across, so the same projection is rescaled; it fades in just inside 80°.
+  vec2 slopeUv=mix((polarS-.5)*${(POLAR.extentKm/POLAR.slope.extentKm).toFixed(6)}+.5,(polarN-.5)*${(POLAR.extentKm/POLAR.slope.extentKm).toFixed(6)}+.5,polarNorth);
+  float slopeDegrees=mix(texture2D(slopeSouth,slopeUv).r,texture2D(slopeNorth,slopeUv).r,polarNorth)*63.75;
+  vec3 slopeColor=mix(vec3(1.0,.72,.1),vec3(1.0,.2,.15),smoothstep(${(HEAT.slope.to-1).toFixed(1)},${(HEAT.slope.to+1).toFixed(1)},slopeDegrees));
+  // Amber is drawn lightly and red more strongly, and the layer fades out between 84° and 80°
+  // latitude so its edge does not read as a disc.
+  float slopeShare=(smoothstep(${(HEAT.slope.from-1).toFixed(1)},${(HEAT.slope.from+1).toFixed(1)},slopeDegrees)*.34+smoothstep(${(HEAT.slope.to-1).toFixed(1)},${(HEAT.slope.to+1).toFixed(1)},slopeDegrees)*.3)*smoothstep(0.9848078,0.9945219,abs(polarUnit.y))*step(3.5,heatMode);
+  outgoingLight=mix(outgoingLight,outgoingLight*.45+slopeColor*.6,slopeShare);
   #include <opaque_fragment>`);
  };
- material.customProgramCacheKey=()=>key.call(material)+'+polar-v4';
+ material.customProgramCacheKey=()=>key.call(material)+'+polar-v6';
  material.needsUpdate=true;
 }

@@ -16,6 +16,7 @@ import { quickMapUrl, moonTrekUrl } from './links.mjs';
 import { toCsv } from './export.mjs';
 import { sites } from './sites.mjs';
 import { searchFeatures, placeName } from './features.mjs';
+import { eclipseSeries, eclipseAt, eclipseEvents } from './eclipse.mjs';
 import { discSeries, discAt, discHours, limbEvents, SUN_RADIUS_KM, EARTH_RADIUS_KM } from './disc.mjs';
 import { POLAR, HEAT, poleOf, polarPixel, polarLatLon, shadowNear, topCells, addPolarOverlay } from './psr.mjs';
 import './style.css';
@@ -42,9 +43,11 @@ let restoring=true; // true until the address has been read at start-up
 let terrainEnabled=true,duration=72,filter='all',landingHour=0; // landing hour: UTC hour of day the stay begins
 let surface=null; // landing view state: {site,frame,north,east,target,radius,info,distance,controls}
 const clientCache=new Map();
-const visibilityRows=(d,name)=>terrainEnabled&&d.terrain?d.adjusted[name]:d[name];
+const visibilityRows=(d,name)=>terrainEnabled&&d.terrain?d.adjusted[name]:(name==='sun'&&d.level?d.level.sun:d[name]);
 // Share of the Sun's or Earth's disc above the same horizon, worked out once per loaded site.
-const discRows=(d,name)=>{const terrain=terrainEnabled&&d.terrain?d.terrain:null,key=(terrain?'terrain:':'flat:')+name;d.discMemo??={};return d.discMemo[key]??=discSeries(d[name],terrain,name==='sun'?SUN_RADIUS_KM:EARTH_RADIUS_KM);};
+const discRows=(d,name)=>{const terrain=terrainEnabled&&d.terrain?d.terrain:null,key=(terrain?'terrain:':'flat:')+name;d.discMemo??={};return d.discMemo[key]??=(()=>{const series=discSeries(d[name],terrain,name==='sun'?SUN_RADIUS_KM:EARTH_RADIUS_KM);
+ // During an eclipse, the part of the Sun's disc behind Earth does not count as showing.
+ return name==='sun'&&d.eclipse&&series?.length===d.eclipse.length?series.map((r,i)=>({...r,fraction:r.fraction*(1-d.eclipse[i].coverage)})):series;})();};
 const withDisc=(metrics,d,start,end)=>metrics&&{...metrics,sunDisc:discHours(discRows(d,'sun'),start,end)};
 const TIMELINE_HOURS=720; // the time slider spans the 30 days after landing
 const dayStart=date=>Date.parse(date+'T00:00:00Z');
@@ -92,15 +95,15 @@ const material=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,metaln
 const satelliteMaterial=new THREE.MeshBasicMaterial({color:0xffffff});
 const moon=new THREE.Mesh(new THREE.SphereGeometry(1,256,128),material);scene.add(moon);
 scene.add(new THREE.AmbientLight(0xdfe6ff,.22));
-const sun=new THREE.DirectionalLight(0xffffff,2.65);sun.position.set(-2,.2,-4);scene.add(sun);
+const SUN_INTENSITY=2.65,sun=new THREE.DirectionalLight(0xffffff,SUN_INTENSITY);sun.position.set(-2,.2,-4);scene.add(sun);
 let sunlightEnabled=true;
 const shadows=createTerrainShadows(renderer,material,invalidate,text=>{if(sunlightEnabled)$('#map-status').textContent=text;});
 const patch=createSurfacePatch(scene,shadows);
 // NASA's polar maps, drawn on every Moon material: permanently shadowed regions (blue tint) and
 // the long-term average visibility of the Sun and Earth (the "where to land" heat map).
-const polarUniforms={psrSouth:{value:null},psrNorth:{value:null},heatSouth:{value:null},heatNorth:{value:null},psrVisible:{value:1},heatMode:{value:0},earthDirection:{value:new THREE.Vector3()}};
+const polarUniforms={psrSouth:{value:null},psrNorth:{value:null},heatSouth:{value:null},heatNorth:{value:null},slopeSouth:{value:null},slopeNorth:{value:null},psrVisible:{value:1},heatMode:{value:0},earthDirection:{value:new THREE.Vector3()}};
 for(const m of [material,satelliteMaterial,patch.material])addPolarOverlay(m,polarUniforms);
-const polarLoader=new THREE.TextureLoader(),polarImages={psr:{},heat:{}},polarPending={};
+const polarLoader=new THREE.TextureLoader(),polarImages={psr:{},heat:{},slope:{}},polarPending={};
 let psrEnabled=true,heatMode='off';
 // Loads one map once. Resolves to its image, or null if it could not be loaded.
 function loadPolar(kind,pole){
@@ -151,17 +154,17 @@ function averageFact(site){
  return `Sun ${percent(r.sun)} · Earth ${percent(r.earth)}<small>of the time over many years, NASA model</small>`;
 }
 // Heat map: off, or one of the HEAT modes. The button and its legend both step through them.
-const heatOrder=['off','sun','earth','both'];
+const heatOrder=['off','sun','earth','both','slope'];
 function setHeat(name){
  heatMode=HEAT[name]?name:'off';const h=HEAT[heatMode];
  polarUniforms.heatMode.value=h?h.code:0;$('#heat').setAttribute('aria-pressed',String(Boolean(h)));$('#heat-legend').hidden=!h;
- if(h){loadPolar('heat','south');loadPolar('heat','north');$('#heat-legend').style.setProperty('--heat',h.color);$('#heat-name').textContent=h.label;$('#heat-range').textContent=heatMode==='both'?'low → high':heatMode==='earth'?'poles: long-term · elsewhere: Earth up now · band: Earth rises and sets':`${percent(h.from)} → ${percent(h.to)}+ of the time`;}
+ if(h){const kind=heatMode==='slope'?'slope':'heat';loadPolar(kind,'south');loadPolar(kind,'north');$('#heat-legend').style.setProperty('--heat',h.color);$('#heat-legend').classList.toggle('caution-scale',heatMode==='slope');$('#heat-name').textContent=h.label;$('#heat-range').textContent=heatMode==='slope'?`amber: ${h.from}° to ${h.to}° · red: over ${h.to}°`:heatMode==='both'?'low → high':heatMode==='earth'?'poles: long-term · elsewhere: Earth up now · band: Earth rises and sets':`${percent(h.from)} → ${percent(h.to)}+ of the time`;}
  invalidate();syncUrl();
 }
 $('#heat').onclick=$('#heat-legend').onclick=()=>{
  setHeat(heatOrder[(heatOrder.indexOf(heatMode)+1)%heatOrder.length]);
  if(heatMode==='off'){toast('Heat map hidden.');return;}
- toast(heatMode==='earth'?'Earth view. Near the poles: NASA’s long-term average. Elsewhere: blue where Earth is above level ground now, and a brighter band where Earth rises and sets over a month. Click again for the next map.':`${HEAT[heatMode].label}: brighter is better. NASA long-term maps, within 15° of each pole. Click again for the next map.`);
+ toast(heatMode==='slope'?'Slope, measured over 160 m from NASA’s LOLA terrain within 10° of each pole: amber is 5° to 10°, red is steeper than 10°. It is not a hazard map: rocks and small craters are not resolved. Click again to hide.':heatMode==='earth'?'Earth view. Near the poles: NASA’s long-term average. Elsewhere: blue where Earth is above level ground now, and a brighter band where Earth rises and sets over a month. Click again for the next map.':`${HEAT[heatMode].label}: brighter is better. NASA long-term maps, within 15° of each pole. Click again for the next map.`);
  // From a view of the equator there is nothing to see, so turn to the south pole.
  if(!surface&&!selected&&Math.abs(camera.position.y)/camera.position.length()<.8)startFlight({to:new THREE.Vector3(...coordinatesToVector(-84,15)).multiplyScalar(2.4)});
 };
@@ -183,16 +186,19 @@ $('#best-nearby').onclick=async()=>{
   const checked=(await Promise.allSettled(cells.map(async cell=>{
    const place=polarLatLon(pole,Math.floor(window.pixel.x)+cell.dx+.5,Math.floor(window.pixel.y)+cell.dy+.5,POLAR.heat.size);
    const spot={id:`pin-${place.lat.toFixed(4)}_${place.lon.toFixed(4)}`,name:'Best nearby spot',type:`Best of ${cells.length} spots checked for ${day(start)}, near ${site.name}`,cat:'pin',lat:place.lat,lon:place.lon};
-   return {cell,spot,metrics:measure(await ephemeris(spot,{date}))};
+   const d=await ephemeris(spot,{date});
+   return {cell,spot,metrics:measure(d),slope:d.terrain?.slopeDegrees};
   }))).filter(r=>r.status==='fulfilled'&&r.value.metrics).map(r=>r.value);
   if(selected!==site||$('#date').value!==date)return; // the user moved on while this ran
   if(!checked.length){toast('The candidate spots could not be calculated. Please retry.');return;}
-  checked.sort((a,b)=>b.metrics.both-a.metrics.both||b.metrics.sun-a.metrics.sun||b.cell.score-a.cell.score);
+  // Ground gentler than 10° comes first; among those, the most Sun and Earth together, then sunlight.
+  const gentle=c=>Number.isFinite(c.slope)&&c.slope<=HEAT.slope.to?1:0;
+  checked.sort((a,b)=>gentle(b)-gentle(a)||b.metrics.both-a.metrics.both||b.metrics.sun-a.metrics.sun||b.cell.score-a.cell.score);
   const best=checked[0],here=data?measure(data):null,km=(best.cell.distance*POLAR.heat.gridMeters/1000).toFixed(1);
   const summary=m=>`${number(m.both)} h of Sun and Earth together and ${number(m.sun)} h of sunlight`;
   if(here&&best.metrics.both<=here.both+.05&&best.metrics.sun<=here.sun+.05){toast(`None of the ${checked.length} spots checked beats this one for your ${stayLabel()} stay from ${day(start)}. The best of them has ${summary(best.metrics)}.`);return;}
   addCustom(best.spot);selectSite(best.spot);
-  toast(`Checked ${checked.length} spots for your ${stayLabel()} stay from ${day(start)}. This one, ${km} km away, has ${summary(best.metrics)} (long-term: Sun ${percent(best.cell.sun)}, Earth ${percent(best.cell.earth)}).`);
+  toast(`Checked ${checked.length} spots for your ${stayLabel()} stay from ${day(start)}. This one, ${km} km away, has ${summary(best.metrics)}${Number.isFinite(best.slope)?`, on a ${best.slope.toFixed(1)}° slope${gentle(best)?'':' (none of the candidates is gentler than 10°)'}`:''} (long-term: Sun ${percent(best.cell.sun)}, Earth ${percent(best.cell.earth)}).`);
  }finally{button.disabled=false;}
 };
 function setSunlight(value){sunlightEnabled=value;$('#sunlight').setAttribute('aria-pressed',String(value));shadows.setEnabled(value);moon.material=value?material:satelliteMaterial;patch.setLit(value);bodies.earth.mesh.material=value?earthLit:earthUnlit;}
@@ -562,7 +568,13 @@ renderer.domElement.addEventListener('contextmenu',e=>{e.preventDefault();dropPi
 function addCustom(site){for(let i=labels.length-1;i>=0;i--){if(labels[i].site.id.startsWith('pin-')&&!compared.some(s=>s.site.id===labels[i].site.id)){labels[i].el.remove();labels.splice(i,1);}}addLabel(site);}
 
 // ---- Data ----
-async function ephemeris(site,{reference=false,date=$('#date').value}={}){const key=[reference,site.lat,site.lon,date].join(':');if(clientCache.has(key))return clientCache.get(key);const promise=fetch(`/api/ephemeris?${new URLSearchParams({lat:site.lat.toFixed(6),lon:site.lon.toFixed(6),date,reference:reference?'1':'0'})}`).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load NASA data.');if(d.terrain)d.adjusted={sun:clearanceSeries(d.sun,d.terrain),earth:clearanceSeries(d.earth,d.terrain)};return d;});clientCache.set(key,promise);if(clientCache.size>40)clientCache.delete(clientCache.keys().next().value);try{return await promise;}catch(e){clientCache.delete(key);throw e;}}
+async function ephemeris(site,{reference=false,date=$('#date').value}={}){const key=[reference,site.lat,site.lon,date].join(':');if(clientCache.has(key))return clientCache.get(key);const promise=fetch(`/api/ephemeris?${new URLSearchParams({lat:site.lat.toFixed(6),lon:site.lon.toFixed(6),date,reference:reference?'1':'0'})}`).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load NASA data.');// Earth can pass in front of the Sun (an eclipse). The Sun's centre then counts as hidden,
+  // exactly as if Earth's edge were part of the skyline: its clearance is capped by how far it
+  // is outside Earth's disc. Both series share the same five-minute steps.
+  d.eclipse=eclipseSeries(d.sun,d.earth);
+  const behindEarth=rows=>rows&&d.eclipse&&rows.length===d.eclipse.length?rows.map((r,i)=>({...r,el:Math.min(r.el,d.eclipse[i].limb)})):rows;
+  if(d.terrain)d.adjusted={sun:behindEarth(clearanceSeries(d.sun,d.terrain)),earth:clearanceSeries(d.earth,d.terrain)};
+  d.level={sun:behindEarth(clearanceSeries(d.sun,{angles:[0,0],stepDegrees:180}))};return d;});clientCache.set(key,promise);if(clientCache.size>40)clientCache.delete(clientCache.keys().next().value);try{return await promise;}catch(e){clientCache.delete(key);throw e;}}
 async function selectSite(site,move=true){
  selected=site;$('#planner').scrollTop=0;if(sheetState==='peek')setSheet('mid');$('#browse').hidden=true;$('#site-card').hidden=false;$('#search-results').innerHTML='';$('#search').value='';
  $('#site-name').textContent=site.name;$('#site-type').textContent=site.type;$('#site-coords').textContent=coord(site);
@@ -600,7 +612,9 @@ function updateBanner(time){
  const banner=$('#event-banner');
  if(!data){banner.className='banner';$('#event-icon').innerHTML=icon('clock');$('#event-count').textContent='—';$('#event-label').textContent='Calculating Sun and Earth windows';$('#event-sub').textContent='';return;}
  const events=['sun','earth'].map(name=>{const rows=visibilityRows(data,name),now=sampleAt(rows,time);return {name,cross:nextCrossing(rows,time),up:now?now.el>0:false};});
- const word=e=>e.name==='sun'?(e.cross.rising?'sunrise':'sunset'):(e.cross.rising?'Earthrise':'Earthset');
+ // A Sun "rise" or "set" caused by Earth moving off or onto the Sun is named for what it is.
+ const byEclipse=e=>e.name==='sun'&&eclipseAt(data.eclipse,e.cross.time)?.coverage>.2;
+ const word=e=>e.name==='sun'?(byEclipse(e)?(e.cross.rising?'end of eclipse':'eclipse by Earth'):(e.cross.rising?'sunrise':'sunset')):(e.cross.rising?'Earthrise':'Earthset');
  const until=day(data.sun.at(-1).time);
  const steady=e=>e.name==='sun'?(e.up?`Sun stays up through ${until}`:`No sunlight through ${until}`):(e.up?`Earth stays in view through ${until}`:`Earth stays out of view through ${until}`);
  const next=events.filter(e=>e.cross).sort((a,b)=>a.cross.time-b.cross.time)[0];
@@ -635,7 +649,8 @@ function refreshMetrics(){
  const end=startDate()+duration*HOUR;
  for(const name of ['sun','earth']){
   const current=currents[name],h=current?(profile?horizonAt(profile,current.az):0):null,clear=current?current.el-h:null;
-  const up=clear!==null&&clear>0,terrainBlocked=current&&!up&&current.el>0&&Boolean(profile);
+  const eclipse=name==='sun'&&data?eclipseAt(data.eclipse,time):null,eclipsed=Boolean(eclipse&&eclipse.coverage>.001&&clear>-.3);
+  const up=clear!==null&&clear>0&&!(eclipse&&eclipse.limb<0),terrainBlocked=current&&!up&&current.el>0&&Boolean(profile)&&!(eclipse&&eclipse.limb<0&&clear>0);
   $(`#${name}-elevation`).textContent=current?deg(current.el):'—';
   $(`#${name}-az`).textContent=current?`${number(current.az)}°`:'—';
   $(`#${name}-clear`).textContent=current?signedDeg(clear):'—';
@@ -643,7 +658,7 @@ function refreshMetrics(){
   const state=$(`#${name}-state`);state.className=`state${up?' ok':terrainBlocked?' blocked':''}`;
   const share=data&&current?discAt(discRows(data,name),time):null,partial=share!==null&&share>.001&&share<.999;
   $(`#${name}-disc`).textContent=share===null?'—':`${Math.round(share*100)}%`;
-  state.textContent=current?(partial?`${name==='sun'?'Sun':'Earth'} partly hidden · ${Math.round(share*100)}% showing`:up?(name==='sun'?'Sunlit':'Earth in view'):(terrainBlocked?'Blocked by terrain':'Below horizon')):(selected?'Awaiting terrain & JPL':'No site selected');
+  state.textContent=current?(eclipsed?(eclipse.coverage>=.999?'Eclipsed by Earth':`Eclipse: Earth covers ${Math.round(eclipse.coverage*100)}% of the Sun`):partial?`${name==='sun'?'Sun':'Earth'} partly hidden · ${Math.round(share*100)}% showing`:up?(name==='sun'?'Sunlit':'Earth in view'):(terrainBlocked?'Blocked by terrain':'Below horizon')):(selected?'Awaiting terrain & JPL':'No site selected');
   const hours=data?visibleHours(visibilityRows(data,name),startDate(),end):null;
   $(`#${name}-window`).textContent=hours===null?'—':`≈ ${number(hours)} h · ${Math.round(hours/duration*100)}%`;
   $(`#${name}-bar`).style.width=hours===null?'0':`${Math.min(100,hours/duration*100)}%`;
@@ -660,6 +675,8 @@ function refreshMetrics(){
  const skyLine=(name,label)=>{
   const c=currents[name];setBlocker(name,null);if(!c)return '';
   const o=profile?obstructionAt(profile,c.az):null,skyline=o?o.horizon:0,toward=compassPoint(c.az);
+  const covered=name==='sun'&&data?eclipseAt(data.eclipse,time)?.coverage:0;
+  if(covered>.001&&c.el-skyline>-.3)return `Sun: an eclipse. Earth is in front of it and covers ${covered>=.999?'all':`${Math.round(covered*100)}%`} of its disc, ${deg(c.el-skyline)} above the ${profile?'terrain':'level horizon'} to the ${toward}.`;
   if(c.el-skyline>0)return `${label}: ${deg(c.el-skyline)} clear of the ${profile?'terrain':'level horizon'} to the ${toward}.`;
   if(o&&c.el>0&&selected){
    // Where that terrain is, and the IAU-named feature it belongs to, if one covers the spot.
@@ -711,7 +728,9 @@ function updateClock(){
 function updateCursor(){const hours=Number($('#time').value);$('#comparison-cards').style.setProperty('--cursor',hours<=duration?`${hours/duration*100}%`:'-10%');$('#lunar-plot').style.setProperty('--lunar-cursor',`${hours/(LUNAR_DAYS*24)*100}%`);}
 let referenceData=null,referenceToken=0;
 async function referenceLight(){const token=++referenceToken;try{const result=await ephemeris({lat:0,lon:0},{reference:true});if(token!==referenceToken)return;referenceData=result;updateLight();}catch(e){$('#map-status').textContent='NASA imagery · lighting unavailable';}}
-function updateLight(){updateBodies();const d=data||referenceData;if(!d)return;const s=sampleAt(d.sun,observationTime());if(!s)return;sun.position.fromArray(skyDirection(d.lat,d.lon,s.az,s.el)).multiplyScalar(10);shadows.update(sun.position);invalidate();}
+function updateLight(){updateBodies();const d=data||referenceData;if(!d)return;const s=sampleAt(d.sun,observationTime());if(!s)return;sun.position.fromArray(skyDirection(d.lat,d.lon,s.az,s.el)).multiplyScalar(10);
+ // During an eclipse the whole Moon dims by the share of the Sun that Earth covers (as seen from this site).
+ sun.intensity=SUN_INTENSITY*(1-(eclipseAt(d.eclipse,observationTime())?.coverage??0));shadows.update(sun.position);invalidate();}
 $('#time').oninput=()=>{updateClock();refreshMetrics();updateLight();};
 function stop(){playing=false;clearInterval(playTimer);$('#play').innerHTML=icon('play');$('#play').setAttribute('aria-label','Play time animation');}
 $('#play').onclick=()=>{if(playing){stop();return;}playing=true;$('#play').innerHTML=icon('pause');$('#play').setAttribute('aria-label','Pause time animation');playTimer=setInterval(()=>{let t=Number($('#time').value)+1;if(t>TIMELINE_HOURS){stop();return;}$('#time').value=t;$('#time').oninput();},120);};
@@ -765,6 +784,7 @@ function renderLunar(){
  $('#lunar-caption').textContent=`Bars: sunlit share of a ${stayLabel()} stay for each landing day. Select a day to land then.`;
  const row=(label,value)=>`<div><span>${label}</span><b>${value}</b></div>`;
  facts.innerHTML=row('Sunlit, next 30 days',`${share(lit)}% · ${(total(lit)/DAY).toFixed(1)} d`)+row('Longest sunlight',stretch(lit))+row('Longest darkness',stretch(dark))+row('Earth in view, next 30 days',`${share(seen)}%`)+row('Longest Earth outage',stretch(outages))+row('Peak Sun elevation',`${deg(peak.el)}<small>${day(peak.time)}</small>`)+
+  row('Eclipses by Earth',(()=>{const list=eclipseEvents(data.eclipse).filter(e=>e.end>=start&&e.start<=end);const clock=t=>new Date(t).toISOString().slice(11,16);return list.length?list.map(e=>`${shortStamp(e.start)} to ${clock(e.end)} UTC<small>${e.totalStart!==null?`Sun fully hidden ${clock(e.totalStart)} to ${clock(e.totalEnd)}`:`up to ${Math.round(e.maxCoverage*100)}% of the Sun covered`}</small>`).join('<br>'):'None in these 30 days';})())+
   (best&&best.sun>0?`<div><span>Most sunlit landing day<br>for a ${stayLabel()} stay</span><b>${day(best.start)}${best.day?'':' (current)'}<small>${number(best.sun)} h sunlit · ${number(best.earth)} h Earth</small></b></div><div class="best-actions">${best.day?'<button id="lunar-use" class="mini-toggle">Use this date</button>':''}<button id="lunar-compare" class="mini-toggle">Add to compare</button></div>`:row(`Most sunlit landing day for a ${stayLabel()} stay`,'No sunlit stay in this window'))+
   (bestTime&&bestTime.both>0?`<div><span>Best landing time<br>for Sun and Earth together</span><b>${shortStamp(bestTime.start)} UTC<small>${number(bestTime.both)} h together · ${number(bestTime.sun)} h sunlit</small></b></div>${bestTime.start===start?'':'<div class="best-actions"><button id="lunar-use-time" class="mini-toggle">Use this time</button></div>'}`:row('Best landing time for Sun and Earth together','None in this window'))+
   `<p class="tiny outages"><b>Earth out of view:</b> ${outages.length?outages.slice(0,4).map(([a,b])=>`${shortStamp(a)} to ${shortStamp(b)} (${span(b-a)})`).join('; ')+(outages.length>4?`; and ${outages.length-4} more`:''):'never in the next 30 days'}.</p>`;

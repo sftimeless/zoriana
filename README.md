@@ -37,6 +37,7 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 - Permanently shadowed regions at both poles, drawn in blue from NASA's LOLA maps, with a per-site "Permanent shadow" fact (inside one, or how far the nearest is).
 - A where-to-land heat map from NASA's long-term average Sun and Earth visibility maps, a long-term average for each polar site, and a button that finds the best spot within 15 km for the chosen landing time and stay.
 - Search across the 9,087 IAU-named lunar features; pins and blocking terrain are described by the named feature they fall in.
+- Eclipses of the Sun by Earth, counted in every sunlight figure and shown on the globe, and a slope layer near both poles.
 - The best landing hour in the next 30 days for Sun and Earth together, a step-by-step "How was this worked out?" under each sky chart, and a global Earth view showing where Earth is up and where it rises and sets.
 - Sun and Earth as discs: each tile shows how much of the disc clears the skyline, and the stay summary gives hours of full Sun, hours with any Sun, and the next first light and full disc.
 - Mission durations of 24, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle.
@@ -44,7 +45,7 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 
 ## Scientific scope
 
-This is an exploratory planning prototype. Body-center elevations are compared with the reference horizon, with no atmosphere. The terrain-aware model described below does not include eclipses, Earth ground-station visibility, antenna link budgets, solar-array orientation, battery capacity, or thermal models. Sun-above-horizon duration is not usable power and Earth-above-horizon duration is not a guaranteed communication window. Hourly interpolation can miss short events; near-pole local terrain is especially important.
+This is an exploratory planning prototype. Body-center elevations are compared with the reference horizon, with no atmosphere. The terrain-aware model described below includes eclipses of the Sun by Earth (see "Eclipses") but does not include Earth ground-station visibility, antenna link budgets, solar-array orientation, battery capacity, or thermal models. Sun-above-horizon duration is not usable power and Earth-above-horizon duration is not a guaranteed communication window. Hourly interpolation can miss short events; near-pole local terrain is especially important.
 
 NASA's CGI mosaic is optimized for aesthetics, including polar gap filling. It is not a quantitative terrain product. A separate quantitative DEM-based skyline drives site visibility; the globe relief is downsampled for rendering. Do not treat regional exploration pins as safe landing sites.
 
@@ -117,7 +118,7 @@ Visibility now compares Sun/Earth body centers with a sampled local LOLA terrain
 - JPL Horizons reports `MEAN_ME (high precision)` as the lunar frame for surface sites (checked November 15, 2026), the same mean-Earth frame as the LOLA products and the Apollo coordinates.
 - The global and polar products use different versions of the lunar mean-Earth frame and resolutions; small registration differences and coarse/fine boundary discontinuities remain possible. This is an exploratory model, not a validated landing-safety tool.
 
-Eclipses and the other listed engineering factors remain out of scope. The Sunlight layer now renders approximate terrain-cast shadows; the local horizon chart and site metrics use finer, separate calculations.
+The other listed engineering factors remain out of scope. The Sunlight layer now renders approximate terrain-cast shadows; the local horizon chart and site metrics use finer, separate calculations.
 
 `python3 scripts/prepare-terrain.py` regenerates derived grids and the separate small rendering texture from the downloaded NASA inputs. `data/terrain-manifest.json` records source URLs, units and SHA-256 hashes. `node scripts/check-terrain.mjs` checks projection consistency at sample locations and cached computation timing.
 
@@ -200,6 +201,33 @@ The globe uses one 8K image (about 1.3 km per pixel at the equator), which is so
 - The tiles are requested from `trek.nasa.gov` by the visitor's browser, about 2 MB per site. Nothing is shown until all 81 have arrived; if any fails, the view keeps the 8K image.
 - Near the poles this is not used: the mosaic is equirectangular, stretched there, and mostly in shadow.
 - Like the 8K image, the mosaic carries the lighting of the day it was photographed. The app's own shadows are drawn on top of it.
+
+## Eclipses
+
+A few times a year Earth passes in front of the Sun as seen from the Moon (a lunar eclipse seen from Earth), and a site loses sunlight for hours whatever its terrain. `src/eclipse.mjs` works this out from the positions already loaded for the site: the angle between the centres of the Sun and Earth, their apparent sizes from the JPL distances, and the share of the Sun's disc that Earth covers.
+
+- The Sun's centre counts as hidden while it is behind Earth's disc, exactly as if Earth's edge were part of the skyline. That flows into sunlit hours, the timeline bands, the ranking, the comparison and the best landing time. The disc share is reduced by the covered part.
+- The site card shows "Eclipse: Earth covers 42% of the Sun" or "Eclipsed by Earth", the countdown reads "until eclipse by Earth" and "until end of eclipse", "Lunar day ahead" lists each eclipse in the 30 days, and the globe dims by the covered share.
+- Directions are interpolated as vectors between hourly samples, so the result holds near the zenith.
+- Check against the published contact times of the two 2026 lunar eclipses (times UTC):
+
+  | Eclipse | Published | App, by site |
+  |---|---|---|
+  | March 3, 2026 (total) | penumbral 08:44 to 14:23; umbral 09:50 to 13:17; whole Moon in totality 11:04 to 12:03 | Apollo 11: 09:30 to 14:00, total 10:35 to 12:50. Apollo 17: 09:30 to 14:05, total 10:35 to 13:00. South pole point: 09:30 to 13:30, total 10:55 to 12:05. North pole point: 09:20 to 14:00, total 10:20 to 12:55. |
+  | August 28, 2026 (partial, 93%) | penumbral 01:23 to 07:02; umbral 02:33 to 05:52 | South pole point: 01:55 to 06:40, total 03:00 to 05:30. Apollo 11: 02:15 to 06:40, total 03:30 to 05:25. Far side 0°N 180°E: 02:00 to 06:20, total 03:15 to 05:05. North pole point: 02:15 to 06:05, never total (96% at most). |
+
+  Every site's partial phase lies inside the penumbral contacts and every total phase inside the umbral contacts; on March 3 every site is total throughout the whole-Moon totality; and in the partial eclipse one end of the Moon (the north) is never fully covered, as a 93% eclipse requires. Site times are to the nearest five minutes.
+- Limits: two round discs. Earth's atmosphere makes the real shadow about 2% larger and lets some red light through, neither of which is modelled.
+
+## Slope layer
+
+The last step of the heat-map button draws slope within 10° of each pole (`heat=slope` in share links).
+
+- `python3 scripts/prepare-slope.py` computes slope from NASA's LOLA 80 m polar grids (LDEM_80S_80M and LDEM_80N_80M) by central differences over a 160 m baseline, then reduces it to 320 m cells: the mean and the steepest slope in each cell, stored in `public/assets/slope-south-320m.webp` and `slope-north-320m.webp` (about 4 MB each, fetched when the layer is first shown).
+- Amber marks cells averaging 5° to 10°, red above 10°; gentler ground is left clear. The layer fades out between 84° and 80° latitude.
+- Checks: the IM-1 site reads 11.5° in the map and 11.5° on its site card; IM-4 8.8° (card 9.5° at the point); the Blue Moon Pathfinder 1 point 2.0° (card 2.7°). In the south 29% of cells are under 5° and 38% over 10°; the median is 7.9°.
+- The best-spot finder uses each candidate's own slope from the server and puts ground gentler than 10° first; its message gives the slope.
+- Limits: a 160 m baseline says nothing about rocks, small craters or lander-scale roughness. This is a caution about steep ground, not a hazard assessment.
 
 ## Interactive terrain shadows
 

@@ -36,6 +36,7 @@ Source code: https://github.com/sftimeless/zoriana
 - Draws NASA's maps of permanently shadowed regions at both poles and says whether a site is inside one.
 - Where-to-land heat map: NASA's long-term average sunlight and Earth visibility near the poles, plus a button that finds the best spot within 15 km of any polar site for your landing time and stay.
 - Finds the best landing day and hour in the next 30 days.
+- Counts eclipses, when Earth passes in front of the Sun, and shows a slope layer near both poles.
 - Search across the 9,087 IAU-named lunar features, and names the terrain that is blocking the Sun or Earth.
 - Shows Earth in the lunar sky at its true size, distance and phase.
 
@@ -50,7 +51,8 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - The floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus craters read as permanently shadowed; nearby ridges do not.
 - The differences from that older table trace to the Sun position it used (it places the Sun up to 2.0° from the lunar equator, more than is physically possible), not to the app.
 - At ten polar points, the app's yearly share of sunlight is within 3 percentage points of NASA's long-term illumination maps on average (Earth visibility within 2).
-- 68 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry and exports.
+- The eclipse calculation reproduces the two lunar eclipses of 2026: every site's times fall inside the published contact times.
+- 72 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry and exports.
 
 **Benefits and what we hope to achieve**
 
@@ -58,7 +60,7 @@ Anyone, from a student to a mission planner doing a first pass, can see in secon
 
 **What comes next**
 
-Eclipses, relay satellites, slope and hazard layers for landing safety, and ranking every cell of a region for a chosen date.
+Scanning a whole area for a chosen date, relay satellites for sites that cannot see Earth, and hazard maps of rocks and small craters.
 
 **Tools, languages and software**
 
