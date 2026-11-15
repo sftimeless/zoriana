@@ -200,3 +200,9 @@
 - Sixty Node tests pass; `npx vite build` succeeds. Demo PDF rebuilt (7 pages).
 - MIT licence added for the code.
 - FortiGuard: the request form needs a name, an email address and a "not a robot" check, so it was left for the team to submit.
+
+## Second product review — November 15, 2026 (UTC)
+
+- The 30-question review was run again on the live site at commit `cdb9bb6` and written to `REALITY_CHECK.md`: 22 working, 8 partial, 0 not implemented (first run: 12, 14, 4). Every quoted answer was read from the running site during the run.
+- Date limits re-checked on the live API: 1949-12-31 and 2100-01-01 rejected; 1950-01-01, 1969-07-20 and 2099-12-24 each returned 745 hourly rows.
+- Open items it found: terrain-blocked windows have no external validation; the area search uses long-term averages rather than the chosen date; the north pole has fine NASA maps but only the 1.9 km elevation grid; the lunar frame Horizons uses for surface sites was not confirmed; the outage list and banner can differ by up to five minutes.
