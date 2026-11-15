@@ -698,6 +698,16 @@ $('#flybys').onclick=async e=>{
  flybyWanted=performance.now();tryStartFlyby();
 };
 $('#flyby').onclick=requestFlyby;
+// The Apollo 11 replay is a separate full-screen view with its own code, loaded only when asked for.
+let replayOpening=false;
+async function openMissionReplay(){
+ if(replayOpening)return;replayOpening=true;stopFlyby();
+ try{const {openReplay}=await import('./mission/replay.mjs');await openReplay(()=>{const u=new URL(location.href);if(u.searchParams.has('replay')){u.searchParams.delete('replay');history.replaceState(null,'',u);}invalidate();});}
+ catch(e){console.error(e);toast('The mission replay did not load. Check the connection and try again.');}
+ replayOpening=false;
+}
+$('#replay-open').onclick=openMissionReplay;$('#replay-row').onclick=openMissionReplay;
+if(new URLSearchParams(location.search).get('replay')==='apollo11')openMissionReplay();
 $('#flyby-play').onclick=()=>{if(tour?.playing)pauseFlyby();else resumeFlyby();};
 $('#flyby-speed').onclick=()=>{if(!tour)return;tour.speed=FLYBY_SPEEDS[(FLYBY_SPEEDS.indexOf(tour.speed)+1)%FLYBY_SPEEDS.length];showFlybyBar();};
 $('#flyby-stop').onclick=stopFlyby;
@@ -809,6 +819,7 @@ async function selectSite(site,move=true){
  $('#site-name').textContent=site.name;$('#site-type').textContent=site.note?`${site.type} · approximate point`:site.type;$('#site-coords').textContent=coord(site);
  $('#site-note').hidden=!site.note;$('#site-note').textContent=site.note||'';$('#site-why').hidden=!site.why;$('#site-why').textContent=site.why?`Why here: ${site.why}`:'';
  // Past missions: one tap sets the date and hour to the real touchdown.
+ $('#replay-open').hidden=site.id!=='apollo11';
  $('#site-landed').hidden=!site.landed;if(site.landed)$('#site-landed').textContent=`See it at touchdown: ${new Date(site.landed).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})}, ${site.landed.slice(11,16)} UTC`;
  $('#site-badge').className=`badge big cat-${site.cat}`;$('#site-badge').innerHTML=icon(siteIcon(site));
  $('#link-quickmap').href=quickMapUrl(site.lat,site.lon);$('#link-trek').href=moonTrekUrl(site.lat,site.lon);
