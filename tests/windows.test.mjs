@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {bestLandingTime,crossingSpread,segments,span,gaps,longest,landingDays,bestLandingDay,together,stayMetrics,compassPoint,staySentence} from '../src/windows.mjs';
+import {arrivalWindows,bestLandingTime,crossingSpread,segments,span,gaps,longest,landingDays,bestLandingDay,together,stayMetrics,compassPoint,staySentence} from '../src/windows.mjs';
 import {nextCrossing} from '../src/ephemeris.mjs';
 const H=3600000,rows=els=>els.map((el,i)=>({time:i*H,az:0,el}));
 test('segments finds each interval above the horizon',()=>{const found=segments(rows([-1,2,3,-1,-2,4,5,-3]),0,7*H),expected=[[H/3,2.75*H],[4*H+H/3,6.625*H]];assert.equal(found.length,2);found.flat().forEach((t,i)=>assert.ok(Math.abs(t-expected.flat()[i])<1));});
@@ -74,3 +74,4 @@ test('crossingSpread: a fast sunrise is pinned down, a grazing one is not',()=>{
  assert.ok(rise);
 });
 test('the stretches with Sun and Earth together are where both are up, and their gaps are the rest',()=>{const sun=rows([2,2,2,-2,-2,2]),earth=rows([-2,2,2,2,2,2]),both=segments(together(sun,earth),0,5*H);assert.deepEqual(both,[[.5*H,2.5*H],[4.5*H,5*H]]);assert.deepEqual(gaps(both,0,5*H),[[0,.5*H],[2.5*H,4.5*H]]);});
+test('arrival windows: land any time from the start of a long enough stretch to that many hours before it ends',()=>{assert.deepEqual(arrivalWindows([[0,10*H],[20*H,24*H],[30*H,36*H]],6),[[0,4*H],[30*H,30*H]]);assert.deepEqual(arrivalWindows([],6),[]);assert.deepEqual(arrivalWindows(null,6),[]);});

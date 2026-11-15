@@ -28,14 +28,15 @@ Source code: https://github.com/sftimeless/zoriana
 
 **What it does**
 
-- Shows a 3D Moon you can turn and zoom, with 18 curated sites: the six Apollo landings, recent CLPS, ISRO and JAXA landings, announced future targets, and two south-pole exploration points. You can also search coordinates or right-click to drop a pin anywhere.
+- Shows a 3D Moon you can turn and zoom, with 18 curated sites: the six Apollo landings, recent CLPS, ISRO and JAXA landings, announced future targets, and two south-pole exploration points. You can also type coordinates in any common form, right-click to drop a pin anywhere, or press and hold on a phone. Pins are named Pin A, Pin B and so on.
 - For any site and landing date from 1950 to 2099, reports the Sun's and Earth's elevation and direction, whether each is above the local terrain, and what is blocking it ("hidden by terrain 2.2 km away to the east-southeast").
-- Totals sunlit hours, Earth-in-view hours and hours with both at once for a 1, 3 or 7-day stay, and charts all 30 days after landing.
+- Opens each site with the answer in one sentence and a countdown to the next sunrise, sunset, Earthrise or Earthset; the numbers behind it can be folded away.
+- Totals sunlit hours, Earth-in-view hours and hours with both at once for a 1, 2, 3 or 7-day stay, lists when sunlight and the view of Earth are interrupted, and charts all 30 days after landing.
 - Ranks every listed site for the chosen date and stay, and compares up to four site-and-date options side by side. Results export to CSV and any view can be shared as a link.
 - Landing view: a tilted camera over the site with true-scale terrain, facing Earth.
 - Draws NASA's maps of permanently shadowed regions at both poles and says whether a site is inside one.
 - Where-to-land heat map: NASA's long-term average sunlight and Earth visibility near the poles, plus a button that finds the best spot within 15 km of any polar site for your landing time and stay.
-- Finds the best landing day and hour in the next 30 days.
+- Finds the best landing day and hour in the next 30 days, and the arrival times that give a chosen number of unbroken hours of sunlight, Earth view or both.
 - Counts eclipses, when Earth passes in front of the Sun, and shows a slope layer near both poles.
 - Search across the 9,087 IAU-named lunar features, and names the terrain that is blocking the Sun or Earth.
 - Shows Earth in the lunar sky at its true size, distance and phase.
@@ -54,7 +55,8 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - The eclipse calculation reproduces the two lunar eclipses of 2026: every site's times fall inside the published contact times.
 - Against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025; the app ends totality at that site at 08:30. For the same lander's sunset two days later the app is 1 to 2 hours later than Firefly's account, and we say so.
 - Each rise and set time carries a "±" showing how far it moves if the skyline is 0.1° off.
-- 74 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry and exports.
+- The totals do not depend on the time step: at three sites they are identical to 0.01 h whether tested every 15, 5, 2 or 1 minutes, and the app's interpolation between hourly positions is within 0.00003° of JPL asked every 10 minutes (`scripts/check-convergence.mjs`).
+- 81 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry and exports.
 
 **Benefits and what we hope to achieve**
 

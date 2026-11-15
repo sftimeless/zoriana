@@ -293,3 +293,23 @@
 - Phone width: at 375 px the year pushed "Now" off the timeline; the repeated "UTC" beside the clock's date is hidden below 480 px. Confirmed to fit at 375 px in Chromium and in Safari on the simulated iPhone 17 Pro.
 - Seventy-five Node tests pass (one new: the stretches with Sun and Earth together, and their gaps). `npx vite build` succeeds. No console errors in either check.
 - Not verified: the new stay lists on a real phone; pin letters beyond Z. Share links without a `t` value made before this change now open at the landing time.
+
+## Remaining audit fixes and second audit run — November 15, 2026 (UTC)
+
+- Fixes 4 to 10 from `AUDIT_90.md` were made, deployed as version 1.0.0 and checked on the live site; the audit was then run again. Second run: 72 working, 17 partial, 1 not implemented (first run: 45, 42, 3). No row moved down.
+- Checked on the live site:
+  - Server answers carry `version` "1.0.0" and a `request` block (observer table, centre coord@301, site coordinates and height, airless, 1 h, UT, ephemeris "DE441" read from JPL's reply), and `terrain.resolutionShares` (IM-4: 24% from the 40 m grid, 71% from 80 m, 5% from 1.9 km), which the card prints.
+  - Search reads "84.6000° S 31.0000° E", "89.5S 45E", "-89.5, 45", "S 89.45 W 137.31" and "-89.45 222.69" (the last becomes −137.31° E). Names such as "Tycho" and "Apollo 11" still go to the name search.
+  - The card opens with one sentence ("Nov 15, 12:00 UTC: the Sun is up but terrain hides it, and Earth is up but terrain hides it. Over the 3 d stay: …") and the countdown; "Hide the numbers" folds azimuth, disc share, distances and data rows. In Safari on the simulated iPhone the numbers start folded.
+  - "At touchdown: no sunlight, Earth out of view, so no direct line home at first."
+  - Finder, IM-4: at least 6 h of Earth gives "Land between Nov 16 15:26 and Dec 1 01:38 (14 d 10 h); or between Dec 13 16:11 and Dec 15 06:00"; 24 h of Sun and Earth together gives "between Nov 17 11:54 and Nov 28 15:32" (local build), and "Use Nov 17 12:00" set the landing to that hour with "At touchdown: sunlit, Earth in view".
+  - Ranking minimums: at least 24 h sunlit and 40 h of Earth left 9 of 18 sites.
+  - Comparison: "+12 h" added Pin A at 00:00 Nov 16 (Earth 40.0 h, +12.0); cards show elevation (+1,955 m and +1,907 m).
+  - Map label: "Calculated sunlight and shadows · JPL Sun, LOLA terrain", or "NASA imagery · no lighting added" with a note on each switch. Clock: "· past", "· now", "· future".
+  - Explainers: "New here? How to read this app" is first in the list; "Is that dark patch a shadow?" and "Why does so little change in an hour?" are new; "Show me the Earth view" turned the Earth layer on.
+  - Press and hold on the simulated iPhone dropped "Pin A" with the note "Pin dropped. Its Sun and Earth windows are in the panel below."
+  - Phone sizes at 375 px: stay buttons 50 × 44, terrain toggle 44 high, date label 44 high, map tool buttons 40 × 40 with a wider touch strip (44 px made the column run under the sheet in Safari), compass 36.
+- `scripts/check-convergence.mjs` (new) passed against the local server and wrote `data/convergence-check.json`: totals identical across 15, 5, 2 and 1 minute steps at three sites; interpolation within 0.00003° of JPL at 10-minute steps.
+- Eighty-one Node tests pass (six new: five for reading coordinates, one for arrival windows). `npx vite build` succeeds. No console errors in any check.
+- Not verified: copying coordinates to the clipboard (the test browser blocks it; the fallback note with the same text appeared); downloading a CSV with the new columns; a real phone; desktop Safari.
+

@@ -43,6 +43,11 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 - Sun and Earth as discs: each tile shows how much of the disc clears the skyline, and the stay summary gives hours of full Sun, hours with any Sun, and the next first light and full disc.
 - Mission durations of 24, 48, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle. Under the totals the stay is also written out as times: when there is no sunlight, when Earth is out of view, and when both are available together.
 - The timeline opens at the landing time (T+0), so the clock and the Sun and Earth angles first shown are those for the landing date and hour chosen; the clock shows the year. A visit with no date in the link opens on the present hour. Share links written before this change that carry no `t` value now open at the landing time instead of twelve hours after it.
+- Search reads coordinates in the common forms: `-89.5, 45`, `89.5S 45E`, `84.6000° S 31.0000° E` (as the site card prints them) and east longitudes from 0° to 360°. Selecting a site's coordinates copies them as `latitude, east longitude`.
+- Each site card opens with the answer in a sentence and its countdown; the numbers (azimuth, disc share, distances, data sources) can be folded away with one button, and start folded on phones. The caution line and the plain sentences always stay.
+- "Find landing times" lists the arrival times after which sunlight, Earth view or both hold without a break for the hours you ask for (`arrivalWindows` in `src/windows.mjs`). The ranking can be limited to sites with at least a chosen number of sunlit and Earth-view hours.
+- On a phone, press and hold the Moon to drop a pin.
+- Every answer from the server and every CSV export carries the app version; the server's answers also say exactly what was asked of JPL Horizons and which ephemeris JPL used. `METHOD.md` has a conventions table and a "Reproduce a result" recipe, and `scripts/check-convergence.mjs` repeats the sampling checks.
 - Pins you drop are named Pin A, Pin B and so on, in the order they first appear, and the comparison prints their coordinates to three decimals (about 30 m) so that nearby pins can be told apart.
 - Browser/session caches and a serialized, bounded-cache JPL service. Network failures never substitute synthetic observations.
 

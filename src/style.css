@@ -133,7 +133,8 @@ canvas{display:block;touch-action:none}
 .place-title p{font-size:13px;color:var(--label2);margin-top:2px}
 .circle-btn{flex:none;width:30px;height:30px;border-radius:50%;background:var(--fill);display:grid;place-items:center;font-size:15px;color:var(--label2)}
 .circle-btn:hover{background:rgba(120,120,128,.4);color:#fff}
-.coords{font-size:12px;color:var(--label2);margin:8px 0 0 55px}
+.coords{display:block;font-size:12px;color:var(--label2);margin:8px 0 0 55px;padding:0;text-align:left;cursor:copy}
+.coords:hover{color:var(--label)}
 .site-landed{margin-top:8px}
 .facts button.link{color:var(--blue);font-weight:600;font-size:11px;padding:0}
 .site-why{margin:8px 0 0;color:var(--label2);line-height:1.4}
@@ -262,7 +263,24 @@ canvas{display:block;touch-action:none}
 .map-tools.hints [data-label]::after{opacity:1}
 .map-tools.hints{z-index:9}
 /* Narrow phones: the clock's date now carries the year, so its "UTC" (also on the top bar and beside the landing date) gives way. */
-@media(max-width:480px){.clock-block .utc{display:none}}
+@media(max-width:480px){.clock-block .utc,.clock-block .when{display:none}}
+.clock-block .when{color:var(--label3)}
+/* The answer in a sentence, straight under the name. */
+.answer{margin:10px 0 0;font-size:13.5px;line-height:1.45;color:var(--label)}
+.answer:empty{display:none}
+.warn{color:var(--orange);font-weight:600}
+/* The numbers can be folded away; plain sentences, times and the caution line always stay. */
+#site-card.simple .adv{display:none}
+.detail-toggle{display:block;width:100%;margin:8px 0 0;padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:var(--blue)}
+.explain.first{margin:10px 0 2px}
+.explain details p+p{margin-top:6px}
+.finder{margin-top:10px;padding-top:10px;border-top:.5px solid var(--sep)}
+.finder input,.finder select,.rank-min input{font:inherit;color:var(--label);background:var(--fill2);border:0;border-radius:6px;padding:2px 4px;font-variant-numeric:tabular-nums}
+.finder input,.rank-min input{width:44px;text-align:center}
+.finder button.link{color:var(--blue);font-weight:600;padding:0}
+.rank-min{margin:6px 0 2px}
+#site-grid small{display:block;font-weight:400;color:var(--label2);font-size:10.5px;line-height:1.35;margin-top:2px}
+canvas{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 @media(hover:hover){.map-tools:hover [data-label]::after{opacity:1}}
 .layer-picker{width:300px}
 .layer-list{display:grid;gap:2px;margin:10px 0 8px}
@@ -450,8 +468,23 @@ dialog .close{position:absolute;right:14px;top:14px}
  .list-title{font-size:17px;margin:12px 2px 8px}
  .place-title h1{font-size:21px}
  .map-status{display:none}
- .map-tools{right:10px;top:10px;gap:8px}
- .toolgroup button,.compass{width:38px;height:38px;font-size:18px}
+ .map-tools{right:10px;top:10px;gap:6px}
+ /* 40 px tall so the column still clears the sheet on a phone in Safari; an invisible strip widens each target to 52 px. */
+ .toolgroup button{width:40px;height:40px;font-size:19px}
+ .toolgroup button::before{content:'';position:absolute;inset:0 0 0 -12px}
+ .compass{width:36px;height:36px;font-size:16px}
+ /* Touch targets: at least 44 px high wherever a finger has to land. */
+ .segmented button{min-height:44px;min-width:50px}
+ .mini-toggle{min-height:44px;padding:5px 14px}
+ /* Small round and text buttons keep their size; an invisible margin makes them easy to hit. */
+ .place-head .circle-btn,.picker-head .circle-btn,#today,.play{position:relative}
+ .place-head .circle-btn::after,.picker-head .circle-btn::after{content:'';position:absolute;inset:-7px}
+ #today::after{content:'';position:absolute;inset:-11px -6px}
+ .play::after{content:'';position:absolute;inset:-5px}
+ .date-label{min-height:44px;justify-content:center}
+ .finder input,.finder select,.rank-min input{min-height:36px;font-size:16px}
+ .detail-toggle{min-height:44px}
+ .explain summary{min-height:44px;display:flex;align-items:center}
  .toolgroup:has(#zoom-in){display:none} /* pinch to zoom on phones; keeps the stack clear of the sheet */
  .map-picker,.comparison,.ranking{top:60px;left:8px;right:58px;width:auto}
  .layer-picker{width:auto}

@@ -28,7 +28,7 @@ The blue patches near both poles are NASA’s LOLA maps of permanently shadowed 
 
 ## Where to land
 
-The heat-map button steps through three maps drawn within 15° of each pole: the share of time, over many years, that some part of the Sun’s disc is above the terrain; the same for Earth; and the two multiplied together as a rough score. They are NASA’s LOLA average-visibility maps (AVGVISIB_75S and 75N, with their Earth versions), averaged from 120 m to 480 m cells. Brighter is better, and each map fades in over the range shown in its legend. The site card’s “Long-term average” reads the same maps, and “Find best spot within 15 km” takes the six best-scoring, well-separated cells nearby, runs each through the full calculation for your landing time and stay, and drops a pin on the one with the most Sun and Earth together for those dates. In the Earth view, ground outside the polar maps is drawn from plain geometry instead: blue where Earth is above level ground at the selected time, and a brighter band within about 8° of the edge of the near side, where the Moon’s rocking makes Earth rise and set. These are long-term averages over a 480 m cell, counted when any part of the disc shows; they do not replace the hour-by-hour calculation for your date, and the score is not a measured overlap of Sun and Earth. NASA’s maps end 15° from each pole, so the heat map fades out over the last five degrees rather than stopping at a hard edge. The last step of the same button is a slope layer within 10° of each pole, from NASA’s LOLA 80 m terrain: amber where a 320 m cell averages 5° to 10° over a 160 m baseline, red above 10°. It is a caution about steep ground, not a hazard map; rocks and small craters are far below its scale. The best-spot finder prefers candidates on ground gentler than 10°.
+The Map layers menu (the ring-shaped button) offers three maps drawn within 15° of each pole: the share of time, over many years, that some part of the Sun’s disc is above the terrain; the same for Earth; and the two multiplied together as a rough score. They are NASA’s LOLA average-visibility maps (AVGVISIB_75S and 75N, with their Earth versions), averaged from 120 m to 480 m cells. Brighter is better, and each map fades in over the range shown in its legend. The site card’s “Long-term average” reads the same maps, and “Find best spot within 15 km” takes the twenty best-scoring, well-separated cells nearby, runs each through the full calculation for your landing time and stay, and drops a pin on the one with the most Sun and Earth together for those dates. In the Earth view, ground outside the polar maps is drawn from plain geometry instead: blue where Earth is above level ground at the selected time, and a brighter band within about 8° of the edge of the near side, where the Moon’s rocking makes Earth rise and set. These are long-term averages over a 480 m cell, counted when any part of the disc shows; they do not replace the hour-by-hour calculation for your date, and the score is not a measured overlap of Sun and Earth. NASA’s maps end 15° from each pole, so the heat map fades out over the last five degrees rather than stopping at a hard edge. The last choice in the same menu is a slope layer within 10° of each pole, from NASA’s LOLA 80 m terrain: amber where a 320 m cell averages 5° to 10° over a 160 m baseline, red above 10°. It is a caution about steep ground, not a hazard map; rocks and small craters are far below its scale. The best-spot finder prefers candidates on ground gentler than 10°.
 
 ## Terrain & location
 
@@ -50,3 +50,29 @@ A tilted camera orbits the selected site over a true-scale terrain mesh (no vert
 
 8K NASA CGI Moon Kit mosaic with a downsampled LOLA relief texture. Full elevation grids are processed separately for site visibility. The Sunlight layer traces rays toward the JPL Sun through LOLA elevations on a curved Moon. Ridges and crater walls cast moving shadows. For responsive interaction, visual elevations are averaged to 160 m south of 85°S and 3.8 km elsewhere; shadow masks refine after time scrubbing stops (about 300 m polar pixels and 5.3 km equatorial pixels). Sparse ray steps up to 500 km, height bias and map sampling can miss small obstacles or narrow shadows. This is approximate visual coverage, separate from the finer site horizon calculations. The mosaic contains some baked lighting which cannot move. Satellite defaults to unlit imagery; use the Sun button to show sunlight in any mode.
 
+## Conventions
+
+| Item | What the app uses |
+|---|---|
+| Time | UTC on screen. JPL Horizons returns UT, which differs from UTC by under a second; the app samples every five minutes. |
+| Latitude | Planetocentric, positive north, decimal degrees. |
+| Longitude | Positive east, −180° to 180°, decimal degrees. Search also accepts 0° to 360° east and hemisphere letters ("89.5S 45E"). |
+| Frame | The Moon's mean-Earth frame. JPL Horizons reports MEAN_ME for surface sites, and the LOLA grids and the Apollo coordinates use the same frame. |
+| Reference radius | 1,737.4 km. Elevations are heights above that sphere. |
+| Observer | The terrain height at the site plus 2 m. |
+| Ephemeris | Whatever JPL Horizons names in its reply, which the app passes on in its answers (`request.ephemeris`). DE441 on November 15, 2026. |
+| Angles | Elevation above a level horizon; azimuth in degrees clockwise from north. "Above terrain" is elevation minus the skyline angle in that direction. No refraction: the Moon has no air. |
+| Map projections | Polar grids are polar stereographic, as published by NASA's PDS (0° longitude up in the south, down in the north); the global grids are simple cylindrical. Tests in `tests/terrain.test.mjs` and `tests/psr.test.mjs` check pixel positions at both poles and across the date line. |
+
+## Reproduce a result
+
+Every answer can be rebuilt from one request to the app and one to JPL.
+
+1. Ask the app: `GET /api/ephemeris?lat=-84.6&lon=31&date=2026-11-15&reference=0`. The reply has:
+   - `version`: the app version that made it (also written into every CSV export);
+   - `request`: exactly what was asked of JPL Horizons (centre, site coordinates and height, quantities, step, airless, time scale, ephemeris);
+   - `sun` and `earth`: 745 hourly rows of time (ms, UTC), azimuth, elevation and range;
+   - `terrain`: the skyline as 1,440 angles and distances (every 0.25°, out to 300 km), the site's height, the grid used, the share of samples read from each grid, and the slope.
+2. To check the positions independently, send JPL the request in `request` yourself, at any step you like. `scripts/check-convergence.mjs` does this at 10-minute steps and compares.
+3. For any moment, interpolate the body's azimuth and elevation between the hourly rows, look up the skyline angle at that azimuth (linear between neighbours), and subtract. Positive means in view. The app repeats this every five minutes and places each rise and set where a straight line between neighbouring tests crosses zero.
+4. `scripts/check-convergence.mjs` reruns the windows with finer time steps and thinner skylines and writes `data/convergence-check.json`. On November 15, 2026 the totals at three sites were identical to 0.01 h for steps of 15, 5, 2 and 1 minutes, and the interpolation was within 0.00003° of JPL.

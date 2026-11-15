@@ -115,7 +115,7 @@ export function createTerrainShadows(renderer,material,invalidate,onStatus) {
    uniforms.polar.value=false;renderer.setRenderTarget(globalTarget);renderer.render(scene,camera);
    uniforms.polar.value=true;renderer.setRenderTarget(southTarget);renderer.render(scene,camera);
    globeUniforms.terrainShadowsReady.value=1;
-   onStatus(refined?'Terrain shadows · NASA LOLA':'Terrain shadows · updating');
+   onStatus(refined?'Calculated sunlight and shadows · JPL Sun, LOLA terrain':'Calculated shadows · updating');
   }finally{renderer.setRenderTarget(previous);renderer.autoClear=auto;}
   invalidate();
  }
@@ -132,6 +132,6 @@ export function createTerrainShadows(renderer,material,invalidate,onStatus) {
   sampler(){if(!loaded)return null;return heightSampler||(heightSampler=makeVisualSampler(uniforms.globalHeight.value.image.data,uniforms.southHeight.value.image.data));},
   update(sun){available=true;direction.copy(sun).normalize();version++;schedule();},
   setEnabled(value){enabled=value;globeUniforms.terrainShadowsReady.value=0;clearTimeout(previewTimer);previewTimer=null;clearTimeout(refineTimer);if(value)schedule();invalidate();},
-  pending(){available=false;version++;clearTimeout(previewTimer);previewTimer=null;clearTimeout(refineTimer);globeUniforms.terrainShadowsReady.value=0;onStatus('Sunlight · loading NASA/JPL');invalidate();}
+  pending(){available=false;version++;clearTimeout(previewTimer);previewTimer=null;clearTimeout(refineTimer);globeUniforms.terrainShadowsReady.value=0;onStatus('Calculated sunlight · loading NASA/JPL');invalidate();}
  };
 }

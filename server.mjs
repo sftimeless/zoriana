@@ -2,7 +2,7 @@
 // NODE_ENV=production it serves the built files in dist/ and needs no npm packages.
 import http from 'node:http';
 import path from 'node:path';
-import { createReadStream } from 'node:fs';
+import { createReadStream, readFileSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { getTerrain } from './terrain-service.mjs';
@@ -15,6 +15,9 @@ const cache=new Map();
 const SERIES_DAYS=31; // hourly series: a full lunar day (29.5 days) plus room for a landing hour later than 00:00
 let queue=Promise.resolve();
 function scheduled(task) { const result=queue.then(task); queue=result.catch(()=>{}); return result; }
+// Stamped on every answer and export, so a result can be tied to the code that made it.
+const VERSION=JSON.parse(readFileSync(new URL('./package.json',import.meta.url),'utf8')).version;
+let kernel=null; // the planetary ephemeris JPL says it used, read from its reply (for example DE441)
 async function query(target,lat,lon,date,altitude=0) {
   const key=[target,lat,lon,date,altitude].join(':');
   if(cache.has(key)) return cache.get(key);
@@ -25,6 +28,7 @@ async function query(target,lat,lon,date,altitude=0) {
     if(!response.ok) throw new Error('JPL request failed.');
     const data=await response.json();
     if(data.error) throw new Error('JPL could not calculate this location and date.');
+    const named=(data.result||'').match(/\{source:\s*([^}]+)\}/);if(named)kernel=named[1].trim();
     return parseHorizons(data.result||'');
   });
   cache.set(key,promise);
@@ -36,7 +40,9 @@ async function ephemeris(lat,lon,date,reference=false){
   const terrain=reference?null:await getTerrain(lat,lon);
   const altitude=terrain?(terrain.elevationMeters+terrain.observerHeightMeters)/1000:0;
   const [sun,earth]=await Promise.all([query(10,lat,lon,date,altitude),query(399,lat,lon,date,altitude)]);
-  return {sun,earth,lat,lon,date,days:SERIES_DAYS,terrain,altitudeKm:altitude,source:'NASA/JPL Horizons + NASA LOLA',model:'Airless apparent body-center elevation and observer range; 1737.4 km reference sphere; observer at sampled DEM elevation + 2 m; hourly ephemerides. Finite DEM, azimuth and time sampling. Eclipses of the Sun by Earth are evaluated in the browser from these positions.'};
+  return {version:VERSION,sun,earth,lat,lon,date,days:SERIES_DAYS,terrain,altitudeKm:altitude,source:'NASA/JPL Horizons + NASA LOLA',
+    // What was asked of JPL, so the same table can be requested again by anyone.
+    request:{service:'https://ssd.jpl.nasa.gov/api/horizons.api',table:'OBSERVER',targets:'10 (Sun), 399 (Earth)',center:'coord@301',coordType:'GEODETIC',siteCoord:`${lon},${lat},${altitude}`,siteCoordMeaning:'east longitude (deg), latitude (deg), height above the 1737.4 km sphere (km)',quantities:'4 (apparent azimuth and elevation), 20 (range)',apparent:'AIRLESS',step:'1 h',timeScale:'UT',ephemeris:kernel,frame:'Moon mean-Earth (JPL reports MEAN_ME); planetocentric latitude, east-positive longitude'},model:'Airless apparent body-center elevation and observer range; 1737.4 km reference sphere; observer at sampled DEM elevation + 2 m; hourly ephemerides. Finite DEM, azimuth and time sampling. Eclipses of the Sun by Earth are evaluated in the browser from these positions.'};
 }
 // The app opens on today's date (UTC), so the curated sites are fetched for today when the server
 // starts and again when the date changes. Visitors then share those answers instead of each

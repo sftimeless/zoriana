@@ -6,7 +6,7 @@ import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { DAY, sampleAt, visibleHours, nextCrossing, coordinatesToVector, skyDirection, centredPosition } from './ephemeris.mjs';
-import { segments, span, gaps, longest, landingDays, bestLandingDay, bestLandingTime, crossingSpread, together, stayMetrics, compassPoint, staySentence } from './windows.mjs';
+import { segments, span, gaps, longest, arrivalWindows, landingDays, bestLandingDay, bestLandingTime, crossingSpread, together, stayMetrics, compassPoint, staySentence } from './windows.mjs';
 import { earthMeshRotation } from './earth-orientation.mjs';
 import { horizonAt, obstructionAt, clearanceSeries, destination, RADIUS } from './terrain-math.mjs';
 import { createRenderDiagnostics } from './performance.mjs';
@@ -14,6 +14,7 @@ import { createTerrainShadows } from './terrain-shadows.mjs';
 import { createSurfacePatch } from './surface-patch.mjs';
 import { quickMapUrl, moonTrekUrl } from './links.mjs';
 import { toCsv } from './export.mjs';
+import { parseCoordinates, formatCoordinates } from './coords.mjs';
 import { sites } from './sites.mjs';
 import { searchFeatures, placeName } from './features.mjs';
 import { eclipseSeries, eclipseAt, eclipseEvents } from './eclipse.mjs';
@@ -49,7 +50,10 @@ const visibilityRows=(d,name)=>terrainEnabled&&d.terrain?d.adjusted[name]:(name=
 const discRows=(d,name)=>{const terrain=terrainEnabled&&d.terrain?d.terrain:null,key=(terrain?'terrain:':'flat:')+name;d.discMemo??={};return d.discMemo[key]??=(()=>{const series=discSeries(d[name],terrain,name==='sun'?SUN_RADIUS_KM:EARTH_RADIUS_KM);
  // During an eclipse, the part of the Sun's disc behind Earth does not count as showing.
  return name==='sun'&&d.eclipse&&series?.length===d.eclipse.length?series.map((r,i)=>({...r,fraction:r.fraction*(1-d.eclipse[i].coverage)})):series;})();};
-const withDisc=(metrics,d,start,end)=>metrics&&{...metrics,sunDisc:discHours(discRows(d,'sun'),start,end)};
+// A stay as stretches of time: no sunlight, Earth out of view, and both available together.
+const stayStretches=(d,start,end)=>{const sun=visibilityRows(d,'sun'),earth=visibilityRows(d,'earth'),lit=segments(sun,start,end),seen=segments(earth,start,end);return {lit,seen,dark:gaps(lit,start,end),outage:gaps(seen,start,end),both:segments(together(sun,earth),start,end)};};
+const withDisc=(metrics,d,start,end)=>metrics&&{...metrics,sunDisc:discHours(discRows(d,'sun'),start,end),stretches:stayStretches(d,start,end)};
+let appVersion='',requestInfo=null; // read from the server's answers, for the exports and the method sheet
 const TIMELINE_HOURS=720; // the time slider spans the 30 days after landing
 const dayStart=date=>Date.parse(date+'T00:00:00Z');
 // The landing moment: the start of the stay and the zero of the timeline.
@@ -72,6 +76,8 @@ const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 const day=t=>new Date(t).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
 const stamp=t=>`${day(t)}, ${new Date(t).toISOString().slice(11,16)} UTC`;
 const shortStamp=t=>`${day(t)} ${new Date(t).toISOString().slice(11,16)}`;
+// Whether a moment is behind us, happening, or still to come (within the hour counts as now).
+const whenWord=t=>Math.abs(t-Date.now())<HOUR?'now':t<Date.now()?'past':'future';
 // A list of time stretches in words, at most four of them.
 const stretches=(items,none)=>items.length?items.slice(0,4).map(([a,b])=>`${shortStamp(a)} to ${shortStamp(b)} (${span(b-a)})`).join('; ')+(items.length>4?`; and ${items.length-4} more`:''):none;
 
@@ -230,7 +236,7 @@ $('#best-nearby').onclick=async()=>{
  }finally{button.disabled=false;}
 };
 function setSunlight(value){sunlightEnabled=value;$('#sunlight').setAttribute('aria-pressed',String(value));shadows.setEnabled(value);moon.material=value?material:satelliteMaterial;patch.setLit(value);bodies.earth.mesh.material=value?earthLit:earthUnlit;}
-$('#sunlight').onclick=()=>{setSunlight(!sunlightEnabled);$('#map-status').textContent=sunlightEnabled?'Sunlight · updating':'NASA / LRO · imagery';invalidate();};
+$('#sunlight').onclick=()=>{setSunlight(!sunlightEnabled);$('#map-status').textContent=sunlightEnabled?'Calculated sunlight · updating':'NASA imagery · no lighting added';toast(sunlightEnabled?'Showing sunlight and shadows calculated for the chosen time, drawn over NASA’s imagery.':'Showing NASA’s imagery with no lighting added. Any shading left is in the photographs or is dark rock.');invalidate();};
 const loader=new THREE.TextureLoader();
 loader.load('/assets/moon-lroc-8k.jpg',texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());material.map=texture;satelliteMaterial.map=texture;patch.setMap(texture);material.needsUpdate=true;satelliteMaterial.needsUpdate=true;$('#map-status').textContent='NASA / LRO · 8K lunar mosaic';invalidate();},undefined,()=>{$('#map-status').textContent='NASA imagery failed to load';});
 fetch('/assets/terrain-visual.f32').then(r=>{if(!r.ok)throw new Error('Terrain texture unavailable');return r.arrayBuffer();}).then(buffer=>{
@@ -586,15 +592,26 @@ $('#recenter').onclick=()=>{if(!selected)return;if(mode==='landing')enterSurface
 function setPin(value){pinning=value;$('#pin').classList.toggle('active',value);$('#globe').classList.toggle('pinning',value);$('#hint').classList.toggle('gone',!value);$('#hint').textContent=value?'Click anywhere on the Moon to place your pin':'Drag to explore · Scroll to zoom · Right-click to drop a pin';if(value)toast('Click the lunar surface to choose your location.');}
 $('#pin').onclick=()=>setPin(!pinning);$('#pin-from-card').onclick=()=>setPin(true);
 let pointerStart;
-renderer.domElement.addEventListener('pointerdown',e=>pointerStart={x:e.clientX,y:e.clientY});
+let holdTimer=null,touches=0;
+const cancelHold=()=>{clearTimeout(holdTimer);holdTimer=null;};
+renderer.domElement.addEventListener('pointerdown',e=>{
+ pointerStart={x:e.clientX,y:e.clientY};
+ if(e.pointerType!=='touch')return;
+ // One finger held still for a moment drops a pin; a drag, a second finger or lifting cancels it.
+ touches++;cancelHold();if(touches===1&&!surface){const {clientX,clientY}=e;holdTimer=setTimeout(()=>{holdTimer=null;if(dropPinAt(clientX,clientY)){try{navigator.vibrate?.(12);}catch{}toast('Pin dropped. Its Sun and Earth windows are in the panel below.');}},650);}
+});
+renderer.domElement.addEventListener('pointermove',e=>{if(holdTimer&&pointerStart&&Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)>8)cancelHold();});
+for(const type of ['pointerup','pointercancel','pointerleave'])renderer.domElement.addEventListener(type,e=>{if(e.pointerType==='touch')touches=Math.max(0,touches-1);cancelHold();});
 // Drops a pin where the pointer meets the Moon. Returns false when the pointer is off the globe.
+let lastPinAt=0;
 function dropPinAt(clientX,clientY){
+ if(Date.now()-lastPinAt<900)return false;   // a long press can also arrive as a context-menu event: one pin, not two
  const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(clientX/innerWidth*2-1,1-clientY/innerHeight*2),camera);
  const hit=ray.intersectObject(moon)[0];if(!hit)return false;
  const v=hit.point.normalize();
  const lat=THREE.MathUtils.radToDeg(Math.asin(v.y)),lon=THREE.MathUtils.radToDeg(Math.atan2(-v.z,v.x));
  const site={id:'pin-'+Date.now(),name:pinName(lat,lon),type:describePlace(lat,lon),cat:'pin',lat,lon};
- addCustom(site);setPin(false);selectSite(site,false);return true;
+ lastPinAt=Date.now();addCustom(site);setPin(false);selectSite(site,false);return true;
 }
 renderer.domElement.addEventListener('pointerup',e=>{if(!pinning||e.button!==0||!pointerStart||Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)>6)return;dropPinAt(e.clientX,e.clientY);});
 // Right-click, or a long press on touch screens, drops a pin without switching to pin mode first.
@@ -602,7 +619,7 @@ renderer.domElement.addEventListener('contextmenu',e=>{e.preventDefault();dropPi
 function addCustom(site){for(let i=labels.length-1;i>=0;i--){if(labels[i].site.id.startsWith('pin-')&&!compared.some(s=>s.site.id===labels[i].site.id)){labels[i].el.remove();labels.splice(i,1);}}addLabel(site);}
 
 // ---- Data ----
-async function ephemeris(site,{reference=false,date=$('#date').value}={}){const key=[reference,site.lat,site.lon,date].join(':');if(clientCache.has(key))return clientCache.get(key);const promise=fetch(`/api/ephemeris?${new URLSearchParams({lat:site.lat.toFixed(6),lon:site.lon.toFixed(6),date,reference:reference?'1':'0'})}`).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load NASA data.');// Earth can pass in front of the Sun (an eclipse). The Sun's centre then counts as hidden,
+async function ephemeris(site,{reference=false,date=$('#date').value}={}){const key=[reference,site.lat,site.lon,date].join(':');if(clientCache.has(key))return clientCache.get(key);const promise=fetch(`/api/ephemeris?${new URLSearchParams({lat:site.lat.toFixed(6),lon:site.lon.toFixed(6),date,reference:reference?'1':'0'})}`).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load NASA data.');if(d.version){appVersion=d.version;requestInfo=d.request||null;$('#info-version').textContent=`Version ${appVersion} · `;if(requestInfo?.ephemeris)$('#info-kernel').textContent=requestInfo.ephemeris;}// Earth can pass in front of the Sun (an eclipse). The Sun's centre then counts as hidden,
   // exactly as if Earth's edge were part of the skyline: its clearance is capped by how far it
   // is outside Earth's disc. Both series share the same five-minute steps.
   d.eclipse=eclipseSeries(d.sun,d.earth);
@@ -611,7 +628,7 @@ async function ephemeris(site,{reference=false,date=$('#date').value}={}){const 
   d.level={sun:behindEarth(clearanceSeries(d.sun,{angles:[0,0],stepDegrees:180}))};return d;});clientCache.set(key,promise);if(clientCache.size>40)clientCache.delete(clientCache.keys().next().value);try{return await promise;}catch(e){clientCache.delete(key);throw e;}}
 async function selectSite(site,move=true){
  selected=site;$('#planner').scrollTop=0;if(sheetState==='peek')setSheet('mid');$('#browse').hidden=true;$('#site-card').hidden=false;$('#search-results').innerHTML='';$('#search').value='';
- $('#site-name').textContent=site.name;$('#site-type').textContent=site.type;$('#site-coords').textContent=coord(site);
+ $('#site-name').textContent=site.name;$('#site-type').textContent=site.note?`${site.type} · approximate point`:site.type;$('#site-coords').textContent=coord(site);
  $('#site-note').hidden=!site.note;$('#site-note').textContent=site.note||'';$('#site-why').hidden=!site.why;$('#site-why').textContent=site.why?`Why here: ${site.why}`:'';
  // Past missions: one tap sets the date and hour to the real touchdown.
  $('#site-landed').hidden=!site.landed;if(site.landed)$('#site-landed').textContent=`See it at touchdown: ${new Date(site.landed).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})}, ${site.landed.slice(11,16)} UTC`;
@@ -624,13 +641,16 @@ function closeSite(){selected=null;data=null;++selectedRequest;$('#site-card').h
 const pickSite=e=>{const id=e.target.closest('[data-site]')?.dataset.site;if(id)selectSite(sites.find(s=>s.id===id));};
 $('#destinations').onclick=pickSite;$('#search-results').addEventListener('click',pickSite);
 $('#close-card').onclick=closeSite;
+$('#site-coords').onclick=async()=>{if(!selected)return;const text=formatCoordinates(selected.lat,selected.lon);
+ try{await navigator.clipboard.writeText(text);toast(`Copied ${text} (latitude, east longitude, in degrees). Paste it into search to return here.`);}
+ catch{toast(`${text} is latitude, east longitude, in degrees. Copying is blocked here; select it from this note.`);}};
 $('#site-landed').onclick=()=>{
  if(!selected?.landed)return;const t=new Date(selected.landed);
  landingHour=t.getUTCHours();$('#hour').value=String(landingHour);$('#time').value=Math.round(t.getUTCMinutes()/15)*.25; // the slider moves in quarter hours
  applyDate(selected.landed.slice(0,10));
 };
 $('#rail-search').onclick=()=>{if(selected)closeSite();$('#search').focus();};
-$('#search').oninput=()=>{const q=$('#search').value.trim().toLowerCase();const results=$('#search-results');if(!q){results.innerHTML='';return;}const coords=q.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);if(coords){const lat=Number(coords[1]),lon=Number(coords[2]);if(Math.abs(lat)<=90&&Math.abs(lon)<=180){results.innerHTML=`<button id="coordinate-result" class="row cat-pin"><span class="badge">${icon('pin')}</span><span class="row-text"><strong>Go to ${safe(q)}</strong><small>Latitude, east longitude</small></span>${icon('chevron','chev')}</button>`;$('#coordinate-result').onclick=()=>{const s={id:'pin-'+Date.now(),name:pinName(lat,lon),lat,lon,cat:'pin',type:describePlace(lat,lon)};addCustom(s);selectSite(s);};return;}}const found=sites.filter(s=>[s.name,s.description,s.type,categories[s.cat].label].join(' ').toLowerCase().includes(q));const named=searchFeatures(features,q,6).filter(f=>!found.some(s=>s.name.toLowerCase()===f[0].toLowerCase()));
+$('#search').oninput=()=>{const q=$('#search').value.trim().toLowerCase();const results=$('#search-results');if(!q){results.innerHTML='';return;}const coords=parseCoordinates(q);if(coords){const {lat,lon}=coords;{results.innerHTML=`<button id="coordinate-result" class="row cat-pin"><span class="badge">${icon('pin')}</span><span class="row-text"><strong>Go to ${safe(formatCoordinates(lat,lon))}</strong><small>Latitude, east longitude · ${safe(coord({lat,lon}).replace(/\s+/g,' '))}</small></span>${icon('chevron','chev')}</button>`;$('#coordinate-result').onclick=()=>{const s={id:'pin-'+Date.now(),name:pinName(lat,lon),lat,lon,cat:'pin',type:describePlace(lat,lon)};addCustom(s);selectSite(s);};return;}}const found=sites.filter(s=>[s.name,s.description,s.type,categories[s.cat].label].join(' ').toLowerCase().includes(q));const named=searchFeatures(features,q,6).filter(f=>!found.some(s=>s.name.toLowerCase()===f[0].toLowerCase()));
  results.innerHTML=found.map(siteRow).join('')+named.map((f,i)=>`<button class="row cat-pin" data-feature="${i}"><span class="badge">${icon('crater')}</span><span class="row-text"><strong>${safe(f[0])}</strong><small>${safe(f[4])} · ${f[3]>=10?Math.round(f[3]):f[3]} km across</small></span><span class="row-meta mono">${Math.abs(f[1]).toFixed(1)}°${f[1]<0?'S':'N'}</span>${icon('chevron','chev')}</button>`).join('')||`<p>No matching place${features?'':' yet (the list of named features is still loading)'}. Try latitude, longitude (for example −85, 20), or drop a pin.</p>`;
  results.querySelectorAll('[data-feature]').forEach(button=>button.onclick=()=>{const f=named[Number(button.dataset.feature)];const s={id:`pin-${f[1].toFixed(4)}_${f[2].toFixed(4)}`,name:f[0],type:`${f[4]} · ${f[3]>=10?Math.round(f[3]):f[3]} km across · centre of the IAU-named feature`,cat:'pin',lat:f[1],lon:f[2]};addCustom(s);selectSite(s);});
 };
@@ -691,11 +711,12 @@ function drawSky(currents,profile){
 function refreshMetrics(){
  const time=observationTime(),profile=terrainEnabled?data?.terrain:null;
  const currents={sun:sampleAt(data?.sun,time),earth:sampleAt(data?.earth,time)};
- const end=startDate()+duration*HOUR;
+ const end=startDate()+duration*HOUR,nowState={};
  for(const name of ['sun','earth']){
   const current=currents[name],h=current?(profile?horizonAt(profile,current.az):0):null,clear=current?current.el-h:null;
   const eclipse=name==='sun'&&data?eclipseAt(data.eclipse,time):null,eclipsed=Boolean(eclipse&&eclipse.coverage>.001&&clear>-.3);
   const up=clear!==null&&clear>0&&!(eclipse&&eclipse.limb<0),terrainBlocked=current&&!up&&current.el>0&&Boolean(profile)&&!(eclipse&&eclipse.limb<0&&clear>0);
+  nowState[name]=current?(eclipsed?'eclipsed':up?'up':terrainBlocked?'blocked':'down'):null;
   $(`#${name}-elevation`).textContent=current?deg(current.el):'—';
   $(`#${name}-az`).textContent=current?`${number(current.az)}°`:'—';
   $(`#${name}-clear`).textContent=current?signedDeg(clear):'—';
@@ -743,18 +764,24 @@ function refreshMetrics(){
  $('#how-steps').innerHTML=data?`<ol>${steps('sun','Sun')}</ol><ol>${steps('earth','Earth')}</ol><p>The app repeats this test every five minutes for 30 days. The stretches where the answer is “in view” are the windows, totals and countdowns you see.</p>`:'';
  const stay=data?stayMetrics(visibilityRows(data,'sun'),visibilityRows(data,'earth'),data.sun,startDate(),end):null;
  $('#stay-summary').textContent=stay?staySentence(stay,duration):'';
+ // The answer in a sentence, before any numbers: the moment shown, then the stay.
+ const sunWords={up:'this spot is sunlit',blocked:'the Sun is up but terrain hides it',down:'the Sun is below the horizon',eclipsed:'Earth is passing in front of the Sun'},earthWords={up:'Earth is in view',blocked:'Earth is up but terrain hides it',down:'Earth is below the horizon'};
+ $('#site-answer').textContent=nowState.sun&&nowState.earth?`${stamp(time)}: ${sunWords[nowState.sun]}, and ${earthWords[nowState.earth]}.${stay?` Over the ${stayLabel()} stay: ${staySentence(stay,duration)}`:''}`:(selected?'Working out this site’s sky…':'');
  // The same stay as lists of times (UTC): when sunlight or the view of Earth is interrupted, and when both hold.
- if(stay){const from=startDate(),sunRows=visibilityRows(data,'sun'),earthRows=visibilityRows(data,'earth'),never='never during this stay';
-  $('#stay-windows').innerHTML=`<b>No sunlight:</b> ${stretches(gaps(segments(sunRows,from,end),from,end),never)}.<br><b>Earth out of view:</b> ${stretches(gaps(segments(earthRows,from,end),from,end),never)}.<br><b>Sun and Earth together:</b> ${stretches(segments(together(sunRows,earthRows),from,end),never)}.`;
+ if(stay){const from=startDate(),never='never during this stay';
+  const st=stayStretches(data,from,end),at=list=>list.some(([a,b])=>a<=from&&b>from);
+  $('#stay-windows').innerHTML=`<b>At touchdown:</b> ${at(st.lit)?'sunlit':'no sunlight'}, ${at(st.seen)?'Earth in view':'<span class="warn">Earth out of view, so no direct line home at first</span>'}.<br><b>No sunlight:</b> ${stretches(st.dark,never)}.<br><b>Earth out of view:</b> ${stretches(st.outage,never)}.<br><b>Sun and Earth together:</b> ${stretches(st.both,never)}.`;
  }else $('#stay-windows').textContent='';
  const sunDisc=data?discHours(discRows(data,'sun'),startDate(),end):null;
  const limbWord={first:'first light',full:'full disc',dim:'Sun starts to be covered',last:'last light'};
  const limbs=data?limbEvents(discRows(data,'sun'),time).map(e=>`${limbWord[e.kind]} ${stamp(e.time)}`):[];
  $('#disc-note').textContent=sunDisc&&stay?`Counting the Sun’s whole disc, not just its centre: full Sun ${number(sunDisc.full)} h, at least part of it ${number(sunDisc.any)} h.${limbs.length?` Next: ${limbs.join(', then ')}.`:''}`:'';
  updateBanner(time);
- $('#next-event').textContent=`From ${stamp(startDate())} to ${stamp(end)} · ${terrainEnabled?'terrain included':'reference horizon'}`;
+ $('#next-event').textContent=`From ${stamp(startDate())} to ${stamp(end)} · ${terrainEnabled?'terrain included':'reference horizon'} · ${end<Date.now()?'a stay in the past':startDate()>Date.now()?'a stay in the future':'a stay under way now'}`;
  $('#site-elevation').textContent=data?.terrain?`${data.terrain.elevationMeters<0?'−':'+'}${Math.abs(Math.round(data.terrain.elevationMeters)).toLocaleString()} m`:'—';
- $('#site-grid').textContent=data?.terrain?data.terrain.source:'—';
+ // Which grids the skyline was read from: near terrain is fine, far terrain coarser.
+ const shares=data?.terrain?.resolutionShares,gridName=r=>Number(r)>=1000?`${(Number(r)/1000).toFixed(1)} km`:`${Math.round(Number(r))} m`;
+ $('#site-grid').innerHTML=data?.terrain?`${safe(data.terrain.source)}${shares&&Object.keys(shares).length>1?`<small>Skyline samples: ${Object.entries(shares).sort((a,b)=>a[0]-b[0]).map(([r,f])=>`${Math.round(f*100)}% from the ${gridName(r)} grid`).join(', ')}</small>`:''}`:'—';
  const slope=data?.terrain?.slopeDegrees,baseline=data?.terrain?.slopeBaselineMeters;
  $('#site-slope').innerHTML=Number.isFinite(slope)?`${slope.toFixed(1)}°<small>${baseline>=1000?`regional, over ${(baseline/1000).toFixed(1)} km`:`over ${baseline} m`}</small>`:'—';
  $('#site-shadow').innerHTML=psrFact(selected);$('#site-average').innerHTML=averageFact(selected);$('#best-row').hidden=!(selected&&poleOf(selected.lat));
@@ -765,12 +792,24 @@ function refreshMetrics(){
  drawBands();updateBeams();updateCursor();renderLunar();syncUrl();
 }
 $('#terrain-toggle').onclick=()=>{terrainEnabled=!terrainEnabled;refreshMetrics();renderComparison();renderRanking();};
+// The card can hide its numbers. Phones start that way; the choice is remembered. Nothing is removed: the caution line and the plain sentences always stay.
+function setDetail(show,remember=true){$('#site-card').classList.toggle('simple',!show);$('#detail-toggle').setAttribute('aria-pressed',String(show));$('#detail-toggle').textContent=show?'Hide the numbers':'Show the numbers: angles, distances, data sources';if(remember)try{localStorage.setItem('zoriana-detail',show?'1':'0');}catch{}}
+$('#detail-toggle').onclick=()=>setDetail($('#site-card').classList.contains('simple'));
+{let stored=null;try{stored=localStorage.getItem('zoriana-detail');}catch{}setDetail(stored===null?!matchMedia('(max-width:900px)').matches:stored==='1',false);}
+// Explainers can show what they describe.
+document.querySelector('#browse').addEventListener('click',e=>{
+ const what=e.target.closest('[data-show]')?.dataset.show;if(!what)return;
+ if(what==='earth')setHeat('earth');
+ if(what==='imagery')$('#sunlight').click();
+ if(what==='pole'){setPsr(true);startFlight({to:new THREE.Vector3(...coordinatesToVector(-84,15)).multiplyScalar(2.4)});}
+ if(matchMedia('(max-width:900px)').matches)setSheet('peek'); // on a phone, get the sheet out of the way of the map
+});
 $('#duration').onclick=e=>{const b=e.target.closest('[data-duration]');if(!b)return;duration=Number(b.dataset.duration);$('#duration').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));refreshMetrics();renderComparison();renderRanking();};
 
 // ---- Time ----
 function updateClock(){
  const time=observationTime(),iso=new Date(time).toISOString(),hours=Number($('#time').value),d=Math.floor(hours/24),h=hours-d*24;
- $('#clock').textContent=iso.slice(11,16);$('#clock-date').textContent=`${day(time)}, ${iso.slice(0,4)}`;$('#rail-clock').textContent=iso.slice(11,16);$('#rail-clock').dateTime=iso;
+ $('#clock').textContent=iso.slice(11,16);$('#clock-date').textContent=`${day(time)}, ${iso.slice(0,4)}`;$('#clock-when').textContent=` · ${whenWord(time)}`;$('#rail-clock').textContent=iso.slice(11,16);$('#rail-clock').dateTime=iso;
  $('#met').textContent=hours===0?'T+0 h · landing':`T+${d?d+' d ':''}${Number.isInteger(h)?h:h.toFixed(2)} h`;
  $('#range-start').textContent=day(startDate());$('#date').title=`Observation: ${iso.replace('T',' ').slice(0,16)} UTC`;$('#clock').title=iso;
 }
@@ -797,7 +836,7 @@ document.addEventListener('pointerdown',e=>{if(!$('#map-picker').hidden&&!e.targ
 function setMode(name,exitTo){
  mode=name;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x.dataset.mode===name));
  setSunlight(name!=='satellite');$('#heading-tools').hidden=name!=='landing';
- $('#map-status').textContent=name==='satellite'?'NASA / LRO mosaic · unlit reference imagery':name==='landing'?'Landing view · LOLA relief at true scale':'NASA / LRO · JPL-driven global illumination';
+ $('#map-status').textContent=name==='satellite'?'NASA imagery · no lighting added':name==='landing'?'Landing view · LOLA relief at true scale · calculated sunlight':'Calculated sunlight · NASA imagery underneath';
  if(name==='landing')selectSite(selected||sites[0]);else exitSurface(exitTo);
  showPicker(false);invalidate();syncUrl();
 }
@@ -805,12 +844,13 @@ for(const b of document.querySelectorAll('[data-mode]'))b.onclick=()=>setMode(b.
 
 // ---- Lunar day: the 30 days that follow the landing date ----
 const LUNAR_DAYS=30;
+let lunarFinder=null;
 let lunarMemo=null,lunarBest=null,lunarBestTime=null;
 function renderLunar(){
  if(lunarMemo&&lunarMemo.data===data&&lunarMemo.duration===duration&&lunarMemo.terrain===terrainEnabled&&lunarMemo.selected===selected&&lunarMemo.hour===landingHour)return;
  lunarMemo={data,duration,terrain:terrainEnabled,selected,hour:landingHour};lunarBest=null;
  const chart=$('#lunar-chart'),facts=$('#lunar-facts'),status=$('#lunar-status');
- const idle=text=>{chart.hidden=true;facts.innerHTML='';status.textContent=text;$('#lunar-range').textContent='';};
+ const idle=text=>{chart.hidden=true;facts.innerHTML='';status.textContent=text;$('#lunar-range').textContent='';$('#finder').hidden=true;};
  if(!data){idle(selected?'Loading 30 days of Sun and Earth positions…':'');return;}
  const start=startDate(),end=start+LUNAR_DAYS*DAY;
  if(data.sun.at(-1).time<end){idle('The running server returned fewer than 30 days. Restart Zoriana to load the full lunar day.');return;}
@@ -818,6 +858,13 @@ function renderLunar(){
  const sunRows=visibilityRows(data,'sun'),earthRows=visibilityRows(data,'earth');
  const lit=segments(sunRows,start,end),dark=gaps(lit,start,end),seen=segments(earthRows,start,end),outages=gaps(seen,start,end);
  const total=list=>list.reduce((sum,[a,b])=>sum+b-a,0),share=list=>Math.round(total(list)/(end-start)*100);
+ // Arrival times after which a condition holds without a break for the hours asked for.
+ {const need=Math.max(1,Math.min(168,Math.round(Number($('#finder-hours').value)||6))),what=$('#finder-what').value;
+  const held=what==='sun'?lit:what==='earth'?seen:segments(together(sunRows,earthRows),start,end),name={sun:'sunlight',earth:'Earth in view',both:'Sun and Earth together'}[what];
+  const windows=arrivalWindows(held,need),first=windows[0]&&Math.ceil(windows[0][0]/HOUR)*HOUR;
+  lunarFinder=first&&first<=windows[0][1]?first:null;
+  $('#finder').hidden=false;
+  $('#finder-result').innerHTML=windows.length?`Land ${windows.slice(0,4).map(([a,b])=>b-a<60000?`at ${shortStamp(a)}`:`between ${shortStamp(a)} and ${shortStamp(b)} (${span(b-a)})`).join('; or ')}${windows.length>4?`; and ${windows.length-4} more`:''} UTC. ${lunarFinder?`<button id="finder-use" class="link">Use ${shortStamp(lunarFinder)}</button>`:''}<br>Each gives at least ${need} h of ${name} from touchdown, counting the centre of the body against the ${terrainEnabled?'terrain':'level horizon'}. A stretch still going at the end of the 30 days is counted only up to there.`:`No landing time in the next 30 days gives ${need} h of ${name} without a break.`;}
  // A stretch that touches either edge of the window may continue beyond it, so it is a minimum.
  const stretch=list=>{const best=longest(list);if(!best)return 'None';return `${best[0]<=start||best[1]>=end?'≥ ':''}${span(best[1]-best[0])}<small>from ${day(best[0])}</small>`;};
  const peak=data.sun.reduce((best,r)=>r.time<=end&&r.el>best.el?r:best,data.sun[0]);
@@ -840,6 +887,8 @@ function renderLunar(){
   `<p class="tiny outages"><b>Earth out of view:</b> ${outages.length?outages.slice(0,4).map(([a,b])=>`${shortStamp(a)} to ${shortStamp(b)} (${span(b-a)})`).join('; ')+(outages.length>4?`; and ${outages.length-4} more`:''):'never in the next 30 days'}.</p>`;
 }
 $('#lunar-days').onclick=e=>{const d=e.target.closest('[data-day]')?.dataset.day;if(!d||!data)return;const date=shiftDate(data.date,Number(d));if(date)applyDate(date);else toast('That date is outside the supported range (1950–2099).');};
+$('#finder-hours').oninput=$('#finder-what').onchange=()=>{lunarMemo=null;renderLunar();};
+$('#finder').onclick=e=>{if(!e.target.closest('#finder-use')||!lunarFinder)return;const t=new Date(lunarFinder);landingHour=t.getUTCHours();$('#hour').value=String(landingHour);$('#time').value=0;applyDate(t.toISOString().slice(0,10));};
 $('#lunar-facts').onclick=e=>{
  const jump=e.target.closest('[data-eclipse]');
  if(jump){ // open two days before the eclipse, with the clock on its middle
@@ -875,7 +924,7 @@ async function renderComparison(){
  if(!compared.length){$('#comparison').hidden=true;$('#comparison-cards').innerHTML='';lastComparison=[];syncUrl();return;}
  $('#comparison-method').textContent=`${stayLabel()} stay from each landing time · ${terrainEnabled?'terrain included':'reference horizon'}`;
  const token=++comparisonToken,totals=[];lastComparison=[];syncUrl();
- $('#comparison-cards').innerHTML=compared.map((s,i)=>`<article class="compare-card" data-compare="${safe(s.id)}"><div class="compare-head cat-${s.site.cat}"><span class="badge">${icon(siteIcon(s.site))}</span><strong>${safe(s.site.name)}</strong><button aria-label="Remove ${safe(s.site.name)}, ${fullDay(s.date)}" data-remove>${icon('x')}</button></div><small><b>Lands ${fullDay(s.date)}${s.hour?`, ${hourText(s.hour)} UTC`:''}</b> · <span class="mono">${coordText(s.site)}</span></small><div class="tags">${i===0&&compared.length>1?'<span class="tag base">Baseline</span>':''}</div><div class="results"><p class="waiting">Loading NASA/JPL…</p></div><div class="card-actions"><button class="go" data-go>Open</button><span class="shift">Delay<button data-shift="1">+1 d</button><button data-shift="3">+3 d</button><button data-shift="7">+7 d</button><button data-shift="14">+14 d</button><button data-shift="30">+30 d</button></span></div></article>`).join('');
+ $('#comparison-cards').innerHTML=compared.map((s,i)=>`<article class="compare-card" data-compare="${safe(s.id)}"><div class="compare-head cat-${s.site.cat}"><span class="badge">${icon(siteIcon(s.site))}</span><strong>${safe(s.site.name)}</strong><button aria-label="Remove ${safe(s.site.name)}, ${fullDay(s.date)}" data-remove>${icon('x')}</button></div><small><b>Lands ${fullDay(s.date)}${s.hour?`, ${hourText(s.hour)} UTC`:''}</b> · <span class="mono">${coordText(s.site)}</span></small><div class="tags">${i===0&&compared.length>1?'<span class="tag base">Baseline</span>':''}</div><div class="results"><p class="waiting">Loading NASA/JPL…</p></div><div class="card-actions"><button class="go" data-go>Open</button><span class="shift">Delay<button data-shift="0.5">+12 h</button><button data-shift="1">+1 d</button><button data-shift="3">+3 d</button><button data-shift="7">+7 d</button><button data-shift="14">+14 d</button><button data-shift="30">+30 d</button></span></div></article>`).join('');
  const cards=[...$('#comparison-cards').children];
  for(const [i,s] of compared.entries()){
   const card=cards[i];
@@ -887,7 +936,7 @@ async function renderComparison(){
    totals.push({id:s.id,card,...metrics});lastComparison.push({option:s,metrics,terrain:d.terrain});
    const lane=(name,y,hours)=>`<div class="lane"><div class="track"><svg viewBox="0 ${y} 100 4.4" preserveAspectRatio="none" aria-hidden="true">${lanes(d,start,end)}</svg></div><b data-total="${name}">${number(hours)} h</b></div>`;
    card.querySelector('.results').innerHTML=lane('sun',0,metrics.sun)+lane('earth',5.6,metrics.earth)+lane('both',11.2,metrics.both)+
-    `<p class="plain">${staySentence(metrics,duration)}</p><p class="tiny">Sun height while lit ${metrics.sunHeight===null?'—':'avg '+deg(metrics.sunHeight)}${Number.isFinite(d.terrain?.slopeDegrees)?` · slope ${d.terrain.slopeDegrees.toFixed(1)}° over ${d.terrain.slopeBaselineMeters>=1000?(d.terrain.slopeBaselineMeters/1000).toFixed(1)+' km':d.terrain.slopeBaselineMeters+' m'}`:''}${s.site.note?' · approximate location':''}</p>`;
+    `<p class="plain">${staySentence(metrics,duration)}</p><p class="tiny">Sun height while lit ${metrics.sunHeight===null?'—':'avg '+deg(metrics.sunHeight)}${Number.isFinite(d.terrain?.slopeDegrees)?` · slope ${d.terrain.slopeDegrees.toFixed(1)}° over ${d.terrain.slopeBaselineMeters>=1000?(d.terrain.slopeBaselineMeters/1000).toFixed(1)+' km':d.terrain.slopeBaselineMeters+' m'}`:''}${Number.isFinite(d.terrain?.elevationMeters)?` · elevation ${d.terrain.elevationMeters<0?'−':'+'}${Math.abs(Math.round(d.terrain.elevationMeters)).toLocaleString()} m`:''}${s.site.note?' · approximate location':''}</p>`;
   }catch(e){if(token!==comparisonToken)return;card.querySelector('.results').innerHTML='<p class="waiting">JPL unavailable for this option. Reopen the panel to retry.</p>';}
  }
  if(totals.length<2)return;
@@ -901,7 +950,9 @@ $('#comparison-cards').onclick=e=>{
  if(e.target.closest('[data-remove]')){compared=compared.filter(s=>s!==option);renderComparison();refreshMetrics();return;}
  if(e.target.closest('[data-go]')){openOption(option);return;}
  const shift=e.target.closest('[data-shift]');if(!shift)return;
- const date=shiftDate(option.date,Number(shift.dataset.shift));if(date)addOption(option.site,date,true,option.hour);else toast('That date is outside the supported range (1950–2099).');
+ const days=Number(shift.dataset.shift);
+ if(days%1){const t=new Date(optionStart(option)+days*DAY),date=t.toISOString().slice(0,10);if(date>=DATE_MIN&&date<=DATE_MAX)addOption(option.site,date,true,t.getUTCHours());else toast('That date is outside the supported range (1950–2099).');return;}
+ const date=shiftDate(option.date,days);if(date)addOption(option.site,date,true,option.hour);else toast('That date is outside the supported range (1950–2099).');
 };
 $('#close-compare').onclick=()=>{$('#comparison').hidden=true;};
 
@@ -926,8 +977,10 @@ async function renderRanking(){
 }
 function drawRanking(date,done){
  const score=s=>{const m=rankResults.get(s.id);return m&&!m.error&&m[rankSort]!==null?m[rankSort]:-Infinity;};
- const ordered=[...rankList].sort((a,b)=>score(b)-score(a)||(rankResults.get(b.id)?.sun??-1)-(rankResults.get(a.id)?.sun??-1));
- $('#ranking-method').textContent=`${stayLabel()} stay from ${stamp(startDate())} · ${terrainEnabled?'terrain included':'reference horizon'}${done<rankList.length?` · loading ${done} of ${rankList.length}…`:''}`;
+ const minSun=Math.max(0,Number($('#rank-min-sun').value)||0),minEarth=Math.max(0,Number($('#rank-min-earth').value)||0);
+ const meets=s=>{const m=rankResults.get(s.id);return !m||m.error||(m.sun>=minSun&&m.earth>=minEarth);};
+ const ordered=[...rankList].filter(meets).sort((a,b)=>score(b)-score(a)||(rankResults.get(b.id)?.sun??-1)-(rankResults.get(a.id)?.sun??-1));
+ $('#ranking-method').textContent=`${stayLabel()} stay from ${stamp(startDate())} · ${terrainEnabled?'terrain included':'reference horizon'}${done<rankList.length?` · loading ${done} of ${rankList.length}…`:''}${minSun||minEarth?` · ${ordered.length} of ${rankList.length} meet your minimum`:''}`;
  let position=0;
  $('#ranking-rows').innerHTML=ordered.map(s=>{
   const m=rankResults.get(s.id),ready=m&&!m.error;if(ready)position++;
@@ -943,11 +996,13 @@ $('#ranking-rows').onclick=e=>{
  else if(e.target.closest('[data-open]'))selectSite(site);
 };
 $('#close-ranking').onclick=()=>showRanking(false);
+$('#rank-min-sun').oninput=$('#rank-min-earth').oninput=()=>drawRanking($('#date').value,rankResults.size);
 $('#rail-rank').onclick=()=>showRanking($('#ranking').hidden);$('#rank-from-list').onclick=()=>showRanking(true);
 
 // ---- Export: the comparison and the ranking as CSV files ----
-const exportHeader=['site','latitude_deg','longitude_deg_east','landing_utc','stay_hours','horizon_model','sunlit_hours','earth_in_view_hours','sun_and_earth_hours','sun_full_disc_hours','sun_any_disc_hours','sun_height_avg_deg','sun_height_peak_deg','surface_elevation_m','slope_deg','slope_baseline_m','terrain_data','location_approximate','source'];
-const exportRow=(site,start,m,terrain)=>[site.name,site.lat.toFixed(5),site.lon.toFixed(5),new Date(start).toISOString().slice(0,16)+'Z',duration,terrainEnabled?'terrain horizon':'flat reference horizon',m.sun.toFixed(2),m.earth.toFixed(2),m.both.toFixed(2),m.sunDisc?m.sunDisc.full.toFixed(2):'',m.sunDisc?m.sunDisc.any.toFixed(2):'',m.sunHeight===null?'':m.sunHeight.toFixed(2),m.sunPeak===null?'':m.sunPeak.toFixed(2),terrain?Math.round(terrain.elevationMeters):'',Number.isFinite(terrain?.slopeDegrees)?terrain.slopeDegrees.toFixed(2):'',terrain?.slopeBaselineMeters??'',terrain?.source??'',site.note?'yes':'no','NASA/JPL Horizons + NASA LOLA via Zoriana; geometry only'];
+const exportHeader=['site','latitude_deg','longitude_deg_east','landing_utc','stay_hours','horizon_model','sunlit_hours','earth_in_view_hours','sun_and_earth_hours','sun_full_disc_hours','sun_any_disc_hours','sun_height_avg_deg','sun_height_peak_deg','surface_elevation_m','slope_deg','slope_baseline_m','terrain_data','location_approximate','no_sunlight_utc','earth_out_of_view_utc','sun_and_earth_utc','app_version','source'];
+const isoStretches=list=>(list||[]).map(([a,b])=>`${new Date(a).toISOString().slice(0,16)}Z/${new Date(b).toISOString().slice(0,16)}Z`).join('; ');
+const exportRow=(site,start,m,terrain)=>[site.name,site.lat.toFixed(5),site.lon.toFixed(5),new Date(start).toISOString().slice(0,16)+'Z',duration,terrainEnabled?'terrain horizon':'flat reference horizon',m.sun.toFixed(2),m.earth.toFixed(2),m.both.toFixed(2),m.sunDisc?m.sunDisc.full.toFixed(2):'',m.sunDisc?m.sunDisc.any.toFixed(2):'',m.sunHeight===null?'':m.sunHeight.toFixed(2),m.sunPeak===null?'':m.sunPeak.toFixed(2),terrain?Math.round(terrain.elevationMeters):'',Number.isFinite(terrain?.slopeDegrees)?terrain.slopeDegrees.toFixed(2):'',terrain?.slopeBaselineMeters??'',terrain?.source??'',site.note?'yes':'no',isoStretches(m.stretches?.dark),isoStretches(m.stretches?.outage),isoStretches(m.stretches?.both),appVersion,'NASA/JPL Horizons + NASA LOLA via Zoriana; geometry only'];
 function saveCsv(name,rows){
  const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([toCsv(rows)],{type:'text/csv;charset=utf-8'}));link.download=name;
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),2000);

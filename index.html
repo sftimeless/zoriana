@@ -79,15 +79,21 @@
 
   <div id="browse">
    <div id="chips" class="chips" role="group" aria-label="Filter landing sites"></div>
+   <div class="explain first">
+    <details><summary>New here? How to read this app</summary><p>Pick a site and a landing date, and the app works out where the Sun and Earth sit in that site’s sky, using NASA’s real terrain. A site needs the Sun above the surrounding ground for solar power, and Earth above it for a direct radio line home.</p>
+     <p><b>Colours.</b> Gold is always the Sun and blue is always Earth: the two lines from a site point toward them, solid when the site can see them and dashed when it cannot. Blue patches near the poles are ground that never gets sunlight. Marker colours only group the sites by kind; your own pins are red.</p>
+     <p><b>Words and units.</b> The <i>horizon</i> is where a site’s ground meets its sky; hills and crater rims raise it. <i>Elevation</i> is how many degrees a body sits above level ground, and <i>above terrain</i> is how far it clears the real skyline: positive means visible, negative means hidden. <i>Azimuth</i> is a compass direction in degrees clockwise from north. Times are UTC. <i>T+</i> is time since landing, and “3 d” means three Earth days.</p></details>
+   </div>
    <h2 class="list-title">Landing sites</h2>
    <div id="destinations" class="list"></div>
    <button id="rank-from-list" class="list-action"><span class="badge rank"><svg class="ic"><use href="#i-rank"/></svg></span><span class="row-text"><strong>Rank all sites</strong><small>Best Sun and Earth for this date and stay</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>
-   <button id="pin-from-card" class="list-action"><span class="badge cat-pin"><svg class="ic"><use href="#i-pin"/></svg></span><span class="row-text"><strong>Drop a pin</strong><small>Or right-click anywhere on the Moon</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>
+   <button id="pin-from-card" class="list-action"><span class="badge cat-pin"><svg class="ic"><use href="#i-pin"/></svg></span><span class="row-text"><strong>Drop a pin</strong><small>Or right-click the Moon; on a phone, press and hold</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>
    <div class="explain">
-    <details><summary>How to read this app</summary><p>Gold always means the Sun and blue always means Earth. Pick a site and a landing date, and the app works out where both sit in that site’s sky, using NASA’s real terrain. A site needs the Sun above the surrounding ground for solar power, and Earth above it for a direct radio line home. “Above terrain” is how far a body sits above the real skyline: positive means it is visible, negative means hills or a crater rim hide it.</p></details>
     <details><summary>Why land near the south pole?</summary><p>Craters near the Moon’s south pole are thought to hold water ice and other resources scientists want to study, which is why many upcoming missions are aimed there. The catch is the light. Near the pole the Sun never climbs more than a few degrees above the horizon, so mountains and crater rims decide whether a spot is sunlit or dark, and whether Earth is in view. Moving a short distance, or landing a few days later, can change everything.</p></details>
-    <details><summary>Why do some craters never see the Sun?</summary><p>The Moon is tilted only about 1.5°, so at its poles the Sun circles just above the horizon all year and never rises high. The floor of a deep crater sits below its own rim, and a Sun that low can never clear it. Those floors stay dark and extremely cold, which is how ice can survive there. The blue patches near the poles are NASA’s map of ground that never gets direct sunlight, worked out from LOLA terrain. The shadows the app draws for your chosen date and time are a separate, live calculation.</p></details>
-    <details><summary>Can you see Earth from everywhere on the Moon?</summary><p>No. The Moon always keeps the same face toward Earth, so Earth hangs almost still in its sky. On the near side Earth is always up; on the far side it is never seen. Because the Moon rocks slightly as it orbits, there is a band about 8° wide around the edge of the near side, and near the poles, where Earth slowly rises and sets over a month. That band is the only place an Earthrise can be watched from the ground. To see it, open Map layers (the ring-shaped button) and choose Earth view, or open a site near the edge and watch its countdown to Earthrise.</p></details>
+    <details><summary>Why do some craters never see the Sun?</summary><p>The Moon is tilted only about 1.5°, so at its poles the Sun circles just above the horizon all year and never rises high. The floor of a deep crater sits below its own rim, and a Sun that low can never clear it. Those floors stay dark and extremely cold, which is how ice can survive there. The blue patches near the poles are NASA’s map of ground that never gets direct sunlight, worked out from LOLA terrain. The shadows the app draws for your chosen date and time are a separate, live calculation.</p><p><button class="mini-toggle" data-show="pole">Show me the south pole</button></p></details>
+    <details><summary>Can you see Earth from everywhere on the Moon?</summary><p>No. The Moon always keeps the same face toward Earth, so Earth hangs almost still in its sky. On the near side Earth is always up; on the far side it is never seen. Because the Moon rocks slightly as it orbits, there is a band about 8° wide around the edge of the near side, and near the poles, where Earth slowly rises and sets over a month. That band is the only place an Earthrise can be watched from the ground. To see it, open Map layers (the ring-shaped button) and choose Earth view, or open a site near the edge and watch its countdown to Earthrise.</p><p>The far side is not the dark side: it gets as much sunlight as the near side. “Far” only means it never faces Earth. The night side is whichever half is turned away from the Sun, and it moves all the way round the Moon every 29.5 days.</p><p><button class="mini-toggle" data-show="earth">Show me the Earth view</button></p></details>
+    <details><summary>Is that dark patch a shadow?</summary><p>Not always. Three different things look dark. <b>Dark rock:</b> the lunar seas are old lava plains that reflect less light, and they stay dark at noon. <b>Night:</b> the half of the Moon turned away from the Sun. <b>Shadow:</b> ground the Sun is above but a hill or crater rim blocks. The app works out night and shadow for the time you choose and draws them over NASA’s imagery. Tap a site or drop a pin and it says which one you are looking at.</p><p>The imagery itself is a mosaic of photographs, each with the lighting of the day it was taken, so a ridge can look bright in the picture while the calculation says it is in shadow now. A photo you have seen elsewhere can differ from the app for the same reasons: another date, another viewing angle, or detail finer than the terrain data here. That is also why one photograph cannot choose a landing time.</p><p><button class="mini-toggle" data-show="imagery">Switch the calculated sunlight off and on</button></p></details>
+    <details><summary>Why does so little change in an hour?</summary><p>A day on the Moon lasts 29.5 Earth days, so the Sun crosses its sky about thirty times more slowly than ours: half a degree, its own width, each hour. Sunrise at one spot can take hours, and near the poles a low Sun can skim the ridges for days. The same place can therefore be sunlit on one date and dark two weeks later with no weather involved: it has simply turned away from the Sun. Near the poles there are seasons too, because the Sun’s height there changes by about 1.5° either way over a year, enough to light or darken ground beside a ridge.</p></details>
    </div>
    <p class="tiny center">Pick a site. Pick a date. See your Sun and Earth windows.</p>
   </div>
@@ -98,18 +104,12 @@
     <div class="place-title"><h1 id="site-name"></h1><p id="site-type"></p></div>
     <button id="close-card" class="circle-btn" aria-label="Close site"><svg class="ic"><use href="#i-x"/></svg></button>
    </div>
-   <p id="site-coords" class="mono coords"></p>
-   <p id="site-note" class="tiny site-note" hidden></p>
-   <p id="site-why" class="tiny site-why" hidden></p>
-   <button id="site-landed" class="mini-toggle site-landed" hidden></button>
-   <div class="actions">
-    <button id="compare" class="pill primary"><svg class="ic"><use href="#i-compare"/></svg><span>Compare</span></button>
-    <button id="recenter" class="pill"><svg class="ic"><use href="#i-nav"/></svg><span>Fly to</span></button>
-    <button id="share" class="pill" aria-label="Copy a link to this view"><svg class="ic"><use href="#i-share"/></svg><span>Share</span></button>
-    <button id="details" class="pill" aria-label="View calculation details"><svg class="ic"><use href="#i-info"/></svg><span>Method</span></button>
-   </div>
-   <div id="calculation-status" role="status"></div>
+   <button id="site-coords" class="mono coords" title="Copy as latitude, east longitude (decimal degrees)"></button>
 
+
+   <button id="site-landed" class="mini-toggle site-landed" hidden></button>
+   <!-- The answer in a sentence, before any numbers -->
+   <p id="site-answer" class="plain answer"></p>
    <!-- Next-event banner: the lunar equivalent of the next turn -->
    <section id="event-banner" class="banner" aria-live="polite">
     <div class="banner-main">
@@ -118,28 +118,40 @@
     </div>
     <p id="event-sub"></p>
    </section>
+   <div class="actions">
+    <button id="compare" class="pill primary"><svg class="ic"><use href="#i-compare"/></svg><span>Compare</span></button>
+    <button id="recenter" class="pill"><svg class="ic"><use href="#i-nav"/></svg><span>Fly to</span></button>
+    <button id="share" class="pill" aria-label="Copy a link to this view"><svg class="ic"><use href="#i-share"/></svg><span>Share</span></button>
+    <button id="details" class="pill" aria-label="View calculation details"><svg class="ic"><use href="#i-info"/></svg><span>Method</span></button>
+   </div>
+   <p id="site-note" class="tiny site-note" hidden></p>
+   <p id="site-why" class="tiny site-why" hidden></p>
+   <div id="calculation-status" role="status"></div>
 
    <div class="metrics">
     <div class="tile sun">
      <span class="tile-label" title="How high the Sun is above a level horizon. Higher means stronger light on a flat solar panel."><svg class="ic"><use href="#i-sun"/></svg>Sun elevation</span>
      <strong id="sun-elevation">—</strong>
      <span id="sun-state" class="state">Select a date</span>
-     <dl><dt>Azimuth</dt><dd id="sun-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="sun-clear">—</dd><dt title="Share of the Sun’s 0.5°-wide disc above the horizon">Disc showing</dt><dd id="sun-disc">—</dd><dt>Distance</dt><dd id="sun-range">—</dd></dl>
+     <dl class="adv"><dt title="Compass direction, in degrees clockwise from north">Azimuth</dt><dd id="sun-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="sun-clear">—</dd><dt title="Share of the Sun’s 0.5°-wide disc above the horizon">Disc showing</dt><dd id="sun-disc">—</dd><dt>Distance</dt><dd id="sun-range">—</dd></dl>
     </div>
     <div class="tile earth">
      <span class="tile-label" title="How high the centre of Earth is above a level horizon. Earth must be above the terrain for a direct radio line."><svg class="ic"><use href="#i-globe"/></svg>Earth elevation</span>
      <strong id="earth-elevation">—</strong>
      <span id="earth-state" class="state">Select a date</span>
-     <dl><dt>Azimuth</dt><dd id="earth-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="earth-clear">—</dd><dt title="Share of Earth’s 1.9°-wide disc above the horizon">Disc showing</dt><dd id="earth-disc">—</dd><dt>Distance</dt><dd id="earth-range">—</dd></dl>
+     <dl class="adv"><dt title="Compass direction, in degrees clockwise from north">Azimuth</dt><dd id="earth-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="earth-clear">—</dd><dt title="Share of Earth’s 1.9°-wide disc above the horizon">Disc showing</dt><dd id="earth-disc">—</dd><dt>Distance</dt><dd id="earth-range">—</dd></dl>
     </div>
    </div>
+
+   <button id="detail-toggle" class="link detail-toggle" aria-pressed="true">Hide the numbers</button>
 
    <section class="group">
     <header><h3>Sky from the surface</h3><button id="terrain-toggle" class="mini-toggle" aria-pressed="true">Terrain on</button></header>
     <svg id="horizon" viewBox="0 0 320 132" role="img" aria-label="Local terrain horizon with Sun and Earth positions and their paths over the stay"></svg>
     <p id="sky-note" class="plain"></p>
+    <p class="tiny">The line across the chart is this site’s horizon: where its ground meets the sky. On the airless Moon the Sun or Earth is in view exactly when it is above that line.</p>
     <details class="how"><summary>How was this worked out?</summary><div id="how-steps"></div></details>
-    <p id="terrain-source" class="tiny">NASA LOLA terrain</p>
+    <p id="terrain-source" class="tiny adv">NASA LOLA terrain</p>
    </section>
 
    <section class="group">
@@ -153,7 +165,7 @@
     <div class="stay-row both"><span>Sun and Earth together</span><b id="both-window">—</b><i class="bar"><i id="both-bar"></i></i></div>
     <p id="stay-summary" class="plain"></p>
     <p id="stay-windows" class="tiny windows"></p>
-    <p id="disc-note" class="tiny"></p>
+    <p id="disc-note" class="tiny adv"></p>
     <p id="next-event" class="tiny"></p>
     <p class="tiny caution">Geometry only. Sunlight is not usable power, Earth in view is not a working radio link, and nothing here assesses landing safety. Totals agree with NASA’s long-term maps to a few percentage points on ordinary ground; times at grazing angles are approximate.</p>
    </section>
@@ -172,6 +184,10 @@
      <p id="lunar-caption" class="tiny"></p>
     </div>
     <div id="lunar-facts" class="facts flat"></div>
+    <div id="finder" class="finder" hidden>
+     <p class="tiny"><b>Find landing times</b> with at least <input id="finder-hours" type="number" min="1" max="168" step="1" value="6" inputmode="numeric" aria-label="Hours needed without a break"> h of <select id="finder-what" aria-label="What is needed"><option value="earth">Earth in view</option><option value="sun">sunlight</option><option value="both">Sun and Earth together</option></select> without a break from touchdown.</p>
+     <p id="finder-result" class="tiny"></p>
+    </div>
    </section>
 
    <section class="group facts">
@@ -180,8 +196,8 @@
     <div><span>Permanent shadow</span><b id="site-shadow">—</b></div>
     <div><span>Long-term average</span><b id="site-average">—</b></div>
     <div id="best-row" hidden><span>Look nearby</span><b><button id="best-nearby" class="mini-toggle" title="Picks the most promising spots from NASA’s long-term maps, then checks each one for your landing time and stay">Find best spot within 15 km</button></b></div>
-    <div><span>Terrain data</span><b id="site-grid">—</b></div>
-    <div><span>Ephemeris</span><b>NASA/JPL Horizons · hourly</b></div>
+    <div class="adv"><span>Terrain data</span><b id="site-grid">—</b></div>
+    <div class="adv"><span>Ephemeris</span><b>NASA/JPL Horizons · hourly</b></div>
     <div><span>Open this site in</span><b class="links"><a id="link-quickmap" target="_blank" rel="noopener">QuickMap ↗</a><a id="link-trek" target="_blank" rel="noopener">Moon Trek ↗</a></b></div>
    </section>
   </div>
@@ -247,6 +263,7 @@
   <div class="picker-head"><strong>Rank landing sites</strong><button id="close-ranking" class="circle-btn" aria-label="Close ranking"><svg class="ic"><use href="#i-x"/></svg></button></div>
   <p id="ranking-method" class="tiny"></p>
   <div id="ranking-chips" class="chips" role="group" aria-label="Choose which sites to rank"></div>
+  <p class="tiny rank-min">Only sites with at least <input id="rank-min-sun" type="number" min="0" max="168" step="1" value="0" inputmode="numeric" aria-label="Minimum sunlit hours"> h sunlit and <input id="rank-min-earth" type="number" min="0" max="168" step="1" value="0" inputmode="numeric" aria-label="Minimum hours with Earth in view"> h of Earth</p>
   <div id="ranking-head" class="rank-head"></div>
   <div id="ranking-rows"></div>
   <div class="panel-actions"><button id="export-ranking" class="mini-toggle">Export CSV</button></div>
@@ -258,8 +275,8 @@
  <section class="timeline mat" aria-label="Date and time">
   <div class="timeline-top">
    <button id="play" class="play" aria-label="Play time animation"><svg class="ic"><use href="#i-play"/></svg></button>
-   <div class="clock-block"><span id="clock">00:00</span><small><span id="clock-date"></span><span class="utc"> · UTC</span></small></div>
-   <div class="met"><small>Mission time</small><span id="met" class="mono">T+0 h</span></div>
+   <div class="clock-block"><span id="clock">00:00</span><small><span id="clock-date"></span><span class="utc"> · UTC</span><span id="clock-when" class="when"></span></small></div>
+   <div class="met" title="Time since the landing hour you chose"><small>Mission time</small><span id="met" class="mono">T+0 h</span></div>
    <div class="legend"><span class="lg sun">Sunlit</span><span class="lg earth">Earth in view</span></div>
    <label class="date-label"><small>Landing date · UTC</small><input id="date" type="date" min="1950-01-01" max="2099-12-24" aria-label="Landing date in UTC"></label>
    <label class="date-label hour-label"><small>Hour</small><select id="hour" aria-label="Landing hour in UTC"><option value="0">00:00</option><option value="1">01:00</option><option value="2">02:00</option><option value="3">03:00</option><option value="4">04:00</option><option value="5">05:00</option><option value="6">06:00</option><option value="7">07:00</option><option value="8">08:00</option><option value="9">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option></select></label>
@@ -287,12 +304,14 @@
    <dt>Terrain</dt><dd id="terrain-detail">NASA LOLA elevation: 40 m near the south pole, 80 m near both poles, 474 m elsewhere. The skyline is traced every 0.25° out to 300 km from 2 m above the ground. Select a site to see its grid.</dd>
    <dt>Where and when to land</dt><dd>Map layers show NASA’s long-term maps near each pole (how often the Sun and Earth are up, permanent shadow) and slope from LOLA terrain; Earth view elsewhere is plain geometry. “Find best spot” takes the most promising cells within 15 km and runs each for your dates. Best day and best hour search the next 30 days.</dd>
    <dt>How accurate</dt><dd>Checked four ways: Sun angles at the Apollo landings (0.06° at Apollo 11); a year of sunlight at ten polar points against NASA’s maps (3 percentage points apart on average, more on sharp ridges); the 2026 eclipses against published times; and all twelve eclipses to 2030 against NASA’s list. Rise and set times carry a “±” showing how far they move if the skyline is 0.1° higher or lower; at the poles that can be hours.</dd>
+   <dt>Conventions</dt><dd>Times are UTC (JPL’s UT). Latitude is positive north and longitude positive east, in the Moon’s mean-Earth frame on a 1,737.4 km sphere. Positions use JPL’s <span id="info-kernel">DE441</span> ephemeris and hold for every date offered; what limits a prediction is the terrain grid, not how far ahead it is.</dd>
+   <dt>Measured, modelled or drawn</dt><dd>Measured by NASA: terrain and imagery. NASA’s own models: permanent shadow and the long-term maps. Calculated here: every angle, window and countdown. Drawn only for clarity: the length of the Sun and Earth lines and the Sun’s distance.</dd>
    <dt>Not included</dt><dd>Usable power, radio links and ground stations, landing hazards such as rocks, and Earth’s atmosphere during eclipses. This is geometry only.</dd>
    <dt>Names and pictures</dt><dd>Place names: the IAU and USGS list of 9,087 lunar features. Globe: NASA LRO 8K mosaic, with fine detail from NASA Moon Trek’s 100 m imagery in the Landing view. Earth: NASA Blue Marble. Imagery carries the lighting of the day it was photographed.</dd>
   </dl>
   <p class="tiny"><a href="https://github.com/sftimeless/zoriana/blob/main/METHOD.md" target="_blank" rel="noopener">Full method ↗</a> · <a href="https://github.com/sftimeless/zoriana#readme" target="_blank" rel="noopener">Sources and checks ↗</a></p>
   <div class="source-links"><a href="https://svs.gsfc.nasa.gov/4720/" target="_blank" rel="noopener">NASA imagery ↗</a><a href="https://pds-geosciences.wustl.edu/missions/lro/lola.htm" target="_blank" rel="noopener">LOLA terrain ↗</a><a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener">JPL Horizons ↗</a></div>
-  <p class="tiny">Fresh implementation · NASA Space Apps 2026 · Not affiliated with or endorsed by NASA. Code written with AI coding assistance (OpenAI Codex and Anthropic Claude Code) under human direction; see the README for details. The app icon is an AI-generated image made with ChatGPT, marked “AI” in its corner.</p>
+  <p class="tiny"><span id="info-version"></span>Fresh implementation · NASA Space Apps 2026 · Not affiliated with or endorsed by NASA. Code written with AI coding assistance (OpenAI Codex and Anthropic Claude Code) under human direction; see the README for details. The app icon is an AI-generated image made with ChatGPT, marked “AI” in its corner.</p>
  </dialog>
 </div>
 <script type="module" src="/src/main.js"></script>

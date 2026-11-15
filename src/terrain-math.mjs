@@ -69,15 +69,17 @@ export function clearanceSeries(rows,profile,stepMinutes=5){
 }
 export function computeHorizon(lat,lon,sample,{stepDegrees=.25,maxDistance=300000,observerHeight=2}={}){
  const ground=sample(lat,lon);if(!ground||!Number.isFinite(ground.height))throw new Error('Elevation unavailable at selected location.');
- const angles=[],distances=[];let fineSamples=0,total=0;
+ const angles=[],distances=[],byResolution={};let fineSamples=0,total=0;
  for(let az=0;az<360;az+=stepDegrees){let highest=-90,atDistance=0;
   // Sample more densely than the raster near the observer, then increase spacing.
   for(let d=ground.resolution/2;d<=maxDistance;){const [p,l]=destination(lat,lon,az,d),point=sample(p,l);if(!point)throw new Error('Terrain coverage incomplete.');
    const angle=apparentTerrainAngle(d,point.height,ground.height,observerHeight);
-   if(angle>highest){highest=angle;atDistance=d;}if(point.resolution===40)fineSamples++;total++;
+   if(angle>highest){highest=angle;atDistance=d;}if(point.resolution===40)fineSamples++;total++;byResolution[point.resolution]=(byResolution[point.resolution]||0)+1;
    d+=Math.max(point.resolution/2,Math.min(1000,d*.003));
   }
   angles.push(Math.round(highest*10000)/10000);distances.push(Math.round(atDistance));
  }
- return {angles,distances,stepDegrees,maxDistanceMeters:maxDistance,observerHeightMeters:observerHeight,elevationMeters:ground.height,localResolutionMeters:ground.resolution,fineSampleFraction:fineSamples/total,sampleCount:total};
+ return {angles,distances,stepDegrees,maxDistanceMeters:maxDistance,observerHeightMeters:observerHeight,elevationMeters:ground.height,localResolutionMeters:ground.resolution,fineSampleFraction:fineSamples/total,sampleCount:total,
+  // Share of all skyline samples read from each grid, keyed by its spacing in metres (near terrain is fine, far terrain coarser).
+  resolutionShares:Object.fromEntries(Object.entries(byResolution).map(([r,n])=>[r,n/total]))};
 }

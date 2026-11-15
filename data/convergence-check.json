@@ -1,0 +1,297 @@
+{
+ "generated": "2026-11-15T18:46:09.555Z",
+ "server": "http://127.0.0.1:4174",
+ "sites": [
+  {
+   "name": "IM-4 point",
+   "lat": -84.6,
+   "lon": 31,
+   "from": "2026-11-15T12:00Z",
+   "hours": 72,
+   "terrain": "NASA LOLA · 80 m south-polar grid",
+   "version": "1.0.0",
+   "timeStepMinutes": {
+    "1": {
+     "sun": {
+      "visibleHours": 24.1,
+      "nextChange": "2026-11-17T11:54Z rise"
+     },
+     "earth": {
+      "visibleHours": 44.56,
+      "nextChange": "2026-11-16T15:26Z rise"
+     }
+    },
+    "2": {
+     "sun": {
+      "visibleHours": 24.1,
+      "nextChange": "2026-11-17T11:54Z rise"
+     },
+     "earth": {
+      "visibleHours": 44.56,
+      "nextChange": "2026-11-16T15:26Z rise"
+     }
+    },
+    "5": {
+     "sun": {
+      "visibleHours": 24.1,
+      "nextChange": "2026-11-17T11:54Z rise"
+     },
+     "earth": {
+      "visibleHours": 44.56,
+      "nextChange": "2026-11-16T15:26Z rise"
+     }
+    },
+    "15": {
+     "sun": {
+      "visibleHours": 24.1,
+      "nextChange": "2026-11-17T11:54Z rise"
+     },
+     "earth": {
+      "visibleHours": 44.56,
+      "nextChange": "2026-11-16T15:26Z rise"
+     }
+    }
+   },
+   "skylineStepDegrees": {
+    "1": {
+     "sun": {
+      "visibleHours": 24.1,
+      "nextChange": "2026-11-17T11:54Z rise"
+     },
+     "earth": {
+      "visibleHours": 44.3,
+      "nextChange": "2026-11-16T15:41Z rise"
+     }
+    },
+    "2": {
+     "sun": {
+      "visibleHours": 24.1,
+      "nextChange": "2026-11-17T11:53Z rise"
+     },
+     "earth": {
+      "visibleHours": 44.22,
+      "nextChange": "2026-11-16T15:46Z rise"
+     }
+    },
+    "0.25": {
+     "sun": {
+      "visibleHours": 24.1,
+      "nextChange": "2026-11-17T11:54Z rise"
+     },
+     "earth": {
+      "visibleHours": 44.56,
+      "nextChange": "2026-11-16T15:26Z rise"
+     }
+    },
+    "0.5": {
+     "sun": {
+      "visibleHours": 24.1,
+      "nextChange": "2026-11-17T11:54Z rise"
+     },
+     "earth": {
+      "visibleHours": 44.5,
+      "nextChange": "2026-11-16T15:29Z rise"
+     }
+    }
+   },
+   "largestDifferenceAcrossTimeStepsHours": 0
+  },
+  {
+   "name": "Blue Moon Pathfinder 1 point",
+   "lat": -89.45,
+   "lon": -137.31,
+   "from": "2026-11-15T12:00Z",
+   "hours": 72,
+   "terrain": "NASA LOLA · 40 m south-pole grid",
+   "version": "1.0.0",
+   "timeStepMinutes": {
+    "1": {
+     "sun": {
+      "visibleHours": 72,
+      "nextChange": null
+     },
+     "earth": {
+      "visibleHours": 27.99,
+      "nextChange": "2026-11-17T08:00Z rise"
+     }
+    },
+    "2": {
+     "sun": {
+      "visibleHours": 72,
+      "nextChange": null
+     },
+     "earth": {
+      "visibleHours": 27.99,
+      "nextChange": "2026-11-17T08:00Z rise"
+     }
+    },
+    "5": {
+     "sun": {
+      "visibleHours": 72,
+      "nextChange": null
+     },
+     "earth": {
+      "visibleHours": 27.99,
+      "nextChange": "2026-11-17T08:00Z rise"
+     }
+    },
+    "15": {
+     "sun": {
+      "visibleHours": 72,
+      "nextChange": null
+     },
+     "earth": {
+      "visibleHours": 27.99,
+      "nextChange": "2026-11-17T08:00Z rise"
+     }
+    }
+   },
+   "skylineStepDegrees": {
+    "1": {
+     "sun": {
+      "visibleHours": 72,
+      "nextChange": null
+     },
+     "earth": {
+      "visibleHours": 27.99,
+      "nextChange": "2026-11-17T08:00Z rise"
+     }
+    },
+    "2": {
+     "sun": {
+      "visibleHours": 72,
+      "nextChange": null
+     },
+     "earth": {
+      "visibleHours": 27.99,
+      "nextChange": "2026-11-17T08:00Z rise"
+     }
+    },
+    "0.25": {
+     "sun": {
+      "visibleHours": 72,
+      "nextChange": null
+     },
+     "earth": {
+      "visibleHours": 27.99,
+      "nextChange": "2026-11-17T08:00Z rise"
+     }
+    },
+    "0.5": {
+     "sun": {
+      "visibleHours": 72,
+      "nextChange": null
+     },
+     "earth": {
+      "visibleHours": 27.99,
+      "nextChange": "2026-11-17T08:00Z rise"
+     }
+    }
+   },
+   "largestDifferenceAcrossTimeStepsHours": 0
+  },
+  {
+   "name": "Apollo 11",
+   "lat": 0.67416,
+   "lon": 23.47314,
+   "from": "2026-11-15T12:00Z",
+   "hours": 360,
+   "terrain": "NASA LOLA · 474 m global grid",
+   "version": "1.0.0",
+   "timeStepMinutes": {
+    "1": {
+     "sun": {
+      "visibleHours": 343.66,
+      "nextChange": "2026-11-29T19:39Z set"
+     },
+     "earth": {
+      "visibleHours": 360,
+      "nextChange": null
+     }
+    },
+    "2": {
+     "sun": {
+      "visibleHours": 343.66,
+      "nextChange": "2026-11-29T19:39Z set"
+     },
+     "earth": {
+      "visibleHours": 360,
+      "nextChange": null
+     }
+    },
+    "5": {
+     "sun": {
+      "visibleHours": 343.66,
+      "nextChange": "2026-11-29T19:39Z set"
+     },
+     "earth": {
+      "visibleHours": 360,
+      "nextChange": null
+     }
+    },
+    "15": {
+     "sun": {
+      "visibleHours": 343.66,
+      "nextChange": "2026-11-29T19:39Z set"
+     },
+     "earth": {
+      "visibleHours": 360,
+      "nextChange": null
+     }
+    }
+   },
+   "skylineStepDegrees": {
+    "1": {
+     "sun": {
+      "visibleHours": 343.66,
+      "nextChange": "2026-11-29T19:39Z set"
+     },
+     "earth": {
+      "visibleHours": 360,
+      "nextChange": null
+     }
+    },
+    "2": {
+     "sun": {
+      "visibleHours": 343.64,
+      "nextChange": "2026-11-29T19:38Z set"
+     },
+     "earth": {
+      "visibleHours": 360,
+      "nextChange": null
+     }
+    },
+    "0.25": {
+     "sun": {
+      "visibleHours": 343.66,
+      "nextChange": "2026-11-29T19:39Z set"
+     },
+     "earth": {
+      "visibleHours": 360,
+      "nextChange": null
+     }
+    },
+    "0.5": {
+     "sun": {
+      "visibleHours": 343.66,
+      "nextChange": "2026-11-29T19:39Z set"
+     },
+     "earth": {
+      "visibleHours": 360,
+      "nextChange": null
+     }
+    }
+   },
+   "largestDifferenceAcrossTimeStepsHours": 0
+  }
+ ],
+ "hourlyInterpolation": {
+  "site": "IM-4 point",
+  "body": "Sun",
+  "against": "JPL Horizons every 10 minutes, 2026-11-17 06:00 to 18:00 UT",
+  "samples": 73,
+  "largestElevationDifferenceDeg": 0.00003,
+  "largestAzimuthDifferenceDeg": 0,
+  "ephemeris": "DE441"
+ }
+}

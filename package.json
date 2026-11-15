@@ -1,6 +1,6 @@
 {
   "name": "zoriana",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Lunar landing site navigator for NASA Space Apps 2026. Code written with AI coding assistance (OpenAI Codex, Anthropic Claude Code) under human direction.",
   "type": "module",

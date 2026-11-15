@@ -34,6 +34,17 @@ export function gaps(intervals,start,end){
  return out;
 }
 
+// When to arrive so that a condition holds without a break for the first `hours` after landing.
+// `intervals` are the stretches during which the condition holds (from segments()). Landing at any
+// moment from an interval's start up to `hours` before its end qualifies, so each interval at least
+// that long gives one arrival window [start, end - hours]. An interval of exactly that length gives
+// a single moment.
+export function arrivalWindows(intervals,hours){
+ const need=hours*3600000,out=[];
+ for(const [a,b] of intervals||[])if(b-a>=need)out.push([a,b-need]);
+ return out;
+}
+
 // The longest interval in a list, or null when the list is empty.
 export function longest(intervals){
  let best=null;
