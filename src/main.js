@@ -553,7 +553,7 @@ $('#home').onclick=goHome;$('#rail-home').onclick=()=>{goHome();toast('Zoriana. 
 const sheet=$('#planner'),sheetHandle=$('.handle'),phone=matchMedia('(max-width:900px)'),sheetOrder=['peek','mid','full'];
 let sheetState='mid',sheetDrag=null,sheetPull=null;
 const sheetHeights=()=>{const mid=Math.round(innerHeight*.4);return {peek:78,mid,full:Math.max(mid+80,innerHeight-128-64)};};
-function setSheet(state){sheetState=state;sheet.dataset.sheet=state;if(phone.matches)sheet.style.setProperty('--sheet',sheetHeights()[state]+'px');else sheet.style.removeProperty('--sheet');}
+function setSheet(state){sheetState=state;sheet.dataset.sheet=state;if(state==='peek')sheet.scrollTop=0;if(phone.matches)sheet.style.setProperty('--sheet',sheetHeights()[state]+'px');else sheet.style.removeProperty('--sheet');}
 const dragSheetTo=height=>{const h=sheetHeights();sheet.style.setProperty('--sheet',Math.max(h.peek,Math.min(h.full,height))+'px');};
 // Where a released sheet settles: the nearest height, nudged by how fast it was moving (px per ms, down is positive).
 function settleSheet(velocity=0){const h=sheetHeights(),target=sheet.getBoundingClientRect().height-velocity*180;sheet.classList.remove('dragging');setSheet(sheetOrder.reduce((a,b)=>Math.abs(h[b]-target)<Math.abs(h[a]-target)?b:a));}

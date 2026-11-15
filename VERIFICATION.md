@@ -275,4 +275,10 @@
 - Best spot, live, from the Shackleton point for a 3 d stay from Nov 15 12:00: twenty candidates checked; the pin moved to 89.7475°S 57.8043°E, the same winner as with six candidates, in under 46 seconds.
 - Safari: the live site was opened in Safari on the iOS Simulator (iPhone 17 Pro, iOS 26.5) with `xcrun simctl openurl` and photographed with `simctl io screenshot`. The 3D globe, markers, top bar, tool column, site sheet (IM-4) and timeline all drew, and the timeline showed loaded Sun and Earth data.
 - Seventy-four Node tests pass (one new, for the "±"). `npx vite build` succeeds. Deployed to https://zoriana.fly.dev/.
-- Not verified: touch gestures in Safari (dragging the sheet, pinch to zoom), because driving the simulator needed an approval that was not given while this ran; a real phone; desktop Safari.
+- Touch in Safari, tested later the same day once the simulator was approved (iPhone 17 Pro, iOS 26.5, live site and local build):
+  - Dragging the sheet's handle down collapsed it and dragging up opened it fully; the content scrolled inside the open sheet; a two-finger pinch zoomed the globe; a one-finger drag turned it.
+  - Map layers by touch: one tap opened the menu, one tap chose "Sun × Earth score" (row highlighted, legend and note shown, button green), one tap on the close button closed it.
+  - Three flaws found and fixed, then confirmed fixed on the live site: a collapsed sheet showed whatever the content had been scrolled to instead of the site's name (it now returns to the top); map labels showed faintly through the open sheet (it is now solid on phones); on a first visit the top button's name was cut off by the top bar (the names now sit above it).
+  - Known limit: if the content is flicked and the handle is grabbed while it is still coasting, Safari treats that drag as a scroll, so the content returns to the top and the sheet stays open; a second drag collapses it. Two attempts to work around this did not help and were removed.
+  - The simulator's first screenshot after a tap is one frame behind; every result above was read from a second screenshot.
+- Not verified: a real phone; desktop Safari; Android.

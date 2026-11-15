@@ -260,6 +260,7 @@ canvas{display:block;touch-action:none}
 /* Button names: shown beside the column while the pointer is over it, and for a few seconds on a first visit. */
 .map-tools [data-label]::after{content:attr(data-label);position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);white-space:nowrap;padding:4px 9px;border-radius:8px;background:rgba(28,28,30,.94);border:.5px solid var(--sep);color:var(--label);font-size:12px;font-weight:600;letter-spacing:0;opacity:0;pointer-events:none;transition:opacity .15s}
 .map-tools.hints [data-label]::after{opacity:1}
+.map-tools.hints{z-index:9}
 @media(hover:hover){.map-tools:hover [data-label]::after{opacity:1}}
 .layer-picker{width:300px}
 .layer-list{display:grid;gap:2px;margin:10px 0 8px}
@@ -438,7 +439,7 @@ dialog .close{position:absolute;right:14px;top:14px}
  .rail-home{order:1;width:30px;height:30px}
  .rail-home img{width:30px;height:30px}
  /* The planner is a bottom sheet: drag its handle (or pull the content down from the top) to resize. */
- .planner{top:auto;left:8px;right:8px;width:auto;bottom:128px;height:var(--sheet,40vh);max-height:none;padding:0 12px 12px;border-radius:16px;overflow-x:hidden;overscroll-behavior:contain;transition:height .22s ease}
+ .planner{top:auto;left:8px;right:8px;width:auto;bottom:128px;height:var(--sheet,40vh);max-height:none;padding:0 12px 12px;border-radius:16px;background:rgb(28,28,30);overflow-x:hidden;overscroll-behavior:contain;transition:height .22s ease}
  .planner.dragging{transition:none}
  .planner[data-sheet=peek]{overflow:hidden}
  .handle{display:block;position:sticky;top:0;z-index:3;height:24px;margin:0 -12px 2px;background:rgb(28,28,30);border-radius:16px 16px 0 0;touch-action:none;cursor:grab}
