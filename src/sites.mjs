@@ -4,7 +4,9 @@
 // Coordinates: Apollo Lunar Modules from NASA's NSSDC table (LRO-derived, mean-Earth frame, updated
 // 2017); IM-1 and Blue Ghost from NASA/LROC
 // published site locations; Chandrayaan-3 from the IAU Statio Shiv Shakti entry; SLIM from the
-// JAXA target point. Future targets are announced regions, not landing points: each uses the centre
+// JAXA target point. Landing times (`landed`, UTC) are the published touchdown times: Apollo from
+// NASA's Apollo Lunar Surface Journal table used in scripts/benchmark-apollo.mjs, the others from
+// each mission's published arrival time. Future targets are announced regions, not landing points: each uses the centre
 // of the named feature (or a published candidate point) and says so in its note. See REFERENCES.md.
 export const sites=[
  {id:'shackleton',name:'Shackleton region',lat:-89.5,lon:0,cat:'pole',type:'Exploration point',description:'Near the lunar south pole'},
@@ -14,15 +16,15 @@ export const sites=[
  {id:'im4',name:'IM-4',lat:-84.6,lon:31,cat:'future',icon:'novac',type:'Planned CLPS landing · 2027',description:'Mons Mouton plateau · Intuitive Machines',note:'Approximate. The mission names the Mons Mouton plateau; this is the centre of Mons Mouton, not an announced landing point.',why:'An Intuitive Machines delivery for NASA’s CLPS programme to high ground near the south pole, the kind of terrain crewed landings are being planned for.'},
  {id:'im3',name:'IM-3 Trinity',lat:7.5,lon:-59,cat:'future',icon:'novac',type:'Planned CLPS landing · early 2027',description:'Reiner Gamma swirl · Intuitive Machines',note:'Approximate. The mission names the Reiner Gamma region; this is the centre of the swirl, not an announced landing point.',why:'Goes to Reiner Gamma, a bright swirl on the lunar surface, to investigate the unexpected local magnetic field found there. It also places a communications relay satellite in lunar orbit.'},
  {id:'blueghost3',name:'Blue Ghost Mission 3',lat:36.56,lon:-40.72,cat:'future',icon:'blueghost',type:'Planned CLPS landing · 2028',description:'Mons Gruithuisen Gamma · Firefly Aerospace',note:'Approximate. The mission names Mons Gruithuisen Gamma; this is the centre of the dome, not an announced landing point.',why:'Carries NASA’s Lunar-VISE instruments to the Gruithuisen domes, volcanic domes thought to have formed from thick, silica-rich lava, which is rare on the Moon.'},
- {id:'im2',name:'IM-2 Athena',lat:-84.7906,lon:29.1957,cat:'clps',icon:'novac',type:'CLPS landing site · 2025',description:'Mons Mouton · Intuitive Machines'},
- {id:'im1',name:'IM-1 Odysseus',lat:-80.13,lon:1.44,cat:'clps',icon:'novac',type:'CLPS landing site · 2024',description:'Malapert A · Intuitive Machines'},
- {id:'blueghost1',name:'Blue Ghost M1',lat:18.56,lon:61.81,cat:'clps',icon:'blueghost',type:'CLPS landing site · 2025',description:'Mare Crisium · Firefly Aerospace'},
- {id:'chandrayaan3',name:'Chandrayaan-3',lat:-69.373,lon:32.319,cat:'intl',icon:'vikram',type:'ISRO landing site · 2023',description:'Statio Shiv Shakti · ISRO'},
- {id:'slim',name:'SLIM',lat:-13.316,lon:25.251,cat:'intl',icon:'slim',type:'JAXA landing site · 2024',description:'Near Shioli crater · JAXA'},
- {id:'apollo11',name:'Apollo 11',lat:0.67416,lon:23.47314,cat:'apollo',type:'Apollo landing site · July 1969',description:'Sea of Tranquility · Near side'},
- {id:'apollo12',name:'Apollo 12',lat:-3.0128,lon:-23.4219,cat:'apollo',type:'Apollo landing site · November 1969',description:'Ocean of Storms · Near side'},
- {id:'apollo14',name:'Apollo 14',lat:-3.64589,lon:-17.47194,cat:'apollo',type:'Apollo landing site · February 1971',description:'Fra Mauro · Near side'},
- {id:'apollo15',name:'Apollo 15',lat:26.13239,lon:3.6333,cat:'apollo',type:'Apollo landing site · July 1971',description:'Hadley–Apennine · Near side'},
- {id:'apollo16',name:'Apollo 16',lat:-8.9734,lon:15.5011,cat:'apollo',type:'Apollo landing site · April 1972',description:'Descartes Highlands · Near side'},
- {id:'apollo17',name:'Apollo 17',lat:20.1911,lon:30.7723,cat:'apollo',type:'Apollo landing site · December 1972',description:'Taurus–Littrow · Near side'}
+ {id:'im2',name:'IM-2 Athena',lat:-84.7906,lon:29.1957,cat:'clps',icon:'novac',type:'CLPS landing site · March 6, 2025',landed:'2025-03-06T17:28Z',description:'Mons Mouton · Intuitive Machines'},
+ {id:'im1',name:'IM-1 Odysseus',lat:-80.13,lon:1.44,cat:'clps',icon:'novac',type:'CLPS landing site · February 22, 2024',landed:'2024-02-22T23:23Z',description:'Malapert A · Intuitive Machines'},
+ {id:'blueghost1',name:'Blue Ghost M1',lat:18.56,lon:61.81,cat:'clps',icon:'blueghost',type:'CLPS landing site · March 2, 2025',landed:'2025-03-02T08:34Z',description:'Mare Crisium · Firefly Aerospace'},
+ {id:'chandrayaan3',name:'Chandrayaan-3',lat:-69.373,lon:32.319,cat:'intl',icon:'vikram',type:'ISRO landing site · August 23, 2023',landed:'2023-08-23T12:33Z',description:'Statio Shiv Shakti · ISRO'},
+ {id:'slim',name:'SLIM',lat:-13.316,lon:25.251,cat:'intl',icon:'slim',type:'JAXA landing site · January 19, 2024',landed:'2024-01-19T15:20Z',description:'Near Shioli crater · JAXA'},
+ {id:'apollo11',name:'Apollo 11',lat:0.67416,lon:23.47314,cat:'apollo',type:'Apollo landing site · July 20, 1969',landed:'1969-07-20T20:18Z',description:'Sea of Tranquility · Near side'},
+ {id:'apollo12',name:'Apollo 12',lat:-3.0128,lon:-23.4219,cat:'apollo',type:'Apollo landing site · November 19, 1969',landed:'1969-11-19T06:55Z',description:'Ocean of Storms · Near side'},
+ {id:'apollo14',name:'Apollo 14',lat:-3.64589,lon:-17.47194,cat:'apollo',type:'Apollo landing site · February 5, 1971',landed:'1971-02-05T09:18Z',description:'Fra Mauro · Near side'},
+ {id:'apollo15',name:'Apollo 15',lat:26.13239,lon:3.6333,cat:'apollo',type:'Apollo landing site · July 30, 1971',landed:'1971-07-30T22:16Z',description:'Hadley–Apennine · Near side'},
+ {id:'apollo16',name:'Apollo 16',lat:-8.9734,lon:15.5011,cat:'apollo',type:'Apollo landing site · April 21, 1972',landed:'1972-04-21T02:24Z',description:'Descartes Highlands · Near side'},
+ {id:'apollo17',name:'Apollo 17',lat:20.1911,lon:30.7723,cat:'apollo',type:'Apollo landing site · December 11, 1972',landed:'1972-12-11T19:55Z',description:'Taurus–Littrow · Near side'}
 ];

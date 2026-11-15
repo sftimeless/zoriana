@@ -46,3 +46,9 @@ if __name__ == '__main__':
     for size, name, text in ((512, 'icon-512.png', 'AI'), (192, 'icon-192.png', 'AI'), (64, 'favicon.png', 'AI')):
         image = icon.resize((size, size), Image.LANCZOS) if '--no-mark' in sys.argv else marked(icon, size, text)
         image.save(OUT / name, optimize=True); print('wrote', name)
+    # Browsers also look for these two at the site root, whatever the page's own links say.
+    small = marked(icon, 64, 'AI') if '--no-mark' not in sys.argv else icon.resize((64, 64), Image.LANCZOS)
+    small.save(OUT.parent / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48), (64, 64)]); print('wrote favicon.ico')
+    touch = marked(icon, 180, 'AI') if '--no-mark' not in sys.argv else icon.resize((180, 180), Image.LANCZOS)
+    background = Image.new('RGBA', touch.size, (0, 0, 0, 255)); background.alpha_composite(touch)
+    background.convert('RGB').save(OUT.parent / 'apple-touch-icon.png', optimize=True); print('wrote apple-touch-icon.png')

@@ -38,6 +38,7 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 - A where-to-land heat map from NASA's long-term average Sun and Earth visibility maps, a long-term average for each polar site, and a button that finds the best spot within 15 km for the chosen landing time and stay.
 - Search across the 9,087 IAU-named lunar features; pins and blocking terrain are described by the named feature they fall in.
 - Eclipses of the Sun by Earth, counted in every sunlight figure and shown on the globe, and a slope layer near both poles.
+- Past missions show their full landing date, with a "See it at touchdown" button that sets the date and hour to the real landing time. Future missions show only the announced year, because no landing date has been published.
 - The best landing hour in the next 30 days for Sun and Earth together, a step-by-step "How was this worked out?" under each sky chart, and a global Earth view showing where Earth is up and where it rises and sets.
 - Sun and Earth as discs: each tile shows how much of the disc clears the skyline, and the stay summary gives hours of full Sun, hours with any Sun, and the next first light and full disc.
 - Mission durations of 24, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle.

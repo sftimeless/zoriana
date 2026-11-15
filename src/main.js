@@ -579,6 +579,8 @@ async function selectSite(site,move=true){
  selected=site;$('#planner').scrollTop=0;if(sheetState==='peek')setSheet('mid');$('#browse').hidden=true;$('#site-card').hidden=false;$('#search-results').innerHTML='';$('#search').value='';
  $('#site-name').textContent=site.name;$('#site-type').textContent=site.type;$('#site-coords').textContent=coord(site);
  $('#site-note').hidden=!site.note;$('#site-note').textContent=site.note||'';$('#site-why').hidden=!site.why;$('#site-why').textContent=site.why?`Why here: ${site.why}`:'';
+ // Past missions: one tap sets the date and hour to the real touchdown.
+ $('#site-landed').hidden=!site.landed;if(site.landed)$('#site-landed').textContent=`See it at touchdown: ${new Date(site.landed).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})}, ${site.landed.slice(11,16)} UTC`;
  $('#site-badge').className=`badge big cat-${site.cat}`;$('#site-badge').innerHTML=icon(siteIcon(site));
  $('#link-quickmap').href=quickMapUrl(site.lat,site.lon);$('#link-trek').href=moonTrekUrl(site.lat,site.lon);
  if(mode==='landing')enterSurface(site);else if(move)fly(site,2.6);invalidate();await loadSelected();
@@ -588,6 +590,11 @@ function closeSite(){selected=null;data=null;++selectedRequest;$('#site-card').h
 const pickSite=e=>{const id=e.target.closest('[data-site]')?.dataset.site;if(id)selectSite(sites.find(s=>s.id===id));};
 $('#destinations').onclick=pickSite;$('#search-results').addEventListener('click',pickSite);
 $('#close-card').onclick=closeSite;
+$('#site-landed').onclick=()=>{
+ if(!selected?.landed)return;const t=new Date(selected.landed);
+ landingHour=t.getUTCHours();$('#hour').value=String(landingHour);$('#time').value=Math.round(t.getUTCMinutes()/15)*.25; // the slider moves in quarter hours
+ applyDate(selected.landed.slice(0,10));
+};
 $('#rail-search').onclick=()=>{if(selected)closeSite();$('#search').focus();};
 $('#search').oninput=()=>{const q=$('#search').value.trim().toLowerCase();const results=$('#search-results');if(!q){results.innerHTML='';return;}const coords=q.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);if(coords){const lat=Number(coords[1]),lon=Number(coords[2]);if(Math.abs(lat)<=90&&Math.abs(lon)<=180){results.innerHTML=`<button id="coordinate-result" class="row cat-pin"><span class="badge">${icon('pin')}</span><span class="row-text"><strong>Go to ${safe(q)}</strong><small>Latitude, east longitude</small></span>${icon('chevron','chev')}</button>`;$('#coordinate-result').onclick=()=>{const s={id:'pin-'+Date.now(),name:'Dropped pin',lat,lon,cat:'pin',type:describePlace(lat,lon)};addCustom(s);selectSite(s);};return;}}const found=sites.filter(s=>[s.name,s.description,s.type,categories[s.cat].label].join(' ').toLowerCase().includes(q));const named=searchFeatures(features,q,6).filter(f=>!found.some(s=>s.name.toLowerCase()===f[0].toLowerCase()));
  results.innerHTML=found.map(siteRow).join('')+named.map((f,i)=>`<button class="row cat-pin" data-feature="${i}"><span class="badge">${icon('crater')}</span><span class="row-text"><strong>${safe(f[0])}</strong><small>${safe(f[4])} · ${f[3]>=10?Math.round(f[3]):f[3]} km across</small></span><span class="row-meta mono">${Math.abs(f[1]).toFixed(1)}°${f[1]<0?'S':'N'}</span>${icon('chevron','chev')}</button>`).join('')||`<p>No matching place${features?'':' yet (the list of named features is still loading)'}. Try latitude, longitude (for example −85, 20), or drop a pin.</p>`;

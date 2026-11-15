@@ -243,3 +243,8 @@
 - Best-spot finder: candidates on ground gentler than 10° now come first and the message gives the slope.
 - Seventy-two Node tests pass; `npx vite build` succeeds; demo PDF rebuilt (7 pages).
 - Not verified: eclipses outside 2026; the slope layer on a phone.
+
+## Favicon and landing dates — November 15, 2026 (UTC)
+
+- Favicon: the team saw another project's icon in the browser tab. The live server was returning 404 for `/favicon.ico` and the page linked only a PNG under `/assets/`, so a browser holding an old icon for the same address had nothing to replace it with at the usual location. The site now serves `/favicon.ico` (16 to 64 px) and `/apple-touch-icon.png` from the official icon, and the page links carry a version tag so browsers fetch them afresh. Locally `/favicon.ico` returns 200, `image/x-icon`. Which browser and address showed the wrong icon was not established.
+- Landing dates: past missions now show the full date ("Apollo landing site · July 20, 1969"). The new "See it at touchdown" button at Apollo 11 set the date to 1969-07-20, the hour to 20 and the clock to 20:15, giving Sun 10.7° at azimuth 88.8°. Future missions keep the announced year (IM-4: "Planned CLPS landing · 2027").

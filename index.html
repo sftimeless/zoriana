@@ -6,8 +6,9 @@
 <meta name="theme-color" content="#000000">
 <meta name="description" content="Zoriana is a lunar landing site navigator: compare sites and dates, and see Sun and Earth positions over real LOLA terrain with NASA/JPL Horizons.">
 <meta name="ai-assistance" content="Code written with AI coding assistance (OpenAI Codex, Anthropic Claude Code) under human direction. The app icon is an AI-generated image (ChatGPT) and carries a visible AI mark. See README.md.">
-<link rel="icon" type="image/png" href="/assets/favicon.png">
-<link rel="apple-touch-icon" href="/assets/icon-192.png">
+<link rel="icon" href="/favicon.ico?v=4" sizes="any">
+<link rel="icon" type="image/png" sizes="64x64" href="/assets/favicon.png?v=4">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
 <title>Zoriana — Lunar Landing Site Navigator</title>
 </head>
 <body>
@@ -100,6 +101,7 @@
    <p id="site-coords" class="mono coords"></p>
    <p id="site-note" class="tiny site-note" hidden></p>
    <p id="site-why" class="tiny site-why" hidden></p>
+   <button id="site-landed" class="mini-toggle site-landed" hidden></button>
    <div class="actions">
     <button id="compare" class="pill primary"><svg class="ic"><use href="#i-compare"/></svg><span>Compare</span></button>
     <button id="recenter" class="pill"><svg class="ic"><use href="#i-nav"/></svg><span>Fly to</span></button>

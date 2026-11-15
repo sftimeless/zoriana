@@ -39,6 +39,7 @@ Last checked against the code on November 14, 2026.
 **Other coordinate sources**
 - IM-1 Odysseus landing site, 80.13°S 1.44°E (Malapert A): https://en.wikipedia.org/wiki/IM-1
 - IM-2 Athena landing site, 84.7906°S 29.1957°E (Mons Mouton): https://en.wikipedia.org/wiki/IM-2 ; intended site per LROC: https://www.lroc.asu.edu/images/1401
+- Landing dates and touchdown times shown for past missions (UTC): Apollo from NASA's Apollo Lunar Surface Journal table cited above; IM-1 (February 22, 2024, 23:23), IM-2 (March 6, 2025, 17:28), Blue Ghost Mission 1 (March 2, 2025, 08:34), Chandrayaan-3 (August 23, 2023, 12:33) and SLIM (January 19, 2024, 15:20) from each mission's Wikipedia page. Future missions show only the year their operators have announced.
 - Published contact times used to check the eclipse calculation: https://en.wikipedia.org/wiki/March_2026_lunar_eclipse and https://en.wikipedia.org/wiki/August_2026_lunar_eclipse
 - The one-line purpose shown for each future mission paraphrases its Wikipedia summary (IM-3, IM-4, Griffin Mission One, Blue Moon Pathfinder Mission 1) and NASA's description of the Lunar-VISE payload for the Gruithuisen domes.
 - Future mission targets (approximate; announced regions, not landing points):
