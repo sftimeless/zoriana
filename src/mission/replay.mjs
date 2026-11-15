@@ -53,10 +53,10 @@ const TEMPLATE=`
     <button class="rp-round rp-play" aria-label="Play">${ICON.play}</button>
     <button class="rp-round rp-next" aria-label="Next step">${ICON.next}</button>
     <div class="rp-clock"><b class="rp-get"></b><span class="rp-utc"></span></div>
+    <button class="rp-chip rp-list" aria-expanded="false" aria-label="List of steps">${ICON.list}<span>Steps</span></button>
     <label class="rp-select"><span>Speed</span><select class="rp-speed" aria-label="Playback speed">${SPEEDS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
     <label class="rp-select"><span>Camera</span><select class="rp-view" aria-label="Camera">${VIEWS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
     <label class="rp-check" title="Stop at the start of each step until you press play"><input type="checkbox" class="rp-stop"><span>Stop at each step</span></label>
-    <button class="rp-chip rp-list" aria-expanded="false">${ICON.list}<span>Steps</span></button>
    </div>
   </div>
  </footer>`;
@@ -298,6 +298,8 @@ export async function openReplay(onClose){
  // stay in view while the Moon travels to meet the ship. The view does not turn, so the drawn paths hold still.
  const moonMid=mission.moon(T.landing),ROUTE_UP=unit(cross(moonMid,moonVel(T.landing))),ROUTE_FLAT=unit(sub(moonMid,scale(ROUTE_UP,dot(moonMid,ROUTE_UP))));
  const portrait=()=>root.clientHeight>root.clientWidth;
+ // How much of the picture the caption and controls cover at the bottom (on phones the browser's own bar adds to it), and the title at the top.
+ const covered=()=>Math.max(0,root.getBoundingClientRect().bottom-$('.rp-bottom').getBoundingClientRect().top),headroom=()=>portrait()?100:60;
  function placeCamera(L,dt){
   const step=STEPS[stepIndex],guide=cameraOf(step,t);
   const watch=view==='route'||(view==='guided'&&guide.f==='route')?'route':guide.f==='route'?'craft':guide.f;
@@ -326,7 +328,7 @@ export async function openReplay(onClose){
    return {watch,vehicle};
   }
   const half=Math.tan(camera.fov*RAD/2),aspect=root.clientWidth/Math.max(1,root.clientHeight);
-  const clear=clamp(1-($('.rp-bottom').offsetHeight+70)/Math.max(1,root.clientHeight),.35,1),sin62=Math.sin(62*RAD);
+  const clear=clamp(1-(covered()+headroom()+30)/Math.max(1,root.clientHeight),.3,1),sin62=Math.sin(62*RAD);
   const routeDist=Math.max(((tall?192000:150000)*sin62+35000)/(half*clear),((tall?150000:192000)+45000)/(half*aspect));
   const base=watch==='route'?{az:tall?0:90,el:62,d:routeDist}:view==='guided'?guide:{az:150,el:14,d:(vehicle==='lander'?.01:t<T.sicSep?.11:t<T.siiSep?.07:t<T.csmSep?.036:t<T.cmSep?.021:.012)*5};
   const want={az:base.az+user.az,el:clamp(base.el+user.el,-89,89),dist:clamp(base.d*user.zoom,.006,4e6)};
@@ -364,7 +366,7 @@ export async function openReplay(onClose){
   const L=layout();moonNow=L.mo;
   const {watch,vehicle}=placeCamera(L,dt);
   camera.aspect=root.clientWidth/Math.max(1,root.clientHeight);
-  const lift=Math.min(root.clientHeight*.3,Math.max(0,($('.rp-bottom').offsetHeight-50)/2));
+  const lift=Math.min(root.clientHeight*.32,Math.max(0,(covered()-headroom())/2));
   camera.setViewOffset(root.clientWidth,root.clientHeight,0,lift,root.clientWidth,root.clientHeight);camera.updateProjectionMatrix();
   // Everything is drawn relative to the point the camera watches.
   for(const o of Object.values(V))if(o.visible)toScene(sub(o.userData.p,origin),o.position);
@@ -393,7 +395,7 @@ export async function openReplay(onClose){
   label('craft',t<T.cmSep?L.Cc:L.cmPos,view!=='onboard'&&tiny(L.Cc,L.lenC,L.sC));
   labels.lander.textContent=t>=T.lmJettison?'Eagle (left behind)':'Eagle';
   label('lander',L.lmPos,(apart||t>=T.lmJettison)&&t<T.teiOn+1200&&tiny(L.lmPos,.008,L.lmS)&&norm(sub(L.lmPos,L.Cc))/far(L.lmPos)>.03);
-  label('stage',V.sIVB.userData.p,t>T.evade+1200&&V.sIVB.visible&&far(V.sIVB.userData.p)>3000&&watch==='route');
+  label('stage',V.sIVB.userData.p,t>T.evade+1200&&V.sIVB.visible&&far(V.sIVB.userData.p)>3000&&watch==='route'&&norm(sub(V.sIVB.userData.p,L.Cc))/far(V.sIVB.userData.p)>.07);
   const size=watch==='lander'||watch==='site'?L.lmS:L.sC,note=$('.rp-scale');
   note.hidden=!(size>1.5&&view!=='onboard');if(!note.hidden)note.textContent=`Spacecraft drawn ${round(size)}× larger than life`;
 
@@ -413,7 +415,7 @@ export async function openReplay(onClose){
   if(t<T.orbit)return `About ${round(altE)} km up`;
   if(L.wM>.5){
    if(lander&&t>=T.landing&&t<T.lmLiftoff)return 'On the Moon, in the Sea of Tranquility';
-   return `${round(norm(sub(Vx,L.mv))*3600)} km/h relative to the Moon · ${round(Math.max(0,altM))} km above its surface`;
+   return `${round(norm(sub(Vx,L.mv))*3600)} km/h relative to the Moon · ${altM<1?`${Math.round(Math.max(0,altM)*100)*10} m`:`${round(altM)} km`} above its surface`;
   }
   if(t>T.drogue)return `${round(Math.max(0,altE))} km above the Pacific`;
   const v=norm(t>T.entry?sub(Vx,spin(X)):Vx)*3600;
@@ -425,31 +427,35 @@ export async function openReplay(onClose){
   root.querySelectorAll('.rp-steps button').forEach((b,i)=>b.classList.toggle('on',i===stepIndex));
  }
  function showPlay(){$('.rp-play').innerHTML=playing?ICON.pause:ICON.play;$('.rp-play').setAttribute('aria-label',playing?'Pause':t>=END?'Play again from liftoff':'Play');}
- function frame(now){
-  raf=requestAnimationFrame(frame);
-  const dt=Math.min(.25,(now-last)/1000);last=now;dtm=0;
+ // One step of the replay: move the clock on if playing, then draw. Kept apart from the browser's frame timer so it can be driven directly in checks.
+ let failure=null;
+ function advance(dt,now){
+  dtm=0;
   if(playing){
    let next=speed==='guided'?timeOf(guidedOf(t)+dt):t+speed*dt;
-   const ahead=STEPS[stepIndex+1];
+   const ahead=STEPS[stepAt(t)+1];
    if(stopAtSteps&&ahead&&next>=ahead.at){next=ahead.at;playing=false;showPlay();}
    if(next>=END){next=END;playing=false;showPlay();}
    dtm=next-t;t=next;
   }
   if(!playing&&!jumped&&now>awakeUntil)return;
-  draw(dt,now);
+  // A moment that cannot be drawn must say so, not freeze the picture silently.
+  try{draw(dt,now);}catch(e){console.error(e);failure=`${e.message} at ${Math.round(t)} s`;playing=false;jumped=false;showPlay();$('.rp-numbers').textContent=`This moment could not be drawn (${e.message}). Try another step.`;}
  }
+ function frame(now){raf=requestAnimationFrame(frame);const dt=Math.min(.25,(now-last)/1000);last=now;advance(dt,now);}
  const go=(time,keepPlaying=playing)=>{t=clamp(time,START,END);jumped=true;playing=keepPlaying&&t<END;showPlay();wake();};
 
  // ---------- Controls ----------
  $('.rp-ticks').innerHTML=STEPS.map(s=>`<i style="left:${(guidedOf(s.at)/GUIDED_TOTAL*100).toFixed(2)}%"></i>`).join('');
- $('.rp-steps ol').innerHTML=STEPS.map((s,i)=>`<li><button data-step="${i}"><b>${s.title}</b><small>${elapsed(s.mark).replace(/^T. 0*(\d)/,'T+ $1').slice(0,-3)} · ${stamp(s.mark).replace(', 1969','').slice(0,-7)} UTC</small></button></li>`).join('');
+ $('.rp-steps ol').innerHTML=STEPS.map((s,i)=>`<li><button data-step="${i}"><b>${s.title}</b><small>${elapsed(s.mark).replace(/^T. 0*(\d)/,'T+ $1')} · ${stamp(s.mark).replace(', 1969','')}</small></button></li>`).join('');
  $('.rp-steps').onclick=e=>{const b=e.target.closest('[data-step]');if(!b)return;go(STEPS[Number(b.dataset.step)].at);if(window.innerWidth<700)toggle('.rp-steps','.rp-list',false);};
  const toggle=(panel,button,on=$(panel).hidden)=>{$(panel).hidden=!on;$(button).setAttribute('aria-expanded',String(on));};
  $('.rp-list').onclick=()=>{toggle('.rp-about','.rp-about-btn',false);toggle('.rp-steps','.rp-list');};
  $('.rp-about-btn').onclick=()=>{toggle('.rp-steps','.rp-list',false);toggle('.rp-about','.rp-about-btn');};
  $('.rp-play').onclick=()=>{if(!playing&&t>=END)go(START,true);else{playing=!playing;last=performance.now();showPlay();wake();}};
- $('.rp-prev').onclick=()=>{const into=guidedOf(t)-guidedOf(STEPS[stepIndex].at);go(STEPS[into>1.2||stepIndex===0?stepIndex:stepIndex-1].at);};
- $('.rp-next').onclick=()=>{if(stepIndex<STEPS.length-1)go(STEPS[stepIndex+1].at);};
+ // The step is worked out from the time itself, so several taps before the next frame each count.
+ $('.rp-prev').onclick=()=>{const i=stepAt(t),into=guidedOf(t)-guidedOf(STEPS[i].at);go(STEPS[into>1.2||i===0?i:i-1].at);};
+ $('.rp-next').onclick=()=>{const i=stepAt(t);if(i<STEPS.length-1)go(STEPS[i+1].at);};
  $('.rp-speed').onchange=e=>{speed=e.target.value==='guided'?'guided':Number(e.target.value);wake();};
  $('.rp-view').onchange=e=>{view=e.target.value;user.az=user.el=0;user.zoom=1;wake();};
  $('.rp-stop').onchange=e=>{stopAtSteps=e.target.checked;};
@@ -469,6 +475,13 @@ export async function openReplay(onClose){
  const release=e=>{pointers.delete(e.pointerId);pinch=0;seekingCamera=false;};
  canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
  canvas.addEventListener('wheel',e=>{e.preventDefault();user.zoom=clamp(user.zoom*Math.exp(e.deltaY*.0015),1e-4,1e7);wake();},{passive:false});
+ // Safari on phones zooms the page on a quick second tap, even on a button. Take the second tap ourselves instead.
+ let lastTap=0,lastTarget=null;
+ root.addEventListener('touchend',e=>{
+  const now=performance.now(),button=e.target.closest('button'),again=now-lastTap<400&&button&&button===lastTarget;lastTap=now;lastTarget=button;
+  if(!again||e.touches.length||e.target.closest('.rp-steps,.rp-about'))return;
+  e.preventDefault();button.click();
+ },{passive:false});
  const onKey=e=>{
   if(e.target.closest?.('select'))return;
   if(e.key==='Escape')close();else if(e.key===' '){e.preventDefault();$('.rp-play').click();}else if(e.key==='ArrowRight')$('.rp-next').click();else if(e.key==='ArrowLeft')$('.rp-prev').click();else return;
@@ -479,7 +492,7 @@ export async function openReplay(onClose){
  window.addEventListener('resize',resize);cleanups.push(()=>window.removeEventListener('resize',resize));
  resize();$('.rp-loading').hidden=true;showPlay();
  // For checks from the console and automated tests.
- root.replay={get time(){return t;},go,play:()=>{if(!playing)$('.rp-play').click();},state:()=>({t,playing,speed,view,step:stepIndex,title:STEPS[stepIndex]?.title,camera:camPos,origin}),renderer,scene,camera,mission};
+ root.replay={get time(){return t;},get failure(){return failure;},advance:dt=>advance(dt,performance.now()),go,play:()=>{if(!playing)$('.rp-play').click();},state:()=>({t,playing,speed,view,step:stepIndex,title:STEPS[stepIndex]?.title,camera:camPos,origin}),renderer,scene,camera,mission};
  raf=requestAnimationFrame(frame);
  return root.replay;
 }

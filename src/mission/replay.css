@@ -2,6 +2,10 @@
 .replay{position:fixed;inset:0;z-index:1000;background:#000;color:#fff;font-family:var(--sans,system-ui,sans-serif);font-size:14px;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .replay canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;outline:none}
 .replay canvas:active{cursor:grabbing}
+/* Quick repeated taps on a button must not make the phone browser zoom the page. */
+.replay *{touch-action:manipulation}
+.replay canvas,.replay .rp-seek{touch-action:none}
+.replay .rp-steps,.replay .rp-steps *{touch-action:pan-y}
 .replay [hidden]{display:none!important}
 .replay button,.replay select{font:inherit;color:inherit;border:0;cursor:pointer}
 .replay svg{width:20px;height:20px;fill:currentColor;display:block}
@@ -83,8 +87,13 @@
  .rp-select select{height:40px;border-radius:20px}
  .rp-select{flex:1;min-width:104px}
  .rp-check{min-height:40px}
- .rp-list{height:40px;border-radius:20px}
- .rp-steps{left:8px;right:8px;width:auto;bottom:auto;max-height:46vh}
+ .rp-list{height:44px;width:44px;padding:0;justify-content:center;border-radius:22px}
+ .rp-list span{display:none}
+ .rp-list svg{width:20px;height:20px}
+ .rp-row{gap:7px}
+ .rp-clock{margin-left:4px}
+ .rp-clock span{font-size:11px}
+ .rp-steps{left:8px;right:8px;width:auto;bottom:auto;max-height:46vh;top:calc(max(14px,env(safe-area-inset-top)) + 64px)}
  .rp-scale{font-size:11px;top:calc(max(14px,env(safe-area-inset-top)) + 52px)}
 }
 @media (max-height:520px){.rp-text{display:none}.rp-steps{bottom:150px}}
