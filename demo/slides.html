@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Zoriana — NASA Space Apps Challenge 2026 demo (7 slides)</title>
-<meta name="ai-assistance" content="Slides written with AI assistance under human direction. The app icon on slide 1 is an AI-generated image and carries a visible mark. Screenshots are of the real app.">
+<meta name="ai-assistance" content="Slides written with AI assistance under human direction. The app icon on slide 1 is an AI-generated image (ChatGPT), as the slide says. Screenshots are of the real app.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@400;600&display=swap">
 <style>
 /* Page frame for viewing and printing: one 1920 x 1080 slide per page. Print to PDF from Chrome with no margins. */
@@ -87,7 +87,6 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 .link { display: flex; flex-direction: column; gap: 6px; }
 .footnote { margin-top: 28px; }
 .shot-img { box-sizing: border-box; }
-
 </style>
 </head>
 <body>
@@ -95,7 +94,7 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <p class="eyebrow">NASA SPACE APPS CHALLENGE 2026</p>
 <div class="spacer"></div>
 <div class="cover-row">
-<img class="cover-icon" src="../public/assets/icon-512.png" alt="Zoriana app icon: a Lunar Module on a blue disc over the lunar surface, marked AI-generated">
+<img class="cover-icon" src="../public/assets/icon-512.png" alt="Zoriana app icon: a Lunar Module on a blue disc over the lunar surface. AI-generated image.">
 <div class="cover-text">
 <h1>Zoriana</h1>
 <p class="lede">Pick a site. Pick a date. See your <span class="sun">Sun</span> and <span class="earth">Earth</span> windows on the Moon.</p>
@@ -107,7 +106,8 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <div class="fact"><p class="fact-label">TEAM</p><p class="fact-value">Zoriana · Christian Munoz</p></div>
 <div class="fact"><p class="fact-label">TRY IT</p><p class="fact-value">zoriana.fly.dev</p></div>
 </div>
-<aside>Zoriana is our entry for the Lunar Landing Site Navigator challenge. Team Zoriana is Christian Munoz. The app is live at zoriana.fly.dev. The icon is an AI-generated image and is marked as such.</aside>
+<p class="small footnote">App icon: AI-generated image (ChatGPT). Every other picture in this deck is a screenshot of the running app.</p>
+<aside>Zoriana is our entry for the Lunar Landing Site Navigator challenge. Team Zoriana is Christian Munoz. The app is live at zoriana.fly.dev. The icon is an AI-generated image made with ChatGPT.</aside>
 </section>
 
 <section id="problem" class="statement" data-transition="fade">
@@ -153,16 +153,16 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 
 <section id="landing" class="shot" data-transition="fade">
 <div class="shot-text">
-<p class="eyebrow">LANDING VIEW</p>
-<h2>See it from above the site</h2>
+<p class="eyebrow">WHERE TO LAND</p>
+<h2>A heat map of the best ground</h2>
 <div class="ticks">
-<p class="tick">True-scale LOLA terrain under a tilted camera that faces Earth.</p>
-<p class="tick">Blue patches: NASA’s map of ground that never sees the Sun.</p>
-<p class="tick tick-sun">The Sun is measured as a disc, so first light and full Sun are both reported.</p>
+<p class="tick">Green: where NASA’s long-term maps give the most sunlight and Earth view together.</p>
+<p class="tick tick-sun">One button finds the best spot within 15 km of any polar site.</p>
+<p class="tick">Permanently shadowed regions at both poles, and a tilted landing view over true-scale terrain.</p>
 </div>
 </div>
-<img class="shot-img" src="img/app-landing.jpg" alt="Zoriana landing view over the Shackleton ridge with permanently shadowed craters tinted blue and sight lines toward the Sun and Earth">
-<aside>The landing view tilts over the selected site, like a navigation app. Shackleton crater and its neighbours are permanently shadowed, shown in blue from NASA's LOLA map. Each site card says whether the spot is in permanent shadow and how far the nearest one is.</aside>
+<img class="shot-img" src="img/app-heatmap.jpg" alt="Zoriana heat map over the lunar south pole: the Earth-facing half of the polar cap glows green where long-term sunlight and Earth visibility are both high, with sight lines from the IM-4 target to the Sun and Earth">
+<aside>The heat map uses NASA's LOLA average-visibility maps: how often, over many years, the Sun and Earth are above the terrain. Green is the two multiplied together. From any polar site, one button drops a pin on the best nearby cell, which you can then check for your own date.</aside>
 </section>
 
 <section id="data" data-transition="fade">
@@ -171,7 +171,7 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <div class="cards">
 <div class="card"><p class="src">JPL HORIZONS</p><p class="use">Sun and Earth direction and distance for any point on the Moon, any date from 1950 to 2099.</p></div>
 <div class="card"><p class="src">LOLA ELEVATION</p><p class="use">40 m and 80 m polar grids plus a global grid form each site’s terrain skyline.</p></div>
-<div class="card"><p class="src">LOLA PERMANENT SHADOW</p><p class="use">NASA’s map of permanently shadowed regions, 75°S to the pole.</p></div>
+<div class="card"><p class="src">LOLA ILLUMINATION MAPS</p><p class="use">Permanent shadow and long-term Sun and Earth visibility, within 15° of each pole.</p></div>
 <div class="card"><p class="src">LROC MOSAIC</p><p class="use">The 8K Moon imagery on the globe, from the Lunar Reconnaissance Orbiter.</p></div>
 <div class="card"><p class="src">BLUE MARBLE</p><p class="use">Earth in the lunar sky, at its true size, distance and phase.</p></div>
 <div class="card"><p class="src">PARTNER SITES</p><p class="use">JAXA SLIM and ISRO Chandrayaan-3 landing locations.</p></div>
@@ -180,7 +180,7 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <p class="num">0.06°</p>
 <p class="why">Checked against Apollo 11: the app’s Sun elevation at touchdown matches the Apollo Lunar Surface Journal’s JPL-based figure to 0.06°.</p>
 </div>
-<aside>Nothing is simulated. Positions come live from JPL Horizons, terrain from the Lunar Orbiter Laser Altimeter, imagery from LROC. We checked the Sun-angle chain against published Apollo values: Apollo 11 matches to 0.06 degrees, and all six landings are within 0.7 degrees of NASA's older table.</aside>
+<aside>Nothing is simulated. Positions come live from JPL Horizons, terrain from the Lunar Orbiter Laser Altimeter, imagery from LROC. We checked the Sun-angle chain against published Apollo values: Apollo 11 matches to 0.06 degrees, and all six landings are within 0.7 degrees of NASA's older table, whose remaining differences trace to the Sun position that table used.</aside>
 </section>
 
 <section id="next" data-transition="fade">
@@ -191,12 +191,12 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <h3 class="earth">Honest about today</h3>
 <p>Geometry only: sunlight is not usable power, and Earth in view is not a working radio link.</p>
 <p>Future mission points are approximate, and labelled so.</p>
-<p>55 automated tests. Every number traces to a NASA source.</p>
+<p>60 automated tests. Every number traces to a NASA source.</p>
 </div>
 <div class="col">
 <h3 class="sun">Next</h3>
-<p>A where-to-land heat map from NASA’s average-illumination maps.</p>
-<p>North-pole shadows, eclipses and relay satellites.</p>
+<p>Search a whole region for the best spot on a chosen date.</p>
+<p>Eclipses and relay satellites.</p>
 <p>Slope and hazard layers for landing safety.</p>
 </div>
 </div>
@@ -205,8 +205,8 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <div class="link"><p class="link-label">LIVE APP</p><p class="link-value">zoriana.fly.dev</p></div>
 <div class="link"><p class="link-label">CODE</p><p class="link-value">github.com/sftimeless/zoriana</p></div>
 </div>
-<p class="small footnote">Code written with AI coding assistance under human direction. The app icon is an AI-generated image, marked as such. Not affiliated with or endorsed by NASA.</p>
-<aside>Zoriana is an exploratory planning aid, not a certified mission tool, and it says so. Next we would turn NASA's average-illumination maps into a heat map that suggests where to look, and add the north pole, eclipses and relay satellites.</aside>
+<p class="small footnote">Code written with AI coding assistance under human direction. The app icon is an AI-generated image (ChatGPT). Not affiliated with or endorsed by NASA.</p>
+<aside>Zoriana is an exploratory planning aid, not a certified mission tool, and it says so. Next we would search whole regions for a chosen date rather than long-term averages, and add eclipses, relay satellites and hazard layers.</aside>
 </section>
 
 </body>

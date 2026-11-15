@@ -54,10 +54,12 @@ export function bestCell(rgba,width,radius=(width-1)/2){
 }
 
 // Heat-map modes: which value is drawn, in which colour, and the range over which it fades in.
+// The ranges span what the 480 m maps actually hold: ordinary polar ground is sunlit about 40% of
+// the time and the best cells about 50%, so shadowed ground stays clear and good ground glows.
 export const HEAT={
- sun:{code:1,label:'Average sunlight',color:'#ffd60a',from:.42,to:.70},
- earth:{code:2,label:'Average Earth view',color:'#4da3ff',from:.25,to:.95},
- both:{code:3,label:'Sun × Earth score',color:'#30d158',from:.38,to:.62}
+ sun:{code:1,label:'Average sunlight',color:'#ffd60a',from:.15,to:.55},
+ earth:{code:2,label:'Average Earth view',color:'#4da3ff',from:.10,to:.90},
+ both:{code:3,label:'Sun × Earth score',color:'#30d158',from:.08,to:.48}
 };
 
 // Adds both overlays to a Three.js material without disturbing shader patches already on it.
@@ -84,9 +86,9 @@ export function addPolarOverlay(material,uniforms){
   vec3 heatColor=heatMode<1.5?${rgb(HEAT.sun.color)}:heatMode<2.5?${rgb(HEAT.earth.color)}:${rgb(HEAT.both.color)};
   vec2 heatRange=heatMode<1.5?vec2(${HEAT.sun.from},${HEAT.sun.to}):heatMode<2.5?vec2(${HEAT.earth.from},${HEAT.earth.to}):vec2(${HEAT.both.from},${HEAT.both.to});
   float heatShare=smoothstep(heatRange.x,heatRange.y,heatValue)*polarInside*heatOn;
-  outgoingLight=mix(outgoingLight,outgoingLight*.3+heatColor*.75,heatShare*.8);
+  outgoingLight=mix(outgoingLight,outgoingLight*.45+heatColor*.6,heatShare*.72);
   #include <opaque_fragment>`);
  };
- material.customProgramCacheKey=()=>key.call(material)+'+polar-v1';
+ material.customProgramCacheKey=()=>key.call(material)+'+polar-v2';
  material.needsUpdate=true;
 }

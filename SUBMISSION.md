@@ -33,7 +33,8 @@ Source code: https://github.com/sftimeless/zoriana
 - Totals sunlit hours, Earth-in-view hours and hours with both at once for a 1, 3 or 7-day stay, and charts all 30 days after landing.
 - Ranks every listed site for the chosen date and stay, and compares up to four site-and-date options side by side. Results export to CSV and any view can be shared as a link.
 - Landing view: a tilted camera over the site with true-scale terrain, facing Earth.
-- Draws NASA's map of permanently shadowed regions near the south pole and says whether a site is inside one.
+- Draws NASA's maps of permanently shadowed regions at both poles and says whether a site is inside one.
+- Where-to-land heat map: NASA's long-term average sunlight and Earth visibility near the poles, plus a button that finds the best spot within 15 km of any polar site.
 - Shows Earth in the lunar sky at its true size, distance and phase.
 
 **How it works**
@@ -45,7 +46,8 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - For the Apollo 11 landing the app's Sun elevation matches the Apollo Lunar Surface Journal's JPL-based figure to 0.06°.
 - Across all six Apollo landings it is within 0.7° in elevation of NASA's older published table.
 - The floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus craters read as permanently shadowed; nearby ridges do not.
-- 55 automated tests cover the ephemeris parsing, visibility maths, terrain projection, disc geometry and exports.
+- The differences from that older table trace to the Sun position it used (it places the Sun up to 2.0° from the lunar equator, more than is physically possible), not to the app.
+- 60 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, disc geometry and exports.
 
 **Benefits and what we hope to achieve**
 
@@ -53,11 +55,11 @@ Anyone, from a student to a mission planner doing a first pass, can see in secon
 
 **What comes next**
 
-A "where to land" heat map from NASA's average-illumination maps, north-pole shadows, eclipses, relay satellites, and slope and hazard layers.
+Eclipses, relay satellites, slope and hazard layers for landing safety, and a search over whole regions for a chosen date rather than long-term averages.
 
 **Tools, languages and software**
 
-JavaScript (Node.js server, browser client), Three.js, Vite, Python with NumPy and Pillow for data preparation, Docker and Fly.io for hosting. Data: NASA/JPL Horizons, LRO LOLA elevation and permanently-shadowed-region maps, LRO LROC imagery, NASA Blue Marble. Full list with links in REFERENCES.md.
+JavaScript (Node.js server, browser client), Three.js, Vite, Python with NumPy and Pillow for data preparation, Docker and Fly.io for hosting. Data: NASA/JPL Horizons, LRO LOLA elevation, permanently-shadowed-region and average-visibility maps, LRO LROC imagery, NASA Blue Marble. Full list with links in REFERENCES.md.
 
 ---
 

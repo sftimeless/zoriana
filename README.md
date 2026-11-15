@@ -21,7 +21,7 @@ The NASA terrain grids are too large for git. `data/terrain-manifest.json` lists
 
 ## Run in production and deploy
 
-`npm run build && npm start` serves the built app from `dist/` with `NODE_ENV=production`. In that mode the server needs no npm packages, listens on `PORT` (default 4174) on all interfaces, sends gzip copies of files that have a `.gz` twin, answers `/healthz`, limits each visitor to 400 API requests per five minutes, and loads the terrain grids at start-up so the first visitor does not wait.
+`npm run build && npm start` serves the built app from `dist/` with `NODE_ENV=production`. In that mode the server needs no npm packages, listens on `PORT` (default 4174) on all interfaces, sends gzip copies of files that have a `.gz` twin, answers `/healthz`, limits each visitor to 400 API requests per five minutes, loads the terrain grids at start-up, and then fetches today's data (UTC) for the 18 curated sites, again whenever the date changes, so visitors share those answers instead of each waiting in the one-at-a-time JPL queue.
 
 The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repository: one always-on shared-CPU machine with 1 GB of memory in San Jose (the server holds about 260 MB of LOLA terrain in memory; measured use is about 370 MB). Deploy with `fly deploy --ha=false` from a checkout that has the terrain files in `data/`. Measured on November 15, 2026: a site that has not been requested before answers in about 1 second (terrain horizon under 1 second, plus two JPL Horizons requests).
 
@@ -34,7 +34,8 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 - Live Sun and Earth apparent azimuth/elevation and distance from NASA/JPL Horizons for the exact coordinates, at DEM elevation plus a two-meter observer height.
 - Thirty-one-day hourly series from the landing date (one full lunar day plus room for a landing hour), interactive time interpolation/playback over the 30 days after landing, and side-by-side comparison of up to four site-and-date options.
 - "Sun and Earth together": the time when both body centres are above the selected horizon at once, shown on the site card, in the comparison and in the ranking (`together` and `stayMetrics` in `src/windows.mjs`). It is a geometric overlap, not a power or link budget.
-- Permanently shadowed regions near the south pole, drawn in blue from NASA's LOLA map, with a per-site "Permanent shadow" fact (inside one, or how far the nearest is).
+- Permanently shadowed regions at both poles, drawn in blue from NASA's LOLA maps, with a per-site "Permanent shadow" fact (inside one, or how far the nearest is).
+- A where-to-land heat map from NASA's long-term average Sun and Earth visibility maps, a long-term average for each polar site, and a button that finds the best spot within 15 km.
 - Sun and Earth as discs: each tile shows how much of the disc clears the skyline, and the stay summary gives hours of full Sun, hours with any Sun, and the next first light and full disc.
 - Mission durations of 24, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle.
 - Browser/session caches and a serialized, bounded-cache JPL service. Network failures never substitute synthetic observations.
@@ -54,7 +55,9 @@ NASA's CGI mosaic is optimized for aesthetics, including polar gap filling. It i
 - NASA/JPL Horizons observer ephemerides: https://ssd.jpl.nasa.gov/horizons/ and https://ssd-api.jpl.nasa.gov/doc/horizons.html
 - Three.js (MIT) and Vite (MIT); exact versions in package-lock.json.
 - Typography uses the system font stack (no web fonts are downloaded). Interface icons are original inline SVG drawings.
-- App icon: the team's official icon, supplied on November 14, 2026 (source file dated that evening). `public/assets/icon-512.png`, `icon-192.png` and `favicon.png` are that image cropped to its rounded square, given transparent corners and resized with Pillow; nothing was redrawn (`scripts/prepare-icon.py`). The icon was made with ChatGPT (OpenAI), an AI image tool, so each copy carries a visible mark as the hackathon rules require: "AI-generated" on the 512 px file and "AI" on the two small ones, where the full words would be unreadable. The code-drawn placeholder and the earlier bitmap icon (dated November 13) are no longer in the app.
+- App icon: the team's official icon, supplied on November 14, 2026 (source file dated that evening). `public/assets/icon-512.png`, `icon-192.png` and `favicon.png` are that image cropped to its rounded square, given transparent corners and resized with Pillow; nothing was redrawn (`scripts/prepare-icon.py`). The icon was made with ChatGPT (OpenAI), an AI image tool. The team chose to say so in words rather than on the icon: clicking the icon in the app shows a note, and the method sheet, the page metadata, the demo's first slide and these documents state it. (`prepare-icon.py --mark` stamps a visible "AI-generated" label on the files instead.) The code-drawn placeholder and the earlier bitmap icon (dated November 13) are no longer in the app.
+
+Licence: the code is under the MIT License (see LICENSE). That licence does not cover the NASA data and imagery in `public/assets/` and `demo/img/`, which remain under NASA's own terms (generally free to use with credit), or the app icon.
 
 NASA imagery does not imply NASA endorsement. AI coding assistance: OpenAI Codex (first build, terrain and shadow model) and Anthropic Claude Code (map-style interface redesign and landing view on November 14, 2026). No code or assets were copied from the earlier Zoriana project.
 
@@ -80,6 +83,7 @@ Future mission targets (checked November 14, 2026). These missions have announce
 
 The interface takes its inspiration from everyday map and navigation apps, so a first-time user can read it without training. All layout, icons and code are original to this project:
 
+- **Phone layout**: the planner becomes a bottom sheet with three heights. Drag its handle, tap the handle to step through the heights, or pull the content down from its top to shrink it and see more of the Moon.
 - **Status rail** (left): mission clock for the selected time, an Earth-link indicator and a sunlight indicator for the selected site, and shortcuts to search, comparison and the method sheet. The indicators are binary (body center above or below the selected horizon); they are not link-budget or power estimates.
 - **Site list and place card**: sites are grouped as South Pole, Future, CLPS, International and Apollo. Future entries are announced target regions for planned missions and carry an "approximate" note. The place card leads with a next-event banner: a countdown to the next sunrise, sunset, Earthrise or Earthset at that site, followed by the other body's next event. Icons are original drawings: a shadowed crater (South Pole), a solar-panel lander (CLPS), a flag (International), and a Lunar Module front view (Apollo). Missions have their own icons: a tall tower on wide legs (the Nova-C landers: IM-1, IM-2, IM-3, IM-4), a low wide body with a dish (Blue Ghost missions), a box with a rover ramp (Chandrayaan-3), a panel-covered box with a dome (SLIM), a tall ribbed column under a wider top deck (Blue Moon Pathfinder, the Mark 1 lander) and a wide flat deck carrying a payload (Griffin). Future missions keep their lander's icon in the Future group's green. They were drawn after looking at general reference pictures of each spacecraft (supplied by the team for Apollo and SLIM, Wikipedia article photographs for the others; the Blue Moon icon follows a NASA photograph of the Mark 1 lander); nothing was traced or copied. No mission patches or agency insignia are used.
 - **Sight lines**: gold and blue lines on the globe point from the selected site toward the Sun and Earth at the selected time, dashed when the body is hidden. Their length follows the zoom level and has no physical meaning.
@@ -119,14 +123,24 @@ For an opt-in browser check, open http://127.0.0.1:4174/?diagnostics=1 and choos
 
 ## Permanently shadowed regions
 
-The map button with the half-filled circle shows or hides NASA's map of ground that never receives direct sunlight. It is on by default and is carried in share links (`psr=off` when hidden).
+The map button with the half-filled circle shows or hides NASA's maps of ground that never receives direct sunlight, at both poles. It is on by default and is carried in share links (`psr=off` when hidden). It is hidden while a heat map is showing.
 
-- Source: LRO LOLA product LPSR_75S_120M_201608 (data set LRO-L-LOLA-4-GDR-V1.0, product version 1.05, created September 15, 2016), a 7624 × 7624 binary grid at 120 m per pixel in south polar stereographic projection covering 75°S to the pole. Method: Mazarico et al. 2011, Icarus 211, 1066–1081. https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/lpsr_75s_120m_201608.lbl
-- `python3 scripts/prepare-psr.py` averages 2 × 2 blocks into `public/assets/psr-south-240m.png` (3812 × 3812, 240 m cells, each pixel the shadowed share of its cell). The source file's SHA-256 is recorded in `data/terrain-manifest.json`.
-- Drawing: `src/psr.mjs` adds a tint to the globe, satellite and landing-view materials, looked up per pixel from the surface direction.
-- Site fact: the app reads a 24 km window of the mask around the site. A cell counts as shadowed when at least half of it is. The card says "Yes", or "No" with the distance to the nearest shadowed cell, or "Not mapped here" north of 75°S.
-- Checks: the floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus read as shadowed; the Malapert massif point and a Shackleton ridge point do not.
-- Limits: south pole only. The north pole and small shadows at lower latitudes are not shown. The map is NASA's long-term result and is independent of the date you pick; the live shadow layer is a separate, coarser calculation, so the two can disagree at edges. A permanently shadowed spot is not proof of ice.
+- Sources: LRO LOLA products LPSR_75S_120M_201608 and LPSR_75N_120M_201608 (data set LRO-L-LOLA-4-GDR-V1.0, created September 2016), 7624 × 7624 binary grids at 120 m per pixel in polar stereographic projection covering 75° to each pole. Method: Mazarico et al. 2011, Icarus 211, 1066–1081. https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/
+- `python3 scripts/prepare-illumination.py` averages 2 × 2 blocks into `public/assets/psr-south-240m.png` and `psr-north-240m.png` (3812 × 3812, 240 m cells, each pixel the shadowed share of its cell). Source hashes are recorded in `data/illumination-manifest.json`.
+- Drawing: `src/psr.mjs` adds a tint to the globe, satellite and landing-view materials, looked up per pixel from the surface direction. In the south image 0° longitude points up; in the north image it points down.
+- Site fact: the app reads a 24 km window of the mask around the site. A cell counts as shadowed when at least half of it is. The card says "Yes", or "No" with the distance to the nearest shadowed cell, or "Not mapped here" more than 15° from a pole.
+- Checks: the floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus (south) and of Hermite A and Nansen F (north) read as shadowed; the Malapert massif point and a Shackleton ridge point do not. NASA's Earth-visibility maps confirm the orientation: the near-side half of each polar map is the half with Earth in view.
+- Limits: within 15° of each pole only. The maps are NASA's long-term result and do not depend on the date you pick; the live shadow layer is a separate, coarser calculation, so the two can disagree at edges. A permanently shadowed spot is not proof of ice.
+
+## Where-to-land heat map
+
+The map button with the concentric rings steps through Off, Average sunlight, Average Earth view and Sun × Earth score. Share links carry it (`heat=sun`, `earth` or `both`).
+
+- Sources: LRO LOLA products AVGVISIB_75S_120M_201608 and AVGVISIB_75N_120M_201608, and their `_EARTH` versions (same data set and directory as above). Each value is the share of time steps, in NASA's long-term simulation, in which any part of the Sun's (or Earth's) disc was visible from that 120 m pixel.
+- `scripts/prepare-illumination.py` averages 4 × 4 blocks into `public/assets/heat-south-480m.webp` and `heat-north-480m.webp` (1906 × 1906, lossless): red = mean Sun share, green = mean Earth share, blue = the highest Sun share among the 16 source pixels. They are downloaded only when the heat map or a polar site needs them (about 5 MB each).
+- Drawing: one colour per map (yellow, blue, green) whose strength fades in over the range in the legend (sunlight 15% to 55%, Earth 10% to 90%, score 0.08 to 0.48). At 480 m, ordinary polar ground is sunlit about 40% of the time and the best 1% of cells about 50%, so shadowed ground stays clear, ordinary ground is tinted and the best ground glows. Within 5° of the south pole the score's 95th percentile is 0.20 and its 99.9th is 0.47; farther out, open near-side plains score about 0.45 because Earth is always in view there.
+- Site card: "Long-term average" gives the Sun and Earth shares for the site's cell. "Find best spot within 15 km" scans the cells within 15 km for the highest Sun × Earth score and drops a pin there (`bestCell` in `src/psr.mjs`).
+- Limits: long-term averages over a 480 m cell, counted when any part of the disc shows. They say nothing about a particular date, which is what the rest of the app is for. The score multiplies two averages; it is a guide to where to look, not a measured overlap. A small peak can be diluted by its cell: the best 120 m pixel reads 90%, the best 480 m cell 63%.
 
 ## Sun and Earth as discs
 
@@ -143,7 +157,8 @@ The map button with the half-filled circle shows or hides NASA's map of ground t
 
 - 12 angle cases: largest elevation difference 0.7°, largest azimuth difference 2.57°.
 - 6 sunrises (level horizon, Sun's centre): 22 to 73 minutes from the table's times.
-- For Apollo 11 the Journal's JPL-based touchdown figure (10.65°, 88.81° at 20:17:39 UTC) and this app (10.71°, 88.81° at 20:18) agree to 0.06°, while the table gives 10.3°, 88.1°. The table is rounded to 0.1° and how it was computed is not stated, so we treat it as a looser yardstick. We did not find the cause of the roughly 2° azimuth differences at Apollo 14, 15 and 16.
+- For Apollo 11 the Journal's JPL-based touchdown figure (10.65°, 88.81° at 20:17:39 UTC) and this app (10.71°, 88.81° at 20:18) agree to 0.06°, while the table gives 10.3°, 88.1°. The table is rounded to 0.1° and how it was computed is not stated, so we treat it as a looser yardstick.
+- Where the difference comes from: the script works back from each pair of angles to the point on the Moon where the Sun is overhead. The table's point is a steady 0.42° east of JPL's (0.35° to 0.47°, about 50 minutes of Sun motion, which accounts for the elevation and sunrise offsets) and between 1.79° south and 1.80° north of it. The table's point reaches 2.01° from the lunar equator, where the Sun can never be more than about 1.6° (JPL's largest value in these cases is 1.56°). That latitude error is what produces the azimuth gaps of about 2° at Apollo 14, 15 and 16. So the difference lies in the Sun position the table used, not in the sites or in this app. How the table was computed is not stated on the page.
 
 ## Interactive terrain shadows
 

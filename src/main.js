@@ -97,7 +97,7 @@ const shadows=createTerrainShadows(renderer,material,invalidate,text=>{if(sunlig
 const patch=createSurfacePatch(scene,shadows);
 // NASA's polar maps, drawn on every Moon material: permanently shadowed regions (blue tint) and
 // the long-term average visibility of the Sun and Earth (the "where to land" heat map).
-const polarUniforms={psrSouth:{value:null},psrNorth:{value:null},heatSouth:{value:null},heatNorth:{value:null},psrVisible:{value:0},heatMode:{value:0}};
+const polarUniforms={psrSouth:{value:null},psrNorth:{value:null},heatSouth:{value:null},heatNorth:{value:null},psrVisible:{value:1},heatMode:{value:0}};
 for(const m of [material,satelliteMaterial,patch.material])addPolarOverlay(m,polarUniforms);
 const polarLoader=new THREE.TextureLoader(),polarImages={psr:{},heat:{}},polarPending={};
 let psrEnabled=true,heatMode='off';
@@ -452,7 +452,7 @@ function setSheet(state){sheetState=state;sheet.dataset.sheet=state;if(phone.mat
 const dragSheetTo=height=>{const h=sheetHeights();sheet.style.setProperty('--sheet',Math.max(h.peek,Math.min(h.full,height))+'px');};
 // Where a released sheet settles: the nearest height, nudged by how fast it was moving (px per ms, down is positive).
 function settleSheet(velocity=0){const h=sheetHeights(),target=sheet.getBoundingClientRect().height-velocity*180;sheet.classList.remove('dragging');setSheet(sheetOrder.reduce((a,b)=>Math.abs(h[b]-target)<Math.abs(h[a]-target)?b:a));}
-sheetHandle.addEventListener('pointerdown',e=>{if(!phone.matches)return;sheetDrag={y:e.clientY,height:sheet.getBoundingClientRect().height,moved:false,lastY:e.clientY,lastTime:e.timeStamp,velocity:0};sheetHandle.setPointerCapture(e.pointerId);sheet.classList.add('dragging');});
+sheetHandle.addEventListener('pointerdown',e=>{if(!phone.matches)return;sheetDrag={y:e.clientY,height:sheet.getBoundingClientRect().height,moved:false,lastY:e.clientY,lastTime:e.timeStamp,velocity:0};sheet.classList.add('dragging');try{sheetHandle.setPointerCapture(e.pointerId);}catch{}});
 sheetHandle.addEventListener('pointermove',e=>{if(!sheetDrag)return;const dy=e.clientY-sheetDrag.y;if(Math.abs(dy)>4)sheetDrag.moved=true;dragSheetTo(sheetDrag.height-dy);sheetDrag.velocity=(e.clientY-sheetDrag.lastY)/Math.max(1,e.timeStamp-sheetDrag.lastTime);sheetDrag.lastY=e.clientY;sheetDrag.lastTime=e.timeStamp;});
 const endSheetDrag=()=>{if(!sheetDrag)return;const {moved,velocity}=sheetDrag;sheetDrag=null;if(moved)settleSheet(velocity);else{sheet.classList.remove('dragging');setSheet(sheetOrder[(sheetOrder.indexOf(sheetState)+1)%3]);}};
 sheetHandle.addEventListener('pointerup',endSheetDrag);sheetHandle.addEventListener('pointercancel',endSheetDrag);
