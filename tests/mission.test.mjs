@@ -37,7 +37,11 @@ test('replay steps: the timeline maps to mission time and back, and names the ri
  assert.equal(elapsed(T.landing),'T+ 102:45:40');assert.equal(elapsed(-12),'T− 000:00:12');
 });
 test('Apollo 11: the rocket leaves the pad slowly, and the cabin comes down slowly under its parachutes',()=>{
- close(earthAlt(0),.06,.001);close(earthAlt(.01),.06,.005);assert.ok(earthAlt(10)<.25,'still close to the tower ten seconds in');close(earthAlt(T.sicCutoff),66,1);
+ close(earthAlt(0),.086,.001);close(earthAlt(.01),.086,.002);assert.ok(earthAlt(10)<.3,'still close to the tower ten seconds in');
+ // Straight up at first, then leaning over: the path over the ground has not left the pad after 10 seconds, and is 93 km out when the first stage is spent.
+ const overGround=t=>{const a=mission.craft(t),b=mission.craft(-.001),w=7.2921e-5*t,c=Math.cos(w),s=Math.sin(w),pad=[b[0]*c-b[1]*s,b[0]*s+b[1]*c,b[2]];return Math.acos(Math.min(1,(a[0]*pad[0]+a[1]*pad[1]+a[2]*pad[2])/(norm(a)*norm(pad))))*6378.137;};
+ assert.ok(overGround(10)<.02,`drifted ${overGround(10)} km in the first ten seconds`);close(overGround(T.sicCutoff),93,2);assert.ok(overGround(60)<3);
+ for(let t=1;t<T.orbit;t+=5)assert.ok(overGround(t+5)>=overGround(t)-1e-6,`moving downrange at ${t}`);close(earthAlt(T.sicCutoff),66,1);
  for(let t=1;t<T.orbit;t+=5)assert.ok(earthAlt(t+5)>=earthAlt(t)-1e-6,`climbing at ${t}`);
  const fall=(earthAlt(T.splash-200)-earthAlt(T.splash-100))/100*1000;assert.ok(fall>7&&fall<12,`falls at ${fall} m/s under the main parachutes`);
  const f=curve([[0,0],[1,1],[2,1],[3,5]]);close(f(1),1,1e-12);assert.ok(f(1.5)>=1-1e-9&&f(1.5)<=1+1e-9,'no overshoot between equal points');close(f(-1),0,1e-12);close(f(9),5,1e-12);

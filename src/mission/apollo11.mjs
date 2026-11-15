@@ -48,9 +48,11 @@ export function curve(points){
   const h=points[i+1][0]-points[i][0];return hermite(points[i][1],m[i]*h,points[i+1][1],m[i+1]*h,(x-points[i][0])/h);
  };
 }
-// Height of the command ship above the ground during the climb, km against seconds: slow off the pad, 66 km
-// when the first stage is spent, close to orbital height when the second is. The command ship sits 60 m up the stack.
-const CLIMB=curve([[0,.06],[12,.19],[30,1.6],[60,7.4],[80,13.6],[120,37],[161.6,66],[240,112],[320,146],[400,168],[480,180],[548,184.5],[T.orbit,PARK_ALT]]);
+// Height of the flight path's reference point above the ground during the climb, km against seconds: slow off
+// the pad, 66 km when the first stage is spent, close to orbital height when the second is. The reference point is
+// 60 m up the stack, and the stack stands on its launch platform, whose deck is 26 m above the ground.
+export const PAD_HEIGHT=.026;
+const CLIMB=curve([[0,.06+PAD_HEIGHT],[3,.071+PAD_HEIGHT],[6,.103+PAD_HEIGHT],[9,.157+PAD_HEIGHT],[12,.233+PAD_HEIGHT],[30,1.6],[60,7.4],[80,13.6],[120,37],[161.6,66],[240,112],[320,146],[400,168],[480,180],[548,184.5],[T.orbit,PARK_ALT]]);
 
 export function createMission(data){
  const utc=t=>LAUNCH+t*1000;
@@ -71,11 +73,15 @@ export function createMission(data){
  // The climb: from the pad, which turns with the Earth, into the orbit plane by the time of insertion.
  const padDirection=t=>earthFixed(sphere(PAD.lat,PAD.lon),t);
  const aInsert=parkAngle(T.orbit);
- let aPad=angleOf(padDirection(0));while(aPad>aInsert)aPad-=2*Math.PI;while(aPad<aInsert-2*Math.PI)aPad+=2*Math.PI;
- const wPad=.388/R_EARTH;                                           // the pad's own eastward motion along the launch heading
+ // Over the ground the rocket rises straight up for the first seconds, then leans over along a great circle from the
+ // pad to the point beneath it at insertion. Distance over the ground, km against seconds, follows the shape of the
+ // real climb: about 2 km by the speed of sound, 93 km when the first stage is spent, 1,640 km when the second is.
+ const fixed=(v,t)=>rotZ(v,-earthRotationAngle(utc(t)));                      // ICRF to the turning Earth
+ const padFixed=sphere(PAD.lat,PAD.lon),insertFixed=fixed(inPlane(aInsert),T.orbit),climbArc=Math.acos(dot(padFixed,insertFixed)),climbKm=climbArc*R_EARTH;
+ const RANGE=curve([[0,0],[12,0],[30,.15],[66,1.9],[83,5.6],[135,46],[161.6,93],[240,305],[320,576],[400,900],[480,1277],[548,1640],[T.orbit-20,climbKm-7.35*20],[T.orbit,climbKm]]);
  function ascent(t){
-  const s=Math.max(0,t)/T.orbit,a=hermite(aPad,wPad*T.orbit,aInsert,wPark*T.orbit,s),alt=CLIMB(Math.max(0,t));
-  return scale(unit(lerp(padDirection(t),inPlane(a),smooth(s*1.6))),R_EARTH+alt);
+  const f=RANGE(Math.max(0,t))/climbKm,ground=add(scale(padFixed,Math.sin((1-f)*climbArc)/Math.sin(climbArc)),scale(insertFixed,Math.sin(f*climbArc)/Math.sin(climbArc)));
+  return earthFixed(scale(ground,R_EARTH+CLIMB(Math.max(0,t))),t);
  }
  function burnToMoon(t){
   const w=smooth((t-T.tliOn)/(T.tliOff-T.tliOn)),free=departure(t).r,a=parkAngle(t)+(angleOf(free)-parkAngle(t))*w;
@@ -135,7 +141,7 @@ export function createMission(data){
 
  // ---- The command ship (with whatever is attached to it) ----
  function craft(t){
-  if(t<=0)return scale(padDirection(t),R_EARTH+.06);
+  if(t<=0)return scale(padDirection(t),R_EARTH+.06+PAD_HEIGHT);
   if(t<T.orbit)return ascent(t);
   if(t<T.tliOn)return scale(inPlane(parkAngle(t)),rPark);
   if(t<T.tliOff)return burnToMoon(t);
@@ -172,7 +178,7 @@ export function createMission(data){
   landerVelocity:t=>velocity(lander,t),
   splashPoint:t=>earthFixed(scale(splashFixed,R_EARTH),t),
   // Numbers worth checking, used by the tests and shown nowhere else.
-  check:{tReal,downrangeKm:(aInsert-aPad)*R_EARTH,padOffPlaneDeg:Math.asin(dot(padDirection(0),n))/RAD,inclinationDeg:Math.acos(n[2])/RAD,parkPeriodMin:2*Math.PI/wPark/60,lunarPeriodsH:[2*Math.PI/w1/3600,2*Math.PI/w2/3600],aFarDeg:aFar/RAD,
+  check:{tReal,downrangeKm:climbKm,padOffPlaneDeg:Math.asin(dot(padDirection(0),n))/RAD,inclinationDeg:Math.acos(n[2])/RAD,parkPeriodMin:2*Math.PI/wPark/60,lunarPeriodsH:[2*Math.PI/w1/3600,2*Math.PI/w2/3600],aFarDeg:aFar/RAD,
    outSpeed:norm(out.v1),entrySpeed:norm(back.v2),entryAngleDeg:Math.asin(dot(unit(back.v2),unit(entryPoint)))/RAD}
  };
 }
