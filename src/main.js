@@ -102,7 +102,7 @@ const sun=new THREE.DirectionalLight(0xffffff,2.65);sun.position.set(-2,.2,-4);s
 let sunlightEnabled=true;
 const shadows=createTerrainShadows(renderer,material,invalidate,text=>{if(sunlightEnabled)$('#map-status').textContent=text;});
 const patch=createSurfacePatch(scene,shadows);
-function setSunlight(value){sunlightEnabled=value;$('#sunlight').setAttribute('aria-pressed',String(value));shadows.setEnabled(value);moon.material=value?material:satelliteMaterial;patch.setLit(value);}
+function setSunlight(value){sunlightEnabled=value;$('#sunlight').setAttribute('aria-pressed',String(value));shadows.setEnabled(value);moon.material=value?material:satelliteMaterial;patch.setLit(value);bodies.earth.mesh.material=value?earthLit:earthUnlit;}
 $('#sunlight').onclick=()=>{setSunlight(!sunlightEnabled);$('#map-status').textContent=sunlightEnabled?'Sunlight · updating':'NASA / LRO · imagery';invalidate();};
 const loader=new THREE.TextureLoader();
 loader.load('/assets/moon-lroc-8k.jpg',texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());material.map=texture;satelliteMaterial.map=texture;patch.setMap(texture);material.needsUpdate=true;satelliteMaterial.needsUpdate=true;$('#map-status').textContent='NASA / LRO · 8K lunar mosaic';invalidate();},undefined,()=>{$('#map-status').textContent='NASA imagery failed to load';});
@@ -164,12 +164,16 @@ function makeBody(name,label,mesh,distance,radius,overhead){
  $('#labels').append(mark,tag);
  return {name,label,mesh,distance,radius,mark,tag,direction:new THREE.Vector3(),point:new THREE.Vector3(),known:false};
 }
+// Like the Moon, Earth has two looks: lit by the modelled Sun (Explore and Landing), or the plain
+// NASA imagery with no lighting (Satellite, or whenever the Sunlight layer is off).
+const earthLit=new THREE.MeshStandardMaterial({color:0x3f7fd9,roughness:1,metalness:0,emissive:0x0b1c38}),earthUnlit=new THREE.MeshBasicMaterial({color:0x3f7fd9});
 const bodies={
  sun:makeBody('sun','Sun',new THREE.Mesh(new THREE.SphereGeometry(SUN_RADIUS,24,12),new THREE.MeshBasicMaterial({color:0xfff3c4,toneMapped:false})),SUN_DISTANCE,SUN_RADIUS,'Sun overhead'),
- earth:makeBody('earth','Earth',new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS,48,24),new THREE.MeshStandardMaterial({color:0x3f7fd9,roughness:1,metalness:0,emissive:0x0b1c38})),EARTH_DISTANCE,EARTH_RADIUS,'Earth overhead')
+ earth:makeBody('earth','Earth',new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS,48,24),earthLit),EARTH_DISTANCE,EARTH_RADIUS,'Earth overhead')
 };
 // NASA Blue Marble imagery for the Earth; it stays a plain blue globe if the image fails to load.
-loader.load('/assets/earth-blue-marble-2k.jpg',texture=>{texture.colorSpace=THREE.SRGBColorSpace;const m=bodies.earth.mesh.material;m.map=texture;m.color.set(0xffffff);
+loader.load('/assets/earth-blue-marble-2k.jpg',texture=>{texture.colorSpace=THREE.SRGBColorSpace;const m=earthLit;m.map=texture;m.color.set(0xffffff);
+ earthUnlit.map=texture;earthUnlit.color.set(0xffffff);earthUnlit.needsUpdate=true;
  // The night side is shown faintly (not physically) so the globe stays readable as a crescent.
  m.emissiveMap=texture;m.emissive.set(0xffffff);m.emissiveIntensity=.2;m.needsUpdate=true;invalidate();});
 const earthTurn=new THREE.Matrix4();

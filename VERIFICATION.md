@@ -115,3 +115,8 @@
 - Thirty-eight Node tests pass. Four are new: JPL-derived sub-solar fixtures, rotation-matrix properties, rotation rates, and the renderer-frame conversion.
 - In-app browser, no console errors: the landing view at Shackleton region (2026-11-21 06:00 UTC, Earth 5.1° up) and Malapert region (Earth 8.7° up) now opens with Earth in frame; switching sites while in the landing view turned the camera to Earth after the data arrived; Face the Sun brought the Sun into frame. Earth is drawn as a textured crescent with a faint night side.
 - Not verified by eye: which continents face the Moon. The Earth is only about 50 pixels wide on screen, so this rests on the tests above.
+
+## Earth follows the map modes — November 14, 2026 (evening)
+
+- Earth now has the same two looks as the Moon: lit by the modelled Sun in Explore and Landing, and plain NASA imagery with no lighting in Satellite or whenever the Sunlight layer is off.
+- In-app browser, no console errors: at Malapert region on 2026-11-21 06:00 UTC, Earth drew as a lit crescent with Sunlight on and as a full textured disc with Sunlight off; switching to Satellite turned lighting off and back to Explore turned it on.
