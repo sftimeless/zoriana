@@ -33,7 +33,7 @@ Source code: https://github.com/sftimeless/zoriana
 - Opens each site with the answer in one sentence and a countdown to the next sunrise, sunset, Earthrise or Earthset; the numbers behind it can be folded away.
 - Totals sunlit hours, Earth-in-view hours and hours with both at once for a 1, 2, 3 or 7-day stay, lists when sunlight and the view of Earth are interrupted, and charts all 30 days after landing.
 - Ranks every listed site for the chosen date and stay, and compares up to four site-and-date options side by side. Results export to CSV and any view can be shared as a link.
-- Landing view: a tilted camera over the site with true-scale terrain, facing Earth.
+- Landing view: a tilted camera over the site with true-scale terrain, facing Earth. Fly-by: a 50-second camera pass over any site, pin or named crater on that terrain, lit as the Sun lights it at the chosen time.
 - Draws NASA's maps of permanently shadowed regions at both poles and says whether a site is inside one.
 - Where-to-land heat map: NASA's long-term average sunlight and Earth visibility near the poles, plus a button that finds the best spot within 15 km of any polar site for your landing time and stay.
 - Finds the best landing day and hour in the next 30 days, and the arrival times that give a chosen number of unbroken hours of sunlight, Earth view or both.
@@ -56,7 +56,7 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - Against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025; the app ends totality at that site at 08:30. For the same lander's sunset two days later the app is 1 to 2 hours later than Firefly's account, and we say so.
 - Each rise and set time carries a "±" showing how far it moves if the skyline is 0.1° off.
 - The totals do not depend on the time step: at three sites they are identical to 0.01 h whether tested every 15, 5, 2 or 1 minutes, and the app's interpolation between hourly positions is within 0.00003° of JPL asked every 10 minutes (`scripts/check-convergence.mjs`).
-- 81 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry and exports.
+- 85 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry and exports.
 
 **Benefits and what we hope to achieve**
 

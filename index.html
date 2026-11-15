@@ -88,6 +88,9 @@
    <div id="destinations" class="list"></div>
    <button id="rank-from-list" class="list-action"><span class="badge rank"><svg class="ic"><use href="#i-rank"/></svg></span><span class="row-text"><strong>Rank all sites</strong><small>Best Sun and Earth for this date and stay</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>
    <button id="pin-from-card" class="list-action"><span class="badge cat-pin"><svg class="ic"><use href="#i-pin"/></svg></span><span class="row-text"><strong>Drop a pin</strong><small>Or right-click the Moon; on a phone, press and hold</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>
+   <h2 class="list-title">Fly-bys</h2>
+   <div id="flybys" class="list"></div>
+   <p class="tiny">A camera pass over true-scale NASA terrain, lit as the Sun would light it. Any site or pin has one too: open it and choose Fly-by.</p>
    <div class="explain">
     <details><summary>Why land near the south pole?</summary><p>Craters near the Moon’s south pole are thought to hold water ice and other resources scientists want to study, which is why many upcoming missions are aimed there. The catch is the light. Near the pole the Sun never climbs more than a few degrees above the horizon, so mountains and crater rims decide whether a spot is sunlit or dark, and whether Earth is in view. Moving a short distance, or landing a few days later, can change everything.</p></details>
     <details><summary>Why do some craters never see the Sun?</summary><p>The Moon is tilted only about 1.5°, so at its poles the Sun circles just above the horizon all year and never rises high. The floor of a deep crater sits below its own rim, and a Sun that low can never clear it. Those floors stay dark and extremely cold, which is how ice can survive there. The blue patches near the poles are NASA’s map of ground that never gets direct sunlight, worked out from LOLA terrain. The shadows the app draws for your chosen date and time are a separate, live calculation.</p><p><button class="mini-toggle" data-show="pole">Show me the south pole</button></p></details>
@@ -121,6 +124,7 @@
    <div class="actions">
     <button id="compare" class="pill primary"><svg class="ic"><use href="#i-compare"/></svg><span>Compare</span></button>
     <button id="recenter" class="pill"><svg class="ic"><use href="#i-nav"/></svg><span>Fly to</span></button>
+    <button id="flyby" class="pill" title="A camera pass over this place, on true-scale terrain"><svg class="ic"><use href="#i-play"/></svg><span>Fly-by</span></button>
     <button id="share" class="pill" aria-label="Copy a link to this view"><svg class="ic"><use href="#i-share"/></svg><span>Share</span></button>
     <button id="details" class="pill" aria-label="View calculation details"><svg class="ic"><use href="#i-info"/></svg><span>Method</span></button>
    </div>
@@ -269,6 +273,13 @@
   <div class="panel-actions"><button id="export-ranking" class="mini-toggle">Export CSV</button></div>
   <p class="tiny">Sun + Earth counts the hours when both are above the horizon, so a lander has sunlight and a direct line to Earth at the same time. Sun height is the Sun’s average elevation while the site is sunlit. Select a heading to sort by it; select a site to open it. This ranks geometry only, not mission suitability.</p>
  </section>
+
+ <div id="flyby-bar" class="mat flyby-bar" role="group" aria-label="Fly-by" hidden>
+  <button id="flyby-play" aria-label="Pause the fly-by"><svg class="ic"><use href="#i-pause"/></svg></button>
+  <div class="flyby-text"><strong id="flyby-label">Fly-by</strong><i class="flyby-track"><i id="flyby-progress"></i></i></div>
+  <button id="flyby-speed" aria-label="Fly-by speed" title="Speed">1×</button>
+  <button id="flyby-stop" aria-label="End the fly-by"><svg class="ic"><use href="#i-x"/></svg></button>
+ </div>
 
  <div id="hint" class="hint">Drag to explore · Scroll to zoom · Right-click to drop a pin</div>
 

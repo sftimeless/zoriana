@@ -313,3 +313,14 @@
 - Eighty-one Node tests pass (six new: five for reading coordinates, one for arrival windows). `npx vite build` succeeds. No console errors in any check.
 - Not verified: copying coordinates to the clipboard (the test browser blocks it; the fallback note with the same text appeared); downloading a CSV with the new columns; a real phone; desktop Safari.
 
+## Fly-bys — November 15, 2026 (UTC)
+
+- New: a fly-by is a 50-second camera pass over the Landing view, with pause and half or double speed. It starts from a "Fly-by" button on any site card, or from four listed places (Shackleton, Tycho, Copernicus, the Apollo 11 site). Nothing new is calculated: true-scale LOLA relief, NASA imagery, and the sunlight for the time on the clock.
+- New endpoint `/api/terrain-patch`: 513 × 513 heights (16-bit metres, 526,338 bytes) on the Landing view's grid, each read from the finest grid covering the point. Live: Tycho "586 m" spacing, all from the 474 m grid, 0.9 s when new; IM-4 "273 m" spacing, 37% from the 40 m grid and 63% from the 80 m grid, 0.25 s. The Landing view's status line now reads "true-scale LOLA relief, 586 m grid" (was 3.8 km) away from the far south.
+- Checked locally in Chromium: Tycho from the list moved the clock ("Clock moved to Nov 18, 23:00 UTC, when the Sun is 10.2° high over Tycho."), flew from a range of 231 km down to 38 km and back to 143 km, and showed the crater's walls and central peak in relief; IM-4 from its card reached a range of 20 km on the 273 m mesh and ended "Fly-by finished · drag to look around"; Shackleton ran on the browser's 160 m mesh; pause, 2× speed and the close button worked. No console errors.
+- Checked on the live site: Copernicus from the list ("Fly-by · Copernicus", clock at Nov 20 16:00 with the Sun 23.8° high, range 51 km at 72% of the flight, 586 m grid). No console errors.
+- Checked in Safari on the simulated iPhone 17 Pro (local build): the card shows five buttons (Compare, Fly to, Fly-by, Share, Method); tapping Fly-by at the Apollo 11 site collapsed the sheet, showed the fly-by bar above it and ran the flight.
+- Eighty-five Node tests pass (four new, for the patch grid). `npx vite build` succeeds.
+- Limits: the relief is as fine as the mesh (about 590 m, 270 m or 160 m), so boulders and small craters are in the picture but not in the relief; the imagery carries the lighting of the day it was photographed; at a place in night the view is dark and the app says so. The camera path is the same shape everywhere, scaled to the mesh.
+- Not verified: frame rate on a real phone or a slow computer (the flight keeps real time down to two frames a second); the fly-by on the live site from a phone.
+

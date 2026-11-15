@@ -5,7 +5,8 @@ import path from 'node:path';
 import { createReadStream, readFileSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { getTerrain } from './terrain-service.mjs';
+import { getTerrain, getPatch } from './terrain-service.mjs';
+import { patchSize } from './src/patch-grid.mjs';
 import { parseHorizons, DAY } from './src/ephemeris.mjs';
 import { sites } from './src/sites.mjs';
 const PRODUCTION=process.env.NODE_ENV==='production';
@@ -98,6 +99,18 @@ const vite=PRODUCTION?null:await (await import('vite')).createServer({server:{mi
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   if(url.pathname==='/healthz'){res.writeHead(200,{'Content-Type':'text/plain','Cache-Control':'no-store'});res.end('ok');return;}
+  // Heights for the Landing view's terrain: 16-bit metres, row by row from the south-west corner (see src/patch-grid.mjs).
+  if(url.pathname==='/api/terrain-patch'){
+    const lat=Number(url.searchParams.get('lat')),lon=Number(url.searchParams.get('lon'));
+    if(!allowed(req)){res.writeHead(429,{'Retry-After':'60','Content-Type':'application/json'});res.end(JSON.stringify({error:'Too many requests from this connection. Please wait a minute and retry.'}));return;}
+    if(req.method!=='GET'||!url.searchParams.has('lat')||!url.searchParams.has('lon')||!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){res.writeHead(400,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Choose valid lunar coordinates.'}));return;}
+    try{
+      const {n,halfKm}=patchSize(lat),patch=await getPatch(lat,lon,n,halfKm),body=Buffer.from(patch.heights.buffer,patch.heights.byteOffset,patch.heights.byteLength);
+      res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':body.length,'Cache-Control':'public, max-age=86400','X-Patch-N':String(patch.n),'X-Patch-Half-Km':String(patch.halfKm),'X-Patch-Spacing-M':String(patch.spacingMeters),'X-Patch-Finest-Grid-M':String(patch.finestGridMeters??''),'X-Patch-Shares':JSON.stringify(patch.shares),'X-App-Version':VERSION});
+      res.end(body);
+    }catch(e){res.writeHead(502,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Terrain is unavailable. Please retry.'}));}
+    return;
+  }
   if(url.pathname==='/api/ephemeris') {
     const lat=Number(url.searchParams.get('lat')),lon=Number(url.searchParams.get('lon')),date=url.searchParams.get('date');
     const valid=date&&/^(19[5-9]\d|20\d\d)-\d{2}-\d{2}$/.test(date)&&Number.isFinite(Date.parse(date))&&new Date(date).toISOString().slice(0,10)===date;

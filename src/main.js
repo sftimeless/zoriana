@@ -43,6 +43,7 @@ const siteIcon=s=>s.icon??categories[s.cat].icon;
 let selected=null,mode='explore',pinning=false,data=null,selectedRequest=0,playing=false,flight=null,compared=[],playTimer=null;
 let restoring=true; // true until the address has been read at start-up
 let terrainEnabled=true,duration=72,filter='all',landingHour=0; // landing hour: UTC hour of day the stay begins
+let tour=null,flybyWanted=0; // fly-by state: {t,speed,playing,last,heading,lowKm,clearKm}, and when one was asked for
 let surface=null; // landing view state: {site,frame,north,east,target,radius,info,distance,controls}
 const clientCache=new Map();
 const visibilityRows=(d,name)=>terrainEnabled&&d.terrain?d.adjusted[name]:(name==='sun'&&d.level?d.level.sun:d[name]);
@@ -335,7 +336,7 @@ function updateBodies(){
 const labels=[];
 function addLabel(site){const el=document.createElement('button');el.className=`place-label cat-${site.cat}`;el.innerHTML=`<span class="marker">${icon(siteIcon(site))}</span><span class="name">${safe(site.name)}</span>`;el.setAttribute('aria-label',`Select ${site.name}`);el.onclick=()=>selectSite(site);$('#labels').appendChild(el);labels.push({site,el,point:new THREE.Vector3()});placeLabels();}
 // Pins float just above the coarse globe; in landing view they sit on the true-scale surface.
-function placeLabels(){const sampler=surface?shadows.sampler():null;for(const {site,point} of labels)point.fromArray(coordinatesToVector(site.lat,site.lon)).multiplyScalar(sampler?1+sampler(site.lat,site.lon)/1737.4+.0003:1.003);}
+function placeLabels(){for(const {site,point} of labels){point.fromArray(coordinatesToVector(site.lat,site.lon));point.multiplyScalar(surface?patch.groundRadius(point)+.0003:1.003);}}
 sites.forEach(addLabel);
 // IAU names for craters, seas and mountains: used by search, to describe pins, and to name the
 // terrain that hides the Sun or Earth. Loaded after the page is up; everything works without it.
@@ -438,12 +439,12 @@ let pending=false,rendering=false;
 let diagnostics={beforeFrame(){},afterFrame(){},active:()=>false};
 function invalidate(){if(!pending&&!rendering&&!document.hidden){pending=true;requestAnimationFrame(render);}}
 function render(now){pending=false;rendering=true;const cpuStart=performance.now();
- if(flight)advanceFlight(now);
- diagnostics.beforeFrame(now);const changed=flight?false:(surface?.controls??controls).update();layoutBeams();patch.update(camera,Boolean(surface));renderer.render(scene,camera);updateLabels();
+ if(flight)advanceFlight(now);else if(tour?.playing)advanceTour(now);
+ diagnostics.beforeFrame(now);const changed=flight||tour?.playing?false:(surface?.controls??controls).update();layoutBeams();patch.update(camera,Boolean(surface));renderer.render(scene,camera);updateLabels();
  const heading=surface?surfaceHeading():0,compass=surface?`rotate(${(-heading).toFixed(1)}deg)`:'';if(compass!==previousCompass){$('#north').style.transform=compass;previousCompass=compass;}
  const altitude=surface?`Landing view · range ≈ ${Math.round(camera.position.distanceTo(surface.target)*1737.4).toLocaleString()} km · heading ${Math.round(heading)%360}° · ${surface.info?`true-scale LOLA relief, ${surface.info.gridMeters<1000?surface.info.gridMeters+' m':surface.info.gridMeters/1000+' km'} grid`:'relief loading'}`:`View altitude ≈ ${Math.round((camera.position.length()-1)*1737.4).toLocaleString()} km`;if(altitude!==previousAltitude){$('#scale').textContent=altitude;previousAltitude=altitude;}
  diagnostics.afterFrame(now,cpuStart);rendering=false;
- if(changed||flight||diagnostics.active())invalidate();
+ if(changed||flight||tour?.playing||diagnostics.active())invalidate();
 }
 controls.addEventListener('change',invalidate);
 controls.addEventListener('start',()=>{flight=null;$('#hint').classList.add('gone');invalidate();});
@@ -517,6 +518,14 @@ function enterSurface(site){
  const info=patch.build(site),radius=info?.radius??1.0006,distance=(info?.polar??lat< -86.6)?.05:.2;
  // Sharper NASA imagery for the ground near the site, fetched now and blended in when it has all arrived.
  patch.loadDetail(site,`${site.lat.toFixed(5)}:${site.lon.toFixed(5)}`,()=>{invalidate();if(surface?.site===site&&patch.detailStatus()==='ready')$('#map-status').textContent='Landing view · LOLA relief at true scale · LRO imagery at about 100 m';});
+ if(tour){tour=null;showFlybyBar();}
+ patch.loadFine(site,`${site.lat.toFixed(5)}:${site.lon.toFixed(5)}`,fineInfo=>{
+  if(!fineInfo||surface?.site!==site)return;
+  // The finer ground can sit a little higher or lower than the coarse one: move the look point, the pins and the lines onto it.
+  surface.info=fineInfo;surface.radius=fineInfo.radius;surface.target.copy(surface.frame.up).multiplyScalar(fineInfo.radius);
+  if(surface.controls){surface.controls.target.copy(surface.target);surface.controls.minDistance=closestRange();if(!tour?.playing)surface.controls.update();}
+  placeLabels();if(selected)updateBeams();invalidate();
+ });
  surface?.controls?.dispose();controls.enabled=false;
  surface={site,frame,north:new THREE.Vector3(...skyDirection(lat,site.lon,0,0)),east:new THREE.Vector3(...skyDirection(lat,site.lon,90,0)),target:frame.up.clone().multiplyScalar(radius),radius,info,distance,controls:null,awaitingEarth:false};
  const view=framing('earth',site,surface.target,frame,distance);surface.awaitingEarth=!view;
@@ -526,14 +535,121 @@ function enterSurface(site){
  startFlight({to:surfaceCameraPosition(surface.target,frame,view?.azimuth??0,distance,view?.tilt??TILT),toTarget:surface.target.clone(),toUp:frame.up.clone(),duration:1200,done:attachSurfaceControls});
  if(!info)setTimeout(()=>{if(surface?.site===site&&!surface.info){surface.info=patch.build(site);invalidate();}},1500);
 }
+// ---- Fly-by: a scripted camera pass over the Landing view's terrain ----
+// Each key is [fraction of the flight, turn in degrees clockwise from the starting heading, range as a
+// multiple of the low pass, tilt in degrees from straight down]. The low pass is set by how fine the
+// terrain under the camera is, so the ground still reads as ground at the closest point. The view is
+// the Landing view's: true-scale LOLA relief, NASA imagery, and sunlight calculated for the chosen time.
+const FLYBY_KEYS=[[0,0,5.6,38],[.2,65,2.8,54],[.42,165,1,71],[.68,285,1.05,72],[.86,345,2.3,58],[1,395,4.2,44]];
+const FLYBY_SECONDS=50,FLYBY_SPEEDS=[1,2,.5];
+const tourDirection=new THREE.Vector3();
+// How close the camera comes, in km from the point it looks at: finer ground allows a closer pass.
+function lowPassKm(){const i=surface?.info;return !i?200:i.fine?(i.halfKm<=70?22:42):i.polar?16:200;}
+function closestRange(){return Math.min(surface.distance*.3,lowPassKm()*.6/1737.4);}
+// A smooth curve through the keys (Catmull-Rom on each column).
+function flybyAt(u){
+ const k=FLYBY_KEYS;let i=0;while(i<k.length-2&&u>k[i+1][0])i++;
+ const a=k[Math.max(0,i-1)],b=k[i],c=k[i+1],d=k[Math.min(k.length-1,i+2)],t=(u-b[0])/(c[0]-b[0]);
+ const curve=n=>.5*(2*b[n]+(c[n]-a[n])*t+(2*a[n]-5*b[n]+4*c[n]-d[n])*t*t+(3*b[n]-a[n]-3*c[n]+d[n])*t*t*t);
+ return {turn:curve(1),range:Math.max(.9,curve(2)),tilt:THREE.MathUtils.clamp(curve(3),25,76)};
+}
+function placeFlybyCamera(){
+ const s=flybyAt(tour.t/FLYBY_SECONDS);
+ camera.position.copy(surfaceCameraPosition(surface.target,surface.frame,tour.heading+s.turn,s.range*tour.lowKm/1737.4,THREE.MathUtils.degToRad(s.tilt)));
+ // Never below the ground under the camera, with a margin.
+ const floor=patch.groundRadius(tourDirection.copy(camera.position).normalize())+tour.clearKm/1737.4;if(camera.position.length()<floor)camera.position.setLength(floor);
+ camera.up.copy(surface.frame.up);camera.lookAt(surface.target);
+}
+function advanceTour(now){
+ tour.t=Math.min(FLYBY_SECONDS,tour.t+Math.min(.5,(now-tour.last)/1000)*tour.speed);tour.last=now; // keeps real time down to two frames a second
+ placeFlybyCamera();$('#flyby-progress').style.width=`${(tour.t/FLYBY_SECONDS*100).toFixed(1)}%`;
+ if(tour.t>=FLYBY_SECONDS)pauseFlyby();
+}
+function showFlybyBar(){
+ $('#flyby-bar').hidden=!tour;if(!tour)return;
+ const done=tour.t>=FLYBY_SECONDS;
+ $('#flyby-play').innerHTML=icon(tour.playing?'pause':'play');$('#flyby-play').setAttribute('aria-label',tour.playing?'Pause the fly-by':done?'Play the fly-by again':'Resume the fly-by');
+ $('#flyby-label').textContent=done?'Fly-by finished · drag to look around':tour.playing?`Fly-by · ${surface.site.name}`:'Paused · drag to look around';
+ $('#flyby-speed').textContent=`${tour.speed}×`;$('#flyby-progress').style.width=`${(tour.t/FLYBY_SECONDS*100).toFixed(1)}%`;
+}
+function beginFlyby(){
+ if(!surface?.controls)return;
+ flybyWanted=0;flight=null;
+ const sun=data&&surface.site===selected?sampleAt(data.sun,observationTime()):null;
+ // Start with the Sun off to one side, so the relief shows in light and shadow; the turn then takes in every direction.
+ tour={t:0,speed:1,playing:true,last:performance.now(),heading:sun?(sun.az+110)%360:surfaceHeading(),lowKm:lowPassKm(),clearKm:surface.info?.fine||surface.info?.polar?1.5:8};
+ surface.controls.enabled=false;surface.awaitingEarth=false;$('#hint').classList.add('gone');if(phone.matches)setSheet('peek');
+ showFlybyBar();invalidate();
+ if(sun&&sun.el<=0&&sunlightEnabled)toast('It is night here at the chosen time, so the ground is dark. Move the timeline, or switch Sunlight off to see the terrain itself.');
+}
+function pauseFlyby(){
+ if(!tour)return;tour.playing=false;
+ if(surface?.controls){surface.controls.target.copy(surface.target);surface.controls.enabled=true;surface.controls.update();}
+ showFlybyBar();invalidate();
+}
+function resumeFlyby(){
+ if(!tour||!surface?.controls)return;if(tour.t>=FLYBY_SECONDS)tour.t=0;
+ tour.playing=true;tour.last=performance.now();flight=null;surface.controls.enabled=false;showFlybyBar();invalidate();
+}
+function stopFlyby(){
+ if(!tour&&!flybyWanted)return;flybyWanted=0;const was=tour;tour=null;
+ if(was&&surface?.controls){surface.controls.target.copy(surface.target);surface.controls.enabled=true;surface.controls.update();}
+ showFlybyBar();invalidate();
+}
+// Starts once the Landing view has arrived over the site and its finer terrain is in (or after a short wait for it).
+function tryStartFlyby(){
+ if(!flybyWanted)return;
+ if(!surface?.controls||flight||(patch.fineStatus()==='loading'&&performance.now()-flybyWanted<7000)){setTimeout(tryStartFlyby,200);return;}
+ beginFlyby();
+}
+function requestFlyby(){
+ if(!selected){toast('Open a site or drop a pin first, then start the fly-by.');return;}
+ if(tour&&surface?.site===selected){resumeFlyby();return;}
+ flybyWanted=performance.now();if(mode!=='landing')setMode('landing');tryStartFlyby();
+}
+// A time in the next 30 days when the Sun is up at the selected site and low enough to throw long shadows
+// (10° to 30° high); failing that, when it is highest. Null until the site's data has loaded.
+function goodLightTime(){
+ if(!data)return null;
+ const start=startDate(),rows=visibilityRows(data,'sun');let best=null,bestHeight=-Infinity;
+ for(let h=0;h<=TIMELINE_HOURS;h++){
+  const t=start+h*HOUR,real=sampleAt(data.sun,t),seen=sampleAt(rows,t);if(!real)continue;
+  if(seen&&seen.el>0&&real.el>=10&&real.el<=30)return t;
+  if(real.el>bestHeight){bestHeight=real.el;best=t;}
+ }
+ return best;
+}
+// Places worth flying over. Features are looked up by name in the IAU list, so their positions are not typed in here.
+const FLYBYS=[{feature:'Shackleton',note:'Crater at the south pole, with a floor that never sees the Sun'},{feature:'Tycho',note:'Young crater with a central peak'},{feature:'Copernicus',note:'Terraced walls and a cluster of peaks'},{site:'apollo11',name:'Apollo 11 landing site',note:'Sea of Tranquility'}];
+$('#flybys').innerHTML=FLYBYS.map((f,i)=>`<button class="row cat-pin" data-flyby="${i}"><span class="badge">${icon('play')}</span><span class="row-text"><strong>${safe(f.name||f.feature)}</strong><small>${safe(f.note)}</small></span>${icon('chevron','chev')}</button>`).join('');
+$('#flybys').onclick=async e=>{
+ const choice=FLYBYS[Number(e.target.closest('[data-flyby]')?.dataset.flyby)];if(!choice)return;
+ let site=choice.site?sites.find(s=>s.id===choice.site):null;
+ if(!site){
+  const f=features?.find(x=>x[0]===choice.feature);if(!f){toast('Place names are still loading. Try again in a moment.');return;}
+  site={id:`pin-${f[1].toFixed(4)}_${f[2].toFixed(4)}`,name:f[0],type:`${f[4]} · ${f[3]>=10?Math.round(f[3]):f[3]} km across · centre of the IAU-named feature`,cat:'pin',lat:f[1],lon:f[2]};addCustom(site);
+ }
+ stopFlyby();
+ if(mode==='landing')await selectSite(site);else{selected=site;setMode('landing');for(let i=0;i<100&&!(data&&selected===site);i++)await new Promise(r=>setTimeout(r,200));}
+ if(selected!==site)return;
+ // These are for looking, so the clock moves to a time with good light there, and says so.
+ const when=goodLightTime();
+ if(when!==null&&Math.abs(when-observationTime())>HOUR/2){$('#time').value=Math.round((when-startDate())/HOUR*4)/4;$('#time').oninput();const sun=sampleAt(data.sun,when);toast(`Clock moved to ${stamp(when)}, when the Sun is ${deg(sun.el)} high over ${site.name}.`);}
+ flybyWanted=performance.now();tryStartFlyby();
+};
+$('#flyby').onclick=requestFlyby;
+$('#flyby-play').onclick=()=>{if(tour?.playing)pauseFlyby();else resumeFlyby();};
+$('#flyby-speed').onclick=()=>{if(!tour)return;tour.speed=FLYBY_SPEEDS[(FLYBY_SPEEDS.indexOf(tour.speed)+1)%FLYBY_SPEEDS.length];showFlybyBar();};
+$('#flyby-stop').onclick=stopFlyby;
 function attachSurfaceControls(){
  if(!surface)return;
  const c=new OrbitControls(camera,renderer.domElement);c.target.copy(surface.target);c.enablePan=false;c.enableDamping=true;c.dampingFactor=.12;c.rotateSpeed=.5;c.zoomSpeed=.65;
- c.minDistance=surface.distance*.3;c.maxDistance=surface.distance*4.5;c.maxPolarAngle=MAX_TILT;
+ c.minDistance=closestRange();c.maxDistance=surface.distance*4.5;c.maxPolarAngle=MAX_TILT;
  c.addEventListener('change',invalidate);c.addEventListener('start',()=>{flight=null;surface.awaitingEarth=false;$('#hint').classList.add('gone');invalidate();});
  c.update();surface.controls=c;invalidate();faceEarthWhenReady();
 }
 function exitSurface(to){
+ stopFlyby();
  if(!surface)return;
  surface.controls?.dispose();const site=surface.site;surface=null;placeLabels();if(selected)updateBeams();
  camera.near=.005;camera.updateProjectionMatrix();controls.enabled=false;
@@ -596,6 +712,7 @@ let holdTimer=null,touches=0;
 const cancelHold=()=>{clearTimeout(holdTimer);holdTimer=null;};
 renderer.domElement.addEventListener('pointerdown',e=>{
  pointerStart={x:e.clientX,y:e.clientY};
+ if(tour?.playing)pauseFlyby();
  if(e.pointerType!=='touch')return;
  // One finger held still for a moment drops a pin; a drag, a second finger or lifting cancels it.
  touches++;cancelHold();if(touches===1&&!surface){const {clientX,clientY}=e;holdTimer=setTimeout(()=>{holdTimer=null;if(dropPinAt(clientX,clientY)){try{navigator.vibrate?.(12);}catch{}toast('Pin dropped. Its Sun and Earth windows are in the panel below.');}},650);}

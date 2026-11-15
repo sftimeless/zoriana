@@ -2,6 +2,7 @@ import { parentPort } from 'node:worker_threads';
 import { readFile } from 'node:fs/promises';
 import { openSync, readSync } from 'node:fs';
 import {bilinear,globalPixel,southPixel,southPolarPixel,northPolarPixel,computeHorizon,slopeAt} from './src/terrain-math.mjs';
+import { patchFrame, patchDirection, directionToCoordinates } from './src/patch-grid.mjs';
 const root=new URL('./data/',import.meta.url);
 const [g,p]=await Promise.all([readFile(new URL('global-height.i16',root)),readFile(new URL('ldem_85s_40m.img',root))]);
 const globalGrid=new Int16Array(g.buffer,g.byteOffset,g.byteLength/2),polarGrid=new Int16Array(p.buffer,p.byteOffset,p.byteLength/2);
@@ -47,7 +48,21 @@ function sample(lat,lon){
  return height===null?null:{height,resolution:1895.21};
 }
 const sources={40:'NASA LOLA · 40 m south-pole grid',80:'NASA LOLA · 80 m south-polar grid',474:'NASA LOLA · 474 m global grid'};
-parentPort.on('message',({id,lat,lon})=>{try{const start=performance.now();loadFineWindow(lat,lon);const profile=computeHorizon(lat,lon,sample);
+// Heights in metres on the Landing view's grid around a site, each read from the finest grid that covers it.
+function patch(lat,lon,n,halfKm){
+ loadFineWindow(lat,lon);
+ const frame=patchFrame(lat,lon),heights=new Int16Array(n*n),v=[0,0,0],counts={};
+ for(let j=0,k=0;j<n;j++)for(let i=0;i<n;i++,k++){
+  const [la,lo]=directionToCoordinates(patchDirection(frame,i,j,n,halfKm,v)),s=sample(la,lo);
+  heights[k]=s?Math.round(s.height):0;if(s)counts[s.resolution]=(counts[s.resolution]||0)+1;
+ }
+ FINE.window=null;
+ const finest=Math.min(...Object.keys(counts).map(Number));
+ return {n,halfKm,heights,spacingMeters:Math.round(2*halfKm*1000/(n-1)),finestGridMeters:Number.isFinite(finest)?Math.round(finest):null,
+  shares:Object.fromEntries(Object.entries(counts).map(([r,c])=>[r,c/(n*n)]))};
+}
+parentPort.on('message',({id,lat,lon,patch:wanted})=>{try{if(wanted){const result=patch(lat,lon,wanted.n,wanted.halfKm);parentPort.postMessage({id,patch:result},[result.heights.buffer]);return;}
+ const start=performance.now();loadFineWindow(lat,lon);const profile=computeHorizon(lat,lon,sample);
  // One grid cell either side of the site, so the slope reflects the finest scale the local grid resolves.
  profile.slopeBaselineMeters=Math.round(2*profile.localResolutionMeters);profile.slopeDegrees=slopeAt(lat,lon,sample,2*profile.localResolutionMeters);
  profile.computeMs=Math.round(performance.now()-start);profile.source=(lat>=80&&profile.localResolutionMeters===80?'NASA LOLA · 80 m north-polar grid':sources[profile.localResolutionMeters])||'NASA LOLA · 1.9 km global grid';

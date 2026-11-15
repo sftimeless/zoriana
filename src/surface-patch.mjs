@@ -1,9 +1,11 @@
 // Landing view terrain: a true-scale mesh of the ground around one site, built from the same
-// LOLA-derived visual height grids the shadow tracer uses (160 m south of 85°S, 3.8 km elsewhere).
+// LOLA-derived visual height grids the shadow tracer uses (160 m south of 85°S, 3.8 km elsewhere),
+// replaced by a finer grid fetched from the server for that site when it arrives (/api/terrain-patch).
 // It is a visual aid only. Site metrics still come from the finer server-side horizon model.
 import * as THREE from 'three';
 import { coordinatesToVector, skyDirection } from './ephemeris.mjs';
 import { projectionGLSL } from './terrain-shadows.mjs';
+import { patchHeight } from './patch-grid.mjs';
 
 const R_KM=1737.4,DEG=180/Math.PI;
 // Sharper imagery for the ground near a site: NASA Moon Trek's tiles of the LRO WAC global mosaic
@@ -91,17 +93,35 @@ ${projectionGLSL}
    own.detailReady.value=1;detailStatus='ready';onChange?.();
   }).catch(()=>{if(token===detailToken){detailStatus='failed';onChange?.();}});
  }
+ // Finer heights for one site, from the server: about 590 m between points over 300 km, or about
+ // 270 m over 140 km within 10° of a pole. The mesh is rebuilt when they arrive. The far south
+ // already has a 160 m grid in the browser, so nothing is fetched there.
+ let fine=null,fineKey=null,fineToken=0,fineStatus='off';
+ function loadFine(site,key,onReady){
+  if(key===fineKey)return;
+  fineKey=key;fine=null;fineStatus='off';const token=++fineToken;
+  if(site.lat< -86.6)return;
+  fineStatus='loading';
+  fetch(`/api/terrain-patch?lat=${site.lat.toFixed(4)}&lon=${site.lon.toFixed(4)}`).then(async r=>{
+   if(!r.ok)throw new Error('no patch');
+   const n=Number(r.headers.get('X-Patch-N')),halfKm=Number(r.headers.get('X-Patch-Half-Km')),heights=new Int16Array(await r.arrayBuffer());
+   if(token!==fineToken)return;if(!n||!halfKm||heights.length!==n*n)throw new Error('bad patch');
+   fine={key,n,halfKm,heights,spacing:Number(r.headers.get('X-Patch-Spacing-M'))||Math.round(2000*halfKm/(n-1)),finest:Number(r.headers.get('X-Patch-Finest-Grid-M'))||null};
+   fineStatus='ready';built=null;onReady?.(build(site));
+  }).catch(()=>{if(token===fineToken){fineStatus='failed';onReady?.(null);}});
+ }
+ const frame={up:new THREE.Vector3(),north:new THREE.Vector3(),east:new THREE.Vector3()};
  function build(site){
   const sampler=shadows.sampler();if(!sampler)return null;
   const key=`${site.lat.toFixed(5)}:${site.lon.toFixed(5)}`;if(built?.key===key)return built;
-  const lat=THREE.MathUtils.clamp(site.lat,-89.95,89.95),lon=site.lon;
-  const polar=lat< -86.6,halfKm=polar?48:260,n=polar?481:241;
+  const lat=THREE.MathUtils.clamp(site.lat,-89.95,89.95),lon=site.lon,useFine=fine?.key===key;
+  const polar=!useFine&&lat< -86.6,halfKm=useFine?fine.halfKm:polar?48:260,n=useFine?fine.n:polar?481:241;
   const up=new THREE.Vector3(...coordinatesToVector(lat,lon)),north=new THREE.Vector3(...skyDirection(lat,lon,0,0)),east=new THREE.Vector3(...skyDirection(lat,lon,90,0));
   const positions=new Float32Array(n*n*3),colors=new Float32Array(n*n*4),indices=new Uint32Array((n-1)*(n-1)*6),point=new THREE.Vector3();
   for(let j=0,v=0;j<n;j++)for(let i=0;i<n;i++,v++){
    const x=(i/(n-1)*2-1)*halfKm,y=(j/(n-1)*2-1)*halfKm;
    point.copy(up).addScaledVector(east,x/R_KM).addScaledVector(north,y/R_KM).normalize();
-   const height=sampler(Math.asin(point.y)*DEG,Math.atan2(-point.z,point.x)*DEG);
+   const height=useFine?fine.heights[v]/1000:sampler(Math.asin(point.y)*DEG,Math.atan2(-point.z,point.x)*DEG);
    point.multiplyScalar(1+height/R_KM);positions.set([point.x,point.y,point.z],v*3);
    // Circular footprint with a soft edge, so the detailed ground blends into the globe.
    colors.set([1,1,1,THREE.MathUtils.smoothstep(1-Math.hypot(x,y)/halfKm,0,.3)],v*4);
@@ -110,14 +130,24 @@ ${projectionGLSL}
   const geometry=new THREE.BufferGeometry();
   geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));geometry.setAttribute('color',new THREE.BufferAttribute(colors,4));geometry.setIndex(new THREE.BufferAttribute(indices,1));geometry.computeVertexNormals();
   mesh.geometry.dispose();mesh.geometry=geometry;
-  const radius=1+sampler(lat,lon)/R_KM;centre.copy(up).multiplyScalar(radius);
-  built={key,polar,halfKm,radius,gridMeters:polar?160:3800};
+  const radius=1+(useFine?patchHeight(fine.heights,n,(n-1)/2,(n-1)/2)/1000:sampler(lat,lon))/R_KM;centre.copy(up).multiplyScalar(radius);
+  frame.up.copy(up);frame.north.copy(north);frame.east.copy(east);
+  built={key,polar,halfKm,radius,gridMeters:useFine?fine.spacing:polar?160:3800,fine:useFine,sourceGridMeters:useFine?fine.finest:null};
   return built;
  }
  return {
   material,
   build,
   loadDetail,
+  loadFine,
+  fineStatus:()=>fineStatus,
+  // Radius (in Moon radii) of the ground under a direction from the Moon's centre, from the mesh's own heights.
+  groundRadius(direction){
+   const sampler=shadows.sampler(),d=direction;
+   if(built?.fine&&fine){const along=d.dot(frame.up);if(along>.2){const x=d.dot(frame.east)/along*R_KM/fine.halfKm,y=d.dot(frame.north)/along*R_KM/fine.halfKm;
+     if(Math.abs(x)<=1&&Math.abs(y)<=1)return 1+patchHeight(fine.heights,fine.n,(x+1)/2*(fine.n-1),(y+1)/2*(fine.n-1))/1000/R_KM;}}
+   const l=d.length()||1;return sampler?1+sampler(Math.asin(d.y/l)*DEG,Math.atan2(-d.z,d.x)*DEG)/R_KM:1;
+  },
   detailStatus:()=>detailStatus,
   setMap(texture){material.map=texture;material.needsUpdate=true;},
   setLit(value){own.surfaceLit.value=value?1:0;own.surfaceFill.value=value?.12:.85;},
