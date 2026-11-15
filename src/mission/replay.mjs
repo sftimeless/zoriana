@@ -10,6 +10,7 @@ import { add, sub, scale, dot, cross, norm, unit, lerp, smooth } from './orbit.m
 import { createMission, LAUNCH, T, END, START, R_EARTH, R_MOON, PAD, SITE, SPLASH } from './apollo11.mjs';
 import { STEPS, SEGMENTS, GUIDED_TOTAL, guidedOf, timeOf, stepAt, cameraOf, elapsed } from './steps.mjs';
 import * as models from './models.mjs';
+import { capeCanvas } from './ground.mjs';
 import './replay.css';
 
 const RAD=Math.PI/180,m=x=>x/1000,clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
@@ -35,7 +36,7 @@ const TEMPLATE=`
  <section class="rp-panel rp-about" hidden>
   <p><b>Real.</b> The time of every event (NASA’s Apollo 11 timeline), the positions of the Moon and the Sun, and the path of the rocket’s third stage after its burn toward the Moon (JPL Horizons), which the spacecraft shared until it pulled away. The launch pad, landing site and splashdown point are the recorded ones.</p>
   <p><b>Rebuilt.</b> The paths between those anchors are calculated here as unpowered flight that passes through them at the published times. The speeds and heights on screen come from that reconstruction, so they are close, not exact.</p>
-  <p><b>Drawn.</b> The vehicles are simplified original drawings made for this app with AI coding assistance. They are at true size close up, and enlarged when seen from far away; a note says when. No NASA footage, logos or markings are used.</p>
+  <p><b>Drawn.</b> The vehicles are simplified original drawings made for this app with AI coding assistance. They are at true size close up, and enlarged when seen from far away; a note says when. Launch Complex 39A and the ground around it are drawn the same way, from the pad’s published layout, and are not a survey. No NASA footage, logos or markings are used.</p>
  </section>
  <p class="rp-scale" hidden></p>
  <p class="rp-loading">Loading the flight…</p>
@@ -64,13 +65,15 @@ const TEMPLATE=`
 // A finely divided patch of a globe around one point, so that things standing on the surface really touch
 // it (the facets of the whole globe sag as much as 2 km below a true sphere). Built around its own centre
 // to keep the numbers small, and given the globe's texture coordinates so it carries the same picture.
-function cap(center,R,spread,material,rings=48,around=64){
+function cap(center,R,spread,material,rings=48,around=64,local=0){
  const c=unit(center),e=unit(cross(Math.abs(c[2])<.9?[0,0,1]:[1,0,0],c)),n=cross(c,e),pos=[],uv=[],nor=[],idx=[];
  for(let i=0;i<=rings;i++){
   const rho=spread*(i/rings)**2;
   for(let j=0;j<=around;j++){
    const a=j/around*2*Math.PI,d=add(scale(c,Math.cos(rho)),scale(add(scale(e,Math.cos(a)),scale(n,Math.sin(a))),Math.sin(rho))),p=scale(sub(d,c),R);
-   pos.push(p[0],p[2],-p[1]);nor.push(d[0],d[2],-d[1]);uv.push((Math.atan2(d[1],d[0])/Math.PI+1)/2,Math.asin(clamp(d[2],-1,1))/Math.PI+.5);
+   pos.push(p[0],p[2],-p[1]);nor.push(d[0],d[2],-d[1]);
+   // Either the globe's own picture coordinates, or a flat picture local km across with east to the right and north up.
+   if(local)uv.push(.5+R*Math.sin(rho)*Math.cos(a)/local,.5+R*Math.sin(rho)*Math.sin(a)/local);else uv.push((Math.atan2(d[1],d[0])/Math.PI+1)/2,Math.asin(clamp(d[2],-1,1))/Math.PI+.5);
   }
  }
  for(let i=0;i<rings;i++)for(let j=0;j<around;j++){const a=i*(around+1)+j,b=a+around+1;idx.push(a,b,a+1,a+1,b,b+1);}
@@ -89,7 +92,7 @@ function groundDetail(){
  }
  const fade=c.createRadialGradient(size/2,size/2,size*.2,size/2,size/2,size/2);fade.addColorStop(0,'#000');fade.addColorStop(1,'rgba(0,0,0,0)');
  c.globalCompositeOperation='destination-in';c.fillStyle=fade;c.fillRect(0,0,size,size);
- const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;return texture;
+ return models.keptTexture(canvas);
 }
 
 export async function openReplay(onClose){
@@ -134,8 +137,15 @@ export async function openReplay(onClose){
  const padUnit=sphere(PAD.lat,PAD.lon),splashUnit=sphere(SPLASH.lat,SPLASH.lon),siteUnit=sphere(SITE.lat,SITE.lon),UP=new THREE.Vector3(0,1,0);
  const seaMaterial=new THREE.MeshStandardMaterial({color:0x2a5f93,roughness:.55,metalness:0,emissive:0x16446f,emissiveIntensity:0});
  earth.add(cap(padUnit,R_EARTH,3*RAD,earthMaterial),cap(splashUnit,R_EARTH,3*RAD,seaMaterial));
- const padFrame=new THREE.Group();toScene(scale(padUnit,R_EARTH),padFrame.position);padFrame.quaternion.setFromUnitVectors(UP,toScene(padUnit));
- const pad=models.launchPad();pad.scale.setScalar(.001);pad.position.y=.0004;padFrame.add(pad);earth.add(padFrame);
+ // Launch Complex 39A: the pad and tower, set with east, up and south along its own axes, on drawn ground laid over
+ // the globe at three sizes (200, 24 and 3.2 km across) so it is sharp from the pad and still fits the coast from high up.
+ const padEast=unit(cross([0,0,1],padUnit)),padNorth=cross(padUnit,padEast);
+ const padFrame=new THREE.Group();toScene(scale(padUnit,R_EARTH),padFrame.position);padFrame.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(toScene(padEast),toScene(padUnit),toScene(scale(padNorth,-1))));
+ const complex=models.launchComplex();complex.scale.setScalar(.001);padFrame.add(complex);earth.add(padFrame);
+ const padGround=[200,24,3.2].map((size,i)=>{
+  const material=new THREE.MeshStandardMaterial({map:models.keptTexture(capeCanvas(size)),roughness:1,metalness:0,transparent:true,depthWrite:false}),patch=cap(padUnit,R_EARTH+.0008*(i+1),size/2/R_EARTH,material,40,64,size);
+  patch.renderOrder=i-3;earth.add(patch);return patch;   // before flames and other see-through things, so they show in front of the ground
+ });
  // A thin blue rim of air, seen from space.
  const air=new THREE.Mesh(new THREE.SphereGeometry(R_EARTH*1.015,96,48),new THREE.ShaderMaterial({side:THREE.BackSide,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{sunDir:{value:new THREE.Vector3(1,0,0)},strength:{value:1}},
   vertexShader:`#include <common>\n#include <logdepthbuf_pars_vertex>\nvarying vec3 vWorld;varying vec3 vNormalView;varying vec3 vToCamera;\nvoid main(){vec4 mv=modelViewMatrix*vec4(position,1.0);vWorld=normalize(mat3(modelMatrix)*normal);vNormalView=normalize(normalMatrix*normal);vToCamera=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;\n#include <logdepthbuf_vertex>\n}`,
@@ -151,10 +161,11 @@ export async function openReplay(onClose){
  loader.load('/assets/moon-lroc-8k.jpg',texture=>{
   if(closed)return texture.dispose();
   // Phones get a half-size copy: the planning app already holds the full picture in graphics memory.
-  if(Math.min(window.innerWidth,window.innerHeight)<700&&texture.image.width>4096){const c=document.createElement('canvas');c.width=4096;c.height=2048;c.getContext('2d').drawImage(texture.image,0,0,4096,2048);texture.dispose();texture=new THREE.CanvasTexture(c);}
+  if(Math.min(window.innerWidth,window.innerHeight)<700&&texture.image.width>4096){const c=document.createElement('canvas'),image=texture.image;c.width=4096;c.height=2048;c.getContext('2d').drawImage(image,0,0,4096,2048);texture.dispose();texture=new THREE.CanvasTexture(c);
+   const smaller=texture;canvas.addEventListener('webglcontextrestored',()=>{c.getContext('2d').drawImage(image,0,0,4096,2048);smaller.needsUpdate=true;});}   // the copy is redrawn if the browser resets its graphics
   texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;moonMaterial.map=texture;moonMaterial.color.set(0xffffff);moonMaterial.needsUpdate=true;wake();});
  const siteFrame=new THREE.Group();toScene(scale(siteUnit,R_MOON),siteFrame.position);siteFrame.quaternion.setFromUnitVectors(UP,toScene(siteUnit));
- const detail=new THREE.Mesh(new THREE.CircleGeometry(1.2,64).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:groundDetail(),transparent:true,depthWrite:false}));detail.position.y=.0002;siteFrame.add(detail);moon.add(siteFrame);
+ const detail=new THREE.Mesh(new THREE.CircleGeometry(1.2,64).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:groundDetail(),transparent:true,depthWrite:false}));detail.position.y=.0002;detail.renderOrder=-1;siteFrame.add(detail);moon.add(siteFrame);
  scene.add(moon);
 
  // ---------- Route lines ----------
@@ -192,7 +203,8 @@ export async function openReplay(onClose){
  // ---------- State ----------
  let t=START,playing=false,speed='guided',view='guided',stopAtSteps=false,stepIndex=-1,seeking=false,last=performance.now(),jumped=true;
  const cam={az:78,el:3,dist:.4},user={az:0,el:0,zoom:1};
- let camPos=null,lastFocus=null,lastKey='',lag0=[0,0,0],lagClock=9,frameUp=null,frameFwd=null,origin=[0,0,0];
+ let camPos=null,camTrack='craft',camRel=[0,0,0],frameDt=0;const scales={};
+ let lastFocus=null,lastKey='',lag0=[0,0,0],lagClock=9,frameUp=null,frameFwd=null,origin=[0,0,0];
  const held=new Map(),basisMatrix=new THREE.Matrix4(),bx=new THREE.Vector3(),by=new THREE.Vector3(),bz=new THREE.Vector3(),tq=new THREE.Quaternion(),tv=new THREE.Vector3();
  const FLIP=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),Math.PI),XAXIS=new THREE.Vector3(1,0,0);
  // A turn that points the model's nose (+y) along `nose` and its front (+x) as near to `hint` as it can.
@@ -226,15 +238,27 @@ export async function openReplay(onClose){
    const mixed=add(scale(fallback,1-k),scale(unit(flat),k));
    return {up,rel,fwd:unit(sub(mixed,scale(up,dot(mixed,up))))};
   };
-  const enlarge=(X,len)=>{if(!camPos)return 1;const alt=Math.min(norm(X)-R_EARTH,norm(sub(X,mo))-R_MOON);return clamp(norm(sub(X,camPos))*.04/len,1,Math.max(1,Math.min(.5*alt,2500)/len));};
   const fc=frameAt(P,Vc),site=mission.site(t),upS=unit(sub(site,mo)),westS=unit(cross(upS,north));
   const Lr=mission.lander(t),fl=Lr?frameAt(Lr,mission.landerVelocity(t)):null;
+  // How much larger than life to draw a vehicle so it can be seen from where the camera is. The camera rides with
+  // whatever it watches, so its place this frame is that thing's new position plus last frame's offset; measuring from
+  // last frame's position instead would count the distance the vehicle has flown since, which at speed is far more
+  // than the camera's own distance. The factor is eased so it never jumps, and capped so nothing pokes into the ground.
+  const anchors={craft:P,lander:Lr??P,site},eye=!camPos?null:camTrack==='fixed'?camPos:add(anchors[camTrack],camRel);
+  const enlarge=(key,X,len)=>{
+   const alt=Math.min(norm(X)-R_EARTH,norm(sub(X,mo))-R_MOON),cap=Math.max(1,Math.min(.5*alt,2500)/len),want=eye?clamp(norm(sub(X,eye))*.04/len,1,cap):1;
+   const was=scales[key],now=jumped||!was?want:Math.exp(Math.log(was)+(Math.log(want)-Math.log(was))*(1-Math.exp(-frameDt/.3)));
+   scales[key]=now;return Math.min(now,cap);
+  };
   const lenC=t<T.sicSep?.11:t<T.siiSep?.07:t<T.csmSep?.036:t<T.cmSep?.021:t>T.drogue+48&&t<T.splash?.04:.008;
-  const sC=enlarge(P,lenC),sL=Lr?enlarge(Lr,.01):sC;
+  const sC=enlarge('craft',P,lenC),sL=Lr?enlarge('lander',Lr,.01):sC;
 
-  // The launch vehicle: its nose leans from straight up toward the direction of flight, then holds the direction of the burn.
-  const vhat=unit(Vc),A=t<=0?unit(P):t<T.orbit?unit(lerp(unit(P),vhat,smooth((t-8)/170))):t<T.tliOff?vhat:A_TLI,Q=unit(cross(A,[0,0,1]));
-  const stackQ=settle('stack',basis(A,[0,0,1],[1,0,0]));
+  // The launch vehicle points the way it is moving through the air: straight up off the pad, leaning over as the path
+  // curves, level by the time it reaches orbit. After the burn toward the Moon it holds that direction. Every stage is
+  // placed and turned along this one line, so the stack stays straight while it leans.
+  const vhat=unit(Vc),upP=unit(P),air=sub(Vc,spin(P)),climb=norm(air)>.003?unit(air):upP;
+  const A=t<=0?upP:t<T.orbit?unit(lerp(unit(lerp(upP,climb,smooth(t/4))),vhat,smooth((t-(T.orbit-120))/120))):t<T.tliOff?vhat:A_TLI,Q=unit(cross(A,[0,0,1]));
+  const stackQ=keep('stack',basis(A,[0,0,1],[1,0,0]));
   const vMoon=unit(sub(Vc,mv));
   // The command ship: hC is its centre, in metres up the stack; after the turnaround it is nose to nose with the lander.
   let hC,nose;
@@ -248,11 +272,11 @@ export async function openReplay(onClose){
   drop(V.sIC,T.sicSep,0,110,.02,.004);drop(V.sII,T.siiSep,42.1,100,.015,.003);
   {const tau=t-T.tower;if(tau>30)V.tower.visible=false;else set(V.tower,tau>0?add(along(40.8),scale(add(scale(A,.12*tau),scale(Q,.07*tau)),sC)):along(40.8),tau>0?tumble(stackQ,.2*tau):stackQ,sC);}
   if(t<T.evade)set(V.sIVB,along(hS),stackQ,sC);
-  else{const SV=mission.stage(t);if(!SV)V.sIVB.visible=false;else{const sS=enlarge(SV,.02);set(V.sIVB,add(SV,scale(A_TLI,m(-174.95)*Math.min(sS,40)*(1-smooth((t-T.evade)/1800)))),stackQ,sS);}}
+  else{const SV=mission.stage(t);if(!SV)V.sIVB.visible=false;else{const sS=enlarge('stage',SV,.02);set(V.sIVB,add(SV,scale(A_TLI,m(-174.95)*Math.min(sS,40)*(1-smooth((t-T.evade)/1800)))),stackQ,sS);}}
   {const tau=t-T.csmSep;for(const p of V.sIVB.userData.panels){const a=p.userData.angle,fly=Math.max(0,tau-12);p.visible=tau<70;p.quaternion.setFromAxisAngle(tv.set(Math.cos(a),0,-Math.sin(a)),clamp(tau*.06,0,1.1));p.position.set(Math.sin(a)*fly*1.5,models.SIZE.sIVB+fly*.8,Math.cos(a)*fly*1.5);}}
   burn(V.sIC.userData.plume,t>-5&&t<T.sicCutoff);burn(V.sII.userData.plume,t>T.sicSep+1.2&&t<T.siiCutoff);burn(V.sIVB.userData.plume,(t>T.siiSep+2&&t<T.orbit)||(t>=T.tliOn&&t<T.tliOff));
 
-  const csmQ=settle('csm',basis(nose,t<T.csmSep?[0,0,1]:fc.up,[0,0,1])),yC=axis(csmQ,1);
+  const csmQ=t<T.csmSep?keep('csm',stackQ):settle('csm',basis(nose,fc.up,[0,0,1])),yC=axis(csmQ,1);
   {const tau=t-T.cmSep;set(V.sm,tau>0?add(Cc,scale(D_TEI,-(.0004*tau+.000004*tau*tau)*sC)):Cc,csmQ,sC,tau<400);}
   burn(ship.userData.plume,(t>=T.loiOn&&t<T.loiOff)||(t>=T.circular&&t<T.circular+17)||(t>=T.teiOn&&t<T.teiOff));
   let cmQ,cmPos;
@@ -324,7 +348,7 @@ export async function openReplay(onClose){
    if(vehicle==='craft'&&step.pov==='lander'&&norm(sub(L.focus.lander,eye))<.02)b=look.nose;
    const top=Math.abs(dot(b,up))>.95?fwd:up,r=unit(cross(b,top)),u=cross(r,b),yaw=user.az*RAD,pitch=clamp(user.el,-85,85)*RAD;
    const dir=add(add(scale(b,Math.cos(pitch)*Math.cos(yaw)),scale(r,Math.cos(pitch)*Math.sin(yaw))),scale(u,Math.sin(pitch)));
-   origin=eye;camPos=eye;camera.position.set(0,0,0);toScene(top,camera.up);camera.lookAt(toScene(dir,tv));
+   origin=eye;camPos=eye;camTrack=vehicle;camRel=sub(eye,vehicle==='lander'?L.Lr??L.P:L.P);camera.position.set(0,0,0);toScene(top,camera.up);camera.lookAt(toScene(dir,tv));
    return {watch,vehicle};
   }
   const half=Math.tan(camera.fov*RAD/2),aspect=root.clientWidth/Math.max(1,root.clientHeight);
@@ -338,7 +362,8 @@ export async function openReplay(onClose){
   let C=add(focus,scale(dir,cam.dist));
   // Never under the ground.
   for(const [centre,R] of [[[0,0,0],R_EARTH],[L.mo,R_MOON]]){const v=sub(C,centre),r=norm(v);if(r<R+.004)C=add(centre,scale(v,(R+.004)/r));}
-  origin=focus;camPos=C;toScene(sub(C,origin),camera.position);toScene(up,camera.up);camera.lookAt(0,0,0);
+  origin=focus;camPos=C;camTrack=watch==='route'?'fixed':watch;camRel=watch==='route'?[0,0,0]:sub(C,watch==='site'?L.site:watch==='lander'?L.Lr??L.P:L.P);
+  toScene(sub(C,origin),camera.position);toScene(up,camera.up);camera.lookAt(0,0,0);
   return {watch,vehicle};
  }
  let seekingCamera=false;
@@ -363,7 +388,7 @@ export async function openReplay(onClose){
  function draw(dt,now){
   const index=stepAt(t);
   if(index!==stepIndex){stepIndex=index;user.az=user.el=0;user.zoom=1;showStep();}
-  const L=layout();moonNow=L.mo;
+  frameDt=dt;const L=layout();moonNow=L.mo;
   const {watch,vehicle}=placeCamera(L,dt);
   camera.aspect=root.clientWidth/Math.max(1,root.clientHeight);
   const lift=Math.min(root.clientHeight*.32,Math.max(0,(covered()-headroom())/2));
@@ -378,6 +403,10 @@ export async function openReplay(onClose){
   // Blue sky near the ground in daylight, black above the air.
   const height=norm(camPos)-R_EARTH,daylight=clamp(dot(unit(camPos),sun)*3+.4,0,1)*(1-smooth(height/70));
   sky.copy(BLACK).lerp(SKY,daylight);scene.background=sky;stars.material.color.copy(WHITE).lerp(SKY,Math.min(1,daylight*1.6));stars.visible=daylight<.6;
+  // The launch site is drawn only from near enough to see it, fading out as the rocket leaves it behind.
+  {const a=mission.earthAngle(t),c=Math.cos(a),sn=Math.sin(a),padNow=scale([padUnit[0]*c-padUnit[1]*sn,padUnit[0]*sn+padUnit[1]*c,padUnit[2]],R_EARTH),near=1-smooth((norm(sub(camPos,padNow))-60)/240);
+   padFrame.visible=near>0;for(const patch of padGround){patch.visible=near>0;patch.material.opacity=near;}
+   if(near>0)for(const arm of complex.userData.arms)arm.rotation.y=1.75*smooth((t+2)/5);}
   const nearSea=1-smooth((norm(sub(camPos,mission.splashPoint(t)))-40)/200);seaMaterial.visible=nearSea>0;seaMaterial.emissiveIntensity=.5*daylight;air.material.uniforms.strength.value=smooth((height-60)/200);
   for(const f of flames)f.scale.set(1+.05*Math.sin(now*.031),1+.14*Math.sin(now*.047)+.08*Math.sin(now*.113),1+.05*Math.cos(now*.037));
   // Route lines mean nothing from a few hundred metres away, so they fade out close up.
@@ -397,7 +426,7 @@ export async function openReplay(onClose){
   label('lander',L.lmPos,(apart||t>=T.lmJettison)&&t<T.teiOn+1200&&tiny(L.lmPos,.008,L.lmS)&&norm(sub(L.lmPos,L.Cc))/far(L.lmPos)>.03);
   label('stage',V.sIVB.userData.p,t>T.evade+1200&&V.sIVB.visible&&far(V.sIVB.userData.p)>3000&&watch==='route'&&norm(sub(V.sIVB.userData.p,L.Cc))/far(V.sIVB.userData.p)>.07);
   const size=watch==='lander'||watch==='site'?L.lmS:L.sC,note=$('.rp-scale');
-  note.hidden=!(size>1.5&&view!=='onboard');if(!note.hidden)note.textContent=`Spacecraft drawn ${round(size)}× larger than life`;
+  note.hidden=!(size>1.5&&view!=='onboard');if(!note.hidden)note.textContent=`Spacecraft drawn ${Number(size.toPrecision(2)).toLocaleString('en-US')}× larger than life`;
 
   // Clock, numbers, timeline.
   $('.rp-get').textContent=elapsed(t);$('.rp-utc').textContent=stamp(t);
@@ -490,9 +519,11 @@ export async function openReplay(onClose){
  window.addEventListener('keydown',onKey,true);cleanups.push(()=>window.removeEventListener('keydown',onKey,true));
  const resize=()=>{renderer.setSize(root.clientWidth,root.clientHeight,false);wake();};
  window.addEventListener('resize',resize);cleanups.push(()=>window.removeEventListener('resize',resize));
+ // If the browser resets its graphics, draw again once it has them back.
+ canvas.addEventListener('webglcontextrestored',wake);
  resize();$('.rp-loading').hidden=true;showPlay();
  // For checks from the console and automated tests.
- root.replay={get time(){return t;},get failure(){return failure;},advance:dt=>advance(dt,performance.now()),go,play:()=>{if(!playing)$('.rp-play').click();},state:()=>({t,playing,speed,view,step:stepIndex,title:STEPS[stepIndex]?.title,camera:camPos,origin}),renderer,scene,camera,mission};
+ root.replay={get time(){return t;},get failure(){return failure;},advance:dt=>advance(dt,performance.now()),go,play:()=>{if(!playing)$('.rp-play').click();},state:()=>({t,playing,speed,view,step:stepIndex,title:STEPS[stepIndex]?.title,camera:camPos,origin,scales:{...scales}}),renderer,scene,camera,mission};
  raf=requestAnimationFrame(frame);
  return root.replay;
 }

@@ -11,9 +11,9 @@ import { T, START, END } from './apollo11.mjs';
 // pov: where the onboard view looks first.
 // pace: [[until this time, seconds], ...], then sec for the rest of the step. Seconds are real seconds in the guided replay.
 export const STEPS=[
- {at:START,mark:0,title:'Liftoff',sec:10,cam:{f:'craft',d:.4,az:78,el:3},pov:'back',
+ {at:START,mark:0,title:'Liftoff',sec:12,cam:{f:'craft',d:.47,az:150,el:-5},pov:'back',
   text:'July 16, 1969, 13:32 UTC. Five engines lift the 111 m Saturn V off Pad 39A in Florida with Neil Armstrong, Buzz Aldrin and Michael Collins on top. The rocket weighs about 2,900 tonnes, nearly all of it propellant.'},
- {at:45,mark:45,title:'First stage',sec:7,cam:{f:'craft',d:1,az:128,el:12},pov:'back',
+ {at:45,mark:45,title:'First stage',sec:8,cam:{f:'craft',d:.7,az:135,el:10},pov:'back',
   text:'The first stage burns about 13 tonnes of kerosene and liquid oxygen every second. Its whole job takes 2 minutes 42 seconds.'},
  {at:150,mark:T.sicSep,title:'Staging',sec:9,cam:{f:'craft',d:.55,az:152,el:16},pov:'back',
   text:'About 66 km up, the empty first stage drops away and falls into the Atlantic. The five engines of the second stage take over, burning liquid hydrogen and oxygen.'},

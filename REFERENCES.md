@@ -76,6 +76,7 @@ Last checked against the code on November 14, 2026.
 
 **Design inspiration**
 - The layout takes general inspiration from everyday map and navigation apps. No third-party design assets, icons, fonts or code were copied.
+- The Apollo 11 replay's vehicles and its Launch Complex 39A are original simplified drawings made in code. Public diagrams of the Saturn V and Apollo spacecraft, and NASA photographs of Apollo 11 on the pad, were looked at for general reference to proportions and layout; none is reproduced, traced or included in the app.
 
 ---
 

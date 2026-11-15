@@ -8,6 +8,16 @@ import * as THREE from 'three';
 const mat=(color,metalness=.1,roughness=.75,extra={})=>new THREE.MeshStandardMaterial({color,metalness,roughness,...extra});
 const WHITE=mat(0xf1f0ec),BLACK=mat(0x18181a,.1,.6),SILVER=mat(0xc5c9cf,.3,.45),DARK=mat(0x3b3d42,.3,.5),GOLD=mat(0xd0a040,.35,.45),GREY=mat(0x8d9097,.25,.55),SHIELD=mat(0x5a4636,.2,.8),FABRIC=mat(0xf4f1ea,0,.9,{side:THREE.DoubleSide}),ORANGE=mat(0xe8742c,0,.9,{side:THREE.DoubleSide});
 const mesh=(geometry,material,y=0)=>{const m=new THREE.Mesh(geometry,material);m.position.y=y;return m;};
+// A texture made from a drawing on a canvas, kept as plain pixels in memory. A browser may throw away what was drawn
+// on a canvas when it resets its graphics (phones do this to tabs left in the background); pixels held here survive
+// that, so the picture can be handed to the graphics card again.
+export function keptTexture(canvas){
+ const w=canvas.width,h=canvas.height,drawn=canvas.getContext('2d').getImageData(0,0,w,h).data,pixels=new Uint8Array(drawn.length);
+ for(let y=0;y<h;y++)pixels.set(drawn.subarray(y*w*4,(y+1)*w*4),(h-1-y)*w*4);       // canvas rows run top to bottom, texture rows bottom to top
+ const texture=new THREE.DataTexture(pixels,w,h,THREE.RGBAFormat);
+ texture.colorSpace=THREE.SRGBColorSpace;texture.generateMipmaps=true;texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;texture.anisotropy=8;texture.needsUpdate=true;
+ return texture;
+}
 // A tube or cone frustum standing on y = 0.
 const tube=(bottom,top,height,material,segments=32)=>{const g=new THREE.CylinderGeometry(top,bottom,height,segments,1);g.translate(0,height/2,0);return new THREE.Mesh(g,material);};
 // A white tube with black roll-pattern panels, the way the stages were painted so cameras could follow their roll.
@@ -15,8 +25,7 @@ function painted(radius,height,bands){
  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;const c=canvas.getContext('2d');
  c.fillStyle='#f1f0ec';c.fillRect(0,0,256,256);c.fillStyle='#18181a';
  for(const [from,to,quarters] of bands)for(let q=0;q<4;q++)if(quarters==='all'||(quarters==='alt'&&q%2===0))c.fillRect(q*64,256*(1-to),quarters==='all'?256:64,256*(to-from));
- const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
- return tube(radius,radius,height,new THREE.MeshStandardMaterial({map:texture,metalness:.1,roughness:.7}),48);
+ return tube(radius,radius,height,new THREE.MeshStandardMaterial({map:keptTexture(canvas),metalness:.1,roughness:.7}),48);
 }
 const bell=(throat,exit,length,y)=>{const b=tube(exit,throat,length,DARK,20);b.position.y=y-length;return b;};
 // A glowing exhaust plume pointing toward -y from y = 0. Hidden until a burn.
@@ -145,14 +154,57 @@ export function parachutes(){
  }
  return g;
 }
-// A launch pad and tower, plain steel, for scale beside the rocket. Ground level at y = 0.
-export function launchPad(){
- const g=new THREE.Group();
- const slab=tube(70,74,3,mat(0x8a8a86,0,.95),8);slab.position.y=-3;g.add(slab);
- const tower=new THREE.Group();
- for(const [x,z] of [[-5,-5],[5,-5],[5,5],[-5,5]]){const post=tube(.5,.5,116,DARK,6);post.position.set(x,0,z);tower.add(post);}
- for(let y=6;y<116;y+=11){const deck=mesh(new THREE.BoxGeometry(11,.6,11),GREY,y);tower.add(deck);}
- for(const y of [34,62,88,100]){const arm=mesh(new THREE.BoxGeometry(13,1.6,2.4),GREY,y);arm.position.x=10;tower.add(arm);}
- tower.position.x=-24;g.add(tower);
+// Many straight bars drawn as one object: each is [x1, y1, z1, x2, y2, z2, thickness].
+function bars(list,material){
+ const out=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),material,list.length),m=new THREE.Matrix4(),q=new THREE.Quaternion(),a=new THREE.Vector3(),b=new THREE.Vector3(),size=new THREE.Vector3(),up=new THREE.Vector3(0,1,0);
+ list.forEach(([x1,y1,z1,x2,y2,z2,w],i)=>{a.set(x1,y1,z1);b.set(x2,y2,z2);const d=b.clone().sub(a),length=d.length();q.setFromUnitVectors(up,d.normalize());size.set(w,length,w);m.compose(a.add(b).multiplyScalar(.5),q,size);out.setMatrixAt(i,m);});
+ out.instanceMatrix.needsUpdate=true;out.frustumCulled=false;return out;
+}
+const box=(w,h,d,material,x,y,z)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);b.position.set(x,y,z);return b;};
+// Launch Complex 39A as it stood for a Saturn V, in simple shapes: the raised concrete hardstand with its flame trench
+// and ramp, the mobile launcher's platform, the red launch umbilical tower with its nine swing arms and crane, storage
+// spheres and floodlight masts, and the Vehicle Assembly Building in the distance. An original drawing made from the
+// published layout and overall sizes, not a copy of any picture; details are simplified.
+// Metres, with x east, y up, z south. The ground is y = 0, the rocket stands at the origin on the deck at y = DECK.
+export const DECK=26;
+export function launchComplex(){
+ const g=new THREE.Group(),CONCRETE=mat(0xbcb7a8,0,.95),SLOPE=mat(0x9a9783,0,1),PLATFORM=mat(0x8d9196,.15,.75),RED=mat(0xb8392a,.1,.7),DARKRED=mat(0x8f2c22,.1,.7),SOOT=mat(0x2a2a2c,0,.95),PALE=mat(0xe8e7e1,0,.8),TRACK=mat(0xb9aa86,0,1);
+ // The hardstand: a mound 12 m high with a flat top, longer north to south; the flame trench runs through it under the rocket.
+ const mound=new THREE.Mesh(new THREE.CylinderGeometry(96,236,12,4,1).rotateY(Math.PI/4),SLOPE);mound.position.y=6;mound.scale.z=1.25;g.add(mound);
+ g.add(box(136,.6,170,CONCRETE,0,12.3,0),box(18,.25,172,SOOT,0,12.62,0));
+ for(const side of [-1,1]){const mouth=box(18,5,30,SOOT,0,9.4,side*100);mouth.rotation.x=side*.05;g.add(mouth);}
+ const ramp=box(38,.8,424,TRACK,0,6,84+210);ramp.rotation.x=Math.atan(12/420);g.add(ramp);
+ // The mobile launcher: a steel platform on pedestals, with the opening for the engines' exhaust.
+ for(const x of [-17,17])for(const z of [-30,-9,12])g.add(box(3.2,6.8,3.2,PLATFORM,x,16,z));
+ g.add(box(41,7.3,49,PLATFORM,0,DECK-3.65,-9),box(14,.12,14,SOOT,0,DECK+.03,0));
+ for(const [x,z] of [[-6.2,-6.2],[6.2,-6.2],[6.2,6.2],[-6.2,6.2]])g.add(box(2.2,1.6,2.2,PLATFORM,x,DECK+.8,z));   // hold-down arms
+ // The umbilical tower: an open steel frame 116 m tall on the north end of the platform, with a lift core inside.
+ const lattice=[],cz=-24,h=6,levels=19,rise=116/levels,top=DECK+116;
+ for(const x of [-h,h])for(const z of [cz-h,cz+h])lattice.push([x,DECK,z,x,top,z,.9]);
+ for(let i=0;i<=levels;i++){
+  const y=DECK+i*rise;
+  lattice.push([-h,y,cz-h,h,y,cz-h,.45],[h,y,cz-h,h,y,cz+h,.45],[h,y,cz+h,-h,y,cz+h,.45],[-h,y,cz+h,-h,y,cz-h,.45]);
+  if(i<levels){const y2=y+rise,f=i%2?1:-1;lattice.push([-h*f,y,cz-h,h*f,y2,cz-h,.3],[-h*f,y,cz+h,h*f,y2,cz+h,.3],[-h,y,cz-h*f,-h,y2,cz+h*f,.3],[h,y,cz-h*f,h,y2,cz+h*f,.3]);}
+ }
+ // The hammerhead crane and lightning mast on top. The boom lies east to west, clear of the rocket's path.
+ lattice.push([-16,top+5,cz,30,top+5,cz,2.2],[-16,top+8.5,cz,2,top+8.5,cz,.5],[2,top+8.5,cz,30,top+5.6,cz,.4],[0,top,cz,0,top+9,cz,3],[0,top+9,cz,0,top+24,cz,.35]);
+ g.add(bars(lattice,RED),box(5.5,116,5.5,DARKRED,0,DECK+58,cz),box(7,4,5,DARKRED,-13,top+3,cz));
+ // Nine swing arms from the tower to the rocket, each hinged at the tower so it can swing clear at liftoff.
+ const arms=[];
+ for(const [y,r,last] of [[18,5.05],[38,5.05],[47,5.05],[60,5.05],[67.5,4.4],[75,3.3],[84,3.3],[96,1.95],[102.5,1.95,true]]){
+  const pivot=new THREE.Group(),reach=18-r-.7;pivot.position.set(0,DECK+y,-18);
+  pivot.add(box(2.6,2.1,reach,DARKRED,0,0,reach/2));
+  if(last)pivot.add(box(4.2,3.4,4.6,PALE,0,.4,reach-2.3));else pivot.add(box(3.2,2.6,1.2,PLATFORM,0,0,reach-.6));
+  g.add(pivot);arms.push(pivot);
+ }
+ // Around the pad: liquid oxygen and hydrogen spheres, floodlight masts, a water tank.
+ for(const x of [-390,390]){const ball=new THREE.Mesh(new THREE.SphereGeometry(11,20,12),PALE);ball.position.set(x,13,-310);g.add(ball,box(3,4,3,PLATFORM,x,2,-310));}
+ const masts=[];for(const [x,z] of [[-170,-150],[170,-150],[-170,170],[170,170]]){masts.push([x,0,z,x,46,z,.9]);g.add(box(9,3.5,1.2,PALE,x,47.5,z));}
+ masts.push([150,0,-330,150,38,-330,1.4]);g.add(bars(masts,PLATFORM),box(9,7,9,PALE,150,41,-330));
+ // The Vehicle Assembly Building, 5.5 km to the west-south-west: 160 m tall, with its four tall doors.
+ const vab=new THREE.Group();vab.position.set(-5300,0,1400);vab.add(box(158,160,218,PALE,0,80,0),box(110,64,134,PALE,0,32,176));
+ for(const z of [-72,-24,24,72])vab.add(box(1,138,26,mat(0x6f7378,0,.9),79.3,69,z));
+ g.add(vab);
+ g.userData.arms=arms;
  return g;
 }
