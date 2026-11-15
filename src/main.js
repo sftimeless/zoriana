@@ -7,6 +7,7 @@ import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { DAY, sampleAt, visibleHours, nextCrossing, coordinatesToVector, skyDirection, centredDirection } from './ephemeris.mjs';
 import { segments, span, gaps, longest, landingDays, bestLandingDay } from './windows.mjs';
+import { earthMeshRotation } from './earth-orientation.mjs';
 import { horizonAt, clearanceSeries, RADIUS } from './terrain-math.mjs';
 import { createRenderDiagnostics } from './performance.mjs';
 import { createTerrainShadows } from './terrain-shadows.mjs';
@@ -152,7 +153,8 @@ function layoutBeams(){
 
 // ---- Where the Sun and Earth are ----
 // Earth is drawn at its true size and mean distance (in Moon radii), lit by the same Sun as the
-// Moon, so its direction, apparent size and phase are right. The Sun is drawn at its true angular
+// Moon and turned to show the face that points at the Moon, so its direction, apparent size,
+// phase and visible continents are right. The Sun is drawn at its true angular
 // size but much closer than it really is. Each also marks the point on the Moon where it is overhead.
 const EARTH_DISTANCE=384400/1737.4,EARTH_RADIUS=6371/1737.4,SUN_DISTANCE=500,SUN_RADIUS=SUN_DISTANCE*Math.tan(THREE.MathUtils.degToRad(.266));
 function makeBody(name,label,mesh,distance,radius,overhead){
@@ -166,6 +168,11 @@ const bodies={
  sun:makeBody('sun','Sun',new THREE.Mesh(new THREE.SphereGeometry(SUN_RADIUS,24,12),new THREE.MeshBasicMaterial({color:0xfff3c4,toneMapped:false})),SUN_DISTANCE,SUN_RADIUS,'Sun overhead'),
  earth:makeBody('earth','Earth',new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS,48,24),new THREE.MeshStandardMaterial({color:0x3f7fd9,roughness:1,metalness:0,emissive:0x0b1c38})),EARTH_DISTANCE,EARTH_RADIUS,'Earth overhead')
 };
+// NASA Blue Marble imagery for the Earth; it stays a plain blue globe if the image fails to load.
+loader.load('/assets/earth-blue-marble-2k.jpg',texture=>{texture.colorSpace=THREE.SRGBColorSpace;const m=bodies.earth.mesh.material;m.map=texture;m.color.set(0xffffff);
+ // The night side is shown faintly (not physically) so the globe stays readable as a crescent.
+ m.emissiveMap=texture;m.emissive.set(0xffffff);m.emissiveIntensity=.2;m.needsUpdate=true;invalidate();});
+const earthTurn=new THREE.Matrix4();
 function updateBodies(){
  const d=data||referenceData,time=observationTime();if(!d)return;
  for(const b of Object.values(bodies)){
@@ -173,6 +180,7 @@ function updateBodies(){
   // JPL angles are seen from the site; shift Earth's to the Moon's centre (the Sun's shift is negligible).
   b.direction.fromArray(b.name==='earth'?centredDirection(d.lat,d.lon,s.az,s.el,EARTH_DISTANCE):skyDirection(d.lat,d.lon,s.az,s.el));
   b.mesh.position.copy(b.direction).multiplyScalar(b.distance);b.mesh.visible=true;b.known=true;
+  if(b.name==='earth'){const r=earthMeshRotation(time);earthTurn.set(r[0][0],r[0][1],r[0][2],0,r[1][0],r[1][1],r[1][2],0,r[2][0],r[2][1],r[2][2],0,0,0,0,1);b.mesh.quaternion.setFromRotationMatrix(earthTurn);}
   b.point.copy(b.direction).multiplyScalar(1.003);
   const lat=THREE.MathUtils.radToDeg(Math.asin(b.direction.y)),lon=THREE.MathUtils.radToDeg(Math.atan2(-b.direction.z,b.direction.x));
   b.mark.title=`${b.label} is directly overhead at ${Math.abs(lat).toFixed(1)}°${lat<0?'S':'N'} ${Math.abs(lon).toFixed(1)}°${lon<0?'W':'E'} at the selected time.`;
@@ -260,7 +268,7 @@ function startFlight(spec){
 }
 function advanceFlight(now){
  const t=Math.min(1,(now-flight.start)/flight.duration),f=1-Math.pow(1-t,3);
- if(flight.orbit){const o=flight.orbit;camera.position.copy(surfaceCameraPosition(surface.target,surface.frame,o.from+o.delta*f,o.distance,o.tilt));camera.lookAt(surface.target);}
+ if(flight.orbit){const o=flight.orbit;camera.position.copy(surfaceCameraPosition(surface.target,surface.frame,o.from+o.delta*f,o.distance,THREE.MathUtils.lerp(o.tilt,o.tiltTo??o.tilt,f)));camera.lookAt(surface.target);}
  else{
   slerpDirection(camera.position,flightA.copy(flight.from).normalize(),flightB.copy(flight.to).normalize(),f).multiplyScalar(THREE.MathUtils.lerp(flight.from.length(),flight.to.length(),f));
   if(flight.toTarget){viewTarget.lerpVectors(flight.fromTarget,flight.toTarget,f);slerpDirection(camera.up,flight.fromUp,flight.toUp,f);}
@@ -272,7 +280,29 @@ const siteVector=site=>new THREE.Vector3(...coordinatesToVector(THREE.MathUtils.
 function fly(site,distance=2.6){startFlight({to:siteVector(site).multiplyScalar(distance)});}
 
 // ---- Landing view: a tilted camera that orbits the site, like the driver's view in a car ----
-const TILT=THREE.MathUtils.degToRad(62);
+const TILT=THREE.MathUtils.degToRad(62),MAX_TILT=THREE.MathUtils.degToRad(85);
+// Smallest tilt from vertical that brings a body in the sky into the frame above the site, or null
+// when it sits too high to share the view with the ground. Uses a copy of the real camera so the
+// answer respects the current window size and the space taken by the side panel.
+function tiltToShow(position,target,frame,azimuth,distance){
+ const probe=camera.clone();probe.up.copy(frame.up);
+ let p;
+ for(let tilt=TILT;tilt<=MAX_TILT+1e-6;tilt+=THREE.MathUtils.degToRad(1)){
+  probe.position.copy(surfaceCameraPosition(target,frame,azimuth,distance,tilt));probe.lookAt(target);probe.updateMatrixWorld();
+  p=projected.copy(position).project(probe);
+  if(p.z<1&&p.y<.8)return tilt; // clear of the status pill at the top of the map
+ }
+ return p.z<1&&p.y<1?MAX_TILT:null; // at the steepest tilt it may still sit just inside the top edge
+}
+// Heading and tilt that face a body from a site: toward its azimuth, tilted up to it when it is
+// above the selected horizon. Returns null until that site's data has loaded.
+function framing(name,site,target,frame,distance){
+ if(!data||Math.abs(data.lat-site.lat)>1e-5||Math.abs(data.lon-site.lon)>1e-5)return null;
+ const s=sampleAt(data[name],observationTime());if(!s)return null;
+ const profile=terrainEnabled?data.terrain:null,above=s.el-(profile?horizonAt(profile,s.az):0)>0,body=bodies[name];
+ const position=new THREE.Vector3().fromArray(name==='earth'?centredDirection(data.lat,data.lon,s.az,s.el,body.distance):skyDirection(data.lat,data.lon,s.az,s.el)).multiplyScalar(body.distance);
+ return {azimuth:s.az,tilt:above?tiltToShow(position,target,frame,s.az,distance):null};
+}
 function surfaceCameraPosition(target,frame,azimuth,distance,tilt){ // behind the site, looking toward azimuth
  const ahead=flightB.fromArray(skyDirection(frame.lat,frame.lon,azimuth,0));
  return target.clone().addScaledVector(ahead,-Math.sin(tilt)*distance).addScaledVector(frame.up,Math.cos(tilt)*distance);
@@ -284,20 +314,21 @@ function surfaceHeading(){ // degrees east of north that the camera faces
 function enterSurface(site){
  const lat=THREE.MathUtils.clamp(site.lat,-89.95,89.95),frame={lat,lon:site.lon,up:siteVector(site)};
  const info=patch.build(site),radius=info?.radius??1.0006,distance=(info?.polar??lat< -86.6)?.05:.2;
- const known=data&&Math.abs(data.lat-site.lat)<1e-5&&Math.abs(data.lon-site.lon)<1e-5?sampleAt(data.earth,observationTime()):null;
  surface?.controls?.dispose();controls.enabled=false;
- surface={site,frame,north:new THREE.Vector3(...skyDirection(lat,site.lon,0,0)),east:new THREE.Vector3(...skyDirection(lat,site.lon,90,0)),target:frame.up.clone().multiplyScalar(radius),radius,info,distance,controls:null};
+ surface={site,frame,north:new THREE.Vector3(...skyDirection(lat,site.lon,0,0)),east:new THREE.Vector3(...skyDirection(lat,site.lon,90,0)),target:frame.up.clone().multiplyScalar(radius),radius,info,distance,controls:null,awaitingEarth:false};
+ const view=framing('earth',site,surface.target,frame,distance);surface.awaitingEarth=!view;
  placeLabels();if(selected)updateBeams();camera.near=.0015;camera.updateProjectionMatrix();
- // Earth ahead by default, so the blue line runs up the screen like a route.
- startFlight({to:surfaceCameraPosition(surface.target,frame,known?.az??0,distance,TILT),toTarget:surface.target.clone(),toUp:frame.up.clone(),duration:1200,done:attachSurfaceControls});
+ // Earth ahead by default, so the blue line runs up the screen like a route, and tilted far
+ // enough to bring Earth itself into view when it is above the horizon.
+ startFlight({to:surfaceCameraPosition(surface.target,frame,view?.azimuth??0,distance,view?.tilt??TILT),toTarget:surface.target.clone(),toUp:frame.up.clone(),duration:1200,done:attachSurfaceControls});
  if(!info)setTimeout(()=>{if(surface?.site===site&&!surface.info){surface.info=patch.build(site);invalidate();}},1500);
 }
 function attachSurfaceControls(){
  if(!surface)return;
  const c=new OrbitControls(camera,renderer.domElement);c.target.copy(surface.target);c.enablePan=false;c.enableDamping=true;c.dampingFactor=.12;c.rotateSpeed=.5;c.zoomSpeed=.65;
- c.minDistance=surface.distance*.3;c.maxDistance=surface.distance*4.5;c.maxPolarAngle=THREE.MathUtils.degToRad(82);
- c.addEventListener('change',invalidate);c.addEventListener('start',()=>{flight=null;$('#hint').classList.add('gone');invalidate();});
- c.update();surface.controls=c;invalidate();
+ c.minDistance=surface.distance*.3;c.maxDistance=surface.distance*4.5;c.maxPolarAngle=MAX_TILT;
+ c.addEventListener('change',invalidate);c.addEventListener('start',()=>{flight=null;surface.awaitingEarth=false;$('#hint').classList.add('gone');invalidate();});
+ c.update();surface.controls=c;invalidate();faceEarthWhenReady();
 }
 function exitSurface(to){
  if(!surface)return;
@@ -305,12 +336,19 @@ function exitSurface(to){
  camera.near=.005;camera.updateProjectionMatrix();controls.enabled=false;
  startFlight({to:to??siteVector(site).multiplyScalar(2.6),toTarget:new THREE.Vector3(),toUp:Y_UP.clone(),duration:1000,done:()=>{camera.up.copy(Y_UP);controls.enabled=true;}});
 }
-function face(azimuth){
+// If the landing view opened before the site's data arrived, turn to Earth once it is known,
+// unless the user has already moved the camera.
+function faceEarthWhenReady(){
+ if(!surface?.awaitingEarth||!surface.controls||surface.site!==selected)return;
+ const view=framing('earth',surface.site,surface.target,surface.frame,camera.position.distanceTo(surface.target));if(!view)return;
+ surface.awaitingEarth=false;face(view.azimuth,view.tilt);
+}
+function face(azimuth,tiltTo){
  if(!surface?.controls)return;
  const offset=camera.position.clone().sub(surface.target),distance=offset.length(),tilt=Math.max(.05,Math.acos(THREE.MathUtils.clamp(offset.dot(surface.frame.up)/distance,-1,1)));
- const from=surfaceHeading();startFlight({orbit:{from,delta:((azimuth-from+540)%360)-180,distance,tilt},duration:800});
+ const from=surfaceHeading();startFlight({orbit:{from,delta:((azimuth-from+540)%360)-180,distance,tilt,tiltTo:tiltTo??tilt},duration:800});
 }
-function faceBody(name){const s=surface&&data?sampleAt(data[name],observationTime()):null;if(s)face(s.az);else toast(`${name==='sun'?'Sun':'Earth'} position is still loading.`);}
+function faceBody(name){const view=surface?.controls?framing(name,surface.site,surface.target,surface.frame,camera.position.distanceTo(surface.target)):null;if(view)face(view.azimuth,view.tilt??undefined);else toast(`${name==='sun'?'Sun':'Earth'} position is still loading.`);}
 $('#face-sun').onclick=()=>faceBody('sun');$('#face-earth').onclick=()=>faceBody('earth');
 function zoom(factor){
  if(surface?.controls){const c=surface.controls,offset=camera.position.clone().sub(c.target);offset.setLength(THREE.MathUtils.clamp(offset.length()*factor,c.minDistance,c.maxDistance));camera.position.copy(c.target).add(offset);}
@@ -349,7 +387,7 @@ async function selectSite(site,move=true){
  $('#link-quickmap').href=quickMapUrl(site.lat,site.lon);$('#link-trek').href=moonTrekUrl(site.lat,site.lon);
  if(mode==='landing')enterSurface(site);else if(move)fly(site,2.6);invalidate();await loadSelected();
 }
-async function loadSelected(){const token=++selectedRequest;data=null;refreshMetrics();$('#calculation-status').className='loading';$('#calculation-status').textContent='Checking terrain & NASA/JPL…';try{const result=await ephemeris(selected);if(token!==selectedRequest)return;data=result;$('#calculation-status').className='';$('#calculation-status').textContent='';refreshMetrics();updateLight();}catch(e){if(token!==selectedRequest)return;$('#calculation-status').className='error';$('#calculation-status').textContent=e.message;const retry=document.createElement('button');retry.className='text-button';retry.textContent='Retry';retry.onclick=loadSelected;$('#calculation-status').appendChild(retry);}}
+async function loadSelected(){const token=++selectedRequest;data=null;refreshMetrics();$('#calculation-status').className='loading';$('#calculation-status').textContent='Checking terrain & NASA/JPL…';try{const result=await ephemeris(selected);if(token!==selectedRequest)return;data=result;$('#calculation-status').className='';$('#calculation-status').textContent='';refreshMetrics();updateLight();faceEarthWhenReady();}catch(e){if(token!==selectedRequest)return;$('#calculation-status').className='error';$('#calculation-status').textContent=e.message;const retry=document.createElement('button');retry.className='text-button';retry.textContent='Retry';retry.onclick=loadSelected;$('#calculation-status').appendChild(retry);}}
 function closeSite(){selected=null;data=null;++selectedRequest;$('#site-card').hidden=true;$('#browse').hidden=false;$('#search').value='';$('#search-results').innerHTML='';if(mode==='landing')setMode('explore');refreshMetrics();}
 const pickSite=e=>{const id=e.target.closest('[data-site]')?.dataset.site;if(id)selectSite(sites.find(s=>s.id===id));};
 $('#destinations').onclick=pickSite;$('#search-results').addEventListener('click',pickSite);

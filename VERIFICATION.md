@@ -107,3 +107,11 @@
   - Shackleton region, 2026-11-21 06:00 UTC, landing view tilted toward the horizon: the Earth globe appears above the horizon directly along the blue sight line, with Earth reported 5.1° above the horizon and in view.
   - The landing-view terrain footprint is now circular with a soft edge.
 - Not verified: Earth's drawn phase against an independent source, and the Sun disc's appearance (it was outside the view in these checks).
+
+## Earth imagery and Earth-facing landing view — November 14, 2026 (evening)
+
+- Downloaded NASA Blue Marble: Next Generation (December 2004, 5400×2700, 2,566,770 bytes, SHA-256 a9f0088972dee0254610af851c4d6838ca3f2cf79176987e0a5713e2c15ec042) and resized it to 2048×1024 for the app.
+- Orientation model checked against live Horizons data for 30 days from 2026-11-15, every 6 hours: the IAU lunar rotation series reproduces the JPL Sun direction within 0.151° (the model's Sun is seen from Earth rather than the Moon, which alone allows 0.15°) and the JPL Earth direction within 0.355° (limited by the low-precision lunar position used only for this check). Sub-lunar point at 2026-11-15 12:00 UTC: 21.9°S 69.4°E, drifting west 14.5° per hour.
+- Thirty-eight Node tests pass. Four are new: JPL-derived sub-solar fixtures, rotation-matrix properties, rotation rates, and the renderer-frame conversion.
+- In-app browser, no console errors: the landing view at Shackleton region (2026-11-21 06:00 UTC, Earth 5.1° up) and Malapert region (Earth 8.7° up) now opens with Earth in frame; switching sites while in the landing view turned the camera to Earth after the data arrived; Face the Sun brought the Sun into frame. Earth is drawn as a textured crescent with a faint night side.
+- Not verified by eye: which continents face the Moon. The Earth is only about 50 pixels wide on screen, so this rests on the tests above.
