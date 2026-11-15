@@ -79,6 +79,8 @@ canvas{display:block;touch-action:none}
 .rail-app.blue{background:linear-gradient(180deg,#3d9bff,#0a6cf0)}
 .rail-app.green{background:linear-gradient(180deg,#45d96c,#1fa647)}
 .rail-app.gray{background:linear-gradient(180deg,#8e8e93,#5c5c61)}
+.rail-app.orange{background:linear-gradient(180deg,#ffb340,#f08c00)}
+.badge.rank{--pin:var(--orange)}
 .rail-app b{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .rail-home{width:46px;height:46px;border-radius:12px;transition:transform .15s}
 .rail-home img{display:block;width:46px;height:46px}
@@ -185,6 +187,7 @@ canvas{display:block;touch-action:none}
 .bar i{display:block;height:100%;width:0;border-radius:3px;transition:width .25s ease}
 .stay-row.sun .bar i{background:var(--sun)}
 .stay-row.earth .bar i{background:var(--blue)}
+.stay-row.both .bar i{background:var(--green)}
 #lunar-status:empty{display:none}
 .lunar-plot{position:relative}
 #lunar-bars{display:block;width:100%;height:46px;border-radius:5px 5px 0 0;background:linear-gradient(to top,var(--fill2),transparent)}
@@ -260,6 +263,7 @@ canvas{display:block;touch-action:none}
 .tag{font-size:10.5px;font-weight:700;letter-spacing:.2px;padding:3px 8px;border-radius:8px}
 .tag.sun{background:rgba(255,214,10,.18);color:var(--sun)}
 .tag.earth{background:rgba(10,132,255,.22);color:#5eb0ff}
+.tag.both{background:rgba(48,209,88,.2);color:var(--green)}
 .lane{display:grid;grid-template-columns:1fr 98px;align-items:center;gap:10px;margin-top:8px}
 .lane svg{display:block;width:100%;height:9px;border-radius:3px;background:var(--fill2)}
 .lane .track{position:relative}
@@ -282,6 +286,33 @@ canvas{display:block;touch-action:none}
 .lg::before{content:'';width:12px;height:5px;border-radius:2px}
 .lg.sun::before{background:var(--sun)}
 .lg.earth::before{background:var(--blue)}
+.lg.both::before{background:var(--green)}
+
+/* Ranking table */
+.ranking{position:absolute;top:14px;right:70px;width:560px;z-index:7;border-radius:16px;padding:14px;max-height:calc(100vh - 150px);overflow:auto}
+.ranking .chips{margin:10px -14px 0}
+.rank-head,.rank-row{display:grid;grid-template-columns:18px 26px minmax(0,1fr) 78px 62px 62px 68px 24px;align-items:center;gap:8px}
+.rank-head{margin-top:12px;padding-bottom:6px;border-bottom:.5px solid var(--sep);font-size:10.5px;font-weight:600;letter-spacing:.2px;text-transform:uppercase;color:var(--label2)}
+.rank-head span{grid-column:1/4}
+.rank-head button{font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;text-align:right;white-space:nowrap}
+.rank-head button:hover{color:var(--label)}
+.rank-head button[aria-pressed=true]{color:var(--label)}
+.rank-head button[aria-pressed=true]::after{content:' ↓'}
+.rank-row{padding:8px 0;border-bottom:.5px solid var(--sep)}
+.rank-row .pos{font-size:12px;font-weight:700;text-align:center;color:var(--label2);font-variant-numeric:tabular-nums}
+.rank-row.first .pos{color:var(--green)}
+.rank-row .badge{width:26px;height:26px;font-size:14px}
+.rank-name{text-align:left;min-width:0}
+.rank-name strong{display:block;font-size:13.5px;font-weight:600;letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-name small{display:block;font-size:11px;color:var(--label2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-name:hover strong{text-decoration:underline}
+.rank-row .c{position:relative;padding-bottom:5px;text-align:right;font-size:12.5px;font-weight:500;color:var(--label2);font-variant-numeric:tabular-nums}
+.rank-row .c.sorted{color:var(--label);font-weight:700}
+.rank-row .c::after{content:'';position:absolute;right:0;bottom:0;height:2.5px;width:calc(var(--f,0)*100%);border-radius:2px;background:var(--bar,transparent)}
+.c.both{--bar:var(--green)}.c.sun{--bar:var(--sun)}.c.earth{--bar:var(--blue)}
+.rank-row .add{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:14px;color:#4da3ff;background:rgba(10,132,255,.16)}
+.rank-row .add:hover{background:rgba(10,132,255,.32)}
+.ranking>.tiny:last-child{margin-top:10px}
 
 /* Timeline */
 .hint{position:absolute;bottom:168px;left:calc(var(--map-left) + (100vw - var(--map-left))/2);transform:translateX(-50%);color:var(--label3);font-size:12px;white-space:nowrap;pointer-events:none;transition:opacity .4s}
@@ -355,7 +386,12 @@ dialog .close{position:absolute;right:14px;top:14px}
  .map-tools{right:10px;top:10px;gap:8px}
  .toolgroup button,.compass{width:38px;height:38px;font-size:18px}
  .toolgroup:has(#zoom-in){display:none} /* pinch to zoom on phones; keeps the stack clear of the sheet */
- .map-picker,.comparison{top:60px;left:8px;right:58px;width:auto}
+ .map-picker,.comparison,.ranking{top:60px;left:8px;right:58px;width:auto}
+ .ranking{max-height:52vh}
+ .rank-head,.rank-row{grid-template-columns:16px minmax(0,1fr) 92px 56px 50px;gap:6px}
+ .rank-head span{grid-column:1/3}
+ .rank-row .badge,.rank-row .sunHeight,.rank-row .add,.rank-head [data-sort=sunHeight],.rank-head i{display:none}
+ #rail-rank{display:grid}
  .comparison{max-height:44vh}
  .hint{display:none}
  .timeline{left:8px;right:8px;bottom:22px;width:auto;transform:none;padding:9px 12px 7px;border-radius:16px}

@@ -128,3 +128,12 @@
 - Forty Node tests pass. Two are new: parsing and interpolating the range column from real Horizons rows (and tolerating rows without it), and the Moon-centred position for overhead and horizon cases.
 - In-app browser, no console errors: the site card shows Earth at 403,926 km and the Sun at 147.8 million km from the Shackleton region on 2026-11-15 12:00 UTC, changing to 376,014 km on 2026-11-21 06:00 UTC; the landing view still opens with Earth in frame.
 - The Sun is still drawn at a fixed nearby distance in its true direction and apparent size.
+
+## Site ranking and combined Sun-and-Earth measure — November 14, 2026 (evening)
+
+- Forty-two Node tests pass. Two are new: the both-up series (aligned and unaligned time grids) and the stay metrics (sunlight, Earth view, overlap never exceeding either, average Sun elevation while lit, and no result when the series is too short).
+- In-app browser, live JPL data, 3-day stay from 2026-11-15, terrain included, no console errors:
+  - Ranking all 14 sites completed in roughly 30–40 seconds on first load. Sorted by Sun + Earth: Blue Ghost M1, Chandrayaan-3 and Apollo 17 at 72.0 h; Apollo 11 71.2 h; IM-2 Athena 65.8 h; SLIM 64.3 h; Blue Moon Pathfinder 1 16.0 h (72.0 h sunlit, 16.0 h Earth); IM-4 12.1 h; the rest 0.0 h.
+  - Sorting by Sun height put Blue Ghost M1 first (50.3°). Filtering to Future showed the five planned missions. The plus button added sites to the comparison while the ranking stayed open.
+  - The comparison showed three bands per option and the "Most Sun + Earth" tag; the site card showed "Sun and Earth together ≈ 16.0 h · 22%" for the connecting-ridge point.
+  - Phone-width layout showed the first three columns without horizontal scrolling. A later widening of the first column on phones was not rechecked.

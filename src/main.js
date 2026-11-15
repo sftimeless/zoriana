@@ -6,7 +6,7 @@ import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { DAY, sampleAt, visibleHours, nextCrossing, coordinatesToVector, skyDirection, centredPosition } from './ephemeris.mjs';
-import { segments, span, gaps, longest, landingDays, bestLandingDay } from './windows.mjs';
+import { segments, span, gaps, longest, landingDays, bestLandingDay, together, stayMetrics } from './windows.mjs';
 import { earthMeshRotation } from './earth-orientation.mjs';
 import { horizonAt, clearanceSeries, RADIUS } from './terrain-math.mjs';
 import { createRenderDiagnostics } from './performance.mjs';
@@ -17,7 +17,7 @@ import './style.css';
 
 const $=s=>document.querySelector(s);
 const HOUR=3600000;
-const SUN_COLOR='#ffd60a',EARTH_COLOR='#0a84ff';
+const SUN_COLOR='#ffd60a',EARTH_COLOR='#0a84ff',BOTH_COLOR='#30d158';
 const icon=(name,cls='')=>`<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 
 // Coordinates: Apollo from NASA SP-4029 mission summaries; IM-1 and Blue Ghost from NASA/LROC
@@ -409,8 +409,10 @@ $('#search').onkeydown=e=>{if(e.key==='Enter')$('#search-results button')?.click
 // ---- Visibility windows ----
 function lanes(d,start,end){
  const length=end-start;
- const lane=(name,y,color)=>segments(visibilityRows(d,name),start,end).map(([a,b])=>`<rect x="${((a-start)/length*100).toFixed(2)}" y="${y}" width="${Math.max(.25,(b-a)/length*100).toFixed(2)}" height="4.4" fill="${color}"/>`).join('');
- return lane('sun',0,SUN_COLOR)+lane('earth',5.6,EARTH_COLOR);
+ const lane=(rows,y,color)=>segments(rows,start,end).map(([a,b])=>`<rect x="${((a-start)/length*100).toFixed(2)}" y="${y}" width="${Math.max(.25,(b-a)/length*100).toFixed(2)}" height="4.4" fill="${color}"/>`).join('');
+ const sunRows=visibilityRows(d,'sun'),earthRows=visibilityRows(d,'earth');
+ // Third lane (below the two the timeline shows): Sun and Earth up together.
+ return lane(sunRows,0,SUN_COLOR)+lane(earthRows,5.6,EARTH_COLOR)+lane(together(sunRows,earthRows),11.2,BOTH_COLOR);
 }
 function drawBands(){
  const start=startDate(),stay=duration/168*100;
@@ -469,6 +471,8 @@ function refreshMetrics(){
   const indicator=$(`#rail-${name}`);indicator.className=`rail-ind ${name}${current?(up?' on':' off'):''}`;
   indicator.title=current?`${selected.name}: ${name==='sun'?(up?'sunlit':'no direct sunlight'):(up?'Earth in view':'Earth not in view')} at ${stamp(time)}`:`Select a site to see ${name==='sun'?'sunlight':'Earth visibility'}`;
  }
+ const bothHours=data?visibleHours(together(visibilityRows(data,'sun'),visibilityRows(data,'earth')),startDate(),end):null;
+ $('#both-window').textContent=bothHours===null?'—':`≈ ${number(bothHours)} h · ${Math.round(bothHours/duration*100)}%`;$('#both-bar').style.width=bothHours===null?'0':`${Math.min(100,bothHours/duration*100)}%`;
  document.querySelectorAll('.clear-label').forEach(el=>el.textContent=profile?'Above terrain':'Above horizon');
  $('#terrain-source').textContent=data?.terrain?(terrainEnabled?`${data.terrain.source} · dotted paths show the next ${duration===24?'24 hours':duration/24+' days'}`:'Reference horizon only · terrain ignored'):'Loading terrain…';
  drawSky(currents,profile);
@@ -484,8 +488,8 @@ function refreshMetrics(){
  if(data?.terrain)$('#terrain-detail').textContent=`${data.terrain.source}. Observer ${(data.terrain.elevationMeters+2).toFixed(1)} m above the 1,737.4 km reference radius (2 m above the DEM). Horizon sampled every 0.25° to 300 km; 40 m polar grid south of 85°S, 80 m grid from 80°S to 85°S, 1.9 km global background. Slope is a central difference across one grid cell either side of the site and is not a hazard assessment. Grid spacing is not an accuracy guarantee. Small obstacles and narrow ridges may be missed.`;
  drawBands();updateBeams();updateCursor();renderLunar();
 }
-$('#terrain-toggle').onclick=()=>{terrainEnabled=!terrainEnabled;refreshMetrics();renderComparison();};
-$('#duration').onclick=e=>{const b=e.target.closest('[data-duration]');if(!b)return;duration=Number(b.dataset.duration);$('#duration').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));refreshMetrics();renderComparison();};
+$('#terrain-toggle').onclick=()=>{terrainEnabled=!terrainEnabled;refreshMetrics();renderComparison();renderRanking();};
+$('#duration').onclick=e=>{const b=e.target.closest('[data-duration]');if(!b)return;duration=Number(b.dataset.duration);$('#duration').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));refreshMetrics();renderComparison();renderRanking();};
 
 // ---- Time ----
 function updateClock(){
@@ -502,7 +506,7 @@ $('#time').oninput=()=>{updateClock();refreshMetrics();updateLight();};
 function stop(){playing=false;clearInterval(playTimer);$('#play').innerHTML=icon('play');$('#play').setAttribute('aria-label','Play time animation');}
 $('#play').onclick=()=>{if(playing){stop();return;}playing=true;$('#play').innerHTML=icon('pause');$('#play').setAttribute('aria-label','Pause time animation');playTimer=setInterval(()=>{let t=Number($('#time').value)+.25;if(t>168){stop();return;}$('#time').value=t;$('#time').oninput();},120);};
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else invalidate();});
-function applyDate(value,load=true){$('#date').value=value;lastValidDate=value;stop();referenceData=null;shadows.pending();updateClock();if(!load)return;if(selected)loadSelected();else referenceLight();}
+function applyDate(value,load=true){$('#date').value=value;lastValidDate=value;stop();referenceData=null;shadows.pending();updateClock();renderRanking();if(!load)return;if(selected)loadSelected();else referenceLight();}
 $('#date').onchange=()=>{if(!$('#date').validity.valid||!$('#date').value){toast('Choose a valid date between 2000 and 2099.');$('#date').value=lastValidDate;return;}applyDate($('#date').value);};
 $('#today').onclick=()=>{$('#date').value=new Date().toISOString().slice(0,10);$('#time').value=new Date().getUTCHours();$('#date').onchange();};
 
@@ -561,17 +565,18 @@ $('#lunar-facts').onclick=e=>{
 const MAX_OPTIONS=4,DATE_MIN='2000-01-01',DATE_MAX='2099-12-24';
 let comparisonToken=0;
 function shiftDate(date,days){const shifted=new Date(Date.parse(date+'T00:00:00Z')+days*DAY).toISOString().slice(0,10);return shifted>=DATE_MIN&&shifted<=DATE_MAX?shifted:null;}
-function addOption(site,date){
+function addOption(site,date,show=true){
  const id=`${site.id}@${date}`;
  if(!compared.some(s=>s.id===id)){
-  if(compared.length>=MAX_OPTIONS){toast(`Compare up to ${MAX_OPTIONS} options. Remove one to add another.`);return;}
+  if(compared.length>=MAX_OPTIONS){toast(`Compare up to ${MAX_OPTIONS} options. Remove one to add another.`);return false;}
   compared.push({id,site:{...site},date});
  }
- $('#comparison').hidden=false;refreshMetrics();renderComparison();
+ if(show){showRanking(false);$('#comparison').hidden=false;}
+ refreshMetrics();renderComparison();return true;
 }
 function openOption(option){if($('#date').value!==option.date)applyDate(option.date,false);selectSite(option.site);}
 $('#compare').onclick=()=>{if(selected)addOption(selected,$('#date').value);};
-$('#rail-compare').onclick=()=>{if(!compared.length){toast('Open a site and choose Compare to line up sites and landing dates.');return;}$('#comparison').hidden=!$('#comparison').hidden;if(!$('#comparison').hidden)renderComparison();};
+$('#rail-compare').onclick=()=>{if(!compared.length){toast('Open a site and choose Compare to line up sites and landing dates.');return;}$('#comparison').hidden=!$('#comparison').hidden;if(!$('#comparison').hidden){showRanking(false);renderComparison();}};
 async function renderComparison(){
  if(!compared.length){$('#comparison').hidden=true;return;}
  $('#comparison-method').textContent=`${stayLabel()} stay from 00:00 UTC on each landing date · ${terrainEnabled?'terrain included':'reference horizon'}`;
@@ -583,18 +588,18 @@ async function renderComparison(){
   try{
    const d=await ephemeris(s.site,{date:s.date});if(token!==comparisonToken)return;
    const start=Date.parse(s.date+'T00:00:00Z'),end=start+duration*HOUR;
-   const sunHours=visibleHours(visibilityRows(d,'sun'),start,end),earthHours=visibleHours(visibilityRows(d,'earth'),start,end);
-   if(sunHours===null||earthHours===null)throw new Error('Series does not cover the stay.');
-   totals.push({id:s.id,card,sun:sunHours,earth:earthHours});
+   const metrics=stayMetrics(visibilityRows(d,'sun'),visibilityRows(d,'earth'),d.sun,start,end);
+   if(!metrics)throw new Error('Series does not cover the stay.');
+   totals.push({id:s.id,card,...metrics});
    const lane=(name,y,hours)=>`<div class="lane"><div class="track"><svg viewBox="0 ${y} 100 4.4" preserveAspectRatio="none" aria-hidden="true">${lanes(d,start,end)}</svg></div><b data-total="${name}">${number(hours)} h</b></div>`;
-   card.querySelector('.results').innerHTML=lane('sun',0,sunHours)+lane('earth',5.6,earthHours);
+   card.querySelector('.results').innerHTML=lane('sun',0,metrics.sun)+lane('earth',5.6,metrics.earth)+lane('both',11.2,metrics.both);
   }catch(e){if(token!==comparisonToken)return;card.querySelector('.results').innerHTML='<p class="waiting">JPL unavailable for this option. Reopen the panel to retry.</p>';}
  }
  if(totals.length<2)return;
- for(const [key,label] of [['sun','Most sunlight'],['earth','Longest Earth view']]){const best=Math.max(...totals.map(t=>t[key]));const winners=totals.filter(t=>t[key]===best);if(best>0&&winners.length===1)winners[0].card.querySelector('.tags').insertAdjacentHTML('beforeend',`<span class="tag ${key}">${label}</span>`);}
+ for(const [key,label] of [['sun','Most sunlight'],['earth','Longest Earth view'],['both','Most Sun + Earth']]){const best=Math.max(...totals.map(t=>t[key]));const winners=totals.filter(t=>t[key]===best);if(best>0&&winners.length===1)winners[0].card.querySelector('.tags').insertAdjacentHTML('beforeend',`<span class="tag ${key}">${label}</span>`);}
  // Differences against the first option, so a slipped date or a moved site reads at a glance.
  const base=totals.find(t=>t.id===compared[0].id);
- if(base)for(const t of totals){if(t===base)continue;for(const key of ['sun','earth']){const delta=t[key]-base[key];if(Math.abs(delta)>=.05)t.card.querySelector(`[data-total="${key}"]`).insertAdjacentHTML('beforeend',`<small class="${delta>0?'up':'down'}">${delta>0?'+':'−'}${number(Math.abs(delta))}</small>`);}}
+ if(base)for(const t of totals){if(t===base)continue;for(const key of ['sun','earth','both']){const delta=t[key]-base[key];if(Math.abs(delta)>=.05)t.card.querySelector(`[data-total="${key}"]`).insertAdjacentHTML('beforeend',`<small class="${delta>0?'up':'down'}">${delta>0?'+':'−'}${number(Math.abs(delta))}</small>`);}}
 }
 $('#comparison-cards').onclick=e=>{
  const option=compared.find(s=>s.id===e.target.closest('[data-compare]')?.dataset.compare);if(!option)return;
@@ -604,6 +609,46 @@ $('#comparison-cards').onclick=e=>{
  const date=shiftDate(option.date,Number(shift.dataset.shift));if(date)addOption(option.site,date);else toast('That date is outside the supported range (2000–2099).');
 };
 $('#close-compare').onclick=()=>{$('#comparison').hidden=true;};
+
+// ---- Ranking: every site for the chosen landing date and stay, in one table ----
+const rankColumns=[['both','Sun + Earth','Hours with the Sun and Earth both above the horizon: power and a direct link at the same time'],['sun','Sunlit','Hours of sunlight'],['earth','Earth','Hours with Earth in view'],['sunHeight','Sun height','Average Sun elevation while the site is sunlit']];
+let rankFilter='all',rankSort='both',rankToken=0,rankList=[],rankResults=new Map();
+function showRanking(value){$('#ranking').hidden=!value;if(value){$('#comparison').hidden=true;renderRanking();}else rankToken++;}
+async function renderRanking(){
+ if($('#ranking').hidden)return;
+ const token=++rankToken,date=$('#date').value,start=Date.parse(date+'T00:00:00Z'),end=start+duration*HOUR;
+ rankList=sites.filter(s=>rankFilter==='all'||s.cat===rankFilter);
+ if(selected?.cat==='pin'&&rankFilter==='all')rankList.push(selected);
+ $('#ranking-chips').innerHTML=[['all','All'],...Object.entries(categories).filter(([k])=>k!=='pin').map(([k,c])=>[k,c.label])].map(([k,label])=>`<button class="chip-btn cat-${k}${k===rankFilter?' active':''}" data-rank-filter="${k}" aria-pressed="${k===rankFilter}">${k==='all'?'':icon(categories[k].icon)}${label}</button>`).join('');
+ $('#ranking-head').innerHTML=`<span>Site</span>${rankColumns.map(([key,label,title])=>`<button data-sort="${key}" title="${title}" aria-pressed="${key===rankSort}">${label}</button>`).join('')}<i></i>`;
+ rankResults=new Map();drawRanking(date,0);
+ let done=0;
+ for(const site of rankList){
+  try{const d=await ephemeris(site,{date});if(token!==rankToken)return;rankResults.set(site.id,stayMetrics(visibilityRows(d,'sun'),visibilityRows(d,'earth'),d.sun,start,end)||{error:true});}
+  catch(e){if(token!==rankToken)return;rankResults.set(site.id,{error:true});}
+  drawRanking(date,++done);
+ }
+}
+function drawRanking(date,done){
+ const score=s=>{const m=rankResults.get(s.id);return m&&!m.error&&m[rankSort]!==null?m[rankSort]:-Infinity;};
+ const ordered=[...rankList].sort((a,b)=>score(b)-score(a)||(rankResults.get(b.id)?.sun??-1)-(rankResults.get(a.id)?.sun??-1));
+ $('#ranking-method').textContent=`${stayLabel()} stay from 00:00 UTC ${fullDay(date)} · ${terrainEnabled?'terrain included':'reference horizon'}${done<rankList.length?` · loading ${done} of ${rankList.length}…`:''}`;
+ let position=0;
+ $('#ranking-rows').innerHTML=ordered.map(s=>{
+  const m=rankResults.get(s.id),ready=m&&!m.error;if(ready)position++;
+  const hours=key=>`<b class="c ${key}${key===rankSort?' sorted':''}" style="--f:${ready?Math.min(1,m[key]/duration).toFixed(3):0}">${ready?number(m[key])+' h':m?'n/a':'…'}</b>`;
+  return `<div class="rank-row cat-${s.cat}${ready&&position===1&&score(s)>0?' first':''}" data-rank="${safe(s.id)}"><span class="pos">${ready?position:''}</span><span class="badge">${icon(siteIcon(s))}</span><button class="rank-name" data-open title="Open ${safe(s.name)}"><strong>${safe(s.name)}</strong><small>${safe(s.description||coord(s))}</small></button>${hours('both')}${hours('sun')}${hours('earth')}<b class="c sunHeight${rankSort==='sunHeight'?' sorted':''}">${ready?(m.sunHeight===null?'—':deg(m.sunHeight)):m?'n/a':'…'}</b><button class="add" data-add aria-label="Add ${safe(s.name)} to the comparison" title="Add to comparison">${icon('plus')}</button></div>`;
+ }).join('');
+}
+$('#ranking-chips').onclick=e=>{const k=e.target.closest('[data-rank-filter]')?.dataset.rankFilter;if(k){rankFilter=k;renderRanking();}};
+$('#ranking-head').onclick=e=>{const key=e.target.closest('[data-sort]')?.dataset.sort;if(!key)return;rankSort=key;$('#ranking-head').querySelectorAll('[data-sort]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sort===key)));drawRanking($('#date').value,rankResults.size);};
+$('#ranking-rows').onclick=e=>{
+ const site=rankList.find(s=>s.id===e.target.closest('[data-rank]')?.dataset.rank);if(!site)return;
+ if(e.target.closest('[data-add]')){if(addOption(site,$('#date').value,false))toast(`${site.name} added to the comparison (${compared.length} of ${MAX_OPTIONS}).`);}
+ else if(e.target.closest('[data-open]'))selectSite(site);
+};
+$('#close-ranking').onclick=()=>showRanking(false);
+$('#rail-rank').onclick=()=>showRanking($('#ranking').hidden);$('#rank-from-list').onclick=()=>showRanking(true);
 
 for(const id of ['about','details','sources'])$('#'+id).onclick=()=>$('#info').showModal();$('#close-info').onclick=()=>$('#info').close();$('#info').onclick=e=>{if(e.target===$('#info')){const r=$('#info').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#info').close();}};
 updateClock();refreshMetrics();referenceLight();invalidate();

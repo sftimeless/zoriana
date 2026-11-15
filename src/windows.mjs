@@ -1,5 +1,5 @@
 // Pure helpers for visibility windows. No DOM access, so they are unit tested (tests/windows.test.mjs).
-import { DAY, visibleHours } from './ephemeris.mjs';
+import { DAY, visibleHours, sampleAt } from './ephemeris.mjs';
 
 // Intervals [start, end] in ms during which a body is above the horizon (el > 0), clipped to
 // the requested range. Transitions are placed at sample times, so precision equals the row spacing.
@@ -55,4 +55,30 @@ export function bestLandingDay(scores){
   if(!best||s.sun>best.sun+1e-6||(Math.abs(s.sun-best.sun)<=1e-6&&s.earth>best.earth+1e-6))best=s;
  }
  return best;
+}
+
+// Rows whose elevation is the lower of two bodies at each time, so it is above zero only while
+// both are up. Used for "Sun and Earth together": power and a direct link at the same moment.
+export function together(a,b){
+ if(!a?.length||!b?.length)return [];
+ const aligned=a.length===b.length&&a[0].time===b[0].time&&a.at(-1).time===b.at(-1).time;
+ const out=[];
+ for(let i=0;i<a.length;i++){const other=aligned?b[i]:sampleAt(b,a[i].time);if(other)out.push({time:a[i].time,az:a[i].az,el:Math.min(a[i].el,other.el)});}
+ return out;
+}
+
+// The numbers used to rank a stay: hours of sunlight, hours with Earth in view, hours with both
+// at once, and the Sun's average and highest elevation while the site is sunlit. `sunRows` and
+// `earthRows` are relative to the chosen horizon (terrain or flat); `sunTrueRows` carries the
+// Sun's real elevation. Returns null when the series does not cover the stay.
+export function stayMetrics(sunRows,earthRows,sunTrueRows,start,end){
+ const sun=visibleHours(sunRows,start,end),earth=visibleHours(earthRows,start,end),both=visibleHours(together(sunRows,earthRows),start,end);
+ if(sun===null||earth===null||both===null)return null;
+ let total=0,count=0,peak=-Infinity;
+ for(const r of sunTrueRows||[]){
+  if(r.time<start||r.time>end)continue;
+  const lit=sampleAt(sunRows,r.time);
+  if(lit&&lit.el>0){total+=r.el;count++;peak=Math.max(peak,r.el);}
+ }
+ return {sun,earth,both,sunHeight:count?total/count:null,sunPeak:count?peak:null};
 }
