@@ -98,3 +98,12 @@
 
 - Right-clicking the globe now drops a pin directly. In the in-app browser a real right-click on the surface created a pin at 19.9924°S 56.2458°E, which loaded terrain, slope and Sun/Earth data with no console errors. The long-press path on touch screens uses the same browser event and was not tried on a device.
 - The Blue Moon icon was redrawn from a NASA photograph of the Mark 1 lander (Wikimedia Commons, taken 12 February 2026).
+
+## Sun and Earth in space; round landing terrain — November 14, 2026 (evening)
+
+- Thirty-four Node tests pass. One is new: the Moon-centred direction leaves an overhead body unchanged, tilts Earth's direction by atan(1/221) = 0.26° for a limb site, and is negligible at the Sun's distance.
+- In-app browser, live JPL data, no console errors:
+  - 2026-11-15 12:00 UTC: Earth overhead at 2.7°N 3.3°W (near the centre of the near side, within libration range); Sun overhead at 1.6°S 108.3°E (within the Moon's ±1.6° solar latitude range).
+  - Shackleton region, 2026-11-21 06:00 UTC, landing view tilted toward the horizon: the Earth globe appears above the horizon directly along the blue sight line, with Earth reported 5.1° above the horizon and in view.
+  - The landing-view terrain footprint is now circular with a soft edge.
+- Not verified: Earth's drawn phase against an independent source, and the Sun disc's appearance (it was outside the view in these checks).

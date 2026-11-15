@@ -62,7 +62,8 @@ ${projectionGLSL}
    point.copy(up).addScaledVector(east,x/R_KM).addScaledVector(north,y/R_KM).normalize();
    const height=sampler(Math.asin(point.y)*DEG,Math.atan2(-point.z,point.x)*DEG);
    point.multiplyScalar(1+height/R_KM);positions.set([point.x,point.y,point.z],v*3);
-   colors.set([1,1,1,THREE.MathUtils.smoothstep(1-Math.max(Math.abs(x),Math.abs(y))/halfKm,0,.16)],v*4);
+   // Circular footprint with a soft edge, so the detailed ground blends into the globe.
+   colors.set([1,1,1,THREE.MathUtils.smoothstep(1-Math.hypot(x,y)/halfKm,0,.3)],v*4);
   }
   for(let j=0,k=0;j<n-1;j++)for(let i=0;i<n-1;i++){const a=j*n+i,b=a+1,c=a+n,d=c+1;indices.set([a,b,c,b,d,c],k);k+=6;}
   const geometry=new THREE.BufferGeometry();

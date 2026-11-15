@@ -44,6 +44,14 @@ export function coordinatesToVector(lat,lon) {
   const p=lat*Math.PI/180,l=lon*Math.PI/180;
   return [Math.cos(p)*Math.cos(l),Math.sin(p),-Math.cos(p)*Math.sin(l)];
 }
+// Direction of a body from the Moon's centre, given its direction from a surface site and its
+// distance in Moon radii. For Earth the two differ by up to about 0.26° (parallax); for the Sun
+// the difference is negligible.
+export function centredDirection(lat,lon,az,el,distance) {
+  const site=coordinatesToVector(lat,lon),toBody=skyDirection(lat,lon,az,el);
+  const v=site.map((s,i)=>s+toBody[i]*distance),length=Math.hypot(...v);
+  return v.map(x=>x/length);
+}
 export function skyDirection(lat,lon,az,el) {
   const r=Math.PI/180,p=lat*r,l=lon*r,a=az*r,e=el*r;
   const up=coordinatesToVector(lat,lon);

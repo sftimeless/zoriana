@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
-import { DAY, sampleAt, visibleHours, nextCrossing, coordinatesToVector, skyDirection } from './ephemeris.mjs';
+import { DAY, sampleAt, visibleHours, nextCrossing, coordinatesToVector, skyDirection, centredDirection } from './ephemeris.mjs';
 import { segments, span, gaps, longest, landingDays, bestLandingDay } from './windows.mjs';
 import { horizonAt, clearanceSeries, RADIUS } from './terrain-math.mjs';
 import { createRenderDiagnostics } from './performance.mjs';
@@ -86,7 +86,7 @@ renderBrowse();
 
 // ---- Globe ----
 const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(35,innerWidth/innerHeight,.005,100);
+const camera=new THREE.PerspectiveCamera(35,innerWidth/innerHeight,.005,600);
 const homePosition=()=>new THREE.Vector3(...coordinatesToVector(-15,45)).multiplyScalar(4.2);
 camera.position.copy(homePosition());
 let renderer;
@@ -150,6 +150,36 @@ function layoutBeams(){
  }
 }
 
+// ---- Where the Sun and Earth are ----
+// Earth is drawn at its true size and mean distance (in Moon radii), lit by the same Sun as the
+// Moon, so its direction, apparent size and phase are right. The Sun is drawn at its true angular
+// size but much closer than it really is. Each also marks the point on the Moon where it is overhead.
+const EARTH_DISTANCE=384400/1737.4,EARTH_RADIUS=6371/1737.4,SUN_DISTANCE=500,SUN_RADIUS=SUN_DISTANCE*Math.tan(THREE.MathUtils.degToRad(.266));
+function makeBody(name,label,mesh,distance,radius,overhead){
+ mesh.visible=false;mesh.frustumCulled=false;scene.add(mesh);
+ const mark=document.createElement('div');mark.className=`overhead ${name}`;mark.hidden=true;mark.innerHTML=`<span class="marker">${icon(name==='sun'?'sun':'globe')}</span><span class="name">${overhead}</span>`;
+ const tag=document.createElement('div');tag.className=`body-tag ${name}`;tag.hidden=true;tag.textContent=label;
+ $('#labels').append(mark,tag);
+ return {name,label,mesh,distance,radius,mark,tag,direction:new THREE.Vector3(),point:new THREE.Vector3(),known:false};
+}
+const bodies={
+ sun:makeBody('sun','Sun',new THREE.Mesh(new THREE.SphereGeometry(SUN_RADIUS,24,12),new THREE.MeshBasicMaterial({color:0xfff3c4,toneMapped:false})),SUN_DISTANCE,SUN_RADIUS,'Sun overhead'),
+ earth:makeBody('earth','Earth',new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS,48,24),new THREE.MeshStandardMaterial({color:0x3f7fd9,roughness:1,metalness:0,emissive:0x0b1c38})),EARTH_DISTANCE,EARTH_RADIUS,'Earth overhead')
+};
+function updateBodies(){
+ const d=data||referenceData,time=observationTime();if(!d)return;
+ for(const b of Object.values(bodies)){
+  const s=sampleAt(d[b.name],time);if(!s)continue;
+  // JPL angles are seen from the site; shift Earth's to the Moon's centre (the Sun's shift is negligible).
+  b.direction.fromArray(b.name==='earth'?centredDirection(d.lat,d.lon,s.az,s.el,EARTH_DISTANCE):skyDirection(d.lat,d.lon,s.az,s.el));
+  b.mesh.position.copy(b.direction).multiplyScalar(b.distance);b.mesh.visible=true;b.known=true;
+  b.point.copy(b.direction).multiplyScalar(1.003);
+  const lat=THREE.MathUtils.radToDeg(Math.asin(b.direction.y)),lon=THREE.MathUtils.radToDeg(Math.atan2(-b.direction.z,b.direction.x));
+  b.mark.title=`${b.label} is directly overhead at ${Math.abs(lat).toFixed(1)}°${lat<0?'S':'N'} ${Math.abs(lon).toFixed(1)}°${lon<0?'W':'E'} at the selected time.`;
+ }
+ invalidate();
+}
+
 // ---- Pins ----
 const labels=[];
 function addLabel(site){const el=document.createElement('button');el.className=`place-label cat-${site.cat}`;el.innerHTML=`<span class="marker">${icon(siteIcon(site))}</span><span class="name">${safe(site.name)}</span>`;el.setAttribute('aria-label',`Select ${site.name}`);el.onclick=()=>selectSite(site);$('#labels').appendChild(el);labels.push({site,el,point:new THREE.Vector3()});placeLabels();}
@@ -179,6 +209,18 @@ function updateLabels(){
   const p=projected.copy(beam.end).project(camera);
   const hidden=hiddenByMoon(beam.end)||Math.abs(p.x)>1||Math.abs(p.y)>1||p.z>1;beam.chip.hidden=hidden;if(hidden)continue;
   beam.chip.style.transform=`translate3d(${((p.x+1)*innerWidth/2).toFixed(1)}px,${((1-p.y)*innerHeight/2).toFixed(1)}px,0) translate(-50%,-135%)`;
+ }
+ const pixelsPerTangent=innerHeight/2/Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
+ for(const b of Object.values(bodies)){
+  if(!b.known){b.mark.hidden=b.tag.hidden=true;continue;}
+  // Overhead point on the surface: shown on the hemisphere facing the camera.
+  let p=projected.copy(b.point).project(camera);
+  b.mark.hidden=b.point.dot(towardCamera.copy(camera.position).sub(b.point))<=0||Math.abs(p.x)>1||Math.abs(p.y)>1;
+  if(!b.mark.hidden)b.mark.style.transform=`translate3d(${((p.x+1)*innerWidth/2).toFixed(1)}px,${((1-p.y)*innerHeight/2).toFixed(1)}px,0) translate(-50%,-50%)`;
+  // Name under the body itself, when it is in view and not behind the Moon.
+  p=projected.copy(b.mesh.position).project(camera);
+  b.tag.hidden=hiddenByMoon(b.mesh.position)||Math.abs(p.x)>1||Math.abs(p.y)>1||p.z>1;
+  if(!b.tag.hidden){const radius=b.radius/camera.position.distanceTo(b.mesh.position)*pixelsPerTangent;b.tag.style.transform=`translate3d(${((p.x+1)*innerWidth/2).toFixed(1)}px,${((1-p.y)*innerHeight/2+radius+5).toFixed(1)}px,0) translate(-50%,0)`;}
  }
 }
 
@@ -406,7 +448,7 @@ function updateClock(){
 function updateCursor(){const hours=Number($('#time').value);$('#comparison-cards').style.setProperty('--cursor',hours<=duration?`${hours/duration*100}%`:'-10%');$('#lunar-plot').style.setProperty('--lunar-cursor',`${hours/(LUNAR_DAYS*24)*100}%`);}
 let referenceData=null,referenceToken=0;
 async function referenceLight(){const token=++referenceToken;try{const result=await ephemeris({lat:0,lon:0},{reference:true});if(token!==referenceToken)return;referenceData=result;updateLight();}catch(e){$('#map-status').textContent='NASA imagery · lighting unavailable';}}
-function updateLight(){const d=data||referenceData;if(!d)return;const s=sampleAt(d.sun,observationTime());if(!s)return;sun.position.fromArray(skyDirection(d.lat,d.lon,s.az,s.el)).multiplyScalar(10);shadows.update(sun.position);invalidate();}
+function updateLight(){updateBodies();const d=data||referenceData;if(!d)return;const s=sampleAt(d.sun,observationTime());if(!s)return;sun.position.fromArray(skyDirection(d.lat,d.lon,s.az,s.el)).multiplyScalar(10);shadows.update(sun.position);invalidate();}
 $('#time').oninput=()=>{updateClock();refreshMetrics();updateLight();};
 function stop(){playing=false;clearInterval(playTimer);$('#play').innerHTML=icon('play');$('#play').setAttribute('aria-label','Play time animation');}
 $('#play').onclick=()=>{if(playing){stop();return;}playing=true;$('#play').innerHTML=icon('pause');$('#play').setAttribute('aria-label','Pause time animation');playTimer=setInterval(()=>{let t=Number($('#time').value)+.25;if(t>168){stop();return;}$('#time').value=t;$('#time').oninput();},120);};
