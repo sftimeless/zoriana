@@ -149,3 +149,16 @@
   - Comparison cards show the sentence, average Sun height and slope; the new +3 d button added a Nov 18 option.
   - Ranking rows for future missions read "Approx. location"; the three explainers open in the site list.
 - Not rechecked: phone-width layout with the new text.
+
+## Phase 2 of the product review fixes — November 14, 2026 (night)
+
+- Server: accepts dates from 1950 to 2099 and returns 31 days of hourly samples (so a landing hour other than 00:00 still leaves 30 full days).
+- Forty-six Node tests pass; one is new (CSV quoting).
+- In-app browser, live JPL data, no console errors:
+  - Opening `?site=apollo11&date=1969-07-20&hour=20&t=0.25&stay=24` restored the site, date, landing hour, time and stay. Result at 20:15 UTC: Sun elevation 10.7°, azimuth 88.8°; Earth 59.2° up, 387,950 km away. The Apollo Lunar Surface Journal lists Sun altitude 10.65°, azimuth 88.81° at touchdown (20:17:39 UTC).
+  - A link carrying a typed pin, landing hour 06:00, a 7-day stay, terrain off, the landing view and two comparison options (one a pin) restored all of them.
+  - The address updated as the comparison and landing hour changed, and dropped the comparison when it was emptied. The hidden stale comparison card noted in the review no longer remains.
+  - Comparison CSV and ranking CSV were generated and read back (downloads were intercepted, not saved): header plus one row per option with coordinates, landing time, totals, Sun height, elevation, slope and source.
+  - Landing hour 06:00 moved the stay to "Jul 20, 06:00 UTC to Jul 21, 06:00 UTC" and the 30-day chart still covered 30 days. The slider reached T+25 d; 2.4 seconds of playback advanced 20 hours.
+  - Phone width: the timeline fits the date, hour and Now controls; four action buttons fit on the site card.
+- Not verified: copying to the clipboard from a real click (in the automated run the browser refused clipboard access and the app showed its fallback message), and an actual file save from the Export buttons.
