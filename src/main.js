@@ -6,9 +6,9 @@ import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { DAY, sampleAt, visibleHours, nextCrossing, coordinatesToVector, skyDirection, centredPosition } from './ephemeris.mjs';
-import { segments, span, gaps, longest, landingDays, bestLandingDay, together, stayMetrics } from './windows.mjs';
+import { segments, span, gaps, longest, landingDays, bestLandingDay, together, stayMetrics, compassPoint, staySentence } from './windows.mjs';
 import { earthMeshRotation } from './earth-orientation.mjs';
-import { horizonAt, clearanceSeries, RADIUS } from './terrain-math.mjs';
+import { horizonAt, obstructionAt, clearanceSeries, RADIUS } from './terrain-math.mjs';
 import { createRenderDiagnostics } from './performance.mjs';
 import { createTerrainShadows } from './terrain-shadows.mjs';
 import { createSurfacePatch } from './surface-patch.mjs';
@@ -20,7 +20,8 @@ const HOUR=3600000;
 const SUN_COLOR='#ffd60a',EARTH_COLOR='#0a84ff',BOTH_COLOR='#30d158';
 const icon=(name,cls='')=>`<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 
-// Coordinates: Apollo from NASA SP-4029 mission summaries; IM-1 and Blue Ghost from NASA/LROC
+// Coordinates: Apollo Lunar Modules from NASA's NSSDC table (LRO-derived, mean-Earth frame, updated
+// 2017); IM-1 and Blue Ghost from NASA/LROC
 // published site locations; Chandrayaan-3 from the IAU Statio Shiv Shakti entry; SLIM from the
 // JAXA target point. Future targets are announced regions, not landing points: each uses the centre
 // of the named feature (or a published candidate point) and says so in its note. See REFERENCES.md.
@@ -47,8 +48,12 @@ const sites=[
  {id:'blueghost1',name:'Blue Ghost M1',lat:18.56,lon:61.81,cat:'clps',icon:'blueghost',type:'CLPS landing site · 2025',description:'Mare Crisium · Firefly Aerospace'},
  {id:'chandrayaan3',name:'Chandrayaan-3',lat:-69.373,lon:32.319,cat:'intl',icon:'vikram',type:'ISRO landing site · 2023',description:'Statio Shiv Shakti · ISRO'},
  {id:'slim',name:'SLIM',lat:-13.316,lon:25.251,cat:'intl',icon:'slim',type:'JAXA landing site · 2024',description:'Near Shioli crater · JAXA'},
- {id:'apollo11',name:'Apollo 11',lat:0.67408,lon:23.47297,cat:'apollo',type:'Apollo landing site · 1969',description:'Sea of Tranquility · Near side'},
- {id:'apollo17',name:'Apollo 17',lat:20.1908,lon:30.7717,cat:'apollo',type:'Apollo landing site · 1972',description:'Taurus–Littrow · Near side'}
+ {id:'apollo11',name:'Apollo 11',lat:0.67416,lon:23.47314,cat:'apollo',type:'Apollo landing site · July 1969',description:'Sea of Tranquility · Near side'},
+ {id:'apollo12',name:'Apollo 12',lat:-3.0128,lon:-23.4219,cat:'apollo',type:'Apollo landing site · November 1969',description:'Ocean of Storms · Near side'},
+ {id:'apollo14',name:'Apollo 14',lat:-3.64589,lon:-17.47194,cat:'apollo',type:'Apollo landing site · February 1971',description:'Fra Mauro · Near side'},
+ {id:'apollo15',name:'Apollo 15',lat:26.13239,lon:3.6333,cat:'apollo',type:'Apollo landing site · July 1971',description:'Hadley–Apennine · Near side'},
+ {id:'apollo16',name:'Apollo 16',lat:-8.9734,lon:15.5011,cat:'apollo',type:'Apollo landing site · April 1972',description:'Descartes Highlands · Near side'},
+ {id:'apollo17',name:'Apollo 17',lat:20.1911,lon:30.7723,cat:'apollo',type:'Apollo landing site · December 1972',description:'Taurus–Littrow · Near side'}
 ];
 
 let selected=null,mode='explore',pinning=false,data=null,selectedRequest=0,playing=false,flight=null,compared=[],playTimer=null;
@@ -476,6 +481,18 @@ function refreshMetrics(){
  document.querySelectorAll('.clear-label').forEach(el=>el.textContent=profile?'Above terrain':'Above horizon');
  $('#terrain-source').textContent=data?.terrain?(terrainEnabled?`${data.terrain.source} · dotted paths show the next ${duration===24?'24 hours':duration/24+' days'}`:'Reference horizon only · terrain ignored'):'Loading terrain…';
  drawSky(currents,profile);
+ // The same picture in words: where each body is, and what hides it when something does.
+ const distanceText=m=>m<1000?`${Math.max(10,Math.round(m/10)*10)} m`:`${(m/1000).toFixed(m<10000?1:0)} km`;
+ const skyLine=(name,label)=>{
+  const c=currents[name];if(!c)return '';
+  const o=profile?obstructionAt(profile,c.az):null,skyline=o?o.horizon:0,toward=compassPoint(c.az);
+  if(c.el-skyline>0)return `${label}: ${deg(c.el-skyline)} clear of the ${profile?'terrain':'level horizon'} to the ${toward}.`;
+  if(o&&c.el>0)return `${label}: up at ${deg(c.el)} but hidden by terrain ${distanceText(o.distanceMeters)} away to the ${toward}, which rises to ${deg(o.horizon)}.`;
+  return `${label}: below the horizon to the ${toward}.`;
+ };
+ $('#sky-note').textContent=[skyLine('sun','Sun'),skyLine('earth','Earth')].filter(Boolean).join(' ');
+ const stay=data?stayMetrics(visibilityRows(data,'sun'),visibilityRows(data,'earth'),data.sun,startDate(),end):null;
+ $('#stay-summary').textContent=stay?staySentence(stay,duration):'';
  updateBanner(time);
  $('#next-event').textContent=`From 00:00 UTC ${day(startDate())} to ${stamp(end)} · ${terrainEnabled?'terrain included':'reference horizon'}`;
  $('#site-elevation').textContent=data?.terrain?`${data.terrain.elevationMeters<0?'−':'+'}${Math.abs(Math.round(data.terrain.elevationMeters)).toLocaleString()} m`:'—';
@@ -537,7 +554,8 @@ function renderLunar(){
  if(data.sun.at(-1).time<end){idle('The running server returned fewer than 30 days. Restart Zoriana to load the full lunar day.');return;}
  status.textContent='';chart.hidden=false;$('#lunar-range').textContent=`${day(start)} – ${day(end)}`;
  const sunRows=visibilityRows(data,'sun'),earthRows=visibilityRows(data,'earth');
- const lit=segments(sunRows,start,end),dark=gaps(lit,start,end),seen=segments(earthRows,start,end);
+ const lit=segments(sunRows,start,end),dark=gaps(lit,start,end),seen=segments(earthRows,start,end),outages=gaps(seen,start,end);
+ const shortStamp=t=>`${day(t)} ${new Date(t).toISOString().slice(11,16)}`;
  const total=list=>list.reduce((sum,[a,b])=>sum+b-a,0),share=list=>Math.round(total(list)/(end-start)*100);
  // A stretch that touches either edge of the window may continue beyond it, so it is a minimum.
  const stretch=list=>{const best=longest(list);if(!best)return 'None';return `${best[0]<=start||best[1]>=end?'≥ ':''}${span(best[1]-best[0])}<small>from ${day(best[0])}</small>`;};
@@ -550,8 +568,9 @@ function renderLunar(){
  $('#lunar-ticks').innerHTML=[0,7,14,21,28].map(d=>`<span style="left:${d/LUNAR_DAYS*100}%">${day(start+d*DAY)}</span>`).join('');
  $('#lunar-caption').textContent=`Bars: sunlit share of a ${stayLabel()} stay for each landing day. Select a day to land then.`;
  const row=(label,value)=>`<div><span>${label}</span><b>${value}</b></div>`;
- facts.innerHTML=row('Sunlit, next 30 days',`${share(lit)}% · ${(total(lit)/DAY).toFixed(1)} d`)+row('Longest sunlight',stretch(lit))+row('Longest darkness',stretch(dark))+row('Earth in view, next 30 days',`${share(seen)}%`)+row('Peak Sun elevation',`${deg(peak.el)}<small>${day(peak.time)}</small>`)+
-  (best&&best.sun>0?`<div><span>Best landing day<br>for a ${stayLabel()} stay</span><b>${day(best.start)}${best.day?'':' (current)'}<small>${number(best.sun)} h sunlit · ${number(best.earth)} h Earth</small></b></div><div class="best-actions">${best.day?'<button id="lunar-use" class="mini-toggle">Use this date</button>':''}<button id="lunar-compare" class="mini-toggle">Add to compare</button></div>`:row(`Best landing day for a ${stayLabel()} stay`,'No sunlit stay in this window'));
+ facts.innerHTML=row('Sunlit, next 30 days',`${share(lit)}% · ${(total(lit)/DAY).toFixed(1)} d`)+row('Longest sunlight',stretch(lit))+row('Longest darkness',stretch(dark))+row('Earth in view, next 30 days',`${share(seen)}%`)+row('Longest Earth outage',stretch(outages))+row('Peak Sun elevation',`${deg(peak.el)}<small>${day(peak.time)}</small>`)+
+  (best&&best.sun>0?`<div><span>Most sunlit landing day<br>for a ${stayLabel()} stay</span><b>${day(best.start)}${best.day?'':' (current)'}<small>${number(best.sun)} h sunlit · ${number(best.earth)} h Earth</small></b></div><div class="best-actions">${best.day?'<button id="lunar-use" class="mini-toggle">Use this date</button>':''}<button id="lunar-compare" class="mini-toggle">Add to compare</button></div>`:row(`Most sunlit landing day for a ${stayLabel()} stay`,'No sunlit stay in this window'))+
+  `<p class="tiny outages"><b>Earth out of view:</b> ${outages.length?outages.slice(0,4).map(([a,b])=>`${shortStamp(a)} to ${shortStamp(b)} (${span(b-a)})`).join('; ')+(outages.length>4?`; and ${outages.length-4} more`:''):'never in the next 30 days'}.</p>`;
 }
 $('#lunar-days').onclick=e=>{const d=e.target.closest('[data-day]')?.dataset.day;if(!d||!data)return;const date=shiftDate(data.date,Number(d));if(date)applyDate(date);else toast('That date is outside the supported range (2000–2099).');};
 $('#lunar-facts').onclick=e=>{
@@ -581,7 +600,7 @@ async function renderComparison(){
  if(!compared.length){$('#comparison').hidden=true;return;}
  $('#comparison-method').textContent=`${stayLabel()} stay from 00:00 UTC on each landing date · ${terrainEnabled?'terrain included':'reference horizon'}`;
  const token=++comparisonToken,totals=[];
- $('#comparison-cards').innerHTML=compared.map((s,i)=>`<article class="compare-card" data-compare="${safe(s.id)}"><div class="compare-head cat-${s.site.cat}"><span class="badge">${icon(siteIcon(s.site))}</span><strong>${safe(s.site.name)}</strong><button aria-label="Remove ${safe(s.site.name)}, ${fullDay(s.date)}" data-remove>${icon('x')}</button></div><small><b>Lands ${fullDay(s.date)}</b> · <span class="mono">${shortCoord(s.site)} ${shortLon(s.site)}</span></small><div class="tags">${i===0&&compared.length>1?'<span class="tag base">Baseline</span>':''}</div><div class="results"><p class="waiting">Loading NASA/JPL…</p></div><div class="card-actions"><button class="go" data-go>Open</button><span class="shift">Same site<button data-shift="1">+1 d</button><button data-shift="7">+7 d</button><button data-shift="14">+14 d</button><button data-shift="30">+30 d</button></span></div></article>`).join('');
+ $('#comparison-cards').innerHTML=compared.map((s,i)=>`<article class="compare-card" data-compare="${safe(s.id)}"><div class="compare-head cat-${s.site.cat}"><span class="badge">${icon(siteIcon(s.site))}</span><strong>${safe(s.site.name)}</strong><button aria-label="Remove ${safe(s.site.name)}, ${fullDay(s.date)}" data-remove>${icon('x')}</button></div><small><b>Lands ${fullDay(s.date)}</b> · <span class="mono">${shortCoord(s.site)} ${shortLon(s.site)}</span></small><div class="tags">${i===0&&compared.length>1?'<span class="tag base">Baseline</span>':''}</div><div class="results"><p class="waiting">Loading NASA/JPL…</p></div><div class="card-actions"><button class="go" data-go>Open</button><span class="shift">Delay<button data-shift="1">+1 d</button><button data-shift="3">+3 d</button><button data-shift="7">+7 d</button><button data-shift="14">+14 d</button><button data-shift="30">+30 d</button></span></div></article>`).join('');
  const cards=[...$('#comparison-cards').children];
  for(const [i,s] of compared.entries()){
   const card=cards[i];
@@ -592,7 +611,8 @@ async function renderComparison(){
    if(!metrics)throw new Error('Series does not cover the stay.');
    totals.push({id:s.id,card,...metrics});
    const lane=(name,y,hours)=>`<div class="lane"><div class="track"><svg viewBox="0 ${y} 100 4.4" preserveAspectRatio="none" aria-hidden="true">${lanes(d,start,end)}</svg></div><b data-total="${name}">${number(hours)} h</b></div>`;
-   card.querySelector('.results').innerHTML=lane('sun',0,metrics.sun)+lane('earth',5.6,metrics.earth)+lane('both',11.2,metrics.both);
+   card.querySelector('.results').innerHTML=lane('sun',0,metrics.sun)+lane('earth',5.6,metrics.earth)+lane('both',11.2,metrics.both)+
+    `<p class="plain">${staySentence(metrics,duration)}</p><p class="tiny">Sun height while lit ${metrics.sunHeight===null?'—':'avg '+deg(metrics.sunHeight)}${Number.isFinite(d.terrain?.slopeDegrees)?` · slope ${d.terrain.slopeDegrees.toFixed(1)}° over ${d.terrain.slopeBaselineMeters>=1000?(d.terrain.slopeBaselineMeters/1000).toFixed(1)+' km':d.terrain.slopeBaselineMeters+' m'}`:''}${s.site.note?' · approximate location':''}</p>`;
   }catch(e){if(token!==comparisonToken)return;card.querySelector('.results').innerHTML='<p class="waiting">JPL unavailable for this option. Reopen the panel to retry.</p>';}
  }
  if(totals.length<2)return;
@@ -637,7 +657,7 @@ function drawRanking(date,done){
  $('#ranking-rows').innerHTML=ordered.map(s=>{
   const m=rankResults.get(s.id),ready=m&&!m.error;if(ready)position++;
   const hours=key=>`<b class="c ${key}${key===rankSort?' sorted':''}" style="--f:${ready?Math.min(1,m[key]/duration).toFixed(3):0}">${ready?number(m[key])+' h':m?'n/a':'…'}</b>`;
-  return `<div class="rank-row cat-${s.cat}${ready&&position===1&&score(s)>0?' first':''}" data-rank="${safe(s.id)}"><span class="pos">${ready?position:''}</span><span class="badge">${icon(siteIcon(s))}</span><button class="rank-name" data-open title="Open ${safe(s.name)}"><strong>${safe(s.name)}</strong><small>${safe(s.description||coord(s))}</small></button>${hours('both')}${hours('sun')}${hours('earth')}<b class="c sunHeight${rankSort==='sunHeight'?' sorted':''}">${ready?(m.sunHeight===null?'—':deg(m.sunHeight)):m?'n/a':'…'}</b><button class="add" data-add aria-label="Add ${safe(s.name)} to the comparison" title="Add to comparison">${icon('plus')}</button></div>`;
+  return `<div class="rank-row cat-${s.cat}${ready&&position===1&&score(s)>0?' first':''}" data-rank="${safe(s.id)}"><span class="pos">${ready?position:''}</span><span class="badge">${icon(siteIcon(s))}</span><button class="rank-name" data-open title="Open ${safe(s.name)}"><strong>${safe(s.name)}</strong><small>${s.note?'<em>Approx. location</em> · ':''}${safe(s.description||coord(s))}</small></button>${hours('both')}${hours('sun')}${hours('earth')}<b class="c sunHeight${rankSort==='sunHeight'?' sorted':''}">${ready?(m.sunHeight===null?'—':deg(m.sunHeight)):m?'n/a':'…'}</b><button class="add" data-add aria-label="Add ${safe(s.name)} to the comparison" title="Add to comparison">${icon('plus')}</button></div>`;
  }).join('');
 }
 $('#ranking-chips').onclick=e=>{const k=e.target.closest('[data-rank-filter]')?.dataset.rankFilter;if(k){rankFilter=k;renderRanking();}};

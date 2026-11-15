@@ -137,3 +137,15 @@
   - Sorting by Sun height put Blue Ghost M1 first (50.3°). Filtering to Future showed the five planned missions. The plus button added sites to the comparison while the ranking stayed open.
   - The comparison showed three bands per option and the "Most Sun + Earth" tag; the site card showed "Sun and Earth together ≈ 16.0 h · 22%" for the connecting-ridge point.
   - Phone-width layout showed the first three columns without horizontal scrolling. A later widening of the first column on phones was not rechecked.
+
+## Phase 1 of the product review fixes — November 14, 2026 (evening)
+
+- A 30-question review of the app is recorded in `REALITY_CHECK.md` (12 working, 14 partial, 4 not implemented at commit `e105d83`). This entry covers the first round of fixes.
+- Forty-five Node tests pass. Three are new: compass wording, stay sentences matching their numbers, and the blocking-terrain lookup on a synthetic ridge.
+- In-app browser, live data, 2026-11-15, no console errors:
+  - 18 sites listed; the Apollo group shows all six landings, using NASA NSSDC coordinates. Apollo 12 loaded at 3.0128°S 23.4219°W, elevation −1,427 m.
+  - IM-4 point: "Sun: up at 2.7° but hidden by terrain 360 m away to the east-northeast, which rises to 7.9°. Earth: up at 1.5° but hidden by terrain 5.0 km away to the northwest, which rises to 2.9°." Stay sentence: "Sunlit for about 12 of 72 hours. Earth in view for about 33 of 72 hours. Both at once for about 12 hours."
+  - Earth outages listed: "Nov 15 00:00 to Nov 16 15:30 (1 d 15 h); Dec 1 07:40 to Dec 13 16:15 (12 d 8 h)"; longest Earth outage 12 d 8 h.
+  - Comparison cards show the sentence, average Sun height and slope; the new +3 d button added a Nov 18 option.
+  - Ranking rows for future missions read "Approx. location"; the three explainers open in the site list.
+- Not rechecked: phone-width layout with the new text.

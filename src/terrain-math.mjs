@@ -48,6 +48,13 @@ export function horizonAt(profile,az){
  const p=((az%360+360)%360)/profile.stepDegrees,i=Math.floor(p),t=p-i;
  return profile.angles[i]*(1-t)+profile.angles[(i+1)%profile.angles.length]*t;
 }
+// What stands in the way toward an azimuth: how high the skyline is there, and how far away
+// the terrain that forms it lies (the horizon model keeps the distance of the highest point).
+export function obstructionAt(profile,az){
+ if(!profile?.angles?.length||!profile.distances?.length)return null;
+ const i=Math.round(((az%360+360)%360)/profile.stepDegrees)%profile.angles.length;
+ return {horizon:horizonAt(profile,az),distanceMeters:profile.distances[i]};
+}
 export function clearanceAt(rows,profile,time){const s=sampleAt(rows,time);if(!s)return null;const horizon=horizonAt(profile,s.az);return {...s,horizon,clearance:horizon===null?null:s.el-horizon};}
 export function clearanceSeries(rows,profile,stepMinutes=5){
  if(!rows?.length||!profile?.angles?.length)return null;

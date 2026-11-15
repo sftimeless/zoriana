@@ -82,3 +82,16 @@ export function stayMetrics(sunRows,earthRows,sunTrueRows,start,end){
  }
  return {sun,earth,both,sunHeight:count?total/count:null,sunPeak:count?peak:null};
 }
+
+// Compass words for an azimuth, to the nearest of 16 points.
+const POINTS=['north','north-northeast','northeast','east-northeast','east','east-southeast','southeast','south-southeast','south','south-southwest','southwest','west-southwest','west','west-northwest','northwest','north-northwest'];
+export const compassPoint=az=>POINTS[Math.round(((az%360+360)%360)/22.5)%16];
+
+// One or two plain sentences describing a stay, from the same numbers the tables show.
+export function staySentence(metrics,stayHours){
+ const total=Math.round(stayHours),all=h=>h>=stayHours-.05,none=h=>h<=.05;
+ const sun=all(metrics.sun)?'Sunlit for the whole stay':none(metrics.sun)?'No direct sunlight during the stay':`Sunlit for about ${Math.round(metrics.sun)} of ${total} hours`;
+ const earth=all(metrics.earth)?'Earth in view throughout':none(metrics.earth)?'Earth never in view, so no direct line to Earth':`Earth in view for about ${Math.round(metrics.earth)} of ${total} hours`;
+ const mixed=!none(metrics.sun)&&!none(metrics.earth)&&!(all(metrics.sun)&&all(metrics.earth));
+ return `${sun}. ${earth}.${mixed?` Both at once for about ${Math.round(metrics.both)} hours.`:''}`;
+}

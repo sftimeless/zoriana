@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {segments,span,gaps,longest,landingDays,bestLandingDay,together,stayMetrics} from '../src/windows.mjs';
+import {segments,span,gaps,longest,landingDays,bestLandingDay,together,stayMetrics,compassPoint,staySentence} from '../src/windows.mjs';
 import {nextCrossing} from '../src/ephemeris.mjs';
 const H=3600000,rows=els=>els.map((el,i)=>({time:i*H,az:0,el}));
 test('segments finds each interval above the horizon',()=>{assert.deepEqual(segments(rows([-1,2,3,-1,-2,4,5,-3]),0,7*H),[[1*H,3*H],[5*H,7*H]]);});
@@ -40,4 +40,14 @@ test('stay metrics count sunlight, Earth view and the overlap, and average the S
  const dark=stayMetrics(series(48,()=>-1),earth,series(48,()=>-5),0,48*H);
  assert.equal(dark.sun,0);assert.equal(dark.both,0);assert.equal(dark.sunHeight,null);
  assert.equal(stayMetrics(sun,earth,sunTrue,0,72*H),null,'a stay longer than the series has no result');
+});
+test('compass words follow the azimuth and wrap at north',()=>{
+ assert.equal(compassPoint(0),'north');assert.equal(compassPoint(77.5),'east-northeast');assert.equal(compassPoint(180),'south');assert.equal(compassPoint(349),'north');assert.equal(compassPoint(-90),'west');
+});
+test('stay sentences say the same thing as the numbers',()=>{
+ assert.equal(staySentence({sun:72,earth:72,both:72},72),'Sunlit for the whole stay. Earth in view throughout.');
+ assert.equal(staySentence({sun:0,earth:72,both:0},72),'No direct sunlight during the stay. Earth in view throughout.');
+ assert.equal(staySentence({sun:72,earth:16.04,both:16.04},72),'Sunlit for the whole stay. Earth in view for about 16 of 72 hours. Both at once for about 16 hours.');
+ assert.equal(staySentence({sun:12.1,earth:32.6,both:12.1},72),'Sunlit for about 12 of 72 hours. Earth in view for about 33 of 72 hours. Both at once for about 12 hours.');
+ assert.equal(staySentence({sun:20,earth:0,both:0},24),'Sunlit for about 20 of 24 hours. Earth never in view, so no direct line to Earth.');
 });

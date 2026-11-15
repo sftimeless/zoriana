@@ -201,6 +201,21 @@ canvas{display:block;touch-action:none}
 .lunar-ticks{position:relative;height:13px;margin-top:4px;font-size:9.5px;color:var(--label3);font-variant-numeric:tabular-nums}
 .lunar-ticks span{position:absolute;white-space:nowrap}
 #lunar-caption{margin-top:5px}
+.plain{font-size:12.5px;line-height:1.45;color:var(--label);margin-top:8px}
+.compare-card .plain{font-size:12px;margin-top:9px}
+.compare-card .plain+.tiny{margin-top:3px}
+.caution{margin-top:8px;padding-top:8px;border-top:.5px solid var(--sep)}
+.outages{padding:9px 0 2px;border-top:.5px solid var(--sep)}
+.outages b{color:var(--label);font-weight:600}
+.rank-name em{font-style:normal;color:var(--orange)}
+.explain{margin-top:10px;background:var(--card);border-radius:12px;overflow:hidden}
+.explain details+details{border-top:.5px solid var(--sep)}
+.explain summary{padding:11px 12px;font-size:13.5px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.explain summary::-webkit-details-marker{display:none}
+.explain summary::after{content:'+';font-size:17px;font-weight:400;color:var(--label2)}
+.explain details[open] summary::after{content:'−'}
+.explain p{padding:0 12px 12px;font-size:12.5px;line-height:1.5;color:var(--label2)}
+.tile-label[title]{cursor:help}
 .facts{padding:2px 12px}
 .facts.flat{padding:0;margin-top:6px}
 .facts .links{display:flex;gap:12px}
@@ -274,7 +289,7 @@ canvas{display:block;touch-action:none}
 .compare-card small b{color:var(--label);font-weight:600}
 .card-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
 .shift{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--label3)}
-.shift button{font-size:11px;font-weight:600;color:#4da3ff;padding:3px 6px;border-radius:7px;background:rgba(10,132,255,.16)}
+.shift button{font-size:11px;font-weight:600;color:#4da3ff;padding:3px 5px;border-radius:7px;background:rgba(10,132,255,.16)}
 .shift button:hover{background:rgba(10,132,255,.3)}
 .lane b small{font-size:11px;font-weight:600;margin-left:5px}
 .lane b small.up{color:var(--green)}
