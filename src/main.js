@@ -17,6 +17,7 @@ import { toCsv } from './export.mjs';
 import { sites } from './sites.mjs';
 import { searchFeatures, placeName } from './features.mjs';
 import { eclipseSeries, eclipseAt, eclipseEvents } from './eclipse.mjs';
+import { nextListedEclipse } from './eclipse-catalog.mjs';
 import { discSeries, discAt, discHours, limbEvents, SUN_RADIUS_KM, EARTH_RADIUS_KM } from './disc.mjs';
 import { POLAR, HEAT, poleOf, polarPixel, polarLatLon, shadowNear, topCells, addPolarOverlay } from './psr.mjs';
 import './style.css';
@@ -309,6 +310,9 @@ let features=null;
 fetch('/assets/features.json').then(r=>r.ok?r.json():null).then(list=>{
  features=list;
  if(list){featurePoints=new Float32Array(list.length*3);list.forEach((f,i)=>featurePoints.set(coordinatesToVector(f[1],f[2]),i*3));}
+ // Pins opened from a link were created before the names arrived: describe them now.
+ for(const {site} of labels)if(site.cat==='pin'&&site.type==='Custom lunar coordinates')site.type=describePlace(site.lat,site.lon);
+ if(selected?.cat==='pin')$('#site-type').textContent=selected.type;
  if(selected)refreshMetrics();invalidate();
 }).catch(()=>{});
 // Place names on the map: the largest named features in view, more of them as you zoom in.
@@ -791,13 +795,20 @@ function renderLunar(){
  $('#lunar-caption').textContent=`Bars: sunlit share of a ${stayLabel()} stay for each landing day. Select a day to land then.`;
  const row=(label,value)=>`<div><span>${label}</span><b>${value}</b></div>`;
  facts.innerHTML=row('Sunlit, next 30 days',`${share(lit)}% · ${(total(lit)/DAY).toFixed(1)} d`)+row('Longest sunlight',stretch(lit))+row('Longest darkness',stretch(dark))+row('Earth in view, next 30 days',`${share(seen)}%`)+row('Longest Earth outage',stretch(outages))+row('Peak Sun elevation',`${deg(peak.el)}<small>${day(peak.time)}</small>`)+
-  row('Eclipses by Earth',(()=>{const list=eclipseEvents(data.eclipse).filter(e=>e.end>=start&&e.start<=end);const clock=t=>new Date(t).toISOString().slice(11,16);return list.length?list.map(e=>`${shortStamp(e.start)} to ${clock(e.end)} UTC<small>${e.totalStart!==null?`Sun fully hidden ${clock(e.totalStart)} to ${clock(e.totalEnd)}`:`up to ${Math.round(e.maxCoverage*100)}% of the Sun covered`}</small>`).join('<br>'):'None in these 30 days';})())+
+  row('Eclipses by Earth',(()=>{const list=eclipseEvents(data.eclipse).filter(e=>e.end>=start&&e.start<=end);const clock=t=>new Date(t).toISOString().slice(11,16);return list.length?list.map(e=>`${shortStamp(e.start)} to ${clock(e.end)} UTC<small>${e.totalStart!==null?`Sun fully hidden ${clock(e.totalStart)} to ${clock(e.totalEnd)}`:`up to ${Math.round(e.maxCoverage*100)}% of the Sun covered`}</small>`).join('<br>'):'None in these 30 days';})()+(()=>{const next=nextListedEclipse(end);if(!next)return '';
+   // NASA's list says when the next one is; a penumbral eclipse touches only part of the Moon, so this site may not see it.
+   return `<small>Next on NASA’s list: ${new Date(next.time).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})} (${next.kind.toLowerCase()}${next.kind==='Penumbral'?', touches only part of the Moon':''}) · <button class="link" data-eclipse="${next.time}">go to it</button></small>`;})())+
   (best&&best.sun>0?`<div><span>Most sunlit landing day<br>for a ${stayLabel()} stay</span><b>${day(best.start)}${best.day?'':' (current)'}<small>${number(best.sun)} h sunlit · ${number(best.earth)} h Earth</small></b></div><div class="best-actions">${best.day?'<button id="lunar-use" class="mini-toggle">Use this date</button>':''}<button id="lunar-compare" class="mini-toggle">Add to compare</button></div>`:row(`Most sunlit landing day for a ${stayLabel()} stay`,'No sunlit stay in this window'))+
   (bestTime&&bestTime.both>0?`<div><span>Best landing time<br>for Sun and Earth together</span><b>${shortStamp(bestTime.start)} UTC<small>${number(bestTime.both)} h together · ${number(bestTime.sun)} h sunlit</small></b></div>${bestTime.start===start?'':'<div class="best-actions"><button id="lunar-use-time" class="mini-toggle">Use this time</button></div>'}`:row('Best landing time for Sun and Earth together','None in this window'))+
   `<p class="tiny outages"><b>Earth out of view:</b> ${outages.length?outages.slice(0,4).map(([a,b])=>`${shortStamp(a)} to ${shortStamp(b)} (${span(b-a)})`).join('; ')+(outages.length>4?`; and ${outages.length-4} more`:''):'never in the next 30 days'}.</p>`;
 }
 $('#lunar-days').onclick=e=>{const d=e.target.closest('[data-day]')?.dataset.day;if(!d||!data)return;const date=shiftDate(data.date,Number(d));if(date)applyDate(date);else toast('That date is outside the supported range (1950–2099).');};
 $('#lunar-facts').onclick=e=>{
+ const jump=e.target.closest('[data-eclipse]');
+ if(jump){ // open two days before the eclipse, with the clock on its middle
+  const when=Number(jump.dataset.eclipse),date=new Date(when-2*DAY).toISOString().slice(0,10);
+  landingHour=0;$('#hour').value='0';$('#time').value=Math.round((when-dayStart(date))/HOUR*4)/4;applyDate(date);return;
+ }
  if(e.target.closest('#lunar-use-time')&&lunarBestTime){const t=new Date(lunarBestTime.start);landingHour=t.getUTCHours();$('#hour').value=String(landingHour);applyDate(t.toISOString().slice(0,10));return;}
  if(!lunarBest||!selected||!data)return;
  const date=shiftDate(data.date,lunarBest.day);if(!date)return;

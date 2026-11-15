@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { coveredShare, eclipseSeries, eclipseAt, eclipseEvents } from '../src/eclipse.mjs';
+import { LUNAR_ECLIPSES, nextListedEclipse } from '../src/eclipse-catalog.mjs';
 
 const HOUR=3600000;
 
@@ -51,4 +52,13 @@ test('directions near the zenith are interpolated as vectors, not as azimuths',(
  const e=[0,1].map(i=>({time:i*HOUR,az:0,el:89.4,range:384400})),s=[0,1].map(i=>({time:i*HOUR,az:180,el:89.4,range:149597870.7}));
  const series=eclipseSeries(s,e);
  assert.ok(series.every(x=>Math.abs(x.separation-1.2)<1e-6));
+});
+
+test('NASA eclipse list: in order, covers 2026 to 2035, and points to the next one',()=>{
+ assert.equal(LUNAR_ECLIPSES.length,23);
+ assert.ok(LUNAR_ECLIPSES.every((e,i)=>i===0||e.time>LUNAR_ECLIPSES[i-1].time));
+ assert.ok(LUNAR_ECLIPSES.every(e=>['Total','Partial','Penumbral'].includes(e.kind)&&Number.isFinite(e.time)));
+ assert.equal(nextListedEclipse(Date.UTC(2026,10,15)).date,'2027-02-20');
+ assert.equal(nextListedEclipse(Date.UTC(2028,11,30)).kind,'Total');
+ assert.equal(nextListedEclipse(Date.UTC(2040,0,1)),null);
 });

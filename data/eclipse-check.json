@@ -1,0 +1,382 @@
+{
+ "generated": "2026-11-15T08:56:54.114Z",
+ "source": "https://eclipse.gsfc.nasa.gov/LEdecade/LEdecade2021.html",
+ "note": "Site times are UTC to the nearest five minutes; NASA times are Terrestrial Dynamical Time, about 70 s ahead of UTC.",
+ "problems": [],
+ "rows": [
+  {
+   "date": "2026-03-03",
+   "nasaGreatestTD": "11:34:52",
+   "kind": "Total",
+   "sites": {
+    "Apollo 11": {
+     "start": "09:30",
+     "end": "14:00",
+     "middle": "11:42",
+     "middleMinusNasaMinutes": 8,
+     "maxCoverage": 1,
+     "total": [
+      "10:35",
+      "12:50"
+     ]
+    },
+    "South pole point": {
+     "start": "09:30",
+     "end": "13:30",
+     "middle": "11:30",
+     "middleMinusNasaMinutes": -5,
+     "maxCoverage": 1,
+     "total": [
+      "10:55",
+      "12:05"
+     ]
+    },
+    "North pole point": {
+     "start": "09:20",
+     "end": "14:00",
+     "middle": "11:37",
+     "middleMinusNasaMinutes": 3,
+     "maxCoverage": 1,
+     "total": [
+      "10:20",
+      "12:55"
+     ]
+    }
+   }
+  },
+  {
+   "date": "2026-08-28",
+   "nasaGreatestTD": "04:14:04",
+   "kind": "Partial",
+   "sites": {
+    "Apollo 11": {
+     "start": "02:15",
+     "end": "06:40",
+     "middle": "04:27",
+     "middleMinusNasaMinutes": 13,
+     "maxCoverage": 1,
+     "total": [
+      "03:30",
+      "05:25"
+     ]
+    },
+    "South pole point": {
+     "start": "01:55",
+     "end": "06:40",
+     "middle": "04:15",
+     "middleMinusNasaMinutes": 1,
+     "maxCoverage": 1,
+     "total": [
+      "03:00",
+      "05:30"
+     ]
+    },
+    "North pole point": {
+     "start": "02:15",
+     "end": "06:05",
+     "middle": "04:10",
+     "middleMinusNasaMinutes": -4,
+     "maxCoverage": 0.955,
+     "total": null
+    }
+   }
+  },
+  {
+   "date": "2027-02-20",
+   "nasaGreatestTD": "23:14:06",
+   "kind": "Penumbral",
+   "sites": {
+    "Apollo 11": {
+     "start": "22:10",
+     "end": "00:35",
+     "middle": "23:25",
+     "middleMinusNasaMinutes": 11,
+     "maxCoverage": 0.343,
+     "total": null
+    },
+    "South pole point": null,
+    "North pole point": {
+     "start": "21:35",
+     "end": "01:00",
+     "middle": "23:15",
+     "middleMinusNasaMinutes": 1,
+     "maxCoverage": 0.956,
+     "total": null
+    }
+   }
+  },
+  {
+   "date": "2027-07-18",
+   "nasaGreatestTD": "16:04:09",
+   "kind": "Penumbral",
+   "sites": {
+    "Apollo 11": null,
+    "South pole point": null,
+    "North pole point": null
+   }
+  },
+  {
+   "date": "2027-08-17",
+   "nasaGreatestTD": "07:14:59",
+   "kind": "Penumbral",
+   "sites": {
+    "Apollo 11": null,
+    "South pole point": {
+     "start": "05:45",
+     "end": "08:50",
+     "middle": "07:20",
+     "middleMinusNasaMinutes": 5,
+     "maxCoverage": 0.454,
+     "total": null
+    },
+    "North pole point": null
+   }
+  },
+  {
+   "date": "2028-01-12",
+   "nasaGreatestTD": "04:14:13",
+   "kind": "Partial",
+   "sites": {
+    "Apollo 11": {
+     "start": "03:05",
+     "end": "05:50",
+     "middle": "04:25",
+     "middleMinusNasaMinutes": 11,
+     "maxCoverage": 0.546,
+     "total": null
+    },
+    "South pole point": {
+     "start": "02:20",
+     "end": "05:55",
+     "middle": "04:07",
+     "middleMinusNasaMinutes": -7,
+     "maxCoverage": 1,
+     "total": [
+      "03:50",
+      "04:25"
+     ]
+    },
+    "North pole point": {
+     "start": "03:55",
+     "end": "04:35",
+     "middle": "04:15",
+     "middleMinusNasaMinutes": 1,
+     "maxCoverage": 0.009,
+     "total": null
+    }
+   }
+  },
+  {
+   "date": "2028-07-06",
+   "nasaGreatestTD": "18:20:57",
+   "kind": "Partial",
+   "sites": {
+    "Apollo 11": {
+     "start": "16:35",
+     "end": "20:25",
+     "middle": "18:30",
+     "middleMinusNasaMinutes": 9,
+     "maxCoverage": 0.941,
+     "total": null
+    },
+    "South pole point": {
+     "start": "17:05",
+     "end": "19:45",
+     "middle": "18:25",
+     "middleMinusNasaMinutes": 4,
+     "maxCoverage": 0.343,
+     "total": null
+    },
+    "North pole point": {
+     "start": "16:05",
+     "end": "20:30",
+     "middle": "18:15",
+     "middleMinusNasaMinutes": -6,
+     "maxCoverage": 1,
+     "total": [
+      "17:20",
+      "19:10"
+     ]
+    }
+   }
+  },
+  {
+   "date": "2028-12-31",
+   "nasaGreatestTD": "16:53:15",
+   "kind": "Total",
+   "sites": {
+    "Apollo 11": {
+     "start": "14:50",
+     "end": "19:20",
+     "middle": "17:05",
+     "middleMinusNasaMinutes": 12,
+     "maxCoverage": 1,
+     "total": [
+      "15:55",
+      "18:15"
+     ]
+    },
+    "South pole point": {
+     "start": "14:30",
+     "end": "19:05",
+     "middle": "16:47",
+     "middleMinusNasaMinutes": -6,
+     "maxCoverage": 1,
+     "total": [
+      "15:30",
+      "18:05"
+     ]
+    },
+    "North pole point": {
+     "start": "14:55",
+     "end": "19:00",
+     "middle": "16:57",
+     "middleMinusNasaMinutes": 4,
+     "maxCoverage": 1,
+     "total": [
+      "16:15",
+      "17:40"
+     ]
+    }
+   }
+  },
+  {
+   "date": "2029-06-26",
+   "nasaGreatestTD": "03:23:22",
+   "kind": "Total",
+   "sites": {
+    "Apollo 11": {
+     "start": "01:15",
+     "end": "05:45",
+     "middle": "03:32",
+     "middleMinusNasaMinutes": 9,
+     "maxCoverage": 1,
+     "total": [
+      "02:15",
+      "04:50"
+     ]
+    },
+    "South pole point": {
+     "start": "01:15",
+     "end": "05:40",
+     "middle": "03:27",
+     "middleMinusNasaMinutes": 4,
+     "maxCoverage": 1,
+     "total": [
+      "02:15",
+      "04:40"
+     ]
+    },
+    "North pole point": {
+     "start": "01:10",
+     "end": "05:30",
+     "middle": "03:20",
+     "middleMinusNasaMinutes": -3,
+     "maxCoverage": 1,
+     "total": [
+      "02:10",
+      "04:30"
+     ]
+    }
+   }
+  },
+  {
+   "date": "2029-12-20",
+   "nasaGreatestTD": "22:43:12",
+   "kind": "Total",
+   "sites": {
+    "Apollo 11": {
+     "start": "20:35",
+     "end": "01:20",
+     "middle": "22:57",
+     "middleMinusNasaMinutes": 14,
+     "maxCoverage": 1,
+     "total": [
+      "21:50",
+      "00:05"
+     ]
+    },
+    "South pole point": {
+     "start": "20:30",
+     "end": "00:45",
+     "middle": "22:40",
+     "middleMinusNasaMinutes": -3,
+     "maxCoverage": 1,
+     "total": [
+      "22:10",
+      "23:10"
+     ]
+    },
+    "North pole point": {
+     "start": "20:20",
+     "end": "01:15",
+     "middle": "22:45",
+     "middleMinusNasaMinutes": 2,
+     "maxCoverage": 1,
+     "total": [
+      "21:25",
+      "00:05"
+     ]
+    }
+   }
+  },
+  {
+   "date": "2030-06-15",
+   "nasaGreatestTD": "18:34:34",
+   "kind": "Partial",
+   "sites": {
+    "Apollo 11": {
+     "start": "17:05",
+     "end": "20:25",
+     "middle": "18:45",
+     "middleMinusNasaMinutes": 10,
+     "maxCoverage": 0.98,
+     "total": null
+    },
+    "South pole point": {
+     "start": "16:40",
+     "end": "20:35",
+     "middle": "18:37",
+     "middleMinusNasaMinutes": 3,
+     "maxCoverage": 1,
+     "total": [
+      "17:40",
+      "19:35"
+     ]
+    },
+    "North pole point": {
+     "start": "17:15",
+     "end": "19:45",
+     "middle": "18:30",
+     "middleMinusNasaMinutes": -5,
+     "maxCoverage": 0.42,
+     "total": null
+    }
+   }
+  },
+  {
+   "date": "2030-12-09",
+   "nasaGreatestTD": "22:28:51",
+   "kind": "Penumbral",
+   "sites": {
+    "Apollo 11": {
+     "start": "21:15",
+     "end": "00:05",
+     "middle": "22:40",
+     "middleMinusNasaMinutes": 11,
+     "maxCoverage": 0.302,
+     "total": null
+    },
+    "South pole point": null,
+    "North pole point": {
+     "start": "20:30",
+     "end": "00:30",
+     "middle": "22:30",
+     "middleMinusNasaMinutes": 1,
+     "maxCoverage": 0.873,
+     "total": null
+    }
+   }
+  }
+ ]
+}

@@ -248,3 +248,17 @@
 
 - Favicon: the team saw another project's icon in the browser tab. The live server was returning 404 for `/favicon.ico` and the page linked only a PNG under `/assets/`, so a browser holding an old icon for the same address had nothing to replace it with at the usual location. The site now serves `/favicon.ico` (16 to 64 px) and `/apple-touch-icon.png` from the official icon, and the page links carry a version tag so browsers fetch them afresh. Locally `/favicon.ico` returns 200, `image/x-icon`. Which browser and address showed the wrong icon was not established.
 - Landing dates: past missions now show the full date ("Apollo landing site · July 20, 1969"). The new "See it at touchdown" button at Apollo 11 set the date to 1969-07-20, the hour to 20 and the clock to 20:15, giving Sun 10.7° at azimuth 88.8°. Future missions keep the announced year (IM-4: "Planned CLPS landing · 2027").
+
+## Eclipses beyond 2026 — November 15, 2026 (UTC)
+
+- NASA's lunar eclipse tables for 2021–2030 and 2031–2040 were fetched from eclipse.gsfc.nasa.gov; the 23 eclipses from 2026 to 2035 are listed in `src/eclipse-catalog.mjs` (times are Terrestrial Dynamical Time, about 70 s ahead of UTC).
+- `node scripts/check-eclipses.mjs 2030` against the local server with live JPL data: all twelve eclipses from 2026 to 2030 are consistent with NASA's list. Total eclipses (2026-03-03, 2028-12-31, 2029-06-26, 2029-12-20): total at Apollo 11 and at both polar points. Partial (2026-08-28, 2028-01-12, 2028-07-06, 2030-06-15): seen at all three sites, total at some. Penumbral (2027-02-20, 2027-07-18, 2027-08-17, 2030-12-09): never total; 2027-07-18 is seen at none of the three sites, as expected for the slightest of them. Mid-eclipse at each site is within 14 minutes of NASA's time of greatest eclipse.
+- In the app at Apollo 11 from 2026-11-15: "Eclipses by Earth: None in these 30 days · Next on NASA's list: Feb 20, 2027 (penumbral, touches only part of the Moon) · go to it". The button opened 2027-02-18 with the clock at 23:15 on Feb 20, where the Sun tile read "Eclipse: Earth covers 34% of the Sun".
+- Seventy-three Node tests pass.
+- Not verified: eclipses after 2030 (the list runs to 2035; the calculation is the same).
+
+## Third product review — November 15, 2026 (UTC)
+
+- The 30-question review was run a third time on the live site and written to `REALITY_CHECK.md`: 30 working, 0 partial (second run: 22 and 8; first: 12, 14 and 4 not implemented). Every quoted answer was read from the live site during the run. The report lists what each answer still does not cover.
+- One defect found and fixed during the run: a pin opened from a share link was not described by the named feature it sits in. On the live site a link to 89.67°S 129.8°E now reads "Custom lunar coordinates · inside Shackleton".
+- Open items it lists: no outside check of an individual terrain-blocked event time; one button cycling five map layers; best spot checks six candidates; 1.9 km terrain between 80°S and 80°N; no Safari or real-phone test; a method sheet of about 12,000 characters.
