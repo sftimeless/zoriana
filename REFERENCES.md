@@ -26,6 +26,9 @@ Last checked against the code on November 14, 2026.
 - **Apollo Landing Site Coordinates** (NASA NSSDC, LRO-derived, updated March 6, 2017). Lunar Module coordinates for Apollo 11, 12, 14, 15, 16 and 17. https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html
 - **LROC, "Firefly Blue Ghost Landing Region"** (NASA/GSFC/Arizona State University). Blue Ghost Mission 1 landing coordinates, 18.56°N 61.81°E. https://www.lroc.im-ldi.com/images/1400
 
+- **NASA SP-2000-4029, "Apollo by the Numbers: A Statistical Reference", Apollo 11 timeline** (Richard W. Orloff, NASA History Division). The ground elapsed time of every event in the Apollo 11 replay, from liftoff to splashdown. https://www.nasa.gov/wp-content/uploads/static/history/SP-4029/Apollo_11i_Timeline.htm
+- **NASA NSSDC Master Catalog, Apollo 11 Command and Service Module (1969-059A)**. The splashdown point (13°19′N, 169°9′W), its distance from the recovery ship USS Hornet (24 km), and the launch, landing and splashdown times quoted in the replay's captions. https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059A
+- **NASA/JPL Horizons System, vector tables for July 16 to 25, 1969**: the Moon (301) and the Sun (10) relative to Earth's centre, and the Apollo 11 S-IVB third stage (Horizons spacecraft -399110, a trajectory reconstruction by D. R. Adamo) from 18 minutes after its burn toward the Moon. Fetched once by `scripts/prepare-apollo11.mjs` and stored in `public/assets/apollo11.json`; the replay reads that file and does not query JPL. https://ssd.jpl.nasa.gov/horizons/
 - **LROC QuickMap** and **NASA Moon Trek**: every site card links out to the same location in both tools. The app does not read data from them. https://quickmap.lroc.im-ldi.com/ · https://trek.nasa.gov/moon/
 
 ---
@@ -82,7 +85,7 @@ Yes. AI coding assistants were used to write code under the team's direction:
 
 - **OpenAI Codex**: first build of the app, the terrain horizon model, and the terrain shadow layer.
 - **OpenAI ChatGPT**: generated the app icon image (see below).
-- **Anthropic Claude Code**: the map-style interface, landing view, site list, date comparison and lunar-day view, the 80°S terrain tier and slope, links to QuickMap and Moon Trek, icons, the permanent-shadow layer, the Sun and Earth disc measure, the where-to-land heat map and best-spot finder, named-feature search and map labels, sharper Landing-view imagery, eclipses, the slope layer, the north-polar terrain tier, the check against NASA's long-term maps, the phone bottom sheet, the Apollo benchmark script, the production server mode and deployment files, the demo slides, added unit tests, and this reference list.
+- **Anthropic Claude Code**: the map-style interface, landing view, site list, date comparison and lunar-day view, the 80°S terrain tier and slope, links to QuickMap and Moon Trek, icons, the permanent-shadow layer, the Sun and Earth disc measure, the where-to-land heat map and best-spot finder, named-feature search and map labels, sharper Landing-view imagery, eclipses, the slope layer, the north-polar terrain tier, the check against NASA's long-term maps, the phone bottom sheet, the Apollo benchmark script, the production server mode and deployment files, the demo slides, added unit tests, and this reference list. Also the Apollo 11 replay: the reconstruction of the flight path between the NASA and JPL anchors, the 3D drawings of the vehicles (shapes built in code from published overall dimensions; no NASA logos, patches or markings), the cameras and the captions.
 
 The acknowledgment appears in the app's "Data & method" sheet, in a `meta` tag in `index.html`, in `package.json`, in source file headers, and in `README.md`.
 
