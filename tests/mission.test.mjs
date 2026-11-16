@@ -51,3 +51,8 @@ test('Apollo 11 data: one whole lap of the Moon at the Moon\'s distance, coverin
  for(const row of lap){const r=Math.hypot(row[1],row[2],row[3]);assert.ok(r>355000&&r<407000,`Moon at ${r} km`);}
  const launch=Date.UTC(1969,6,16,13,32);assert.ok(lap[0][0]<launch&&lap.at(-1)[0]>launch+END*1000);assert.ok((lap.at(-1)[0]-lap[0][0])/86400000>27&&(lap.at(-1)[0]-lap[0][0])/86400000<27.6);
 });
+test('Apollo 11: the flag goes up during the moonwalk, at the time in NASA\'s timeline',()=>{
+ assert.equal(T.flag,110*3600+9*60+43);assert.equal(new Date(Date.UTC(1969,6,16,13,32)+T.flag*1000).toISOString(),'1969-07-21T03:41:43.000Z');
+ assert.ok(T.firstStep<T.plaque&&T.plaque<T.flag&&T.flag<T.evaEnd);
+ assert.ok(STEPS[stepAt(T.flag)].text.includes('flag'));
+});

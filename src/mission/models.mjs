@@ -1,7 +1,7 @@
 // The vehicles of an Apollo flight, drawn from simple shapes: the Saturn V's three stages, the command
 // and service module, the lunar module and the parachutes. They are original drawings made in code from
 // the published overall dimensions (heights and diameters in metres); small details are simplified and
-// no markings, logos or flags are reproduced. Each part is built in metres with its base at y = 0 and
+// no agency markings or logos are reproduced. The one flag is the United States flag planted at the landing site. Each part is built in metres with its base at y = 0 and
 // its nose toward +y, then the caller scales the lot to kilometres.
 import * as THREE from 'three';
 
@@ -194,6 +194,19 @@ export function astronauts(){
   const pack=mesh(new THREE.BoxGeometry(.3,.6,.45),WHITE,1.25);pack.position.set(x-.3,1.25,z);g.add(pack);
   const visor=mesh(new THREE.SphereGeometry(.2,12,8),GOLD,1.62);visor.position.set(x+.1,1.62,z);g.add(visor);
  }
+ return g;
+}
+// The United States flag planted during the moonwalk: a thin pole, a rod along the top to hold the cloth out where no
+// wind blows, and the flag of 1969 with fifty stars. Foot of the pole at y = 0.
+export function flag(){
+ const g=new THREE.Group(),w=190,h=100,canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const c=canvas.getContext('2d');
+ for(let i=0;i<13;i++){c.fillStyle=i%2?'#f4f4f0':'#b22234';c.fillRect(0,Math.round(i*h/13),w,Math.ceil(h/13));}
+ c.fillStyle='#3c3b6e';c.fillRect(0,0,76,Math.round(7*h/13));c.fillStyle='#f4f4f0';
+ for(let row=0;row<9;row++)for(let k=0;k<(row%2?5:6);k++){c.beginPath();c.arc(6.3+(row%2?6.3:0)+k*12.6,5.4+row*5.4,1.5,0,7);c.fill();}
+ const cloth=new THREE.PlaneGeometry(1.52,.8,12,1),at=cloth.attributes.position;for(let i=0;i<at.count;i++)at.setZ(i,.035*Math.sin(at.getX(i)*6.5));cloth.computeVertexNormals();
+ const banner=new THREE.Mesh(cloth,new THREE.MeshStandardMaterial({map:keptTexture(canvas),side:THREE.DoubleSide,roughness:.9,metalness:0}));banner.position.set(.78,1.74,0);
+ const rod=tube(.012,.012,1.56,SILVER,6);rod.rotation.z=-Math.PI/2;rod.position.set(0,2.15,0);
+ g.add(tube(.016,.016,2.17,SILVER,8),rod,banner);
  return g;
 }
 // Three main parachutes above the cabin. Attach point at y = 0, canopies above.

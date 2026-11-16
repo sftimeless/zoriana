@@ -57,7 +57,7 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - Against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025; the app ends totality at that site at 08:30. For the same lander's sunset two days later the app is 1 to 2 hours later than Firefly's account, and we say so.
 - Each rise and set time carries a "±" showing how far it moves if the skyline is 0.1° off.
 - The totals do not depend on the time step: at three sites they are identical to 0.01 h whether tested every 15, 5, 2 or 1 minutes, and the app's interpolation between hourly positions is within 0.00003° of JPL asked every 10 minutes (`scripts/check-convergence.mjs`).
-- 98 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry, exports, and the Apollo 11 flight path and step list.
+- 99 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry, exports, and the Apollo 11 flight path and step list.
 
 **Benefits and what we hope to achieve**
 
