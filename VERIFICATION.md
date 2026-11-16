@@ -419,3 +419,18 @@
 - Ninety-nine Node tests pass (two expectations updated for "min"); the build succeeds; the replay drew all twelve moments with no failure.
 - Live site after deploying (zoriana.fly.dev, release 28): corner "MAP TIME 4:00 PM PST 00:00 UTC", bar "MAP TIME · UTC 00:00"; "Disk showing" on the cards; the replay's line read "7.4 km above Earth", "34,300 km/h · 2,260 km above Earth" and "4,800 km/h · 333,000 km from Earth · 72,500 km from the Moon"; the flight stepped through with no drawing failure and no console errors.
 - Left as they are, on purpose: "Sun + Earth" as the short column name for "Sun and Earth together"; "3 d" in controls beside "72 hours" in sentences; "km up" in the replay's prose captions.
+
+## Second wording sweep — November 16, 2026 (UTC)
+
+- Method: counted spelling, capitalization, unit and number variants across the app's text, the replay, the site list, the documents and the slides, then read the site list, the replay's explanation panel and every slide.
+- Apollo 11's touchdown: the site card said 20:18 UTC and the replay 20:17:40. The card now says 20:17 UTC. (The map still moves to 20:15, the nearest quarter hour, as before.)
+- "Blue Ghost M1" is now "Blue Ghost Mission 1", beside "Blue Ghost Mission 3".
+- "Reentry" (one word) in the replay's step title and the method notes.
+- The About panel said "Checked four ways" and the slides "Checked three ways", each listing a different set. Both now say "Checked against published values" and list their examples.
+- The Landing view's status line said "586 m grid" for the drawn mesh, beside "474 m global grid" for the data; it now says "mesh", as the fly-by captions do.
+- CSV export columns renamed to the app's words: `sun_full_disk_hours`, `sun_any_disk_hours`, `sun_elevation_avg_deg`, `sun_elevation_peak_deg`.
+- Documents: "Sun elevation", "level horizon" and "Landing view" where they still used the older words; the submission text now says why the server asks JPL for 31 days when the app plans over 30.
+- Slides: "the Sun's elevation at touchdown"; the third point of "Where to land" now names the Landing view and the Apollo 11 replay, which the deck did not mention. PDF regenerated: 7 pages, both edited slides fit.
+- Checked and left alone: Sun, Earth and Moon are capitalized everywhere in the app; "true-scale terrain" beside "relief at true scale" is ordinary grammar; "South Pole" is capitalized only as a button or label name; 18 sites, 27 steps, four cameras and 99 tests agree across the app, documents and slides.
+- Known and not fixed here: the screenshots inside the slides were taken before the latest interface changes (they show "Disc showing", the old corner clock and a four-button site card).
+- Ninety-nine Node tests pass; the build succeeds.

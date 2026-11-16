@@ -44,7 +44,7 @@ Source code: https://github.com/sftimeless/zoriana
 
 **How it works**
 
-A small Node.js server asks NASA/JPL Horizons for the apparent position and distance of the Sun and Earth as seen from the exact site, hourly for 31 days. It builds the site's skyline from LOLA elevation data (40 m and 80 m grids near the south pole, 80 m near the north pole, a 474 m global grid elsewhere) by sampling terrain out to 300 km in every direction on a curved Moon. The browser compares the two: a body is visible when it clears the skyline. The Sun and Earth are also measured as disks, so the app can report first light and full Sun separately. The globe, terrain shadows and landing view are drawn with Three.js.
+A small Node.js server asks NASA/JPL Horizons for the apparent position and distance of the Sun and Earth as seen from the exact site, hourly for 31 days (the 30-day planning window plus room for a landing hour later than 00:00). It builds the site's skyline from LOLA elevation data (40 m and 80 m grids near the south pole, 80 m near the north pole, a 474 m global grid elsewhere) by sampling terrain out to 300 km in every direction on a curved Moon. The browser compares the two: a body is visible when it clears the skyline. The Sun and Earth are also measured as disks, so the app can report first light and full Sun separately. The globe, terrain shadows and Landing view are drawn with Three.js.
 
 **How we checked it**
 

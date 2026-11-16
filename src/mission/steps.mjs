@@ -59,7 +59,7 @@ export const STEPS=[
   text:'Two and a half days of coasting, gathering speed the whole way. The orange line is the way home. It has to meet the atmosphere at a shallow angle: too steep and the cabin burns up, too shallow and it skips back out to space.'},
  {at:T.cmSep-90,mark:T.cmSep,title:'Only the cabin comes home',pace:[[T.cmSep+200,8]],sec:3,cam:{f:'craft',d:.07,az:115,el:15},pov:'earth',
   text:'The service module, with the engine and the supplies, is cast off. Of the 2,900 metric tons that left the pad, what returns is a cabin 3.9 m wide weighing about 5.5 metric tons. It turns its heat shield forward.'},
- {at:T.entry-60,mark:T.entry,title:'Re-entry',sec:11,cam:{f:'craft',d:.07,az:62,el:8},pov:'ahead',
+ {at:T.entry-60,mark:T.entry,title:'Reentry',sec:11,cam:{f:'craft',d:.07,az:62,el:8},pov:'ahead',
   text:'Columbia meets the air 122 km up at 39,700 km/h. The heat shield reaches about 2,800 °C, and a sheath of glowing gas cuts off radio contact for about three minutes. The astronauts are pressed into their couches at more than six times their weight.'},
  {at:T.drogue-15,mark:T.drogue,title:'Parachutes',sec:9,cam:{f:'craft',d:.16,az:60,el:2},pov:'nose',
   text:'Small parachutes open about 7 km up to steady the cabin. Then three main parachutes, each 25 m across, slow it to about 35 km/h.'},
