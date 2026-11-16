@@ -802,7 +802,7 @@ addEventListener('resize',()=>setSheet(sheetState));setSheet('mid');
 try{if(!localStorage.getItem('zoriana-hints')){localStorage.setItem('zoriana-hints','1');const tools=$('.map-tools');tools.classList.add('hints');const hide=()=>tools.classList.remove('hints');setTimeout(hide,9000);tools.addEventListener('pointerdown',hide,{once:true});}}catch{}
 $('#north').onclick=()=>{if(surface)face(0);else{camera.up.set(0,1,0);controls.update();invalidate();}};
 $('#recenter').onclick=()=>{if(!selected)return;if(mode==='landing')enterSurface(selected);else fly(selected,2.2);};
-function setPin(value){pinning=value;$('#pin').classList.toggle('active',value);$('#globe').classList.toggle('pinning',value);$('#hint').classList.toggle('gone',!value);$('#hint').textContent=value?'Click anywhere on the Moon to place your pin':'Drag to explore · Scroll to zoom, then on into the Landing view · Right-click drops a pin · Shift-click compares';if(value)toast('Click anywhere on the Moon to place your pin.');}
+function setPin(value){pinning=value;$('#pin').classList.toggle('active',value);$('#globe').classList.toggle('pinning',value);$('#hint').classList.toggle('gone',!value);$('#hint').textContent=value?'Click anywhere on the Moon to place your pin':'Drag to explore · Scroll to zoom, then on into the Landing view · Right-click drops a pin · Shift-click compares';if(value)toast(`${matchMedia('(hover:hover)').matches?'Click':'Tap'} anywhere on the Moon to place your pin.`);}
 $('#pin').onclick=()=>setPin(!pinning);$('#pin-from-card').onclick=()=>setPin(true);
 let pointerStart;
 let holdTimer=null,touches=0;

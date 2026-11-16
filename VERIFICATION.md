@@ -442,3 +442,13 @@
 - Taking them exposed two leftovers, now fixed in the app: the ranking said "Approx. location" where the rest of the app says "approximate point", and the hint line above the time bar, grown longer, touched the bar. The hint is shorter and sits 16 px higher.
 - `demo/zoriana-demo.pdf` regenerated (7 pages); slide 3 read back with the new picture in place. The private slides artifact has the same three pictures.
 - Ninety-nine Node tests pass; the build succeeds.
+
+## Third sweep: things a text search cannot see — November 16, 2026 (UTC)
+
+- Documents against the project: every file path, npm script and link parameter that README.md, METHOD.md, SUBMISSION.md and REFERENCES.md name exists. (One name, the Blue Marble source file, is the downloaded original and is cited as such.)
+- Outside links: all 61 distinct web addresses in the documents, the app and the slides answered with status 200.
+- Replay captions against the flight model at the same moments: 66 km at first-stage separation; 184 km at second-stage cutoff and 186 km, 28,400 km/h at orbit insertion; 39,000 km/h after the burn toward the Moon; slowest in the coast 3,080 km/h ("about 3,000"); 111 km lunar orbit ("about 110"); 15 km at the start of powered descent; 39,800 km/h and 122 km at entry ("39,700", "122"); small parachutes at 7.3 km. The step durations the captions quote (2 min 42 s, 12.5 min, 21 h 36 min, nearly 28 h, 71 h, two and a half days) match the event times. The model's speed at second-stage cutoff is lower than the caption's "nearly 25,000 km/h", but no speed is shown on screen during the climb.
+- Phone size (375 × 812) on the live site: no text outside its box in the side sheet with the numbers shown, the comparison, or the replay's caption, controls and explanation panel at seven moments of the flight.
+- Fixed: the message after choosing the pin tool said "Click anywhere on the Moon" on phones too; it now says "Tap" where there is no mouse. A Learn answer said "Tap a site" on desktop too; it now says "Select a site".
+- A prompt for an independent read-only sweep by a second assistant (OpenAI Codex) was written for the team to run alongside this one; its findings are not part of this entry.
+- Ninety-nine Node tests pass; the build succeeds.
