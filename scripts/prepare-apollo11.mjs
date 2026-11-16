@@ -1,5 +1,6 @@
 // Fetches what the Apollo 11 replay needs from NASA/JPL Horizons and writes public/assets/apollo11.json:
 //   moon  the Moon's position and velocity from Earth's centre, every 30 minutes, July 16 to 25, 1969
+//   orbit one whole lap of the Moon round the Earth (27.3 days centred on the landing), every 6 hours, positions only
 //   sun   the Sun's direction from Earth, every 12 hours
 //   sivb  the real path of the Saturn V's third stage (S-IVB) after its engine burn toward the Moon:
 //         JPL's reconstruction by D. R. Adamo (2012), which starts 18 minutes after the burn ended
@@ -17,10 +18,12 @@ async function vectors(command,start,stop,step){
 }
 const round=(rows,pos,vel)=>rows.map(r=>[r.time,...r.state.slice(0,3).map(v=>+v.toFixed(pos)),...r.state.slice(3).map(v=>+v.toFixed(vel))]);
 const moon=await vectors('301','1969-07-16 12:00','1969-07-25 00:00','30 m');
+const orbit=await vectors('301','1969-07-07 04:00','1969-08-03 12:00','6 h');
 const sun=await vectors('10','1969-07-16 12:00','1969-07-25 00:00','12 h');
 const sivb=[...await vectors('-399110','1969-07-16 16:41','1969-07-17 00:01','5 m'),...await vectors('-399110','1969-07-17 00:31','1969-07-20 12:01','30 m')];
 const out={generated:new Date().toISOString(),source:'NASA/JPL Horizons vector tables, geocentric, ICRF, km and km/s; times converted from TDB to UTC (40.184 s)',
- columns:['time (ms, UTC)','x','y','z','vx','vy','vz'],moon:round(moon,2,6),sivb:round(sivb,2,6),
+ columns:['time (ms, UTC)','x','y','z','vx','vy','vz'],moon:round(moon,2,6),sivb:round(sivb,2,6),orbit:orbit.map(r=>[r.time,...r.state.slice(0,3).map(v=>Math.round(v))]),
  sun:sun.map(r=>{const l=Math.hypot(...r.state.slice(0,3));return [r.time,...r.state.slice(0,3).map(v=>+(v/l).toFixed(6))];})};
 await writeFile(new URL('../public/assets/apollo11.json',import.meta.url),JSON.stringify(out));
+console.log(`orbit ${orbit.length} rows from ${new Date(orbit[0].time).toISOString()} to ${new Date(orbit.at(-1).time).toISOString()}`);
 console.log(`moon ${moon.length} rows, S-IVB ${sivb.length} rows from ${new Date(sivb[0].time).toISOString()} to ${new Date(sivb.at(-1).time).toISOString()}, sun ${sun.length} rows`);
