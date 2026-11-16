@@ -147,9 +147,10 @@ canvas{display:block;touch-action:none}
 .circle-btn:hover{background:rgba(120,120,128,.4);color:#fff}
 .coords{display:block;font-size:12px;color:var(--label2);margin:8px 0 0 55px;padding:0;text-align:left;cursor:copy}
 .coords:hover{color:var(--label)}
-.site-landed{margin-top:8px}
-.replay-open{display:flex;align-items:center;gap:7px;text-align:left;line-height:1.3}
-.replay-open .ic{flex:none;width:14px;height:14px}
+/* The touchdown and replay buttons on a mission's card: one width, one type size, icon then text. */
+.site-landed{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;padding:8px 12px;text-align:left;font-size:12.5px;line-height:1.3}
+.site-landed[hidden]{display:none}
+.site-landed .ic{flex:none;width:14px;height:14px}
 .facts button.link{color:var(--blue);font-weight:600;font-size:11px;padding:0}
 .site-why{margin:8px 0 0;color:var(--label2);line-height:1.4}
 .how{margin-top:8px;font-size:12px;color:var(--label2)}
@@ -519,11 +520,19 @@ dialog .close{position:absolute;right:14px;top:14px}
 .guide-count{margin-right:auto;font-size:12px;color:var(--label3);font-variant-numeric:tabular-nums}
 .guide-row button{padding:7px 13px;border-radius:999px;font-size:14px;font-weight:600;background:var(--fill);color:var(--label)}
 .guide-row button.primary{background:var(--blue);color:#fff}
-.guide-row button[hidden]{display:none}
+.guide-dyn{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.guide-side{display:flex;flex-direction:column;gap:8px;flex:none}
+.guide-size{width:26px;height:26px;border-radius:50%;font-size:10.5px;font-weight:700;color:var(--label2);background:var(--fill)}
+/* For a class or a projector: larger type in a wider bubble. */
+.guide-bubble.big{width:min(600px,calc(100vw - var(--map-left) - 90px))}
+.guide-bubble.big .guide-text{font-size:21px;line-height:1.4}
+.guide-bubble.big .guide-row button{font-size:16px;padding:9px 16px}
+/* Planning: the same help without the astronaut. */
+.guide-bubble.plain .guide-face{display:none}
 .guide-close{flex:none;width:26px;height:26px;border-radius:50%;font-size:18px;line-height:1;color:var(--label2);background:var(--fill)}
 .guide-target{outline:2px solid #ffd60a;outline-offset:3px}
-.guide-open{margin-top:12px}
-.guide-mini .guide-face{width:34px;height:34px}
+#rail .rail-app.guide{background:none;box-shadow:none}
+.rail-app.guide .guide-face{width:46px;height:46px}
 .sky-chip{pointer-events:auto;cursor:help}
 
 /* Phone and narrow windows: status pill on top, sheet at the bottom */

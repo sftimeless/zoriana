@@ -896,7 +896,7 @@ async function selectSite(site,move=true){
  $('#site-note').hidden=!site.note;$('#site-note').textContent=site.note||'';$('#site-why').hidden=!site.why;$('#site-why').textContent=site.why?`Why here: ${site.why}`:'';
  // Past missions: one tap sets the date and hour to the real touchdown.
  $('#replay-open').hidden=site.id!=='apollo11';
- $('#site-landed').hidden=!site.landed;if(site.landed)$('#site-landed').textContent=`See it at touchdown: ${new Date(site.landed).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'})}, ${site.landed.slice(11,16)} UTC`;
+ $('#site-landed').hidden=!site.landed;if(site.landed)$('#site-landed span').textContent=`See it at touchdown: ${new Date(site.landed).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'})}, ${site.landed.slice(11,16)} UTC`;
  $('#site-badge').className=`badge big cat-${site.cat}`;$('#site-badge').innerHTML=icon(siteIcon(site));
  $('#link-quickmap').href=quickMapUrl(site.lat,site.lon);$('#link-trek').href=moonTrekUrl(site.lat,site.lon);
  if(mode==='landing')enterSurface(site);else if(move)fly(site,2.6);invalidate();await loadSelected();
@@ -1371,15 +1371,48 @@ $('#share').onclick=$('#share-compare').onclick=async()=>{
 for(const id of ['about','details','sources'])$('#'+id).onclick=()=>$('#info').showModal();$('#close-info').onclick=()=>$('#info').close();$('#info').onclick=e=>{if(e.target===$('#info')){const r=$('#info').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#info').close();}};
 restoreFromUrl();
 // ---- Zoriana, the guide: asks who is exploring, sets the app up for them, gives a short tour, and explains what is clicked ----
+let guideTime=null,guideOwns=false;
+let guideSaved=null;   // the visitor's own comparison, set aside while an investigation borrows the panel
+const siteById=id=>sites.find(s=>s.id===id);
 guide=createGuide({
+ // What each experience sets up. Site, date, stay and comparison are left as the visitor has them.
  setup(id){setDetail(id==='planner');setGrid(id==='educator');syncUrl();},
- select(id){const s=sites.find(x=>x.id===id);if(!s||selected?.id===id)return;if(mode!=='explore')setMode('explore');selectSite(s);},
+ toast,stayLabel,
+ select(id){const s=siteById(id);if(!s||selected?.id===id)return;if(mode!=='explore')setMode('explore');selectSite(s);},
+ selected:()=>selected?.name??null,
+ names:ids=>ids.map(id=>siteById(id).name),
+ distanceKm:(a,b)=>siteVector(siteById(a)).angleTo(siteVector(siteById(b)))*1737.4,
+ dateLabel:()=>stamp(startDate()),
+ home(){if(selected)closeSite();goHome();},
+ flyTo(lat,lon){if(selected)closeSite();startFlight({to:new THREE.Vector3(...coordinatesToVector(lat,lon)).multiplyScalar(2.7)});if(phone.matches)setSheet('peek');},
  showSouthPole(){if(selected)closeSite();setPsr(true);startFlight({to:new THREE.Vector3(...coordinatesToVector(-84,15)).multiplyScalar(2.4)});if(phone.matches)setSheet('peek');},
- showGrid(){if(selected)closeSite();setGrid(true);goHome();},
- showLearn(){openListAt('#learn-title');if(phone.matches)setSheet('mid');},
+ // The tour's demonstration of the time bar: play, then put the clock back where the visitor had it.
+ playTime(on){
+  if(on&&!playing){guideTime=$('#time').value;$('#play').click();}
+  else if(!on){if(playing)$('#play').click();if(guideTime!==null){$('#time').value=guideTime;$('#time').dispatchEvent(new Event('input',{bubbles:true}));guideTime=null;}}
+ },
+ showNumbers(){setDetail(true);},
+ openMethod(){$('#info').showModal();},
  openReplay(){openMissionReplay();},
+ // An investigation borrows the comparison panel. The visitor's own comparison comes back when it ends; if they had
+ // none, the investigation's results stay on screen to look at, and are not mistaken for theirs next time.
+ beginCompare(){if(guideSaved===null)guideSaved=guideOwns?[]:compared.slice();compared=[];renderComparison();},
+ endCompare(){if(guideSaved?.length){compared=guideSaved;guideOwns=false;renderComparison();}else guideOwns=compared.length>0;guideSaved=null;},
+ // Runs the app's ordinary comparison for the given sites, the chosen stay, and the landing date shifted by `days`, and
+ // hands back the hours it computed. Nothing is calculated here.
+ async compare(ids,days){
+  const date=days?shiftDate($('#date').value,days):$('#date').value;if(!date)return null;
+  const list=ids.map(siteById);for(const s of list)if(!addOption(s,date,!phone.matches))return null;
+  const want=list.map(s=>optionId(s,date,landingHour));
+  for(let i=0;i<240;i++){
+   const got=want.map(w=>lastComparison.find(r=>r.option.id===w));
+   if(got.every(Boolean))return {when:stamp(optionStart(got[0].option)),total:duration,rows:got.map(r=>({name:r.option.site.name,sun:r.metrics.sun,earth:r.metrics.earth,both:r.metrics.both}))};
+   await new Promise(r=>setTimeout(r,250));
+  }
+  return null;
+ },
 });
-$('#guide-open .guide-mini').innerHTML=AVATAR;$('#guide-open').onclick=()=>guide.welcome();
+$('#rail-guide').innerHTML=AVATAR;$('#rail-guide').onclick=$('#guide-open').onclick=()=>guide.open();
 if(openedPlain&&guide.firstVisit())setTimeout(()=>guide.welcome(),1200);
 {const p=new URLSearchParams(location.search);if(!['date','hour','t','site','compare'].some(k=>p.has(k)))$('#time').value=new Date().getUTCHours();} // nothing asked for: open on now, like the Now button
 restoring=false;

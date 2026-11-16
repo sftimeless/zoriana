@@ -49,7 +49,7 @@ export const STEPS=[
   text:'July 21, 02:56 UTC: Armstrong steps onto the surface, and Aldrin follows 19 minutes later. In two and a half hours outside they set up experiments, collect 21.5 kg of rock and soil, and plant a United States flag. A plaque on the lander’s leg reads: “We came in peace for all mankind.” One experiment, a laser reflector, is still in use.'},
  {at:T.lmLiftoff-60,mark:T.lmLiftoff,title:'Liftoff from the Moon',pace:[[T.lmLiftoff+150,9]],sec:5,cam:{f:'lander',d:.06,az:70,el:10},cams:[[T.lmLiftoff+150,{f:'lander',d:600,az:215,el:25}]],pov:'window',
   text:'After 21 hours 36 minutes on the surface, the top half of Eagle lifts off, using the bottom half as its launch pad. Its single engine has no backup. Seven minutes later Eagle is back in orbit.'},
- {at:T.redock-900,mark:T.redock,title:'Rendezvous and docking',pace:[[T.redock+200,9]],sec:3,cam:{f:'craft',d:.1,az:70,el:15},pov:'lander',
+ {at:T.redock-900,mark:T.redock,title:'Rendezvous and docking',pace:[[T.redock-90,4],[T.redock+8,10],[T.redock+200,3]],sec:3,cam:{f:'craft',d:.1,az:70,el:15},pov:'lander',
   text:'Eagle spends three and a half hours catching up with Columbia, then the two dock. The astronauts and the boxes of samples move across to Columbia.'},
  {at:T.lmJettison-60,mark:T.lmJettison,title:'Eagle left behind',pace:[[T.lmJettison+150,11]],sec:3,cam:{f:'craft',d:.12,az:70,el:14},pov:'lander',
   text:'Its work done, the top half of Eagle is cast off in lunar orbit. Where it ended up is not known.'},
