@@ -52,6 +52,7 @@ export const EXPLAIN={
 };
 
 const hours=x=>String(Math.round(x*10)/10);
+let spunAt=0;   // when the Moon last spun, so the tour's first step does not spin it again straight after the welcome
 
 // Finders for things on the map, used by steps that point at them.
 const markers=(...names)=>()=>[...document.querySelectorAll('.place-label')].filter(el=>!names.length||names.includes(el.querySelector('.name')?.textContent));
@@ -60,7 +61,7 @@ const nameLabels=(test=()=>true)=>()=>[...document.querySelectorAll('.feature-la
 // Explore the Moon: a mental model of the map. What the picture is, what its colors and marks mean, what the names are,
 // what the two lines say, what the blue patches are, what the time bar does; then the visitor is on their own.
 function exploreTour(api){return [
- {run:()=>{api.home();api.spin(true);},leave:()=>api.spin(false),text:'This is the Moon, built from NASA photographs and lit as the Sun lights it right now. Watch it spin once around. Then drag to turn it yourself; scroll or pinch to zoom.'},
+ {run:()=>{api.home();if(Date.now()-spunAt>15000){spunAt=Date.now();api.spin(true);}},leave:()=>api.spin(false),text:'This is the Moon, built from NASA photographs and lit as the Sun lights it right now. Drag to turn it; scroll or pinch to zoom.'},
  {run:api.home,target:nameLabels(t=>/^(Mare|Oceanus)/.test(t)),text:'How to read it. Gray is the ground. The darker plains, whose names are flashing, are old lava, not shadow. The side turned away from the Sun is dark: that is night.'},
  {target:markers(),text:'The round markers, flashing now, are places where a spacecraft landed or plans to land. Click one to open it.'},
  {run:()=>api.flyTo(8.35,30.83),target:nameLabels(t=>t==='Mare Tranquillitatis'),text:'The names are Latin. This plain is Mare Tranquillitatis, the Sea of Tranquility. “Mare” means sea: early astronomers took the dark plains for water. Click any name to learn what it means.'},
@@ -170,6 +171,8 @@ export function createGuide(api){
  function leave(){welcome.hidden=true;welcomed=true;put('zoriana-welcomed','1');opener?.focus?.();opener=null;}
  function choose(id){
   end();audience=id;put('zoriana-audience',id);leave();api.setup(id);
+  // Explore the Moon opens with one fast spin of the Moon. Learners and planners get no flourish.
+  if(id==='general'){spunAt=Date.now();api.spin(true);}
   // A planner asked for tools, not a tour: one plain panel, without the astronaut, offers the walkthrough once.
   invite[id]();
  }
