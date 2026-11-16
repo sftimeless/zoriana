@@ -357,7 +357,7 @@ export async function openReplay(onClose){
    stageJets.forEach((j,i)=>burn(j,within(T.orbit,T.orbit+87)||within(T.tliOn-77,T.tliOn)||within(T.tliOff,T.tliOff+60)||(within(T.orbit,T.evade)&&burst(i+40,5,.06))));}
   burn(lm.userData.plumeDown,(t>=T.doi&&t<T.doi+30)||(t>=T.pdi&&t<T.landing));burn(lm.userData.plumeUp,t>=T.lmLiftoff&&t<T.lmOrbit);
   set(V.crew,site,basis(upS,westS,north),1,t>=T.firstStep&&t<T.evaEnd);
-  set(V.flag,site,basis(upS,westS,north),1,t>=T.flag&&norm(sub(site,camPos??site))<80);
+  set(V.flag,site,basis(upS,westS,north),1,t>=T.flag&&norm(sub(site,eye??site))<80);
   V.crew.children.forEach((c,i)=>{c.visible=i<3||(t>=T.firstStep+19*60&&t<T.evaEnd-600);});
 
   const yL=axis(lmQ,1),cmUp=axis(cmQ,1);
