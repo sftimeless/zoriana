@@ -36,7 +36,7 @@ Last checked against the code on November 14, 2026.
 ## Field: Space Agency Partner Data and Other References
 
 **Place names**
-- **Planetary Nomenclature of the Moon** (International Astronomical Union and USGS Astrogeology Science Center; public domain). Center points, diameters and kinds of 9,087 named lunar features, used for search, pin descriptions and naming the terrain that hides the Sun or Earth. https://planetarynames.wr.usgs.gov/GIS_Downloads
+- **Planetary Nomenclature of the Moon** (International Astronomical Union and USGS Astrogeology Science Center; public domain). Center points, diameters and kinds of 9,087 named lunar features, used for search, pin descriptions and naming the terrain that hides the Sun or Earth. https://planetarynames.wr.usgs.gov/GIS_Downloads The list's "origin" note for each name (what it means or whom it honors) is what the guide quotes when a name is clicked.
 
 **Space Agency Partner information**
 - **JAXA**, SLIM mission page (DARTS). Landing target coordinates, 13.3160°S 25.2510°E. https://darts.isas.jaxa.jp/en/missions/slim

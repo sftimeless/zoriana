@@ -546,3 +546,18 @@ Local build only; not deployed at the time of writing.
 - Ninety-nine Node tests pass; the build succeeds; the replay stepped through the flight with no drawing failure.
 - Live site after deploying (zoriana.fly.dev, release 36), with the team's go-ahead: the welcome appeared on the plain address; the Explore tour ran all eight steps and the clock was restored; the sunlight investigation returned the same numbers as the local build (0 and 72 hours, then 23.5 and 72, four cards in the comparison); choosing Plan a Mission raised no bubble and posted its one line; the replay stepped through the flight with no drawing failure and no console errors; the replay link opened without the welcome.
 - Limits: checked in Chrome by script, not yet in Safari, with a screen reader, or with a real first-time visitor; the investigations use fixed pairs of sites and a fixed 14-day shift; their numbers need the server to reach JPL for dates it has not cached; on phones the investigation's comparison panel stays closed, so the four results are read from the guide's text; the guide speaks English only.
+
+## Seven points from the team after trying the guide — November 16, 2026 (UTC)
+
+Local build at the time of writing.
+
+1. The "A+" button is gone (it read as a grade), and with it the larger-type mode.
+2. The Guide button sits below About, at the foot of the sidebar's buttons.
+3. Docking still jerked at the moment Eagle joined Columbia. Cause: at that instant Eagle switched to a different position reference, size factor and attitude rule. Over the last three minutes it now eases into exactly the place, size and attitude it holds when docked. Watched in real time: frames 0.4 s before and 0.7 s after the join are identical.
+4. Choosing Plan a Mission showed a passing message and then needed two clicks to reach the walkthrough. It now shows one plain panel, without the astronaut ("Want a seven-step walkthrough of the tools?" with "No thanks" and "Show me"), and the Guide button starts the walkthrough, or the Explore tour, in one click. The first step of each carries "Change experience".
+5. Wording: "Investigation" and "Make a prediction" became "Let's try an experiment" and a plain question; results read "Here is the answer…", "You guessed right" or "Not what you guessed"; the stay is "3-day", not "3 d". The two experiments are named "Sunlight at the pole" and "Can everyone see Earth?".
+6. Every clicked name gave the same paragraph. Each now gets its own meaning or history from the IAU's origin note, which `scripts/prepare-features.py` now carries into `public/assets/features.json` for the 2,023 main features (lettered satellite craters use their parent's). Read back for eighteen names, among them: Mare Nubium "Sea of Clouds"; Lacus Somniorum "Lake of Dreams"; Sinus Iridum "Bay of Rainbows"; Dorsum Buckland, William Buckland, British Earth scientist; Planck, Max Karl Ernst Planck, German physicist; Copernicus A, through Copernicus; Mount Marilyn, one of the names the astronauts did choose. Clicked on the map: three different seas gave three different answers.
+7. Panels without a way out: the welcome has a close button (the same as "Explore freely"); every step shows "‹ Back" and "Next ›" where they apply, and every bubble has a close button.
+- Earth experiment run again with the new wording: Apollo 11 72 of 72 hours with Earth in view and Shackleton region 13.3; fourteen days later 72 and 0.
+- Ninety-nine Node tests pass; the build succeeds; the replay stepped through the docking with no drawing failure.
+- Limits: a person's name is assembled from the IAU note and the feature's name, which reads well for the eighteen checked but was not read for all 1,596; origins the note gives as a bare phrase are quoted as written.

@@ -337,7 +337,13 @@ export async function openReplay(onClose){
    else if(t<T.landing){const s=(t-T.pdi)/(T.landing-T.pdi);lmPos=Lr;lmQ=settle('lm',basis(unit(lerp(scale(rel,-1),upL,smooth(s)**1.5)),unit(lerp(scale(upL,-1),fl.fwd,smooth((s-.3)/.3))),fl.fwd));}
    else if(t<T.lmLiftoff){lmPos=Lr;lmQ=settle('lm',basis(upS,westS,north));}
    else if(t<T.lmOrbit){const s=(t-T.lmLiftoff)/(T.lmOrbit-T.lmLiftoff);lmPos=Lr;lmQ=settle('lmA',basis(unit(lerp(upL,rel,smooth(s*1.3))),fl.fwd,westS));}
-   else if(t<T.redock){lmPos=add(Lr,scale(dockOff,smooth((t-(T.redock-1800))/1800)));lmQ=settle('lmA',basis(rel,upL,north));}
+   else if(t<T.redock){
+    // The last stretch before docking: Eagle turns to face Columbia's nose and eases into the very spot and size it
+    // holds once docked, so nothing snaps at the moment the two join.
+    const far=add(Lr,scale(dockOff,smooth((t-(T.redock-1800))/1800))),w=smooth((t-(T.redock-180))/180);
+    lmPos=w>0?lerp(far,add(Cc,dockOff),w):far;lmS=sL+(sC-sL)*w;
+    lmQ=settle('lmA',w>0?tq.copy(csmQ).multiply(FLIP):basis(rel,upL,north));
+   }
    else{
     // Cast off: springs push the lander off the nose at walking pace (about 0.6 m/s), along the way the ship was pointing then.
     if(!castOff)castOff=yC;

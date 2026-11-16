@@ -870,7 +870,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
  for(const el of featureLabels){
   if(el.hidden)continue;const r=el.getBoundingClientRect();
   if(e.clientX<r.left-6||e.clientX>r.right+6||e.clientY<r.top-6||e.clientY>r.bottom+6)continue;
-  const f=features?.find(x=>x[0]===el.textContent);if(f)guide?.say(explainName(f[0],f[4],f[3]));return;
+  const f=features?.find(x=>x[0]===el.textContent);if(f)guide?.say(explainName(f,features));return;
  }
  if(!psrEnabled)return;
  const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);
@@ -1378,6 +1378,8 @@ guide=createGuide({
  // What each experience sets up. Site, date, stay and comparison are left as the visitor has them.
  setup(id){setDetail(id==='planner');setGrid(id==='educator');syncUrl();},
  toast,stayLabel,
+ stayWords:()=>duration<72?`${duration}-hour`:`${duration/24}-day`,
+ phone:()=>phone.matches,
  select(id){const s=siteById(id);if(!s||selected?.id===id)return;if(mode!=='explore')setMode('explore');selectSite(s);},
  selected:()=>selected?.name??null,
  names:ids=>ids.map(id=>siteById(id).name),
