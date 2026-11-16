@@ -508,3 +508,22 @@ Iryna Khoroshavina Munoz ran through the app for the first time and said aloud w
 - Live site after deploying (zoriana.fly.dev, release 35): the welcome appeared on the plain address with nothing stored; "Planning a mission" was remembered and the bubble sat below the status line; a link to Apollo 11 and the replay link both opened without the welcome; the replay stepped through the flight with no drawing failure and no console errors.
 - Limits: the guide speaks English only; her answers cover names, permanent shadow and the two lines, not every control; a plain click on empty ground does nothing; the choice is stored in the browser, so a private window asks again. The tours were stepped through by script, not timed with a first-time visitor.
 - Slides: the app slide (3 of 7) gained a fourth point, "Zoriana, a built-in guide, asks who you are and gives a one-minute tour", and its speaker note describes her. PDF regenerated: 7 pages, three links, slide 3 read back with all four points fitting beside the picture. The private slides artifact has the same change. The picture on that slide was taken before the guide existed and does not show her.
+
+## The welcome, refined — November 16, 2026 (UTC)
+
+The first welcome read like a settings dialog. It was reworked to a design brief from the team; nothing outside the welcome and its presentation changed (the three audience modes, calculations, sites, dates, comparison, saved preferences and deep links are as they were).
+
+- Words: "Welcome to the Moon." / "I'm Zoriana, your lunar guide." / "How would you like to explore?" Choices: "Explore the Moon", "Learn & Discover", "Plan a Mission", each with one line of description and a small icon; the whole card is a button. The exit is "Explore freely →" with the note "You can change your experience anytime."
+- Zoriana is redrawn as a lunar explorer: gold visor, standing on the Moon, Earth in her sky. She is still a drawing made in code (an SVG), not the output of an image generator, so no AI-image mark applies.
+- Panel: wider on desktop (500 px), set to the left so the Moon stays in full view beside it; a light flat scrim and no blur; brighter secondary text; one family of corner radii. On phones it sits at the bottom with the Moon above.
+- A bug found by the first screenshots and fixed: the third choice carried a class name the side panel also uses and was thrown out of place.
+- Validation, on the local build:
+  1. Tests: 99 pass; the build succeeds.
+  2. Screenshots at 1440 × 900, 1280 × 720, 375 × 812 and 320 × 568: the panel fits in every one; at 320 × 568 it fills the screen.
+  3. Keyboard: focus starts on the first choice; Tab moves through the three choices and "Explore freely" and wraps; Shift+Tab wraps back; Enter chose the focused card; Escape closed the panel. The panel is announced as a dialog labeled "Welcome to the Moon."
+  4. The three choices: Explore hid the numbers; Learn hid the numbers and turned on poles and grid; Plan showed the numbers. Each was stored and confirmed in the guide's bubble.
+  5. "Explore freely" closed the panel, changed no setting and opened no bubble.
+  6. The Moon is whole and unblurred beside the panel on both desktop sizes and visible above it at 375 × 812.
+  7. Text is readable at 1280 × 720 and at both phone sizes; nothing is cut off.
+  8. Returning visitors: after "Explore freely", after Escape, and after any choice, reloading the plain address did not show the welcome again. A link to a site did not show it even with nothing stored. "Zoriana, your lunar guide" at the top of the list reopens it.
+- Limits: checked in Chrome only, by script and keyboard; not yet on the live site, in Safari, or with a screen reader. The pictures in the slides predate the welcome.

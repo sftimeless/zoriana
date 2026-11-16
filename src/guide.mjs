@@ -3,12 +3,12 @@
 // map is clicked. The little astronaut is an original drawing made in code for this app.
 // Written with AI coding assistance (Anthropic Claude Code) under human direction.
 
-export const AVATAR=`<svg class="guide-face" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#1f2a44"/><path d="M9 46c1-9 7-13 15-13s14 4 15 13z" fill="#f2f2f7"/><rect x="19" y="35" width="10" height="6" rx="2" fill="#ff9f0a"/><circle cx="24" cy="20" r="13.5" fill="#f2f2f7"/><rect x="12.5" y="13" width="23" height="15" rx="7.5" fill="#0b1b3a"/><path d="M16 19c2-3.4 6-4.6 10-4" fill="none" stroke="#ffd60a" stroke-width="1.8" stroke-linecap="round"/><circle cx="30.5" cy="22.5" r="1.3" fill="#6db4ff"/><path d="M36.5 9.5v-5" stroke="#f2f2f7" stroke-width="1.6" stroke-linecap="round"/><circle cx="36.5" cy="4" r="1.6" fill="#ff453a"/></svg>`;
+export const AVATAR=`<svg class="guide-face" viewBox="0 0 96 96" aria-hidden="true"><g><rect width="96" height="96" fill="#0c1428"/><g fill="#fff"><circle cx="16" cy="20" r=".9" opacity=".8"/><circle cx="30" cy="10" r=".7" opacity=".6"/><circle cx="82" cy="34" r=".8" opacity=".7"/><circle cx="10" cy="44" r=".6" opacity=".5"/><circle cx="64" cy="8" r=".6" opacity=".6"/></g><circle cx="76" cy="18" r="7.5" fill="#2f7fe0"/><path d="M70.6 15.6c2.6-1.9 5.8-1.5 8 .2M72 21.6c2.6 1.1 5.8.7 8-1" fill="none" stroke="#e8f1ff" stroke-width="1.5" stroke-linecap="round" opacity=".9"/><ellipse cx="48" cy="97" rx="64" ry="21" fill="#9a9aa2"/><ellipse cx="22" cy="86" rx="7" ry="2" fill="#7a7a82"/><ellipse cx="78" cy="89" rx="9" ry="2.4" fill="#7a7a82"/><rect x="28" y="46" width="40" height="30" rx="8" fill="#c9c9d1"/><path d="M27 86c0-17 7-27 21-27s21 10 21 27z" fill="#f4f4f8"/><path d="M29 70c-4 3-6 8-6 14M67 70c4 3 6 8 6 14" fill="none" stroke="#f4f4f8" stroke-width="7" stroke-linecap="round"/><rect x="39" y="65" width="18" height="11" rx="2.5" fill="#dcdce4"/><circle cx="44" cy="70.5" r="1.9" fill="#ff453a"/><circle cx="52" cy="70.5" r="1.9" fill="#0a84ff"/><circle cx="48" cy="37" r="19" fill="#f4f4f8"/><rect x="32.5" y="27" width="31" height="21" rx="10.5" fill="#d79a26"/><path d="M33.2 40.5h29.6c-1.3 4.4-5.4 7.5-10.3 7.5h-9c-4.900 0-9-3.100-10.300-7.500z" fill="#a8700f"/><path d="M37 34.5c2.6-3.6 7.6-5 12.6-4.2" fill="none" stroke="#fff3cf" stroke-width="2" stroke-linecap="round" opacity=".9"/><circle cx="56" cy="40" r="2.6" fill="#2f7fe0" opacity=".9"/></g><circle cx="48" cy="48" r="46" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1"/></svg>`;
 
 export const AUDIENCES=[
- ['general','Just curious','Plain words, big pictures, and the Apollo 11 story'],
- ['educator','Teaching or learning','Poles and grid on, short lessons, a replay you can pause'],
- ['planner','Planning a mission','All the numbers, terrain, comparison, ranking and export'],
+ ['general','Explore the Moon','Discover fascinating places and their stories.','fullmoon','All set to explore the Moon.'],
+ ['educator','Learn & Discover','Understand sunlight, shadows, and lunar science.','book','All set to learn and discover. Poles and grid are on.'],
+ ['planner','Plan a Mission','Compare landing sites, dates, and conditions.','scope','All set to plan a mission. The numbers are showing.'],
 ];
 
 // Latin words in lunar place names.
@@ -51,10 +51,11 @@ function tourFor(audience,api){
 }
 
 export function createGuide(api){
- const read=()=>{try{return localStorage.getItem('zoriana-audience');}catch{return null;}};
- let audience=read(),steps=null,index=0,marked=null;
- const welcome=document.createElement('section');welcome.className='guide-welcome';welcome.hidden=true;welcome.setAttribute('aria-label','Welcome');
- welcome.innerHTML=`<div class="guide-card mat">${AVATAR}<h2>Hi, I’m Zoriana, your guide.</h2><p>Who is exploring the Moon today? I will set things up for you.</p><div class="guide-choices">${AUDIENCES.map(([id,title,note])=>`<button data-audience="${id}"><strong>${title}</strong><small>${note}</small></button>`).join('')}</div><button class="guide-skip" data-skip>Skip for now</button></div>`;
+ const get=key=>{try{return localStorage.getItem(key);}catch{return null;}},put=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
+ let audience=get('zoriana-audience'),welcomed=get('zoriana-welcomed')==='1',steps=null,index=0,marked=null,opener=null;
+ const welcome=document.createElement('section');welcome.className='guide-welcome';welcome.hidden=true;
+ welcome.setAttribute('role','dialog');welcome.setAttribute('aria-modal','true');welcome.setAttribute('aria-labelledby','guide-title');
+ welcome.innerHTML=`<div class="guide-card mat"><header class="guide-hello">${AVATAR}<div><h2 id="guide-title">Welcome to the Moon.</h2><p>I’m Zoriana, your lunar guide.</p></div></header><h3>How would you like to explore?</h3><div class="guide-choices">${AUDIENCES.map(([id,title,note,icon])=>`<button class="guide-choice" data-audience="${id}"><span class="guide-icon"><svg class="ic"><use href="#i-${icon}"/></svg></span><span class="guide-choice-text"><strong>${title}</strong><small>${note}</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>`).join('')}</div><button class="guide-free" data-free>Explore freely <span aria-hidden="true">→</span></button><p class="guide-note">You can change your experience anytime.</p></div>`;
  const bubble=document.createElement('section');bubble.className='guide-bubble mat';bubble.hidden=true;bubble.setAttribute('aria-live','polite');
  bubble.innerHTML=`${AVATAR}<div class="guide-body"><p class="guide-text"></p><div class="guide-row"><span class="guide-count"></span><button data-back>Back</button><button data-act hidden></button><button class="primary" data-next>Next</button></div></div><button class="guide-close" data-close aria-label="Close the guide">×</button>`;
  document.body.append(welcome,bubble);
@@ -73,13 +74,21 @@ export function createGuide(api){
   show(s.text,{count:`${i+1} of ${steps.length}`,back:i>0,next:i<steps.length-1?'Next':'Done',action:s.action});
  }
  function startTour(){steps=tourFor(audience??'general',api);step(0);}
+ // Leaving the welcome is remembered, so a returning visitor is not asked again; the list's guide row reopens it.
+ function leave(){welcome.hidden=true;welcomed=true;put('zoriana-welcomed','1');opener?.focus?.();opener=null;}
  function choose(id){
-  audience=id;try{localStorage.setItem('zoriana-audience',id);}catch{}
-  welcome.hidden=true;api.setup(id);steps=null;mark(null);
-  const title=AUDIENCES.find(a=>a[0]===id)[1].toLowerCase();
-  show(`All set for “${title}”. Want a one-minute tour? You can find me again at the top of the list.`,{next:'Not now',action:['Start the tour',startTour]});
+  audience=id;put('zoriana-audience',id);leave();api.setup(id);steps=null;mark(null);
+  show(`${AUDIENCES.find(a=>a[0]===id)[4]} Want a one-minute tour? You can find me again at the top of the list.`,{next:'Not now',action:['Start the tour',startTour]});
  }
- welcome.onclick=e=>{const id=e.target.closest('[data-audience]')?.dataset.audience;if(id)choose(id);else if(e.target.closest('[data-skip]')||e.target===welcome)welcome.hidden=true;};
+ welcome.onclick=e=>{const id=e.target.closest('[data-audience]')?.dataset.audience;if(id)choose(id);else if(e.target.closest('[data-free]')||e.target===welcome)leave();};
+ // Keyboard: Escape leaves, and Tab stays inside the panel while it is open.
+ welcome.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();leave();return;}
+  if(e.key!=='Tab')return;
+  const stops=[...welcome.querySelectorAll('button')],first=stops[0],last=stops.at(-1);
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+ });
  bubble.onclick=e=>{
   if(e.target.closest('[data-close]'))return close();
   if(e.target.closest('[data-act]')){const run=act;if(run===startTour)return startTour();close();return run?.();}
@@ -88,7 +97,8 @@ export function createGuide(api){
  };
  return {
   audience:()=>audience,
-  welcome(){close();welcome.hidden=false;welcome.querySelector('[data-audience]').focus();},
+  firstVisit:()=>!audience&&!welcomed,
+  welcome(){close();opener=document.activeElement;welcome.hidden=false;welcome.querySelector('[data-audience]').focus({preventScroll:true});},
   // A plain answer about something on the map. It does not interrupt a tour that is under way.
   say(text){if(!steps){mark(null);show(text,{next:'OK'});}},
   startTour,close,

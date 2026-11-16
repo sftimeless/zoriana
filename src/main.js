@@ -1380,7 +1380,7 @@ guide=createGuide({
  openReplay(){openMissionReplay();},
 });
 $('#guide-open .guide-mini').innerHTML=AVATAR;$('#guide-open').onclick=()=>guide.welcome();
-if(openedPlain&&!guide.audience())setTimeout(()=>guide.welcome(),1200);
+if(openedPlain&&guide.firstVisit())setTimeout(()=>guide.welcome(),1200);
 {const p=new URLSearchParams(location.search);if(!['date','hour','t','site','compare'].some(k=>p.has(k)))$('#time').value=new Date().getUTCHours();} // nothing asked for: open on now, like the Now button
 restoring=false;
 updateClock();refreshMetrics();if(!selected)referenceLight();invalidate();
