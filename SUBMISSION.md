@@ -10,7 +10,7 @@ Zoriana
 
 ## High-Level Project Summary
 
-Zoriana is a map-style web app for choosing where and when to land on the Moon. Pick a site and a date, and it shows when that spot has sunlight (needed for power) and a clear line to Earth (needed for communications), hour by hour for a full lunar day. It combines live Sun and Earth positions from NASA/JPL Horizons with real lunar terrain from the Lunar Orbiter Laser Altimeter, so a ridge or crater rim that blocks the Sun or Earth is accounted for. One click ranks 18 past and planned landing sites, and up to four site-and-date options can be compared side by side. This matters most at the lunar south pole, where the Sun never climbs more than a few degrees and terrain decides whether a lander has power and a link home.
+Zoriana is a map-style web app for choosing where and when to land on the Moon. Pick a site and a date, and it shows when that spot has sunlight (needed for power) and a clear line to Earth (needed for communications), hour by hour for a full lunar day. It combines live Sun and Earth positions from NASA/JPL Horizons with real lunar terrain from the Lunar Orbiter Laser Altimeter, so a ridge or crater rim that blocks the Sun or Earth is accounted for. One click ranks 18 past and planned landing sites, and up to four site-and-date options can be compared side by side. A built-in guide, Zoriana, offers three ways in: explore, learn, or plan. This matters most at the lunar south pole, where the Sun never climbs more than a few degrees and terrain decides whether a lander has power and a link home.
 
 ## Link to Project Demo
 
@@ -68,6 +68,20 @@ Anyone, from a student to a mission planner doing a first pass, can see in secon
 **What comes next**
 
 Scanning a whole area for a chosen date, relay satellites for sites that cannot see Earth, and hazard maps of rocks and small craters.
+
+**How it is creative**
+
+- It feels like an everyday map app, so no training is needed: search, pins and a time bar.
+- One set of calculations serves three audiences. Zoriana, a small astronaut guide, offers a tour of how to read the map, experiments where a guess is tested against the app's real numbers, or a quiet walkthrough of the planning tools.
+- Every one of the 9,087 named features explains its own name, and the whole Apollo 11 flight can be replayed in 3D.
+
+**What we considered**
+
+- Honesty about limits: the app is geometry only, and says so wherever a number could be over-read.
+- Real versus calculated: every NASA source is named, what the app works out itself is labeled as calculated, and approximate future sites are labeled approximate.
+- Checking against published values and a real lander before trusting the output.
+- People new to the Moon: plain words, a first-visit guide, and a phone layout.
+- The Space Apps rules: original drawings, no NASA logos or mission patches, AI use disclosed, and the AI-made icon visibly marked.
 
 **Tools, languages and software**
 
