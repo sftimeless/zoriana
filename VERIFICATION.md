@@ -581,3 +581,13 @@ Local build at the time of writing.
 - One very fast spin of the Moon (a full turn in 1.2 seconds, ending on the opening view) answers a click on "Explore the Moon" in the welcome, and nothing else. Checked by watching which markers were in view: a spin on clicking "Explore the Moon", both the first time and after changing experience back to it; no spin on opening the app, on "Start the tour", on the Guide button, on reopening the welcome, on "Explore freely", on "Learn & Discover" or on "Plan a Mission". It is skipped when the system asks for reduced motion.
 - The guide's panel is wider (480 px) with more padding. A menu of three choices is one column of equal buttons (347 × 40 px each, evenly spaced); step buttons keep one size and one gap.
 - Ninety-nine Node tests pass; the build succeeds.
+
+## Every step moves — November 16, 2026 (UTC)
+
+The team's note: between the first two steps of the Explore tour nothing moved; each step of the first two experiences should show something in context. Local build at the time of writing.
+
+- Explore the Moon, measured by sampling the on-screen positions of every marker and name while each step ran: steps 1 to 8 all move the map. Step 1 shows the two gestures instead of naming them (the Moon turns about 40°, the view zooms in, then both return); 2 flies in for a closer look at the lava plains; 3 pulls back to the whole Moon; 4 flies to Mare Tranquillitatis; 5 opens Apollo 11; 6 steps to the side of it; 7 goes to the south pole; 8 plays the clock. Step 9 opens the Learn section it describes in the side panel; step 10 switches poles and grid on for the length of the step and puts it back; step 11 is the hand-over.
+- Learn & Discover, same measurement on the sunlight experiment: all six steps move (to the pole; Shackleton opened and the clock run; back out to both places for the date question; the Moon relit two weeks on and the clock run again; a close look at the ground for the reason; back to the whole Moon). The landing date read November 30 during the experiment and November 16 after "Done".
+- A fault caught by this check and fixed before it shipped: the new step 9 called a hook that an earlier rewrite had dropped, and the tour stopped at step 8. Every hook the guide calls is now checked against what the app provides (none missing). Run again to the end: Explore 1 to 11, the Earth experiment 1 to 6, the planning walkthrough 1 to 7.
+- The shared link is rewritten when an experiment puts the date back, so a reload does not land on the experiment's date.
+- Ninety-nine Node tests pass; the build succeeds.
