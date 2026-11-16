@@ -1007,11 +1007,14 @@ function refreshMetrics(){
  const steps=(name,label)=>{
   const c=currents[name];if(!c)return '';
   const o=profile?obstructionAt(profile,c.az):null,skyline=o?o.horizon:0,up=c.el-skyline>0;
+  // Clearing the terrain is not the whole test for the Sun: during an eclipse Earth is in front of it.
+  const covered=name==='sun'&&up?eclipseAt(data.eclipse,time)?.coverage??0:0,hidden=covered>.001;
   return `<li><b>Where the ${label} is.</b> NASA/JPL Horizons puts it ${deg(c.el)} ${c.el<0?'below':'above'} level ground, toward the ${compassPoint(c.az)}, at ${stamp(time)}.</li>`+
    `<li><b>How high the ground is that way.</b> ${profile?`NASA’s LOLA terrain reaches ${deg(skyline)} in that direction${o?`, from ground ${distanceText(o.distanceMeters)} away`:''}.`:'Terrain is switched off, so the skyline is level: 0°.'}</li>`+
-   `<li><b>Compare.</b> ${deg(c.el)} is ${up?'above':'below'} ${deg(skyline)}, so the ${label} is ${up?'in view':'hidden'}.</li>`;
+   `<li><b>Compare.</b> ${deg(c.el)} is ${up?'above':'below'} ${deg(skyline)}, so the ${label} ${hidden?'clears the terrain':up?'is in view':'is hidden'}.</li>`+
+   (hidden?`<li><b>Check for an eclipse.</b> Earth is passing in front of the Sun and covers ${covered>=.999?'all':`${Math.round(covered*100)}%`} of its disk, so ${covered>=.999?'no sunlight reaches this spot':'the sunlight here is cut'} until Earth moves on.</li>`:'');
  };
- $('#how-steps').innerHTML=data?`<ol>${steps('sun','Sun')}</ol><ol>${steps('earth','Earth')}</ol><p>The app repeats this test every five minutes for 30 days. The stretches where the answer is “in view” are the windows, totals and countdowns you see.</p>`:'';
+ $('#how-steps').innerHTML=data?`<ol>${steps('sun','Sun')}</ol><ol>${steps('earth','Earth')}</ol><p>The app repeats this test every five minutes for 30 days. The stretches where the answer is “in view”, less any eclipse of the Sun by Earth, are the windows, totals and countdowns you see.</p>`:'';
  const stay=data?stayMetrics(visibilityRows(data,'sun'),visibilityRows(data,'earth'),data.sun,startDate(),end):null;
  $('#stay-summary').textContent=stay?staySentence(stay,duration):'';
  // The answer in a sentence, before any numbers: the moment shown, then the stay.
@@ -1230,7 +1233,7 @@ $('#comparison-cards').onclick=e=>{
 $('#close-compare').onclick=()=>{$('#comparison').hidden=true;};
 
 // ---- Ranking: every site for the chosen landing date and stay, in one table ----
-const rankColumns=[['both','Sun + Earth','Hours with the Sun and Earth both above the horizon: power and a direct link at the same time'],['sun','Sunlit','Hours of sunlight'],['earth','Earth','Hours with Earth in view'],['sunHeight','Sun elev.','Average Sun elevation while the site is sunlit']];
+const rankColumns=[['both','Sun + Earth','Hours with the Sun and Earth both above the horizon: sunlight and Earth in view at the same time'],['sun','Sunlit','Hours of sunlight'],['earth','Earth','Hours with Earth in view'],['sunHeight','Sun elev.','Average Sun elevation while the site is sunlit']];
 let rankFilter='all',rankSort='both',rankToken=0,rankList=[],rankResults=new Map();
 function showRanking(value){$('#ranking').hidden=!value;if(value){$('#comparison').hidden=true;renderRanking();}else rankToken++;syncUrl();}
 async function renderRanking(){
@@ -1285,10 +1288,13 @@ $('#export-compare').onclick=()=>{
  saveCsv(`zoriana-comparison-${$('#date').value}.csv`,[exportHeader,...lastComparison.map(r=>exportRow(r.option.site,optionStart(r.option),r.metrics,r.terrain))]);
 };
 $('#export-ranking').onclick=()=>{
- const ready=rankList.filter(s=>{const r=rankResults.get(s.id);return r&&!r.error;});
- if(!ready.length){toast('Nothing to export yet. Wait for the ranking to finish loading.');return;}
+ // The file holds what the table shows: the same minimum hours, the same order.
+ const minSun=Math.max(0,Number($('#rank-min-sun').value)||0),minEarth=Math.max(0,Number($('#rank-min-earth').value)||0);
+ const loaded=rankList.filter(s=>{const r=rankResults.get(s.id);return r&&!r.error;}),ready=loaded.filter(s=>{const r=rankResults.get(s.id);return r.sun>=minSun&&r.earth>=minEarth;});
+ if(!loaded.length){toast('Nothing to export yet. Wait for the ranking to finish loading.');return;}
+ if(!ready.length){toast('No site meets your minimum hours, so there is nothing to export.');return;}
  const score=s=>rankResults.get(s.id)[rankSort]??-Infinity;
- saveCsv(`zoriana-ranking-${$('#date').value}.csv`,[['rank_by_'+rankSort,...exportHeader],...ready.sort((a,b)=>score(b)-score(a)).map((s,i)=>[i+1,...exportRow(s,startDate(),rankResults.get(s.id),rankResults.get(s.id).terrain)])]);
+ saveCsv(`zoriana-ranking-${$('#date').value}.csv`,[['rank_by_'+rankSort,...exportHeader],...ready.sort((a,b)=>score(b)-score(a)||rankResults.get(b.id).sun-rankResults.get(a.id).sun).map((s,i)=>[i+1,...exportRow(s,startDate(),rankResults.get(s.id),rankResults.get(s.id).terrain)])]);
 };
 
 // ---- Shareable address: the site, date, stay and comparison are kept in the URL ----

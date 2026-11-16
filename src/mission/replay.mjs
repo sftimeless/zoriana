@@ -22,7 +22,8 @@ const SPEEDS=[['guided','Guided'],[1,'Real time'],[10,'10×'],[100,'100×'],[100
 const VIEWS=[['guided','Guided'],['follow','Follow'],['onboard','Window'],['route','Whole route']];
 const svg=d=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
 const ICON={play:svg('M8 5v14l11-7z'),pause:svg('M6 5h4v14H6zM14 5h4v14h-4z'),prev:svg('M6 6h2v12H6zM9.5 12l8.5 6V6z'),next:svg('M16 6h2v12h-2zM6 18l8.5-6L6 6z'),close:svg('M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z'),list:svg('M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z')};
-const stamp=t=>{const d=new Date(LAUNCH+t*1000);return `${d.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'})}, 1969 · ${d.toISOString().slice(11,19)} UTC`;};
+const stamp=t=>{const d=new Date(LAUNCH+Math.round(t)*1000);   // rounded like the T+ clock, so the two never differ by a second
+ return `${d.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'})}, 1969 · ${d.toISOString().slice(11,19)} UTC`;};
 const round=x=>{const a=Math.abs(x),step=a>=100000?1000:a>=10000?100:a>=1000?10:1;return (a<10?Math.round(x*10)/10:Math.round(x/step)*step).toLocaleString('en-US');};
 
 const TEMPLATE=`
@@ -37,7 +38,7 @@ const TEMPLATE=`
  <section class="rp-panel rp-about" hidden>
   <p><b>Real.</b> The time of every event (NASA’s Apollo 11 timeline), the positions of the Moon and the Sun, and the path of the rocket’s third stage after its burn toward the Moon (JPL Horizons), which the spacecraft shared until it pulled away. The launch pad, landing site and splashdown point are the recorded ones.</p>
   <p><b>Rebuilt.</b> The paths between those anchors are calculated here as unpowered flight that passes through them at the published times. The speeds and heights on screen come from that reconstruction, so they are close, not exact.</p>
-  <p><b>Drawn.</b> The vehicles are simplified original drawings made for this app with AI coding assistance. They are at true size close up, and enlarged when seen from far away; a note says when. The small thrusters fire where each maneuver calls for them, in a simplified pattern; the window frame, the sea and the splash are drawn too. Launch Complex 39A and the ground around it are drawn the same way, from the pad’s published layout, and are not a survey. The United States flag stands where the crew planted it. No NASA footage, logos or markings are used.</p>
+  <p><b>Drawn.</b> The vehicles are simplified original drawings made for this app with AI coding assistance. They are at true size close up, and enlarged when seen from far away; a note says when. The small thrusters fire where each maneuver calls for them, in a simplified pattern; the window frame, the sea and the splash are drawn too. Launch Complex 39A and the ground around it are drawn the same way, from the pad’s published layout, and are not a survey. The United States flag appears at the recorded time; its exact spot and the way it faces are chosen for the picture. No NASA footage, logos or markings are used.</p>
  </section>
  <p class="rp-scale" hidden></p>
  <p class="rp-loading">Loading the flight…</p>

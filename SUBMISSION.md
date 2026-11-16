@@ -10,7 +10,7 @@ Zoriana
 
 ## High-Level Project Summary
 
-Zoriana is a map-style web app for choosing where and when to land on the Moon. Pick a site and a date, and it shows when that spot has sunlight (power) and a clear line to Earth (communications), hour by hour for a full lunar day. It combines live Sun and Earth positions from NASA/JPL Horizons with real lunar terrain from the Lunar Orbiter Laser Altimeter, so a ridge or crater rim that blocks the Sun or Earth is accounted for. One click ranks 18 past and planned landing sites, and up to four site-and-date options can be compared side by side. This matters most at the lunar south pole, where the Sun never climbs more than a few degrees and terrain decides whether a lander has power and a link home.
+Zoriana is a map-style web app for choosing where and when to land on the Moon. Pick a site and a date, and it shows when that spot has sunlight (needed for power) and a clear line to Earth (needed for communications), hour by hour for a full lunar day. It combines live Sun and Earth positions from NASA/JPL Horizons with real lunar terrain from the Lunar Orbiter Laser Altimeter, so a ridge or crater rim that blocks the Sun or Earth is accounted for. One click ranks 18 past and planned landing sites, and up to four site-and-date options can be compared side by side. This matters most at the lunar south pole, where the Sun never climbs more than a few degrees and terrain decides whether a lander has power and a link home.
 
 ## Link to Project Demo
 
@@ -52,7 +52,7 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - Across all six Apollo landings it is within 0.7° in elevation of NASA's older published table.
 - The floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus craters read as permanently shadowed; nearby ridges do not.
 - The differences from that older table trace to the Sun position it used (it places the Sun up to 2.0° from the lunar equator, more than is physically possible), not to the app.
-- At ten polar points, the app's yearly share of sunlight is within 3 percentage points of NASA's long-term illumination maps on average (Earth visibility within 2).
+- At ten polar points, the app's yearly share of sunlight differs from NASA's long-term illumination maps by about 3 percentage points on average (3.1; Earth visibility 2.3).
 - The eclipse calculation reproduces the two lunar eclipses of 2026: every site's times fall inside the published contact times.
 - Against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025; the app ends totality at that site at 08:30. For the same lander's sunset two days later the app is 1 to 2 hours later than Firefly's account, and we say so.
 - Each rise and set time carries a "±" showing how far it moves if the skyline is 0.1° off.
