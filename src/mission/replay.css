@@ -27,6 +27,9 @@
 .rp-scale{position:absolute;top:calc(max(14px,env(safe-area-inset-top)) + 58px);left:16px;margin:0;padding:4px 10px;border-radius:10px;background:rgba(0,0,0,.5);font-size:11.5px;color:rgba(235,235,245,.78);pointer-events:none}
 .rp-loading{position:absolute;inset:0;margin:0;display:grid;place-items:center;padding:24px;text-align:center;font-size:15px;color:rgba(235,235,245,.8);pointer-events:none}
 .rp-labels{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.replay svg.rp-window{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.rp-window-wall{fill:#0c0c0e}
+.rp-window-edge{fill:none;stroke:#55555e;stroke-width:5;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 .rp-label{position:absolute;left:0;top:0;padding:2px 8px;border-radius:9px;background:rgba(0,0,0,.55);font-size:11.5px;font-weight:600;white-space:nowrap;will-change:transform}
 .rp-label::after{content:"";position:absolute;left:50%;bottom:-9px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:currentColor}
 .rp-label.rp-ship{color:#ffd60a}

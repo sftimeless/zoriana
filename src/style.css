@@ -82,13 +82,19 @@ canvas{display:block;touch-action:none}
 .rail-ind.on.earth{color:var(--blue)}
 .rail-ind.on.sun{color:var(--sun)}
 .rail-ind.off::after{content:'';position:absolute;width:22px;height:2px;border-radius:2px;background:var(--label2);transform:rotate(-45deg);box-shadow:0 0 0 1.5px rgba(16,16,18,.94)}
-.rail-apps{display:flex;flex-direction:column;gap:14px}
+.rail-apps{display:flex;flex-direction:column;gap:23px}
 .rail-app{position:relative;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;color:#fff;box-shadow:inset 0 .5px rgba(255,255,255,.35),0 2px 8px rgba(0,0,0,.4);transition:transform .15s}
 .rail-app:active,.rail-home:active{transform:scale(.93)}
 .rail-app.blue{background:linear-gradient(180deg,#3d9bff,#0a6cf0)}
 .rail-app.green{background:linear-gradient(180deg,#45d96c,#1fa647)}
 .rail-app.gray{background:linear-gradient(180deg,#8e8e93,#5c5c61)}
 .rail-app.orange{background:linear-gradient(180deg,#ffb340,#f08c00)}
+.rail-app.purple{background:linear-gradient(180deg,#c77bf5,#9b3fd6)}
+.rail-app.red{background:linear-gradient(180deg,#ff6b5e,#e0352b)}
+/* A word under each icon, so the bar reads without hovering */
+.rail-app::after{content:attr(data-label);position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:3px;font-size:9.5px;font-weight:600;letter-spacing:.2px;color:var(--label2);white-space:nowrap;pointer-events:none}
+@media(max-height:680px){.rail-apps{gap:12px}.rail-app::after{display:none}}
+@media(max-height:560px){.rail-app.wide-only{display:none}}
 .badge.rank{--pin:var(--orange)}
 .rail-app b{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .rail-home{width:46px;height:46px;border-radius:12px;transition:transform .15s}
@@ -274,6 +280,10 @@ canvas{display:block;touch-action:none}
 /* The numbers can be folded away; plain sentences, times and the caution line always stay. */
 #site-card.simple .adv{display:none}
 .detail-toggle{display:block;width:100%;margin:8px 0 0;padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:var(--blue)}
+.detail-links{display:flex;gap:8px}
+.detail-links .detail-toggle{flex:1;width:auto}
+.place-head #share{margin-left:auto}
+.place-head #share+.circle-btn{margin-left:-3px}
 .explain.first{margin:10px 0 2px}
 .explain details p+p{margin-top:6px}
 .finder{margin-top:10px;padding-top:10px;border-top:.5px solid var(--sep)}
@@ -470,7 +480,8 @@ dialog .close{position:absolute;right:14px;top:14px}
  .rail-utc{margin:0 4px 0 0}
  .rail-ind{width:24px}
  .rail-apps{flex-direction:row;order:3;gap:8px}
- #rail-search{display:none}
+ #rail-search,.rail-app.wide-only{display:none}
+ .rail-app::after{display:none}
  .rail-app{width:30px;height:30px;border-radius:8px;font-size:17px}
  .rail-home{order:1;width:30px;height:30px}
  .rail-home img{width:30px;height:30px}

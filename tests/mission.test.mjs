@@ -46,3 +46,8 @@ test('Apollo 11: the rocket leaves the pad slowly, and the cabin comes down slow
  const fall=(earthAlt(T.splash-200)-earthAlt(T.splash-100))/100*1000;assert.ok(fall>7&&fall<12,`falls at ${fall} m/s under the main parachutes`);
  const f=curve([[0,0],[1,1],[2,1],[3,5]]);close(f(1),1,1e-12);assert.ok(f(1.5)>=1-1e-9&&f(1.5)<=1+1e-9,'no overshoot between equal points');close(f(-1),0,1e-12);close(f(9),5,1e-12);
 });
+test('Apollo 11 data: one whole lap of the Moon at the Moon\'s distance, covering the days of the flight',()=>{
+ const lap=JSON.parse(readFileSync(new URL('../public/assets/apollo11.json',import.meta.url))).orbit;assert.ok(lap.length>=100);
+ for(const row of lap){const r=Math.hypot(row[1],row[2],row[3]);assert.ok(r>355000&&r<407000,`Moon at ${r} km`);}
+ const launch=Date.UTC(1969,6,16,13,32);assert.ok(lap[0][0]<launch&&lap.at(-1)[0]>launch+END*1000);assert.ok((lap.at(-1)[0]-lap[0][0])/86400000>27&&(lap.at(-1)[0]-lap[0][0])/86400000<27.6);
+});

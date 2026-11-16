@@ -35,6 +35,27 @@ export function plume(radius,length,color=0xffc46b){
  m.visible=false;m.userData.plume=true;return m;
 }
 
+// Clusters of small attitude-control thrusters ("quads"): a housing with four nozzles, one pointing toward the nose (+y),
+// one toward the tail, and one each way round the hull. Each nozzle gets a small flame, hidden until it fires.
+// Returns the flames grouped by the way the exhaust goes: up[i], down[i], left[i], right[i] for quad i.
+function quads(parent,places,size=1){
+ const jets={up:[],down:[],left:[],right:[]},Y=new THREE.Vector3(0,-1,0);
+ for(const [x,y,z] of places){
+  const quad=new THREE.Group(),out=new THREE.Vector3(x,0,z).normalize(),round=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),out);
+  quad.position.set(x,y,z);
+  const housing=new THREE.Mesh(new THREE.BoxGeometry(.42*size,.42*size,.42*size),DARK);housing.quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0),out);quad.add(housing);
+  for(const [key,dir] of [['up',new THREE.Vector3(0,1,0)],['down',new THREE.Vector3(0,-1,0)],['left',round],['right',round.clone().negate()]]){
+   const nozzle=new THREE.Mesh(new THREE.CylinderGeometry(.11*size,.05*size,.26*size,10),SILVER);nozzle.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir);nozzle.position.copy(dir).multiplyScalar(.3*size);quad.add(nozzle);
+   const jet=plume(.16*size,1.5*size,0xffe6c0);jet.quaternion.setFromUnitVectors(Y,dir);jet.position.copy(dir).multiplyScalar(.42*size);quad.add(jet);jets[key].push(jet);
+  }
+  parent.add(quad);
+ }
+ return jets;
+}
+// A small dark patch lying on a cone or drum, for windows and hatches: at angle a round the axis, radius r, height y, leaning back by lean.
+function patch(parent,a,r,y,w,h,lean,material=BLACK,thick=.04){
+ const pivot=new THREE.Group(),p=new THREE.Mesh(new THREE.BoxGeometry(thick,h,w),material);pivot.rotation.y=a;p.position.set(r,y,0);p.rotation.z=lean;pivot.add(p);parent.add(pivot);return p;
+}
 // Heights of the stack's parts, bottom to top, in metres. The whole vehicle stood 110.6 m.
 export const SIZE={sIC:42.1,sII:24.9,interstage:5.6,sIVB:12.2,adapter:8.5,service:7.5,command:3.2,tower:9.9};
 
@@ -68,32 +89,51 @@ export function thirdStage(){
   const geometry=new THREE.CylinderGeometry(1.95,3.3,SIZE.adapter,12,1,true,i*Math.PI/2,Math.PI/2);geometry.translate(0,SIZE.adapter/2,0);
   const panel=new THREE.Mesh(geometry,mat(0xf1f0ec,.1,.75,{side:THREE.DoubleSide}));panel.position.y=SIZE.sIVB;panel.userData.angle=i*Math.PI/2+Math.PI/4;g.add(panel);panels.push(panel);
  }
+ // Two auxiliary propulsion pods near the base: small engines that settle the propellant and steer the stage while it coasts.
+ const aps=[];
+ for(const x of [-3.45,3.45]){const pod=mesh(new THREE.BoxGeometry(.7,1.9,1.1),WHITE,1.6);pod.position.x=x;g.add(pod);const jet=plume(.22,2.6,0xffe6c0);jet.position.set(x*1.04,.6,0);g.add(jet);aps.push(jet);}
  const flame=plume(1.6,26,0xbfd9ff);g.add(flame);
- g.userData={plume:flame,panels};
+ g.userData={plume:flame,panels,aps};
  return g;
 }
 // Command and service module. Base (engine bell exit) at y = 0; the docking probe is at the top.
 export const CSM_LENGTH=2.9+SIZE.service+SIZE.command;
 export function commandShip(){
- const g=new THREE.Group(),service=new THREE.Group(),command=commandModule();
- service.add(bell(.45,1.25,2.9,2.9));
+ const g=new THREE.Group(),service=new THREE.Group(),command=commandModule(),top=2.9+SIZE.service;
+ service.add(bell(.5,1.25,2.9,2.9),mesh(new THREE.CylinderGeometry(1.2,1.6,.5,24),DARK,2.75));
  const body=tube(1.95,1.95,SIZE.service,SILVER,40);body.position.y=2.9;service.add(body);
- for(let i=0;i<4;i++){const a=i*Math.PI/2,radiator=mesh(new THREE.BoxGeometry(1.5,3.2,.06),WHITE);radiator.position.set(Math.cos(a)*1.96,5.2,Math.sin(a)*1.96);radiator.rotation.y=Math.PI/2-a;service.add(radiator);
-  const quad=mesh(new THREE.BoxGeometry(.5,.5,.35),DARK);quad.position.set(Math.cos(a+Math.PI/4)*2.1,8.6,Math.sin(a+Math.PI/4)*2.1);service.add(quad);}
- const dish=mesh(new THREE.SphereGeometry(.7,12,6,0,Math.PI*2,0,Math.PI/3),WHITE);dish.position.set(2.2,2.6,0);dish.rotation.z=-Math.PI/2;service.add(dish);
+ for(const y of [2.95,top-.3]){const band=tube(1.97,1.97,.28,WHITE,40);band.position.y=y;service.add(band);}
+ // Radiators: two large panels low on the hull for the cabin's cooling, eight narrow ones high up for the fuel cells.
+ for(let i=0;i<4;i++){const a=i*Math.PI/2;patch(service,a,1.96,5.0,1.5,2.9,0,WHITE,.05);}
+ for(let i=0;i<8;i++){const a=i*Math.PI/4+Math.PI/8;patch(service,a,1.96,top-1.9,.5,1.5,0,WHITE,.05);}
+ // Four clusters of attitude thrusters round the hull.
+ const jets=quads(service,[0,1,2,3].map(i=>{const a=i*Math.PI/2+Math.PI/4;return [Math.cos(a)*2.16,top-2.3,Math.sin(a)*2.16];}));
+ // The high-gain antenna: four small dishes on a boom at the base, swung out to the side.
+ const boom=tube(.05,.05,2.3,SILVER,6);boom.position.set(1.7,3.1,0);boom.rotation.z=-2.2;service.add(boom);
+ for(const [dy,dz] of [[-.42,-.42],[-.42,.42],[.42,-.42],[.42,.42]]){const dish=mesh(new THREE.SphereGeometry(.5,12,6,0,Math.PI*2,0,Math.PI/3.2),WHITE);dish.position.set(3.75,1.65+dy,dz);dish.rotation.z=-Math.PI/2;dish.scale.set(.8,.8,.8);service.add(dish);}
  const flame=plume(1.1,14,0xcfe2ff);flame.position.y=0;service.add(flame);
- command.position.y=2.9+SIZE.service;
- g.add(service,command);g.userData={service,command,plume:flame};
+ command.position.y=top;
+ g.add(service,command);g.userData={service,command,plume:flame,jets,cabinJets:command.userData.jets};
  return g;
 }
 // The crew cabin: a blunt cone with its heat shield at the base (y = 0) and the docking tunnel at the top.
 export function commandModule(){
- const g=new THREE.Group();
- g.add(tube(1.95,.55,SIZE.command-.4,SILVER,40));
+ const g=new THREE.Group(),lean=Math.atan(1.4/(SIZE.command-.4)),r=y=>1.95-1.4*y/(SIZE.command-.4)+.012;
+ g.add(tube(1.95,.55,SIZE.command-.4,mat(0xd4d8dd,.35,.38),40));
  const cap=tube(.55,.4,.4,DARK,20);cap.position.y=SIZE.command-.4;g.add(cap);
+ const probe=tube(.16,.05,.5,SILVER,10);probe.position.y=SIZE.command;g.add(probe);
+ // Windows and the hatch: two forward-looking rendezvous windows, two side windows, and the hatch between them with its own window.
+ for(const a of [-.42,.42])patch(g,a,r(2.05),2.05,.2,.34,lean);
+ for(const a of [-1.15,1.15])patch(g,a,r(1.45),1.45,.36,.36,lean);
+ patch(g,0,r(1.3),1.3,.78,.86,lean,mat(0xaeb3b9,.3,.45),.03);patch(g,0,r(1.5)+.02,1.5,.22,.22,lean);
  const shield=mesh(new THREE.SphereGeometry(4.6,32,8,0,Math.PI*2,Math.PI-.44,.44),SHIELD);shield.position.y=4.16;g.add(shield);
+ // The cabin's own small thrusters, used once the service module is gone.
+ const jets=[];for(const a of [.8,2.35,3.95,5.5]){const jet=plume(.1,.9,0xffe6c0);jet.position.set(Math.cos(a)*1.72,.45,Math.sin(a)*1.72);jet.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),new THREE.Vector3(-Math.sin(a),0,Math.cos(a)));g.add(jet);jets.push(jet);}
  const glow=mesh(new THREE.SphereGeometry(4.7,32,8,0,Math.PI*2,Math.PI-.5,.5),new THREE.MeshBasicMaterial({color:0xff9a4a,transparent:true,opacity:.0,blending:THREE.AdditiveBlending,depthWrite:false}));glow.position.y=4.2;g.add(glow);
- g.userData.glow=glow;
+ // Three bags on the nose that inflate after splashdown to keep the cabin upright.
+ const bags=new THREE.Group();for(let i=0;i<3;i++){const a=i*2*Math.PI/3,bag=mesh(new THREE.SphereGeometry(.42,14,10),WHITE);bag.position.set(Math.cos(a)*.5,SIZE.command-.05,Math.sin(a)*.5);bags.add(bag);}
+ bags.visible=false;g.add(bags);
+ g.userData={glow,jets,bags};
  return g;
 }
 // The escape tower and the cover over the cabin, thrown off once the second stage was burning.
@@ -108,30 +148,42 @@ export function escapeTower(){
 // The lunar module. Footpads on y = 0; the docking hatch is on top of the ascent stage.
 export const LM_HEIGHT=7,LM_DESCENT_TOP=3.25;
 export function lunarModule(){
- const g=new THREE.Group(),descent=new THREE.Group(),ascent=new THREE.Group(),legs=[];
+ const g=new THREE.Group(),descent=new THREE.Group(),ascent=new THREE.Group(),legs=[],T=LM_DESCENT_TOP,FOIL=mat(0xb9882f,.4,.5),PANEL=mat(0x4a4c50,.3,.6);
+ // Descent stage: an eight-sided box wrapped in gold and dark foil, the engine bell beneath, four legs with footpads.
  const base=tube(2.1,2.1,1.7,GOLD,8);base.position.y=1.55;base.rotation.y=Math.PI/8;descent.add(base);
- descent.add(bell(.35,.85,1.3,1.55));
+ for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4;patch(descent,a,1.96,2.4,1.5,1.5,0,i%2?PANEL:FOIL,.06);}
+ descent.add(mesh(new THREE.CylinderGeometry(2.05,2.05,.08,8).rotateY(Math.PI/8),PANEL,T+.02),bell(.35,.85,1.3,1.55));
  for(let i=0;i<4;i++){
   const a=i*Math.PI/2,leg=new THREE.Group();
   const strut=tube(.09,.09,3.9,GOLD,8);strut.position.set(2.0,3.05,0);strut.rotation.z=-2.42;leg.add(strut);
-  const brace=tube(.05,.05,2.6,SILVER,6);brace.position.set(1.9,1.6,0);brace.rotation.z=-1.25;leg.add(brace);
+  for(const z of [-.75,.75]){const brace=tube(.05,.05,2.75,SILVER,6);brace.position.set(1.85,1.62,z);brace.rotation.z=-1.25;brace.rotation.y=z>0?-.3:.3;leg.add(brace);}
   const pad=tube(.48,.4,.16,GOLD,16);pad.position.set(4.5,0,0);leg.add(pad);
-  if(i===0){const ladder=mesh(new THREE.BoxGeometry(.5,2.6,.06),SILVER);ladder.position.set(3.2,1.75,0);ladder.rotation.z=-.62;leg.add(ladder);}
+  if(i===0){
+   // The ladder down the front leg, and the porch outside the hatch.
+   for(const z of [-.24,.24]){const rail=tube(.03,.03,2.9,SILVER,6);rail.position.set(2.15,2.95,z);rail.rotation.z=-2.42;leg.add(rail);}
+   for(let k=0;k<8;k++){const rung=mesh(new THREE.BoxGeometry(.05,.05,.5),SILVER);rung.position.set(2.3+k*.235,2.78-k*.27,0);leg.add(rung);}
+   leg.add(box3(.9,.06,.9,SILVER,2.15,T-.1,0));
+  }else{const probe=tube(.015,.015,1.7,SILVER,4);probe.position.set(4.5,-1.7,0);leg.add(probe);leg.userData.probe=probe;}   // a thin rod under each of the other pads that feels for the ground
   leg.rotation.y=a;descent.add(leg);legs.push(leg);
  }
  const flameDown=plume(.9,9,0xdfe9ff);flameDown.position.y=.25;descent.add(flameDown);
- // Ascent stage: a short drum for the cabin, with the equipment bays and tanks as boxes around it.
- const cabin=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,1.9,20),GREY);cabin.rotation.z=Math.PI/2;cabin.position.set(.55,LM_DESCENT_TOP+1.25,0);ascent.add(cabin);
- const face=mesh(new THREE.BoxGeometry(.5,1.5,1.9),DARK);face.position.set(1.55,LM_DESCENT_TOP+1.2,0);ascent.add(face);
- const mid=mesh(new THREE.BoxGeometry(1.6,1.9,2.9),SILVER);mid.position.set(-.5,LM_DESCENT_TOP+1.05,0);ascent.add(mid);
- for(const z of [-1.75,1.75]){const tank=mesh(new THREE.BoxGeometry(1.5,1.3,.9),GREY);tank.position.set(-.3,LM_DESCENT_TOP+.95,z);ascent.add(tank);}
- const aft=mesh(new THREE.BoxGeometry(.8,1.5,1.9),BLACK);aft.position.set(-1.6,LM_DESCENT_TOP+1.1,0);ascent.add(aft);
- const tunnel=tube(.42,.42,.55,DARK,16);tunnel.position.set(0,LM_DESCENT_TOP+2.05,0);ascent.add(tunnel);
- const dish=mesh(new THREE.SphereGeometry(.42,12,6,0,Math.PI*2,0,Math.PI/3),WHITE);dish.position.set(-.2,LM_DESCENT_TOP+3,1.5);dish.rotation.x=Math.PI;ascent.add(dish);
- const mast=tube(.03,.03,.9,SILVER,6);mast.position.set(-.2,LM_DESCENT_TOP+2,1.5);ascent.add(mast);
- ascent.add(bell(.2,.4,.45,LM_DESCENT_TOP+.1));
- const flameUp=plume(.5,5,0xdfe9ff);flameUp.position.y=LM_DESCENT_TOP-.3;ascent.add(flameUp);
- g.add(descent,ascent);g.userData={descent,ascent,legs,plumeDown:flameDown,plumeUp:flameUp};
+ // Ascent stage: the crew cabin as a short drum, its flat face with two triangular windows and the hatch, equipment bays
+ // and propellant tanks to the sides and back, four thruster clusters on outriggers, antennas on top.
+ const cabin=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,1.9,20),GREY);cabin.rotation.z=Math.PI/2;cabin.position.set(.55,T+1.25,0);ascent.add(cabin);
+ ascent.add(box3(.5,1.5,1.9,DARK,1.55,T+1.2,0),box3(.06,.62,.62,SILVER,1.83,T+.55,0),box3(.05,.3,.3,BLACK,1.86,T+.55,0));
+ for(const z of [-.52,.52]){const pane=new THREE.Mesh(new THREE.CylinderGeometry(.33,.33,.05,3),BLACK);pane.rotation.z=Math.PI/2;pane.rotation.x=z>0?.5:-.5;pane.position.set(1.83,T+1.55,z);ascent.add(pane);}
+ ascent.add(box3(1.6,1.9,2.9,SILVER,-.5,T+1.05,0),box3(.8,1.5,1.9,BLACK,-1.6,T+1.1,0));
+ for(const z of [-1.75,1.75]){ascent.add(box3(1.5,1.3,.9,GREY,-.3,T+.95,z));const tank=mesh(new THREE.SphereGeometry(.62,14,10),FOIL);tank.position.set(.75,T+.75,z*.92);ascent.add(tank);}
+ const tunnel=tube(.42,.42,.55,DARK,16);tunnel.position.set(0,T+2.05,0);ascent.add(tunnel);
+ const jets=quads(ascent,[[1.55,T+1.75,1.75],[-1.55,T+1.75,1.75],[-1.55,T+1.75,-1.75],[1.55,T+1.75,-1.75]],.8);
+ for(const [x,z] of [[1.3,1.5],[-1.3,1.5],[-1.3,-1.5],[1.3,-1.5]]){const arm=tube(.04,.04,.75,SILVER,6);arm.position.set(x,T+1.5,z);arm.rotation.x=z>0?.5:-.5;ascent.add(arm);}
+ const radar=mesh(new THREE.SphereGeometry(.34,12,6,0,Math.PI*2,0,Math.PI/3),WHITE);radar.position.set(1.15,T+2.55,0);radar.rotation.z=-Math.PI/2;ascent.add(radar,box3(.2,.5,.2,SILVER,1.0,T+2.3,0));
+ const dish=mesh(new THREE.SphereGeometry(.42,12,6,0,Math.PI*2,0,Math.PI/3),WHITE);dish.position.set(-.2,T+3,1.5);dish.rotation.x=Math.PI;ascent.add(dish);
+ const mast=tube(.03,.03,.9,SILVER,6);mast.position.set(-.2,T+2,1.5);ascent.add(mast);
+ for(const z of [-.9,.9]){const whip=tube(.012,.012,1.1,SILVER,4);whip.position.set(-1.1,T+2,z);ascent.add(whip);}
+ ascent.add(bell(.2,.4,.45,T+.1));
+ const flameUp=plume(.5,5,0xdfe9ff);flameUp.position.y=T-.3;ascent.add(flameUp);
+ g.add(descent,ascent);g.userData={descent,ascent,legs,plumeDown:flameDown,plumeUp:flameUp,jets};
  return g;
 }
 // Two figures in white suits, for the walk on the surface. Feet on y = 0.
@@ -160,6 +212,7 @@ function bars(list,material){
  list.forEach(([x1,y1,z1,x2,y2,z2,w],i)=>{a.set(x1,y1,z1);b.set(x2,y2,z2);const d=b.clone().sub(a),length=d.length();q.setFromUnitVectors(up,d.normalize());size.set(w,length,w);m.compose(a.add(b).multiplyScalar(.5),q,size);out.setMatrixAt(i,m);});
  out.instanceMatrix.needsUpdate=true;out.frustumCulled=false;return out;
 }
+const box3=(w,h,d,material,x,y,z)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);b.position.set(x,y,z);return b;};
 const box=(w,h,d,material,x,y,z)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);b.position.set(x,y,z);return b;};
 // Launch Complex 39A as it stood for a Saturn V, in simple shapes: the raised concrete hardstand with its flame trench
 // and ramp, the mobile launcher's platform, the red launch umbilical tower with its nine swing arms and crane, storage
