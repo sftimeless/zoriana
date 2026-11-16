@@ -485,3 +485,13 @@ Ninety-nine Node tests pass; the build succeeds.
 - The Apollo cards showed the landing date as "July 20, 1969" on one line and "Jul 20, 1969" on the button beneath; the button now spells the month out too.
 - SUBMISSION.md's feature list did not mention the poles-and-grid layer, quick compare, zooming into the Landing view or the corner clock; one line now does.
 - Ninety-nine Node tests pass; the build succeeds.
+
+## Fifth sweep: other screen shapes, real Safari, and the project's own records — November 16, 2026 (UTC)
+
+- Live site in Safari on the simulated iPhone 17 Pro: the Blue Ghost Mission 1 eclipse case read correctly (card "Earth is passing in front of the Sun", corner light struck through, corner clock in the phone's own zone), and the replay opened on step 1 with its caption and controls in place. One flaw: the new "Map time · UTC" line above the bottom clock sat half behind the sheet. It is now hidden on phones, where the landing-date label beside it already says UTC.
+- Phone held sideways (812 × 375 and 667 × 375): the column of map tools ran down over the sheet and the time bar. In that shape the tools now run along the top, smaller, clear of the corner pill, the sheet and the bar. Upright phones are unchanged.
+- Tablet upright (820 × 1180): the phone layout applies and nothing collides. No request failed in any of these loads.
+- Caching: the page itself is served `no-cache` and the scripts and styles carry content hashes, so a returning visitor gets the latest release.
+- Records: `package.json` now states the MIT license the repository already carries. README.md's line on AI assistance covered only November 14; it now covers the later work and points to REFERENCES.md. REFERENCES.md lists the two independent reviews (Codex, ChatGPT). FRESH_START.md has a dated note for November 15.
+- Checked and unchanged: the GitHub page's description and link to the live site; the four documents hold no "solo" or one-person wording.
+- Ninety-nine Node tests pass; the build succeeds.

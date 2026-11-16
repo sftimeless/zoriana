@@ -87,6 +87,7 @@ Yes. AI coding assistants were used to write code under the team's direction:
 - **OpenAI Codex**: first build of the app, the terrain horizon model, and the terrain shadow layer.
 - **OpenAI ChatGPT**: generated the app icon image (see below).
 - **Anthropic Claude Code**: the map-style interface, Landing view, site list, date comparison and lunar-day view, the 80°S terrain tier and slope, links to QuickMap and Moon Trek, icons, the permanent-shadow layer, the Sun and Earth disk measure, the where-to-land heat map and best-spot finder, named-feature search and map labels, sharper Landing-view imagery, eclipses, the slope layer, the north-polar terrain tier, the check against NASA's long-term maps, the phone bottom sheet, the Apollo benchmark script, the production server mode and deployment files, the demo slides, added unit tests, and this reference list. Also the Apollo 11 replay: the reconstruction of the flight path between the NASA and JPL anchors, the 3D drawings of the vehicles (shapes built in code from published overall dimensions; no NASA logos, patches or markings), the cameras and the captions.
+- **Independent reviews (November 15, 2026)**: OpenAI Codex made one read-only review of the repository and OpenAI ChatGPT reviewed the demo slides. Neither changed any file; each finding was checked against the code and fixed with Claude Code (see VERIFICATION.md).
 
 The acknowledgment appears in the app's "Data & method" sheet, in a `meta` tag in `index.html`, in `package.json`, in source file headers, and in `README.md`.
 
