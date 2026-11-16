@@ -236,7 +236,7 @@ export async function openReplay(onClose){
  let castOff=null,camPos=null,camTrack='craft',camRel=[0,0,0],frameDt=0;const scales={};
  let lastFocus=null,lastKey='',lag0=[0,0,0],lagClock=9,frameUp=null,frameFwd=null,origin=[0,0,0];
  const held=new Map(),basisMatrix=new THREE.Matrix4(),bx=new THREE.Vector3(),by=new THREE.Vector3(),bz=new THREE.Vector3(),tq=new THREE.Quaternion(),tv=new THREE.Vector3();
- const FLIP=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),Math.PI),XAXIS=new THREE.Vector3(1,0,0);
+ const FLIP=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),Math.PI),XAXIS=new THREE.Vector3(1,0,0),YAXIS=new THREE.Vector3(0,1,0);
  // A turn that points the model's nose (+y) along `nose` and its front (+x) as near to `hint` as it can.
  function basis(nose,hint,alt){
   let x=sub(hint,scale(nose,dot(hint,nose)));
@@ -333,7 +333,15 @@ export async function openReplay(onClose){
   let lmPos,lmQ,lmS=sC;
   if(t<T.dock){lmPos=along(hS+12.3);lmQ=keep('lm',stackQ);}
   else if(docked){lmPos=add(Cc,dockOff);lmQ=keep(split?'lmA':'lm',tq.copy(csmQ).multiply(FLIP));}
-  else if(t<T.doi||!Lr){const retro=scale(vMoon,-1);lmPos=add(Cc,scale(add(scale(retro,m(12.65)),scale(fc.up,-.03*smooth((t-T.undock)/600))),sC));lmQ=settle('lm',basis(retro,scale(fc.up,-1),fc.fwd));}
+  else if(t<T.doi||!Lr){
+   // Undocked: Eagle backs away a few meters still facing the way it was docked, turns once, slowly, in front of
+   // Columbia's windows, then drifts off below, and only much later swings round, unhurried, to fly engine first
+   // for the descent burn.
+   const retro=scale(vMoon,-1),since=t-T.undock,back=10*smooth(since/90)*(1-smooth((t-(T.doi-900))/600));
+   lmPos=add(Cc,scale(add(scale(retro,m(12.65+back)),scale(fc.up,-.03*smooth((since-480)/600))),sC));
+   const hold=basis(retro,fc.up,[0,0,1]).multiply(FLIP).multiply(tq.setFromAxisAngle(YAXIS,2*Math.PI*smooth((since-90)/360)));
+   lmQ=keep('lm',hold.slerp(basis(retro,scale(fc.up,-1),fc.fwd),smooth((since-900)/(T.doi-420-T.undock-900))));
+  }
   else{
    const rel=unit(fl.rel),upL=fl.up;lmS=sL;
    if(t<T.pdi){lmPos=add(Lr,scale(add(scale(rel,-m(12.65)),scale(upL,-.03)),(1-smooth((t-T.doi)/900))*sL));lmQ=settle('lm',basis(scale(rel,-1),scale(upL,-1),fl.fwd));}

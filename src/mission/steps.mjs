@@ -37,7 +37,7 @@ export const STEPS=[
   text:'Behind the Moon and out of radio contact, Columbia’s main engine fires against the direction of travel for 5 minutes 58 seconds. That slows the ship enough for the Moon to hold it. Had the engine not fired, the path would have swung around the Moon and back to Earth.'},
  {at:T.loiOff+300,mark:T.circular,title:'In lunar orbit',sec:9,cam:{f:'craft',d:4600,az:240,el:34},pov:'down',
   text:'A second short burn rounds the orbit off about 110 km above the surface: one lap every two hours, 30 laps in all. Armstrong and Aldrin move into Eagle and switch it on.'},
- {at:T.undock-120,mark:T.undock,title:'Eagle undocks',pace:[[T.undock+900,9]],sec:4,cam:{f:'craft',d:.1,az:70,el:15},pov:'lander',
+ {at:T.undock-120,mark:T.undock,title:'Eagle undocks',pace:[[T.undock,3],[T.undock+90,5],[T.undock+450,12],[T.undock+900,4]],sec:4,cam:{f:'craft',d:.1,az:70,el:15},pov:'lander',
   text:'Eagle separates with Armstrong and Aldrin aboard. Collins stays in Columbia and looks the lander over as it turns in front of his windows. He will orbit alone for nearly 28 hours.'},
  {at:T.doi-60,mark:T.doi,title:'Dropping lower',pace:[[T.doi+200,5]],sec:5,cam:{f:'lander',d:900,az:215,el:25},pov:'window',
   text:'On the far side again, Eagle fires its descent engine for 30 seconds. Half an orbit later that has brought it down to 15 km above the surface, with the landing site 480 km ahead.'},
