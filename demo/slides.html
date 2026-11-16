@@ -104,7 +104,7 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <div class="cover-facts">
 <div class="fact"><p class="fact-label">CHALLENGE</p><p class="fact-value">Lunar Landing Site Navigator</p></div>
 <div class="fact"><p class="fact-label">TEAM ZORIANA</p><p class="fact-value">Christian Munoz<br>Iryna Khoroshavina Munoz</p></div>
-<div class="fact"><p class="fact-label">TRY IT</p><p class="fact-value">zoriana.fly.dev</p></div>
+<div class="fact"><p class="fact-label">TRY IT</p><p class="fact-value"><a href="https://zoriana.fly.dev/" style="color:inherit;text-decoration:none">zoriana.fly.dev</a></p></div>
 </div>
 <aside>Zoriana is our entry for the Lunar Landing Site Navigator challenge. Team Zoriana is Christian Munoz and Iryna Khoroshavina Munoz, who helped with the overall design and how the app is used. The app is live at zoriana.fly.dev. The icon is an AI-generated image made with ChatGPT, marked AI in its corner.</aside>
 </section>
@@ -112,7 +112,7 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <section id="problem" class="statement" data-transition="fade">
 <p class="eyebrow">THE PROBLEM</p>
 <div class="spacer"></div>
-<h2>Near the Moon’s south pole, one ridge decides whether a lander has power and a link home.</h2>
+<h2>Near the Moon’s south pole, one ridge decides whether a lander can see the Sun and Earth.</h2>
 <div class="spacer"></div>
 <div class="points">
 <div class="point"><p class="big">1.5°</p><p class="what">The Moon’s tilt. At the poles the Sun skims the horizon all year, so hills and crater rims decide who gets light.</p></div>
@@ -141,7 +141,7 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <p class="eyebrow">COMPARE</p>
 <h2>Rank 18 sites in one click</h2>
 <div class="ticks">
-<p class="tick tick-sun">Sorted by hours with Sun and Earth together: power and a link at once.</p>
+<p class="tick tick-sun">Sorted by hours with Sun and Earth together: sunlight and a line to Earth at once.</p>
 <p class="tick">Apollo, Chandrayaan-3, SLIM and CLPS landings beside announced future targets.</p>
 <p class="tick">Compare four site-and-date options side by side, export CSV, share a link.</p>
 </div>
@@ -177,9 +177,9 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 </div>
 <div class="check">
 <p class="num">0.06°</p>
-<p class="why">Checked against published values. Apollo 11: the Sun’s elevation at touchdown matches the published JPL-based figure to 0.06°. Terrain: yearly sunlight at ten polar points is within 3 percentage points of NASA’s long-term maps on average. A real lander: Blue Ghost saw the 2025 eclipse end at 08:30 UTC, and so does the app.</p>
+<p class="why">Checked against published values. Apollo 11: the Sun’s elevation at touchdown matches the published JPL-based figure to 0.06°. Terrain: yearly sunlight at ten polar points differs from NASA’s long-term maps by about 3 percentage points on average. A real lander: Blue Ghost saw the 2025 eclipse end at 08:30 UTC, and so does the app.</p>
 </div>
-<aside>Nothing is simulated. Positions come live from JPL Horizons, terrain from the Lunar Orbiter Laser Altimeter, imagery from LROC. We checked the Sun-angle chain against published Apollo values: Apollo 11 matches to 0.06 degrees, and all six landings are within 0.7 degrees of NASA's older table, whose remaining differences trace to the Sun position that table used. The terrain model was checked against NASA's long-term illumination maps at ten polar points. And against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025, the same time the app gives. For that lander's sunset two days later the app is one to two hours later than Firefly's account, and the documents say so.</aside>
+<aside>The planner runs on real NASA data, and what the app works out itself is labeled as calculated. Positions come live from JPL Horizons, terrain from the Lunar Orbiter Laser Altimeter, imagery from LROC. We checked the Sun-angle chain against published Apollo values: Apollo 11 matches to 0.06 degrees, and all six landings are within 0.7 degrees of NASA's older table, whose remaining differences trace to the Sun position that table used. The terrain model was checked against NASA's long-term illumination maps at ten polar points. And against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025, the same time the app gives. For that lander's sunset two days later the app is one to two hours later than Firefly's account, and the documents say so.</aside>
 </section>
 
 <section id="next" data-transition="fade">
@@ -190,7 +190,7 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 <h3 class="earth">Honest about today</h3>
 <p>Geometry only: sunlight is not usable power, and Earth in view is not a working radio link.</p>
 <p>Future mission points are approximate, and labeled so.</p>
-<p>99 automated tests. Every number traces to a NASA source.</p>
+<p>99 automated tests. Every figure traces to a cited source.</p>
 </div>
 <div class="col">
 <h3 class="sun">Next</h3>
@@ -201,8 +201,8 @@ p { font-size: 30px; line-height: 1.4; color: #A9B0BD; }
 </div>
 <div class="spacer"></div>
 <div class="links">
-<div class="link"><p class="link-label">LIVE APP</p><p class="link-value">zoriana.fly.dev</p></div>
-<div class="link"><p class="link-label">CODE</p><p class="link-value">github.com/sftimeless/zoriana</p></div>
+<div class="link"><p class="link-label">LIVE APP</p><p class="link-value"><a href="https://zoriana.fly.dev/" style="color:inherit;text-decoration:none">zoriana.fly.dev</a></p></div>
+<div class="link"><p class="link-label">CODE</p><p class="link-value"><a href="https://github.com/sftimeless/zoriana" style="color:inherit;text-decoration:none">github.com/sftimeless/zoriana</a></p></div>
 </div>
 <p class="small footnote">Code written with AI coding assistance under human direction. The app icon is an AI-generated image (ChatGPT), marked as such. Not affiliated with or endorsed by NASA.</p>
 <aside>Zoriana is an exploratory planning aid, not a certified mission tool, and it says so. Next we would scan whole areas for a chosen date, add relay satellites, and map rocks and small craters. Eclipses and slope are already in the app.</aside>

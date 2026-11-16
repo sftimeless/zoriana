@@ -56,7 +56,7 @@ export const STEPS=[
  {at:T.teiOn-200,mark:T.teiOn,title:'Heading home',pace:[[T.teiOn-30,3],[T.teiOff+60,8]],sec:3,cam:{f:'craft',d:5000,az:205,el:24},cams:[[T.teiOn-30,{f:'craft',d:.09,az:115,el:10}]],pov:'moon',
   text:'Behind the Moon for the last time, Columbia’s engine fires for 2 minutes 31 seconds. It is the only way home: the burn speeds the ship up enough to escape the Moon and fall back toward Earth.'},
  {at:T.teiOff+400,mark:T.teiOff+400,title:'The fall back to Earth',sec:13,cam:{f:'route'},pov:'earth',
-  text:'Two and a half days of coasting, gathering speed the whole way. The orange line is the way home. It has to meet the atmosphere at a shallow angle: too steep and the cabin burns up, too shallow and it skips back out to space.'},
+  text:'Two and a half days of coasting: slowing while it climbs away from the Moon, then gathering speed all the way down to Earth. The orange line is the way home. It has to meet the atmosphere at a shallow angle: too steep and the cabin burns up, too shallow and it skips back out to space.'},
  {at:T.cmSep-90,mark:T.cmSep,title:'Only the cabin comes home',pace:[[T.cmSep+200,8]],sec:3,cam:{f:'craft',d:.07,az:115,el:15},pov:'earth',
   text:'The service module, with the engine and the supplies, is cast off. Of the 2,900 metric tons that left the pad, what returns is a cabin 3.9 m wide weighing about 5.5 metric tons. It turns its heat shield forward.'},
  {at:T.entry-60,mark:T.entry,title:'Reentry',sec:11,cam:{f:'craft',d:.07,az:62,el:8},pov:'ahead',

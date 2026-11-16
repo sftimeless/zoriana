@@ -452,3 +452,26 @@
 - Fixed: the message after choosing the pin tool said "Click anywhere on the Moon" on phones too; it now says "Tap" where there is no mouse. A Learn answer said "Tap a site" on desktop too; it now says "Select a site".
 - A prompt for an independent read-only sweep by a second assistant (OpenAI Codex) was written for the team to run alongside this one; its findings are not part of this entry.
 - Ninety-nine Node tests pass; the build succeeds.
+
+## Independent review: fourteen findings from a second assistant, and a review of the slides — November 16, 2026 (UTC)
+
+An independent read-only sweep (OpenAI Codex, run by the team from a prompt written here) reported fourteen mismatches. Each was checked against the code before changing anything; all fourteen were real.
+
+1. "How was this worked out?" said the Sun was "in view" during an eclipse while the card said "Eclipsed by Earth". The steps now add "Check for an eclipse" when Earth is in front of the Sun, and the sky chart's note names eclipses as the one exception. Seen at Blue Ghost Mission 1, March 14, 2025, 07:00 UTC: "29.2° is above 0.2°, so the Sun clears the terrain", then "Earth is passing in front of the Sun and covers all of its disk".
+2. The ranking's tooltip and a slide promised "power and a link"; both now say sunlight and Earth in view, which is what is calculated.
+3. The ranking's CSV export ignored the minimum-hours boxes. It now exports the rows the table shows, in the same order.
+4. On a phone the ranking cut "Blue Moon Pathfinder 1" to "Blue…" and the pin instruction lost "and hold". Site names now wrap; the instruction wraps. Seen at 375 × 812: all 18 names whole.
+5. "The fall back to Earth" said the ship gathers speed "the whole way" while the number line showed it slowing as it left the Moon. The caption now says it slows, then gathers speed.
+6. README still described the Landing view's first, coarser terrain and said the app reads nothing from Moon Trek. Both now match METHOD.md and the code.
+7. "Within 3 percentage points" (and "within 2" for Earth) understated the recorded averages of 3.1 and 2.3. The submission text, the slide and the About panel now say "about 3" and give the exact figures.
+8. The best-spot rule puts ground gentler than 10° first; README and METHOD now say so where they describe the choice.
+9. The replay said the flag "stands where the crew planted it"; its spot and facing are chosen for the picture, and the panel now says that.
+10. The replay's step list cut seconds off where its T+ clock rounded them, so touchdown read 20:17:39 beside 20:17:40. Both now round. Seen: "T+ 102:45:40 · Jul 20 · 20:17:40 UTC".
+11. README's slope baseline now includes the north-polar grid (160 m north of 80°N).
+12. The conventions said "Times are UTC" with no word of the corner clock's local time; the method notes, the help text and the About panel now name the exception.
+13. README's comparison paragraph said "Sun's average height"; it now says elevation while sunlit.
+14. A speaker note said "Nothing is simulated"; it now says the planner runs on real NASA data and what the app works out is labeled as calculated. The last slide's "Every number traces to a NASA source" became "Every figure traces to a cited source".
+
+From a separate review of the slides (ChatGPT): the problem slide's headline now says a ridge decides whether a lander "can see the Sun and Earth" (not "has power and a link home"); the live-app and code addresses are links, and the regenerated PDF carries three link annotations (7 pages). The product name stays Zoriana, as everywhere in the project.
+
+Ninety-nine Node tests pass; the build succeeds.
