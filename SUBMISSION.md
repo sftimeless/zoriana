@@ -34,66 +34,101 @@ Source code: https://github.com/sftimeless/zoriana
 
 ## Detailed Project Description
 
-**What it does**
+**What we built**
 
-- Shows a 3D Moon you can turn and zoom, with 18 curated sites: the six Apollo landings, recent CLPS, ISRO and JAXA landings, announced future targets, and two south-pole exploration points. You can also type coordinates in any common form, right-click to drop a pin anywhere, or press and hold on a phone. Pins are named Pin A, Pin B and so on.
-- For any site and landing date from 1950 to 2099, reports the Sun's and Earth's elevation and direction, whether each is above the local terrain, and what is blocking it ("hidden by terrain 2.2 km away to the east-southeast").
-- Opens each site with the answer in one sentence and a countdown to the next sunrise, sunset, Earthrise or Earthset; the numbers behind it can be folded away.
-- Totals sunlit hours, Earth-in-view hours and hours with both at once for a 1, 2, 3 or 7-day stay, lists when sunlight and the view of Earth are interrupted, and charts all 30 days after landing.
-- Ranks every listed site for the chosen date and stay, and compares up to four site-and-date options side by side. Results export to CSV and any view can be shared as a link.
-- Three guided experiences on one map and one set of calculations. On a first visit Zoriana, a small astronaut, welcomes the visitor to the Moon and asks how they would like to explore. Explore the Moon is a short tour that teaches how to read the map ("Mare" is Latin for sea; the Sun and Earth lines show direction, not distance; the blue patches are permanent shadow, not water). Learn & Discover runs two experiments in which a student makes a guess, the app computes the real answer for two sites, the date is changed, and the result is explained. Clicking any of the 9,087 named features gives that name's own meaning or history from the IAU record. Plan a Mission shows all the numbers, keeps the guide out of the way, and offers an optional seven-step walkthrough of the analysis tools.
-- Getting around: a poles-and-grid layer marks the north and south poles, the equator and a 30° grid; Shift-click two places to compare them without opening either; keep zooming in and the map drops into the Landing view of that spot. The corner clock shows the map's moment in your own time zone beside UTC.
-- Landing view: a tilted camera over the site with true-scale terrain, facing Earth. Fly-by: a 50-second camera pass over any site, pin or named crater on that terrain, lit as the Sun lights it at the chosen time.
-- Apollo 11 replay, for classrooms and the public: the whole 1969 flight in 3D from the pad to the Moon and back, in 27 captioned steps, with guided, follow, window and whole-route cameras, at a guided pace, in real time, or sped up. Event times are from NASA's timeline; the Moon, the Sun and the path of the rocket's third stage are from JPL Horizons; the rest of the path is rebuilt between them, and the app says which is which. The vehicles are original drawings made in code.
-- Draws NASA's maps of permanently shadowed regions at both poles and says whether a site is inside one.
-- Where-to-land heat map: NASA's long-term average sunlight and Earth visibility near the poles, plus a button that finds the best spot within 15 km of any polar site for your landing time and stay.
-- Finds the best landing day and hour in the next 30 days, and the arrival times that give a chosen number of unbroken hours of sunlight, Earth view or both.
-- Counts eclipses, when Earth passes in front of the Sun, and shows a slope layer near both poles.
-- Search across the 9,087 IAU-named lunar features, and names the terrain that is blocking the Sun or Earth.
-- Shows Earth in the lunar sky at its true size, distance and phase.
+Zoriana is an interactive lunar exploration and landing-site analysis application designed to help people understand where and when conditions may favor a Moon landing. It brings together lunar geography, terrain, sunlight, and Earth visibility in an intuitive, map-style interface.
+
+Users can:
+
+- Explore the Moon: Navigate a 3D lunar globe with 18 curated locations, including the six Apollo landing sites, recent CLPS, ISRO and JAXA missions, announced future targets, and two south-pole exploration points. Search by coordinates or drop a pin anywhere.
+- Investigate any date: Select dates between 1950 and 2099 to examine the Sun's and Earth's apparent elevation, direction, and visibility relative to the local terrain horizon.
+- Analyze mission windows: Calculate sunlit hours, Earth-visible hours, and periods when both conditions overlap for stays of 1, 2, 3, or 7 days. Explore visibility charts covering the 30 days following landing.
+- Compare alternatives: Rank the curated sites for a selected date and mission duration, compare up to four location-and-date scenarios, export results to CSV, and share views through links.
+- Explore the lunar poles: View NASA permanently shadowed region maps, long-term illumination and Earth-visibility heat maps, and search for more favorable locations within 15 kilometers of a selected site.
+- Experience the terrain: Use the Landing view and 50-second fly-bys to explore lunar terrain at true scale, with lighting corresponding to the selected time.
+- Learn through exploration: Follow the Apollo 11 mission through a 27-step, captioned 3D replay.
 
 **How it works**
 
-A small Node.js server asks NASA/JPL Horizons for the apparent position and distance of the Sun and Earth as seen from the exact site, hourly for 31 days (the 30-day planning window plus room for a landing hour later than 00:00). It builds the site's skyline from LOLA elevation data (40 m and 80 m grids near the south pole, 80 m near the north pole, a 474 m global grid elsewhere) by sampling terrain out to 300 km in every direction on a curved Moon. The browser compares the two: a body is visible when it clears the skyline. The Sun and Earth are also measured as disks, so the app can report first light and full Sun separately. The globe, terrain shadows and Landing view are drawn with Three.js.
+Zoriana combines astronomical ephemerides with lunar elevation data to determine whether the Sun and Earth appear above the local terrain horizon.
 
-**How we checked it**
+A Node.js server queries NASA/JPL Horizons for the apparent positions and distances of the Sun and Earth as observed from the selected lunar location. Calculations are sampled hourly across a 31-day period.
 
-- For the Apollo 11 landing the app's Sun elevation matches the Apollo Lunar Surface Journal's JPL-based figure to 0.06°.
-- Across all six Apollo landings it is within 0.7° in elevation of NASA's older published table.
-- The floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus craters read as permanently shadowed; nearby ridges do not.
-- The differences from that older table trace to the Sun position it used (it places the Sun up to 2.0° from the lunar equator, more than is physically possible), not to the app.
-- At ten polar points, the app's yearly share of sunlight differs from NASA's long-term illumination maps by about 3 percentage points on average (3.1; Earth visibility 2.3).
-- The eclipse calculation reproduces the two lunar eclipses of 2026: every site's times fall inside the published contact times.
-- Against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025; the app ends totality at that site at 08:30. For the same lander's sunset two days later the app is 1 to 2 hours later than Firefly's account, and we say so.
-- Each rise and set time carries a "±" showing how far it moves if the skyline is 0.1° off.
-- The totals do not depend on the time step: at three sites they are identical to 0.01 h whether tested every 15, 5, 2 or 1 minutes, and the app's interpolation between hourly positions is within 0.00003° of JPL asked every 10 minutes (`scripts/check-convergence.mjs`).
-- 99 automated tests cover the ephemeris parsing, visibility math, terrain projection, polar maps, place names, disk geometry, exports, and the Apollo 11 flight path and step list.
+The application constructs a local terrain horizon using elevation data from NASA's Lunar Orbiter Laser Altimeter (LOLA). Terrain resolution varies by region: 40-meter and 80-meter grids near the lunar poles, and 474-meter global terrain data elsewhere.
 
-**Benefits and what we hope to achieve**
+The terrain-horizon calculation samples surrounding elevations out to 300 kilometers while accounting for the Moon's curvature. The application then compares the apparent elevation of the Sun or Earth against the calculated terrain-horizon angle in the corresponding direction.
 
-Anyone, from a student to a mission planner doing a first pass, can see in seconds why one south-pole site gets days of sunlight while a spot a few kilometers away gets none, and how that changes with the landing date. The app is honest about its limits: it is geometry only. Sunlight is not usable power, Earth in view is not a working radio link, and nothing here assesses landing safety. Positions for future missions are approximate and labeled so.
+The 3D globe, terrain visualization, lighting, and Landing view are rendered using Three.js.
 
-**What comes next**
+**Scientific validation**
 
-Scanning a whole area for a chosen date, relay satellites for sites that cannot see Earth, and hazard maps of rocks and small craters.
+We tested Zoriana against published NASA references, historical lunar missions, and observed spacecraft events.
 
-**How it is creative**
+- Apollo landing comparisons: For Apollo 11, the calculated solar elevation differs from the JPL-based value reported in the Apollo Lunar Surface Journal by 0.06°. Across all six Apollo landing sites, calculated solar elevations are within 0.7° of NASA's older published reference table.
+- Lunar polar illumination: At ten selected polar locations, Zoriana's estimated annual sunlight fractions differ from NASA's long-term illumination maps by about 3 percentage points on average.
+- Firefly Blue Ghost Mission 1: During the March 14, 2025 lunar eclipse, Firefly's Blue Ghost lander observed the Sun emerging from behind Earth at about 08:30 UTC. Zoriana's calculation places the end of totality at that location at 08:30 UTC. For the lander's sunset two days later, Zoriana predicts the event 1 to 2 hours later than Firefly's reported observation. We document this discrepancy rather than presenting the model as perfectly accurate.
+- Automated testing: The project includes 99 automated tests covering its scientific calculations and related functionality.
 
-- It feels like an everyday map app, so no training is needed: search, pins and a time bar.
-- One set of calculations serves three audiences. Zoriana, a small astronaut guide, offers a tour of how to read the map, experiments where a guess is tested against the app's real numbers, or a quiet walkthrough of the planning tools.
-- Every one of the 9,087 named features explains its own name, and the whole Apollo 11 flight can be replayed in 3D.
+These comparisons provide useful validation evidence, but they do not establish uniform accuracy across every location, terrain model, or supported date.
 
-**What we considered**
+**Benefits and intended impact**
 
-- Honesty about limits: the app is geometry only, and says so wherever a number could be over-read.
-- Real versus calculated: every NASA source is named, what the app works out itself is labeled as calculated, and approximate future sites are labeled approximate.
-- Checking against published values and a real lander before trusting the output.
-- People new to the Moon: plain words, a first-visit guide, and a phone layout.
-- The Space Apps rules: original drawings, no NASA logos or mission patches, AI use disclosed, and the AI-made icon visibly marked.
+Near the lunar south pole, the Sun remains close to the horizon. A ridge or crater rim can significantly change how long a location receives sunlight or maintains direct visibility of Earth. Two sites separated by only a few kilometers may experience substantially different conditions.
 
-**Tools, languages and software**
+Zoriana makes these relationships easier to investigate. A student can discover why a crater remains dark. An educator can demonstrate how sunlight changes over time. A mission planner can perform an initial comparison of candidate sites and dates.
 
-JavaScript (Node.js server, browser client), Three.js, Vite, Python with NumPy and Pillow for data preparation, Docker and Fly.io for hosting. Data: NASA/JPL Horizons, LRO LOLA elevation, permanently-shadowed-region and average-visibility maps, LRO LROC imagery, NASA Blue Marble. Full list with links in REFERENCES.md.
+Our goal is to make lunar science more accessible while providing transparent, reproducible information for exploratory mission analysis.
+
+**What makes Zoriana creative**
+
+One scientific foundation, three ways to explore.
+
+Zoriana combines the familiarity of an everyday mapping application with scientific analysis. Users can search, select locations, change dates, and compare results without first learning specialized scientific software.
+
+The application offers three experiences:
+
+- Explore: Discover lunar geography and interesting locations through approachable explanations.
+- Learn: Investigate scientific questions through guided activities and experiments that use the application's actual calculations.
+- Plan: Examine landing-site conditions, comparisons, rankings, and supporting scientific information.
+
+A contextual astronaut guide, also named Zoriana, helps visitors understand unfamiliar terminology and interpret the map. The application also provides explanations for 9,087 named lunar features, making scientific geography more approachable.
+
+Rather than building separate tools for different audiences, we designed one application that progressively reveals additional scientific detail.
+
+**Design considerations and limitations**
+
+Scientific transparency was a central design principle. Zoriana evaluates geometric visibility. It does not model every factor necessary for a real lunar mission. Specifically:
+
+- Sunlight availability does not guarantee usable electrical power.
+- Direct Earth visibility does not guarantee a functioning communications link.
+- Favorable illumination and visibility do not establish landing safety.
+
+The application identifies NASA source data and distinguishes externally supplied information from its own calculated results. Approximate future landing locations are identified as approximate.
+
+We also prioritized accessibility for people unfamiliar with lunar science through plain-language explanations, a first-visit guide, and responsive layouts.
+
+We followed the Space Apps requirements concerning original artwork, NASA branding, external resources, and AI-use disclosure. The ChatGPT-generated application icon includes a visible AI indicator.
+
+**Tools and technologies**
+
+- JavaScript: Node.js server and browser application.
+- Three.js: Interactive lunar globe, terrain visualization, and 3D rendering.
+- Vite: Frontend development and build tooling.
+- Python, NumPy, and Pillow: Scientific data preparation and image processing.
+- Docker and Fly.io: Application packaging and hosting.
+- NASA/JPL Horizons: Solar and terrestrial astronomical ephemerides.
+- NASA LOLA: Lunar terrain elevation data.
+- NASA Lunar Reconnaissance Orbiter: Lunar imagery and related scientific resources.
+
+AI-assisted development tools, including OpenAI Codex and Anthropic Claude Code, contributed to coding, debugging, research, and development under the team's direction. The application icon was generated using ChatGPT and is visibly identified as AI-generated.
+
+**Source code and references**
+
+The complete source code, scientific methodology, validation documentation, and reference materials are publicly available: https://github.com/sftimeless/zoriana
+
+Zoriana is an exploratory scientific and educational tool, not a certified operational lunar landing-planning system.
+
+---
 
 ## Links as entered on the form
 
