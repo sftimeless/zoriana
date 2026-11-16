@@ -77,4 +77,5 @@ JavaScript (Node.js server, browser client), Three.js, Vite, Python with NumPy a
 
 - [ ] Open the demo link and the app link in a private browser window to confirm neither asks for a login.
 - [ ] Paste the three reference fields from REFERENCES.md.
+- [ ] Make sure both team members are on the team on the Space Apps site: Christian Munoz and Iryna Khoroshavina Munoz. Team membership is set there, not in these files.
 - [ ] Optional: request a web filter classification for zoriana.fly.dev (FortiGuard form mentioned in the organisers' guide) so judges on filtered networks can open it.

@@ -2,6 +2,8 @@
 
 Lunar landing site navigator for the NASA Space Apps Challenge 2026 ("Lunar Landing Site Navigator"), started fresh on November 14, 2026. See FRESH_START.md for provenance and disclosed prior research.
 
+Team Zoriana: Christian Munoz, and Iryna Khoroshavina Munoz (overall design and how the app is used).
+
 **Live app: https://zoriana.fly.dev/** · Demo slides: [demo/zoriana-demo.pdf](demo/zoriana-demo.pdf) · Form text: [SUBMISSION.md](SUBMISSION.md) · References: [REFERENCES.md](REFERENCES.md)
 
 ## Run locally

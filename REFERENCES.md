@@ -92,7 +92,7 @@ The acknowledgment appears in the app's "Data & method" sheet, in a `meta` tag i
 
 **AI-generated image:** the app icon was made with ChatGPT (OpenAI). It carries a visible "AI" mark in its lower-right corner wherever it appears (the app, the browser tab and the demo's first slide). The app also says so when the icon is clicked and in its "Data & method" sheet and page metadata. No other image, video or audio in the app or the demo is AI-generated: the rest are NASA data products, screenshots of the app, and SVG icons written as code.
 
-The project idea, the choice of challenge, and the decisions about what to build were the team's. Team Zoriana is one person, Christian Munoz, who chose the challenge, directed the work, reviewed the results and made the content decisions.
+The project idea, the choice of challenge, and the decisions about what to build were the team's. Team Zoriana is two people. Christian Munoz chose the challenge, directed the work, reviewed the results and made the content decisions. Iryna Khoroshavina Munoz helped with the overall design and with how the app is used.
 
 ---
 
@@ -101,7 +101,7 @@ The project idea, the choice of challenge, and the decisions about what to build
 - [x] The AI image tool used for the icon is named above (ChatGPT).
 - [x] The icon carries a visible AI mark in its lower-right corner.
 - [ ] Any image used in the demo video or slides is listed here and watermarked if AI-generated. This includes the pictures in `Zoriana/`, which are dated November 13 and are not used by the app.
-- [x] Team member names and contributions are filled in (edit the line above if the wording should differ).
+- [x] Team member names and contributions are filled in for both members (edit the line above if the wording should differ).
 - [x] Demo: 7 slides, in English, at https://github.com/sftimeless/zoriana/blob/main/demo/zoriana-demo.pdf (public once the repository is public).
 - [x] Project link: https://zoriana.fly.dev/ (public, no login).
 - [ ] Open both links in a private browser window before submitting.
