@@ -11,7 +11,7 @@ test('QuickMap link uses a projected south-polar box near the pole',()=>{
  const [minX,minY,maxX,maxY]=url.searchParams.get('prjExtent').split(',').map(Number);
  assert.equal(maxX-minX,50000);assert.equal(maxY-minY,50000);assert.ok(Math.abs((minX+maxX)/2)<1);assert.ok(Math.abs((minY+maxY)/2-15162)<2);
 });
-test('QuickMap link uses a longitude/latitude box elsewhere, centred on the site',()=>{
+test('QuickMap link uses a longitude/latitude box elsewhere, centered on the site',()=>{
  const url=new URL(quickMapUrl(18.56,61.81));assert.equal(url.searchParams.get('proj'),'16');
  const [minLon,minLat,maxLon,maxLat]=url.searchParams.get('extent').split(',').map(Number);
  assert.ok(Math.abs((minLon+maxLon)/2-61.81)<1e-3);assert.ok(Math.abs((minLat+maxLat)/2-18.56)<1e-3);assert.ok(maxLon-minLon>maxLat-minLat,'box widens with latitude to stay roughly square on the ground');

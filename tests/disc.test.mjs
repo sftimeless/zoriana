@@ -37,7 +37,7 @@ test('series, hours and limb events for a simple sunrise',()=>{
  assert.equal(discAt(series,0),0);
  assert.ok(Math.abs(discAt(series,HOUR)-.5)<1e-6);
  assert.equal(discAt(series,2*HOUR),1);
- // Centre rises at 1 h; the 0.27° radius adds and removes 16 minutes either side.
+ // Center rises at 1 h; the 0.27° radius adds and removes 16 minutes either side.
  const hours=discHours(series,0,4*HOUR);
  assert.ok(Math.abs(hours.any-(3+.2666))<.09,`any ${hours.any}`);
  assert.ok(Math.abs(hours.full-(3-.2666))<.09,`full ${hours.full}`);

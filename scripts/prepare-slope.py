@@ -2,9 +2,9 @@
 """Make the polar slope maps the app draws, from NASA's LOLA 80 m polar elevation grids.
 
 Sources: LDEM_80S_80M and LDEM_80N_80M (LRO LOLA GDR, PDS Geosciences Node), 7600 x 7600 grids of
-heights in half-metres, polar stereographic, 80 m per pixel, covering 80 degrees to each pole.
+heights in half-meters, polar stereographic, 80 m per pixel, covering 80 degrees to each pole.
 
-Slope at each pixel is the steepest gradient from central differences across the two neighbours
+Slope at each pixel is the steepest gradient from central differences across the two neighbors
 either side (a 160 m baseline), the same baseline the site card uses between 80 and 85 degrees
 south. The map is then reduced to 320 m cells (4 x 4 blocks):
   R = mean slope in the cell, G = steepest slope in the cell, each in quarter-degrees (0-255).

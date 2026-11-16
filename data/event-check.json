@@ -52,14 +52,14 @@
   },
   "app": {
    "sunStartsToBeCovered": "2025-03-16T19:20Z",
-   "centreSets": "2025-03-16T19:48Z",
+   "centerSets": "2025-03-16T19:48Z",
    "plusMinusMinutesFor0p1DegreeOfSkyline": 12,
    "lastLight": "2025-03-16T20:25Z",
-   "centreSetsOnSmoothSphere": "2025-03-16T20:10Z"
+   "centerSetsOnSmoothSphere": "2025-03-16T20:10Z"
   },
   "hoursLaterThanFirefly": {
    "sunStartsToBeCovered": 1.1,
-   "centreSets": 1.6,
+   "centerSets": 1.6,
    "lastLight": 2.2
   }
  }

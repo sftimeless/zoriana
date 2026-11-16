@@ -1,6 +1,6 @@
 // The Sun and Earth as discs rather than points.
 //
-// Everything else in the app asks one question: is the centre of the body above the skyline?
+// Everything else in the app asks one question: is the center of the body above the skyline?
 // From the Moon the Sun is about 0.53° wide and Earth about 1.9°, and near the poles the Sun skims
 // the horizon so slowly that "part of the disc showing" can last for hours. These helpers measure
 // how much of the disc clears the terrain skyline. The disc is treated as a plain circle of uniform

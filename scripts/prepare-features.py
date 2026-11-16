@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Turn the IAU/USGS list of named lunar features into the compact file the app searches.
 
-Source: "Planetary Nomenclature of the Moon" centre points (IAU and USGS Astrogeology, public
+Source: "Planetary Nomenclature of the Moon" center points (IAU and USGS Astrogeology, public
 domain), MOON_nomenclature_center_pts.zip from https://planetarynames.wr.usgs.gov/GIS_Downloads,
 unpacked into data/iau/extracted/. Output: public/assets/features.json, one entry per feature:
 [name, latitude, east longitude (-180 to 180), diameter in km, kind].

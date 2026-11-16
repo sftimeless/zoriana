@@ -10,7 +10,7 @@ const RAD=Math.PI/180,MINUTE=60000;
 // Unit vector toward a body in the site's east, north, up frame.
 const vector=row=>{const e=row.el*RAD,a=row.az*RAD;return [Math.cos(e)*Math.sin(a),Math.cos(e)*Math.cos(a),Math.sin(e)];};
 
-// Share of a disc of radius `small` hidden by a disc of radius `large` whose centre is `distance`
+// Share of a disc of radius `small` hidden by a disc of radius `large` whose center is `distance`
 // away (any one angular unit). 0 when they do not touch, 1 when the small disc is wholly inside.
 export function coveredShare(distance,small,large){
  if(distance>=small+large)return 0;
@@ -22,9 +22,9 @@ export function coveredShare(distance,small,large){
 }
 
 // For every `stepMinutes` across the two ephemerides (which share their sample times):
-//   separation  angle between the centres of the Sun and Earth, degrees
+//   separation  angle between the centers of the Sun and Earth, degrees
 //   coverage    share of the Sun's disc hidden by Earth, 0 to 1
-//   limb        how far the Sun's centre is outside Earth's disc, degrees (negative: behind Earth)
+//   limb        how far the Sun's center is outside Earth's disc, degrees (negative: behind Earth)
 // Directions are interpolated as vectors between the hourly samples, so the result holds up even
 // where a body is near the zenith and its azimuth swings quickly.
 export function eclipseSeries(sunRows,earthRows,stepMinutes=5){

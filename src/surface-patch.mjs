@@ -68,7 +68,7 @@ ${projectionGLSL}
  scene.add(mesh);
 
  let built=null,detailToken=0,detailKey=null,detailStatus='off';
- const centre=new THREE.Vector3();
+ const center=new THREE.Vector3();
  // Loads the block of tiles around a site into one texture. Nothing is shown until every tile has arrived.
  function loadDetail(site,key,onChange){
   if(key===detailKey)return;
@@ -130,7 +130,7 @@ ${projectionGLSL}
   const geometry=new THREE.BufferGeometry();
   geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));geometry.setAttribute('color',new THREE.BufferAttribute(colors,4));geometry.setIndex(new THREE.BufferAttribute(indices,1));geometry.computeVertexNormals();
   mesh.geometry.dispose();mesh.geometry=geometry;
-  const radius=1+(useFine?patchHeight(fine.heights,n,(n-1)/2,(n-1)/2)/1000:sampler(lat,lon))/R_KM;centre.copy(up).multiplyScalar(radius);
+  const radius=1+(useFine?patchHeight(fine.heights,n,(n-1)/2,(n-1)/2)/1000:sampler(lat,lon))/R_KM;center.copy(up).multiplyScalar(radius);
   frame.up.copy(up);frame.north.copy(north);frame.east.copy(east);
   built={key,polar,halfKm,radius,gridMeters:useFine?fine.spacing:polar?160:3800,fine:useFine,sourceGridMeters:useFine?fine.finest:null};
   return built;
@@ -141,7 +141,7 @@ ${projectionGLSL}
   loadDetail,
   loadFine,
   fineStatus:()=>fineStatus,
-  // Radius (in Moon radii) of the ground under a direction from the Moon's centre, from the mesh's own heights.
+  // Radius (in Moon radii) of the ground under a direction from the Moon's center, from the mesh's own heights.
   groundRadius(direction){
    const sampler=shadows.sampler(),d=direction;
    if(built?.fine&&fine){const along=d.dot(frame.up);if(along>.2){const x=d.dot(frame.east)/along*R_KM/fine.halfKm,y=d.dot(frame.north)/along*R_KM/fine.halfKm;
@@ -154,8 +154,8 @@ ${projectionGLSL}
   // Fades in as the camera arrives; hidden whenever the camera is not above this site.
   update(camera,active){
    if(!active||!built){mesh.visible=false;return;}
-   const fade=1-THREE.MathUtils.smoothstep(camera.position.distanceTo(centre),.5,.8);
-   mesh.visible=fade>0&&camera.position.dot(centre)>centre.lengthSq();material.opacity=fade;
+   const fade=1-THREE.MathUtils.smoothstep(camera.position.distanceTo(center),.5,.8);
+   mesh.visible=fade>0&&camera.position.dot(center)>center.lengthSq();material.opacity=fade;
   }
  };
 }

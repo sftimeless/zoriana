@@ -57,11 +57,11 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - Against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025; the app ends totality at that site at 08:30. For the same lander's sunset two days later the app is 1 to 2 hours later than Firefly's account, and we say so.
 - Each rise and set time carries a "±" showing how far it moves if the skyline is 0.1° off.
 - The totals do not depend on the time step: at three sites they are identical to 0.01 h whether tested every 15, 5, 2 or 1 minutes, and the app's interpolation between hourly positions is within 0.00003° of JPL asked every 10 minutes (`scripts/check-convergence.mjs`).
-- 99 automated tests cover the ephemeris parsing, visibility maths, terrain projection, polar maps, place names, disc geometry, exports, and the Apollo 11 flight path and step list.
+- 99 automated tests cover the ephemeris parsing, visibility math, terrain projection, polar maps, place names, disc geometry, exports, and the Apollo 11 flight path and step list.
 
 **Benefits and what we hope to achieve**
 
-Anyone, from a student to a mission planner doing a first pass, can see in seconds why one south-pole site gets days of sunlight while a spot a few kilometres away gets none, and how that changes with the landing date. The app is honest about its limits: it is geometry only. Sunlight is not usable power, Earth in view is not a working radio link, and nothing here assesses landing safety. Positions for future missions are approximate and labelled so.
+Anyone, from a student to a mission planner doing a first pass, can see in seconds why one south-pole site gets days of sunlight while a spot a few kilometers away gets none, and how that changes with the landing date. The app is honest about its limits: it is geometry only. Sunlight is not usable power, Earth in view is not a working radio link, and nothing here assesses landing safety. Positions for future missions are approximate and labeled so.
 
 **What comes next**
 
@@ -77,5 +77,5 @@ JavaScript (Node.js server, browser client), Three.js, Vite, Python with NumPy a
 
 - [ ] Open the demo link and the app link in a private browser window to confirm neither asks for a login.
 - [ ] Paste the three reference fields from REFERENCES.md.
-- [ ] Make sure both team members are on the team on the Space Apps site: Christian Munoz and Iryna Khoroshavina Munoz. Team membership is set there, not in these files.
-- [ ] Optional: request a web filter classification for zoriana.fly.dev (FortiGuard form mentioned in the organisers' guide) so judges on filtered networks can open it.
+- [x] Both team members are on Team Zoriana on the Space Apps site (confirmed by the team on November 15).
+- [ ] Optional: request a web filter classification for zoriana.fly.dev (FortiGuard form mentioned in the organizers' guide) so judges on filtered networks can open it.

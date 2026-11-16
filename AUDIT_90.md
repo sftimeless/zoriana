@@ -18,7 +18,7 @@ Every row whose status or wording changed was exercised again on the live site i
 
 **Scope key.** CORE: the challenge's firm requirement and the things its text says the tool should let people do. ENABLER: needed for a core result to be found, trusted or reproduced. OPTIONAL: beyond the challenge.
 
-**Not tested:** a real phone, desktop Safari, Android, a projector, a screen reader, keyboard-only use, copying to the clipboard (the test browser blocks it), downloading a CSV, and the app's behaviour while JPL is unavailable. The walkthroughs are expert reviews. No user research was done.
+**Not tested:** a real phone, desktop Safari, Android, a projector, a screen reader, keyboard-only use, copying to the clipboard (the test browser blocks it), downloading a CSV, and the app's behavior while JPL is unavailable. The walkthroughs are expert reviews. No user research was done.
 
 ---
 
@@ -91,7 +91,7 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 |---|---|---|---|---|---|
 | M01 | WORKING | ENABLER | Right-click the Moon (or press and hold on a phone). Card read "Pin A · 6.4810° S 33.1633° E"; elevation and grid lower down; the comparison card now prints "elevation +1,955 m". [UI] | On the site card, elevation is still near the bottom. Four decimals imply more precision than a 474 m grid supports. | Show elevation beside the coordinates. |
 | M02 | WORKING | CORE | Select a site. Sun tile at IM-4: "3.3° · Blocked by terrain · Above terrain −4.1° · Disc showing 0%". [UI] | Sound: JPL angle against LOLA skyline. "Above terrain" is clear once learned. | None needed. |
-| M03 | WORKING | CORE | Earth tile, same instant: "2.1° · Earth partly hidden · 2% showing · Above terrain −0.8°". [UI] | Sound. The status counts the centre; the disc share is shown beside it. | None needed. |
+| M03 | WORKING | CORE | Earth tile, same instant: "2.1° · Earth partly hidden · 2% showing · Above terrain −0.8°". [UI] | Sound. The status counts the center; the disc share is shown beside it. | None needed. |
 | M04 | WORKING | CORE | Tile "Azimuth 77.5°" (tooltip: clockwise from north); sentence "to the east-northeast"; gold line on the globe; Sun dot on the sky chart. [UI] | None. | None needed. |
 | M05 | WORKING (was partial) | CORE | Clock reads "12:00 · Nov 15, 2026 · UTC · past" with "T+0 h · landing". A link for hour 20 on 1969-07-20 opens at "20:00 · Jul 20, 1969". The sheet says times are UTC (JPL’s UT). [UI] | The answer sentence gives the date without the year ("Jul 20, 20:00 UTC"). | Add the year to that sentence when it is not the current year. |
 | M06 | PARTIAL | ENABLER | Right-click nearby, or type coordinates in any common form ("89.5S 45E", "84.6000° S 31.0000° E", "-89.45 222.69"): a new pin with the same date, hour, stay and comparison. [UI] | Still no drag or nudge; moving a pin means making another one, with the next letter. | A small "move pin" nudge. |
@@ -100,7 +100,7 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 | M09 | WORKING | CORE | Changed 2026-11-15 to 2027-02-01: countdown, tiles, stay totals, lunar-day chart, timeline labels and link all changed together. [UI] | Comparison options keep their own dates (by design). | None needed. |
 | M10 | PARTIAL | OPTIONAL | Select the coordinates: the app offers "-84.6000, 31.0000 (latitude, east longitude, in degrees)", which search reads back. [UI] | The test browser blocks the clipboard, so the copy itself was not confirmed; the note with the same text appeared instead. | Confirm in an ordinary browser. |
 | M11 | WORKING (was partial) | CORE | Stay choices are 24 h, 48 h, 3 d, 7 d. IM-4, 48 h: "No sunlight: Nov 15 12:00 to Nov 17 11:54 (1 d 23 h)". [UI] | Lists show the first four stretches, then "and N more". | None needed. |
-| M12 | WORKING (was partial) | ENABLER | "Find landing times with at least 6 h of Earth in view" at IM-4: "Land between Nov 16 15:26 and Dec 1 01:38 (14 d 10 h); or between Dec 13 16:11 and Dec 15 06:00", with "Use Nov 16 16:00". [UI] | Counts the centre of Earth; looks 30 days ahead; a stretch still going at day 30 is cut there (stated). | None needed. |
+| M12 | WORKING (was partial) | ENABLER | "Find landing times with at least 6 h of Earth in view" at IM-4: "Land between Nov 16 15:26 and Dec 1 01:38 (14 d 10 h); or between Dec 13 16:11 and Dec 15 06:00", with "Use Nov 16 16:00". [UI] | Counts the center of Earth; looks 30 days ahead; a stretch still going at day 30 is cut there (stated). | None needed. |
 | M13 | WORKING | CORE | Pin A and Pin B 1 km apart on the Shackleton ridge: 72.0 h sunlit, 28.0 h Earth against 17.1 h and 0.0 h; slope 2.7° against 9.7°; elevation +1,955 m against +1,907 m. [UI] | Resolved by the 40 m grid near the pole; at mid-latitudes (474 m) a 1 km move is two cells. | None needed. |
 | M14 | WORKING | CORE | Banner: "17 h 54 m until sunrise · Nov 17, 11:54 UTC ± 48 min" and "Earthset in 14 d 13 h · Dec 1, 07:38 UTC ± 2 h". [UI] | Sound, with stated sensitivity. | None needed. |
 | M15 | WORKING (was partial) | CORE | "Sun and Earth together: Nov 17 11:54 to Nov 18 12:00 (1 d 0 h)" under the totals. [UI] | None. | None needed. |
@@ -110,10 +110,10 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 | M19 | WORKING (was partial) | ENABLER | "At touchdown: no sunlight, Earth out of view, so no direct line home at first." [UI] | None. | None needed. |
 | M20 | WORKING | ENABLER | Baseline stays first; Delay adds variants beside it; Open returns to any option; the link stores all of them. [UI] | Stay length and terrain on/off apply to every option at once. Four options at most. | None needed for the challenge. |
 | M21 | WORKING (was partial) | ENABLER | Sheet entry "Conventions"; METHOD.md has a conventions table (time, latitude, longitude, frame, radius, observer, ephemeris, angles, projections). [UI][DOC] | None. | None needed. |
-| M22 | WORKING | CORE | Every answer now carries a "request" block: observer table, centre coord@301, site coordinates and height, airless, 1 h, UT, ephemeris DE441 (read from JPL’s reply). [API] | None. | None needed. |
+| M22 | WORKING | CORE | Every answer now carries a "request" block: observer table, center coord@301, site coordinates and height, airless, 1 h, UT, ephemeris DE441 (read from JPL’s reply). [API] | None. | None needed. |
 | M23 | WORKING | CORE | Rays every 0.25° to 300 km on a curved Moon, bilinear sampling, grid tiers 40 m / 80 m / 474 m / 1.9 km; the API returns all 1,440 skyline angles and distances. [API][CODE terrain-worker.mjs] | Limits are written down. Angular step is fixed. | None needed. |
-| M24 | WORKING | ENABLER | Totals count the centre; the card adds "full Sun 22.0 h, at least part of it 26.2 h" and "first light Nov 17, 09:50 UTC, then full disc 14:05". [UI] | Sound and stated. The headline number is the centre rule. | None needed. |
-| M25 | WORKING | ENABLER | "Earth partly hidden · 2% showing"; Earth hours count the centre. [UI] | Sound and stated. | None needed. |
+| M24 | WORKING | ENABLER | Totals count the center; the card adds "full Sun 22.0 h, at least part of it 26.2 h" and "first light Nov 17, 09:50 UTC, then full disc 14:05". [UI] | Sound and stated. The headline number is the center rule. | None needed. |
+| M25 | WORKING | ENABLER | "Earth partly hidden · 2% showing"; Earth hours count the center. [UI] | Sound and stated. | None needed. |
 | M26 | PARTIAL | ENABLER | ± beside each time for a 0.1° skyline change. Audit run: coarsening the skyline from 0.25° to 2° moved Earthrise at IM-4 by 20 min. [UI][AUDIT] | No sensitivity to position error or grid resolution in the app. Against NASA maps the worst point is 15.8 points off. | Add a "what if the pin is 100 m off" check for polar sites. |
 | M27 | PARTIAL | ENABLER | "scripts/check-convergence.mjs" is in the repository: totals identical to 0.01 h for 15, 5, 2 and 1 min steps at three sites; interpolation within 0.00003° of JPL. [DOC][AUDIT] | The skyline can only be thinned, not refined below 0.25°, so angular convergence is a trend, not a limit. | A finer skyline option on the server. |
 | M28 | WORKING | ENABLER | Terrain row: "Skyline samples: 24% from the 40 m grid, 71% from the 80 m grid, 5% from the 1.9 km grid". [UI] | None. | None needed. |
@@ -127,12 +127,12 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 | E01 | WORKING | ENABLER | Filter "South Pole", or search "south pole": "Shackleton region · Near the lunar south pole". [UI] | None. | None needed. |
 | E02 | WORKING | CORE | Sunlight layer shades the night side and terrain shadows; label "Terrain shadows · NASA LOLA". [UI] | No on-map words that dark means night or shadow. | As M08. |
 | E03 | WORKING (was partial) | ENABLER | Under the sky chart: "The line across the chart is this site’s horizon: where its ground meets the sky…". Also in "How to read this app". [UI] | None. | None needed. |
-| E04 | PARTIAL | OPTIONAL | Measured at 1440 × 900: labels 11 px, notes 12.5 px, stay buttons 12.5 px; headline values 24 px. [UI] | Small labels will be hard to read on a projector. Not tried on one. | A large-text mode, or honour browser zoom in the layout. |
+| E04 | PARTIAL | OPTIONAL | Measured at 1440 × 900: labels 11 px, notes 12.5 px, stay buttons 12.5 px; headline values 24 px. [UI] | Small labels will be hard to read on a projector. Not tried on one. | A large-text mode, or honor browser zoom in the layout. |
 | E05 | WORKING (was partial) | OPTIONAL | "Hide the numbers" folds azimuth, disc share, distances and data rows; phones start folded ("Show the numbers: angles, distances, data sources"). [UI][SIM] | The caution line and plain sentences always stay, by design. | None needed. |
 | E06 | WORKING | CORE | Slider and Play move the clock, the tiles, the sky chart, the Sun and Earth lines and the shadows. Play moved 30 h to 50 h in 2.5 s. [UI] | None. | None needed. |
 | E07 | WORKING | ENABLER | Pick an earlier landing date; the site stays selected. [UI] | The slider only runs forward from landing (0 to 720 h). | A "one day back" step next to the date. |
 | E08 | WORKING | ENABLER | "Blocked by terrain … hidden by terrain 360 m away … which rises to 7.4°" against "Below horizon" at night; explainer on permanent shadow. [UI] | None. | None needed. |
-| E09 | WORKING | CORE | Gold is Sun, blue is Earth: lines labelled "Sun 1.8°" and "Earth 3.7°", two tiles, two chart dots. [UI] | None. | None needed. |
+| E09 | WORKING | CORE | Gold is Sun, blue is Earth: lines labeled "Sun 1.8°" and "Earth 3.7°", two tiles, two chart dots. [UI] | None. | None needed. |
 | E10 | WORKING (was partial) | ENABLER | "How to read this app", now first in the list, explains UTC, T+, "3 d", elevation and azimuth; the clock shows the year. [UI] | It starts closed. "147.8M km" is not glossed. | None needed. |
 | E11 | WORKING | CORE | As M13: ridge 72.0 h sunlit, the point 1 km away 17.1 h. [UI] | None. | None needed. |
 | E12 | PARTIAL | OPTIONAL | The shadow layer moved between Nov 24 and Nov 29 at the south pole. [UI] | About 300 m cells at the poles and coarser elsewhere; the picture does not mark when a chosen point enters shadow (the countdown does). | A marker on the timeline when the selected point changes state. |
@@ -153,14 +153,14 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 | E27 | PARTIAL | OPTIONAL | Sky chart at any site. [UI] | Its height axis changes with the site (16° at IM-4, 66° at Apollo 11). | A fixed-scale switch. |
 | E28 | PARTIAL | OPTIONAL | Terrain on/off shows real skyline against none. README gives a worked example (best pixel 90%, best cell 63%). [UI][DOC] | No way to switch grid resolution. | Let the API take a coarser grid for comparison. |
 | E29 | WORKING | ENABLER | "± 48 min", "± 2 h" beside times, with a tooltip and a sentence in the sheet. [UI] | It is a sensitivity to 0.1° of skyline, not a statistical error. | None needed; keep the wording. |
-| E30 | WORKING (was partial) | ENABLER | Sheet entry "Measured, modelled or drawn" sorts terrain and imagery, NASA’s models, the app’s calculations and the illustrative parts. [UI] | Not tagged row by row on the card. | None needed. |
+| E30 | WORKING (was partial) | ENABLER | Sheet entry "Measured, modeled or drawn" sorts terrain and imagery, NASA’s models, the app’s calculations and the illustrative parts. [UI] | Not tagged row by row on the card. | None needed. |
 
 ### General public
 
 | ID | Status | Scope | Workflow and verified result | Issue | Smallest improvement |
 |---|---|---|---|---|---|
 | P01 | WORKING | ENABLER | The Moon fills the screen; title "Zoriana — Lunar Landing Site Navigator"; "Pick a site. Pick a date. See your Sun and Earth windows." [UI] | The name "Luna Maps" appears nowhere in the app. | Decide the name; no code needed. |
-| P02 | WORKING (was partial) | ENABLER | "New here? How to read this app" is first in the list: colours, solid and dashed lines, blue patches, pins, and the words used. [UI] | It starts closed. | None needed. |
+| P02 | WORKING (was partial) | ENABLER | "New here? How to read this app" is first in the list: colors, solid and dashed lines, blue patches, pins, and the words used. [UI] | It starts closed. | None needed. |
 | P03 | WORKING | CORE | Tap a marker; right-click; or press and hold on a phone: "Pin dropped…", then "Pin A · Custom lunar coordinates · in Mare Fecunditatis". [UI][SIM] | None. | None needed. |
 | P04 | WORKING | ENABLER | Scroll or pinch, zoom buttons, "Whole Moon". [UI][SIM] | None. | None needed. |
 | P05 | WORKING | ENABLER | "Whole Moon" button and the app icon. [UI] | None. | None needed. |
@@ -183,7 +183,7 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 | P22 | WORKING | OPTIONAL | Explainer: "Earth hangs almost still in its sky… a band about 8° wide… where Earth slowly rises and sets over a month." [UI] | None. | None needed. |
 | P23 | WORKING (was partial) | OPTIONAL | Sheet: positions "hold for every date offered; what limits a prediction is the terrain grid, not how far ahead it is." [UI] | None. | None needed. |
 | P24 | WORKING (was partial) | OPTIONAL | Earth explainer: "The far side is not the dark side… The night side is whichever half is turned away from the Sun." [UI] | None. | None needed. |
-| P25 | WORKING (was partial) | ENABLER | Map label "Calculated sunlight and shadows · JPL Sun, LOLA terrain" or "NASA imagery · no lighting added"; sheet entry "Measured, modelled or drawn". [UI] | The label is hidden on phones; a note appears when switching. | As M08. |
+| P25 | WORKING (was partial) | ENABLER | Map label "Calculated sunlight and shadows · JPL Sun, LOLA terrain" or "NASA imagery · no lighting added"; sheet entry "Measured, modeled or drawn". [UI] | The label is hidden on phones; a note appears when switching. | As M08. |
 | P26 | WORKING | CORE | Pin A and Pin B 1 km apart: 72.0 h against 17.1 h of sunlight; each pin’s note names what blocks it. [UI] | None. | None needed. |
 | P27 | WORKING (was not implemented) | OPTIONAL | Explainer: "A photo you have seen elsewhere can differ from the app for the same reasons: another date, another viewing angle, or detail finer than the terrain data here." [UI] | A general explanation; no outside picture can be loaded. | None needed. |
 | P28 | WORKING | CORE | "Earth: up at 2.1° but hidden by terrain 5.0 km away to the northwest, which rises to 2.9°"; "Terrain off" shows the smooth-Moon answer. [UI] | None. | None needed. |
@@ -196,7 +196,7 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 
 ### Mission planners
 
-**M05 — What time am I analysing, and in which standard? WORKING (was partial).**
+**M05 — What time am I analyzing, and in which standard? WORKING (was partial).**
 - **Workflow:** open any site or link; read the timeline panel.
 - **Output:** "12:00 · Nov 15, 2026 · UTC · past", "Mission time T+0 h · landing", "Landing date · UTC", "Hour 12:00". Opening with no date in the link shows the present hour ("· now").
 - **Science:** JPL's table is in UT and uses DE441; the sheet now says "Times are UTC (JPL's UT)". The two differ by under a second.
@@ -209,7 +209,7 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 - **Limitation:** none for this question.
 
 **M22 — Are the angles for the surface point? WORKING.**
-- **Evidence:** every answer now carries the request made to JPL: observer table, centre `coord@301`, site coordinates "31,-84.6,5.0416…" (east longitude, latitude, height in km), airless, hourly, UT, ephemeris DE441 as named in JPL's own reply. The convergence script sends the same request at 10-minute steps and finds the app's interpolation within 0.00003°.
+- **Evidence:** every answer now carries the request made to JPL: observer table, center `coord@301`, site coordinates "31,-84.6,5.0416…" (east longitude, latitude, height in km), airless, hourly, UT, ephemeris DE441 as named in JPL's own reply. The convergence script sends the same request at 10-minute steps and finds the app's interpolation within 0.00003°.
 
 **M27 — Do the windows converge as sampling is refined? PARTIAL.**
 - **Workflow:** `node scripts/check-convergence.mjs` (writes `data/convergence-check.json`).
@@ -249,7 +249,7 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 
 ### General public
 
-**P02 — What do the colours and symbols mean? WORKING (was partial).**
+**P02 — What do the colors and symbols mean? WORKING (was partial).**
 - **Workflow:** open "New here? How to read this app", the first item under the filters.
 - **Output:** "Gold is always the Sun and blue is always Earth: the two lines from a site point toward them, solid when the site can see them and dashed when it cannot. Blue patches near the poles are ground that never gets sunlight…", then the words horizon, elevation, above terrain, azimuth, UTC, T+ and "3 d".
 - **Limitation:** it starts closed.
@@ -261,7 +261,7 @@ Moved to working since the first run (27): M05, M11, M12, M15, M18, M19, M21, M2
 - **Output (simulator):** stay buttons 50 × 44 px; terrain toggle 44 high; date field's label 44 high; tool buttons 40 high with a wider invisible touch strip; press and hold drops a pin; the card opens on the answer with numbers folded; "Now" stays on screen.
 - **Limitation:** no real phone was used in this audit. Grabbing the sheet's handle while its content is still coasting scrolls instead of collapsing; a second drag works.
 
-**P25 — Photograph, visualisation or prediction? WORKING (was partial).**
+**P25 — Photograph, visualization or prediction? WORKING (was partial).**
 - **Output:** label "Calculated sunlight and shadows · JPL Sun, LOLA terrain", or "NASA imagery · no lighting added"; switching shows "Showing NASA's imagery with no lighting added. Any shading left is in the photographs or is dark rock." The sheet sorts everything into measured, NASA's models, calculated here, and drawn for clarity.
 - **Limitation:** the label is hidden on phones; the note on switching is not.
 
@@ -297,7 +297,7 @@ The times in the table are the auditor's estimates from doing each task, not mea
 | Sun and Earth positions | JPL Horizons observer tables for the surface point and height, airless, DE441, hourly, interpolated | `request` block in every answer; convergence script (0.00003°); Apollo 11 within 0.06° | None found. |
 | Terrain skyline | Rays every 0.25° to 300 km on a curved Moon; 40 m, 80 m, 474 m and 1.9 km grids; shares of each now reported | API; card; `tests/terrain.test.mjs` | Angular step fixed; features smaller than the grid are missed (stated). |
 | Timing | Five-minute tests between hourly positions; crossings interpolated | `scripts/check-convergence.mjs`: identical to 0.01 h from 15 min to 1 min | None found. |
-| Visibility rule | Centre above skyline for totals and windows; disc share beside it; eclipses counted | Card; finder note; disc and eclipse tests | Headline numbers use the centre rule (stated). |
+| Visibility rule | Center above skyline for totals and windows; disc share beside it; eclipses counted | Card; finder note; disc and eclipse tests | Headline numbers use the center rule (stated). |
 | Coverage | Any point; grid and its share named per site; polar maps say where they stop | Live | None found. |
 | Uncertainty | "±" on rise and set times for 0.1° of skyline | Live; `crossingSpread` | A sensitivity, not an error bar; no position or resolution term. |
 | Reproducibility | Versioned answers and exports; JPL request; recipe; scripts; data hashes | This run rebuilt the windows from the API alone | CSV download not exercised. |
@@ -379,7 +379,7 @@ Each uses only what was run in this audit.
 
 ## I. Final verdict
 
-1. **Can a first-time user understand it in about 30 seconds?** Yes. The Moon, the list, the line "Pick a site. Pick a date. See your Sun and Earth windows", and one clock. An expert judgement, not a measured one.
+1. **Can a first-time user understand it in about 30 seconds?** Yes. The Moon, the list, the line "Pick a site. Pick a date. See your Sun and Earth windows", and one clock. An expert judgment, not a measured one.
 2. **Can someone with no astronomy background get a useful answer without training?** Yes. One tap gives "the Sun is up but terrain hides it, and Earth is up but terrain hides it", then the stay in a sentence and a countdown. On a phone the numbers stay out of the way until asked for.
 3. **Can a student learn something real by experimenting?** Yes. Two pins 1 km apart differ by 55 hours of sunlight in three days, the app names the terrain responsible, and five explainers answer the questions that follow. Missing: side-by-side sky charts and a place for predictions.
 4. **Can a scientist reproduce and evaluate the core results?** Yes for the calculation: versioned answers, the exact JPL request, a written recipe and a repeatable convergence check. The evidence for individual event times is still thin: one real lander, with one match and one unexplained gap.

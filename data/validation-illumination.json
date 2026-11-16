@@ -1,6 +1,6 @@
 {
  "generated": "2026-11-15T09:19:44.168Z",
- "note": "App: share of 5-minute samples with any part of the disc above the app's terrain skyline, over 347 days from 2026-01-01. NASA: AVGVISIB 120 m pixel at the same place, with the range of its eight neighbours.",
+ "note": "App: share of 5-minute samples with any part of the disc above the app's terrain skyline, over 347 days from 2026-01-01. NASA: AVGVISIB 120 m pixel at the same place, with the range of its eight neighbors.",
  "summary": {
   "points": 10,
   "days": 347,
@@ -23,9 +23,9 @@
    "days": 347,
    "sun": {
     "app": 0.117,
-    "appCentreOnly": 0.1,
+    "appCenterOnly": 0.1,
     "nasa": 0.121,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.116,
      0.139
     ],
@@ -33,9 +33,9 @@
    },
    "earth": {
     "app": 0.425,
-    "appCentreOnly": 0.382,
+    "appCenterOnly": 0.382,
     "nasa": 0.468,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.461,
      0.481
     ],
@@ -50,9 +50,9 @@
    "days": 347,
    "sun": {
     "app": 0.835,
-    "appCentreOnly": 0.796,
+    "appCenterOnly": 0.796,
     "nasa": 0.677,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.51,
      0.847
     ],
@@ -60,9 +60,9 @@
    },
    "earth": {
     "app": 0.508,
-    "appCentreOnly": 0.464,
+    "appCenterOnly": 0.464,
     "nasa": 0.523,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.443,
      0.582
     ],
@@ -77,9 +77,9 @@
    "days": 347,
    "sun": {
     "app": 0.51,
-    "appCentreOnly": 0.477,
+    "appCenterOnly": 0.477,
     "nasa": 0.464,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.369,
      0.71
     ],
@@ -87,9 +87,9 @@
    },
    "earth": {
     "app": 0.539,
-    "appCentreOnly": 0.493,
+    "appCenterOnly": 0.493,
     "nasa": 0.567,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.521,
      0.567
     ],
@@ -104,9 +104,9 @@
    "days": 347,
    "sun": {
     "app": 0.441,
-    "appCentreOnly": 0.437,
+    "appCenterOnly": 0.437,
     "nasa": 0.44,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.396,
      0.443
     ],
@@ -114,9 +114,9 @@
    },
    "earth": {
     "app": 1,
-    "appCentreOnly": 1,
+    "appCenterOnly": 1,
     "nasa": 1,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      1,
      1
     ],
@@ -131,9 +131,9 @@
    "days": 347,
    "sun": {
     "app": 0.344,
-    "appCentreOnly": 0.333,
+    "appCenterOnly": 0.333,
     "nasa": 0.358,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.357,
      0.358
     ],
@@ -141,9 +141,9 @@
    },
    "earth": {
     "app": 0.266,
-    "appCentreOnly": 0.207,
+    "appCenterOnly": 0.207,
     "nasa": 0.299,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.296,
      0.301
     ],
@@ -158,9 +158,9 @@
    "days": 347,
    "sun": {
     "app": 0.459,
-    "appCentreOnly": 0.442,
+    "appCenterOnly": 0.442,
     "nasa": 0.468,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.426,
      0.47
     ],
@@ -168,9 +168,9 @@
    },
    "earth": {
     "app": 0.936,
-    "appCentreOnly": 0.796,
+    "appCenterOnly": 0.796,
     "nasa": 0.931,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.794,
      0.934
     ],
@@ -185,9 +185,9 @@
    "days": 347,
    "sun": {
     "app": 0.321,
-    "appCentreOnly": 0.291,
+    "appCenterOnly": 0.291,
     "nasa": 0.339,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.273,
      0.356
     ],
@@ -195,9 +195,9 @@
    },
    "earth": {
     "app": 0.579,
-    "appCentreOnly": 0.529,
+    "appCenterOnly": 0.529,
     "nasa": 0.621,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.593,
      0.638
     ],
@@ -212,9 +212,9 @@
    "days": 347,
    "sun": {
     "app": 0.401,
-    "appCentreOnly": 0.395,
+    "appCenterOnly": 0.395,
     "nasa": 0.356,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.342,
      0.403
     ],
@@ -222,9 +222,9 @@
    },
    "earth": {
     "app": 1,
-    "appCentreOnly": 1,
+    "appCenterOnly": 1,
     "nasa": 1,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      1,
      1
     ],
@@ -239,9 +239,9 @@
    "days": 347,
    "sun": {
     "app": 0.076,
-    "appCentreOnly": 0.064,
+    "appCenterOnly": 0.064,
     "nasa": 0.08,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.033,
      0.102
     ],
@@ -249,9 +249,9 @@
    },
    "earth": {
     "app": 0.025,
-    "appCentreOnly": 0,
+    "appCenterOnly": 0,
     "nasa": 0.009,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0,
      0.058
     ],
@@ -266,9 +266,9 @@
    "days": 347,
    "sun": {
     "app": 0.232,
-    "appCentreOnly": 0.219,
+    "appCenterOnly": 0.219,
     "nasa": 0.222,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.18,
      0.242
     ],
@@ -276,9 +276,9 @@
    },
    "earth": {
     "app": 0.546,
-    "appCentreOnly": 0.501,
+    "appCenterOnly": 0.501,
     "nasa": 0.502,
-    "nasaNeighbours": [
+    "nasaNeighbors": [
      0.395,
      0.539
     ],

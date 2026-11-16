@@ -28,7 +28,7 @@ Last checked against the code on November 14, 2026.
 
 - **NASA SP-2000-4029, "Apollo by the Numbers: A Statistical Reference", Apollo 11 timeline** (Richard W. Orloff, NASA History Division). The ground elapsed time of every event in the Apollo 11 replay, from liftoff to splashdown, including the planting of the flag and the unveiling of the plaque during the moonwalk. https://www.nasa.gov/wp-content/uploads/static/history/SP-4029/Apollo_11i_Timeline.htm
 - **NASA NSSDC Master Catalog, Apollo 11 Command and Service Module (1969-059A)**. The splashdown point (13°19′N, 169°9′W), its distance from the recovery ship USS Hornet (24 km), and the launch, landing and splashdown times quoted in the replay's captions. https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059A
-- **NASA/JPL Horizons System, vector tables for July 16 to 25, 1969**: the Moon (301) and the Sun (10) relative to Earth's centre, and the Apollo 11 S-IVB third stage (Horizons spacecraft -399110, a trajectory reconstruction by D. R. Adamo) from 18 minutes after its burn toward the Moon. Also one whole lap of the Moon round the Earth (July 7 to August 3, 1969, every 6 hours), drawn as the Moon's orbit. Fetched once by `scripts/prepare-apollo11.mjs` and stored in `public/assets/apollo11.json`; the replay reads that file and does not query JPL. https://ssd.jpl.nasa.gov/horizons/
+- **NASA/JPL Horizons System, vector tables for July 16 to 25, 1969**: the Moon (301) and the Sun (10) relative to Earth's center, and the Apollo 11 S-IVB third stage (Horizons spacecraft -399110, a trajectory reconstruction by D. R. Adamo) from 18 minutes after its burn toward the Moon. Also one whole lap of the Moon around the Earth (July 7 to August 3, 1969, every 6 hours), drawn as the Moon's orbit. Fetched once by `scripts/prepare-apollo11.mjs` and stored in `public/assets/apollo11.json`; the replay reads that file and does not query JPL. https://ssd.jpl.nasa.gov/horizons/
 - **LROC QuickMap** and **NASA Moon Trek**: every site card links out to the same location in both tools. The app does not read data from them. https://quickmap.lroc.im-ldi.com/ · https://trek.nasa.gov/moon/
 
 ---
@@ -36,7 +36,7 @@ Last checked against the code on November 14, 2026.
 ## Field: Space Agency Partner Data and Other References
 
 **Place names**
-- **Planetary Nomenclature of the Moon** (International Astronomical Union and USGS Astrogeology Science Center; public domain). Centre points, diameters and kinds of 9,087 named lunar features, used for search, pin descriptions and naming the terrain that hides the Sun or Earth. https://planetarynames.wr.usgs.gov/GIS_Downloads
+- **Planetary Nomenclature of the Moon** (International Astronomical Union and USGS Astrogeology Science Center; public domain). Center points, diameters and kinds of 9,087 named lunar features, used for search, pin descriptions and naming the terrain that hides the Sun or Earth. https://planetarynames.wr.usgs.gov/GIS_Downloads
 
 **Space Agency Partner information**
 - **JAXA**, SLIM mission page (DARTS). Landing target coordinates, 13.3160°S 25.2510°E. https://darts.isas.jaxa.jp/en/missions/slim
@@ -51,10 +51,10 @@ Last checked against the code on November 14, 2026.
 - The one-line purpose shown for each future mission paraphrases its Wikipedia summary (IM-3, IM-4, Griffin Mission One, Blue Moon Pathfinder Mission 1) and NASA's description of the Lunar-VISE payload for the Gruithuisen domes.
 - Future mission targets (approximate; announced regions, not landing points):
   - Blue Moon Pathfinder Mission 1, Shackleton connecting ridge, candidate point "Site 001" 89.45°S 222.69°E: Boazman et al. 2022, Planetary Science Journal 3:275; https://en.wikipedia.org/wiki/Blue_Moon_Pathfinder_Mission_1
-  - Griffin Mission One, Nobile crater centre 85.28°S 53.27°E: https://en.wikipedia.org/wiki/Griffin_Mission_One ; https://en.wikipedia.org/wiki/Nobile_(crater)
-  - IM-4, Mons Mouton centre 84.6°S 31.0°E: https://en.wikipedia.org/wiki/IM-4 ; https://en.wikipedia.org/wiki/Mons_Mouton
-  - IM-3, Reiner Gamma centre 7.5°N 59.0°W: https://en.wikipedia.org/wiki/IM-3 ; https://en.wikipedia.org/wiki/Reiner_Gamma
-  - Blue Ghost Mission 3, Mons Gruithuisen Gamma centre 36.56°N 40.72°W: https://en.wikipedia.org/wiki/Mons_Gruithuisen_Gamma
+  - Griffin Mission One, Nobile crater center 85.28°S 53.27°E: https://en.wikipedia.org/wiki/Griffin_Mission_One ; https://en.wikipedia.org/wiki/Nobile_(crater)
+  - IM-4, Mons Mouton center 84.6°S 31.0°E: https://en.wikipedia.org/wiki/IM-4 ; https://en.wikipedia.org/wiki/Mons_Mouton
+  - IM-3, Reiner Gamma center 7.5°N 59.0°W: https://en.wikipedia.org/wiki/IM-3 ; https://en.wikipedia.org/wiki/Reiner_Gamma
+  - Blue Ghost Mission 3, Mons Gruithuisen Gamma center 36.56°N 40.72°W: https://en.wikipedia.org/wiki/Mons_Gruithuisen_Gamma
 - Shackleton region (89.5°S, 0°E) and Malapert region (85.95°S, 0°E) are exploration points chosen by the team. They are not mission landing sites.
 
 **Software**

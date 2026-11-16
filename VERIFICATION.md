@@ -72,7 +72,7 @@
 
 ## Wider polar terrain, slope and map-tool links — November 14, 2026 (afternoon)
 
-- Downloaded PDS LOLA LDEM_80S_80M V2.0 (7600×7600, 115,520,000 bytes) into `data/lola_80s_80m/`. Label confirms 80 m/pixel, pole at pixel 3799.5, half-metre units. SHA-256 recorded in `data/terrain-manifest.json`.
+- Downloaded PDS LOLA LDEM_80S_80M V2.0 (7600×7600, 115,520,000 bytes) into `data/lola_80s_80m/`. Label confirms 80 m/pixel, pole at pixel 3799.5, half-meter units. SHA-256 recorded in `data/terrain-manifest.json`.
 - Thirty-three Node tests pass. Six are new: the generic south-polar pixel lookup reproduces the 40 m registration and scales to 80 m; slope recovers a 10° synthetic plane, is zero on flat ground and null without data; QuickMap and Moon Trek links for polar and mid-latitude sites.
 - Terrain service run directly:
   - 84.5°S 30°E and 82°S 60°W now report the 80 m grid (previously the 1.9 km global grid); 84.5°S 30°E elevation +5,225 m.
@@ -80,16 +80,16 @@
   - Shackleton and Malapert points unchanged on the 40 m grid (elevations −721 m and +4,757 m as before); slopes 6.8° and 10.3° over 80 m.
   - Cold horizon times 0.1–0.7 s per site.
 - In-app browser, live data, no console errors: slope, terrain source and both links appear on site cards; mid-latitude sites label slope as regional (3.8 km baseline).
-- Link formats opened against the live tools: QuickMap accepted a lon/lat `extent` box and a south-polar `prjExtent` box (it requested south-polar tiles centred on the pole region); Moon Trek opened on the Apollo 11 area and, in its south-polar projection, on Shackleton crater. North-polar links were not opened.
+- Link formats opened against the live tools: QuickMap accepted a lon/lat `extent` box and a south-polar `prjExtent` box (it requested south-polar tiles centered on the pole region); Moon Trek opened on the Apollo 11 area and, in its south-polar projection, on Shackleton crater. North-polar links were not opened.
 - Limits: the 80 m grid improves horizons and slope only. The shadow layer and landing-view relief between 80°S and 85°S still use the 3.8 km grid. Slope is a DEM-scale figure, not a hazard assessment.
 
 ## Future mission targets — November 14, 2026 (evening)
 
-- Added a Future group with five planned missions (Blue Moon Pathfinder Mission 1, Griffin Mission One, IM-4, IM-3, Blue Ghost Mission 3) and one past CLPS landing (IM-2 Athena). Targets and schedules were read from the missions' Wikipedia articles (revisions dated October–November 2026); coordinates are feature centres or a published candidate point, as listed in README.md, and each future entry shows an "approximate" note in the app.
+- Added a Future group with five planned missions (Blue Moon Pathfinder Mission 1, Griffin Mission One, IM-4, IM-3, Blue Ghost Mission 3) and one past CLPS landing (IM-2 Athena). Targets and schedules were read from the missions' Wikipedia articles (revisions dated October–November 2026); coordinates are feature centers or a published candidate point, as listed in README.md, and each future entry shows an "approximate" note in the app.
 - A longitude I had recalled for IM-2 (2.24°E) was wrong; the sources give 29.1957°E, and that value is used.
 - In-app browser, live JPL data, landing date 2027-02-01, no console errors. All six sites loaded terrain, slope, Sun/Earth angles and the lunar-day summary:
   - Connecting-ridge point (89.45°S 137.31°W): 40 m grid, elevation +1,955 m, slope 2.7° over 80 m, 96% sunlit over 30 days.
-  - Nobile crater centre: 40 m grid, 35% sunlit. Mons Mouton centre: 80 m grid, elevation +5,040 m, 33% sunlit.
+  - Nobile crater center: 40 m grid, 35% sunlit. Mons Mouton center: 80 m grid, elevation +5,040 m, 33% sunlit.
   - IM-2 Athena site: 80 m grid, elevation +5,321 m, slope 2.1° over 160 m.
   - Reiner Gamma and Mons Gruithuisen Gamma: global grid, Earth in view, about half of the 30 days sunlit.
 - Not verified: the exact landing points, which the missions have not published, and whether schedules have changed since the articles were last edited.
@@ -97,13 +97,13 @@
 ## Right-click pin and Blue Moon icon — November 14, 2026 (evening)
 
 - Right-clicking the globe now drops a pin directly. In the in-app browser a real right-click on the surface created a pin at 19.9924°S 56.2458°E, which loaded terrain, slope and Sun/Earth data with no console errors. The long-press path on touch screens uses the same browser event and was not tried on a device.
-- The Blue Moon icon was redrawn from a NASA photograph of the Mark 1 lander (Wikimedia Commons, taken 12 February 2026).
+- The Blue Moon icon was redrawn from a NASA photograph of the Mark 1 lander (Wikimedia Commons, taken February 12, 2026).
 
 ## Sun and Earth in space; round landing terrain — November 14, 2026 (evening)
 
-- Thirty-four Node tests pass. One is new: the Moon-centred direction leaves an overhead body unchanged, tilts Earth's direction by atan(1/221) = 0.26° for a limb site, and is negligible at the Sun's distance.
+- Thirty-four Node tests pass. One is new: the Moon-centered direction leaves an overhead body unchanged, tilts Earth's direction by atan(1/221) = 0.26° for a limb site, and is negligible at the Sun's distance.
 - In-app browser, live JPL data, no console errors:
-  - 2026-11-15 12:00 UTC: Earth overhead at 2.7°N 3.3°W (near the centre of the near side, within libration range); Sun overhead at 1.6°S 108.3°E (within the Moon's ±1.6° solar latitude range).
+  - 2026-11-15 12:00 UTC: Earth overhead at 2.7°N 3.3°W (near the center of the near side, within libration range); Sun overhead at 1.6°S 108.3°E (within the Moon's ±1.6° solar latitude range).
   - Shackleton region, 2026-11-21 06:00 UTC, landing view tilted toward the horizon: the Earth globe appears above the horizon directly along the blue sight line, with Earth reported 5.1° above the horizon and in view.
   - The landing-view terrain footprint is now circular with a soft edge.
 - Not verified: Earth's drawn phase against an independent source, and the Sun disc's appearance (it was outside the view in these checks).
@@ -118,14 +118,14 @@
 
 ## Earth follows the map modes — November 14, 2026 (evening)
 
-- Earth now has the same two looks as the Moon: lit by the modelled Sun in Explore and Landing, and plain NASA imagery with no lighting in Satellite or whenever the Sunlight layer is off.
+- Earth now has the same two looks as the Moon: lit by the modeled Sun in Explore and Landing, and plain NASA imagery with no lighting in Satellite or whenever the Sunlight layer is off.
 - In-app browser, no console errors: at Malapert region on 2026-11-21 06:00 UTC, Earth drew as a lit crescent with Sunlight on and as a full textured disc with Sunlight off; switching to Satellite turned lighting off and back to Explore turned it on.
 
 ## Real Earth distance — November 14, 2026 (evening)
 
 - The server now also requests the Horizons observer range (quantity 20, in km). Live check for the reference site from 2026-11-15: 721 hourly Earth samples, range 402,981 km at the start and between 357,629 and 404,670 km over the 30 days; Sun range 147.8 million km.
-- Earth is placed at that distance, shifted from the site to the Moon's centre, instead of at the 384,400 km average. On 2026-11-15 the average was about 5% too close.
-- Forty Node tests pass. Two are new: parsing and interpolating the range column from real Horizons rows (and tolerating rows without it), and the Moon-centred position for overhead and horizon cases.
+- Earth is placed at that distance, shifted from the site to the Moon's center, instead of at the 384,400 km average. On 2026-11-15 the average was about 5% too close.
+- Forty Node tests pass. Two are new: parsing and interpolating the range column from real Horizons rows (and tolerating rows without it), and the Moon-centered position for overhead and horizon cases.
 - In-app browser, no console errors: the site card shows Earth at 403,926 km and the Sun at 147.8 million km from the Shackleton region on 2026-11-15 12:00 UTC, changing to 376,014 km on 2026-11-21 06:00 UTC; the landing view still opens with Earth in frame.
 - The Sun is still drawn at a fixed nearby distance in its true direction and apparent size.
 
@@ -167,15 +167,15 @@
 
 - Official icon: the team's icon (source image dated November 14, 2026, 19:44 Pacific, 1254 × 1254) replaced the code-drawn placeholder. The rounded square was located by measurement (a rounded rectangle of radius about 255 px fits its outline to within 2 px RMS), cropped, given transparent corners and resized to 512, 192 and 64 px. Seen in the app's rail button and as the page icon. How the source image was made has not been recorded yet; see the open item in REFERENCES.md.
 - Permanently shadowed regions: NASA LOLA product LPSR_75S_120M_201608 downloaded from the PDS Geosciences Node (116,250,752 bytes, SHA-256 `f47c5374…6beff4`, recorded in `data/terrain-manifest.json`). Every sample is +20000 or −20000 as the label states. Spot checks on the full-resolution grid: the floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus are shadowed; the Malapert massif point and the Shackleton ridge candidate point are not. Shadowed area in the file: about 27,700 km² south of 75°S and about 19,500 km² south of 80°S (not compared with a published total).
-- Sun and Earth as discs: new `src/disc.mjs`. Against the exact circular-segment formula the 15-strip sum is within 0.4% of the disc; a synthetic sunrise gives the expected 16 minutes between first light, centre and full disc.
+- Sun and Earth as discs: new `src/disc.mjs`. Against the exact circular-segment formula the 15-strip sum is within 0.4% of the disc; a synthetic sunrise gives the expected 16 minutes between first light, center and full disc.
 - Benchmark: `scripts/benchmark-apollo.mjs` run against the live server on 2026-11-15 03:46 UTC. Twelve Sun-angle cases from NASA's Apollo table: largest elevation difference 0.7°, largest azimuth difference 2.57°; six level-horizon sunrises 22 to 73 minutes from the table. The Apollo 11 touchdown value still matches the Journal's JPL-based figure to 0.06°. The cause of the roughly 2° azimuth differences at Apollo 14, 15 and 16 was not found.
 - Fifty-five Node tests pass (nine new: six for the disc measure, three for the shadow-map lookup). `npx vite build` succeeds.
 - In-app browser, live JPL data, 2026-11-15:
   - Shackleton region point: "Permanent shadow: No, nearest is 2.3 km away". Blue patches drawn around the pole in Explore, Landing and Satellite modes; the button hides them and the link gains `psr=off`.
   - A typed pin on the floor of Shackleton crater (89.67°S 129.8°E): "Yes, NASA maps this spot as never sunlit"; the app's own calculation for the same pin gives 0 sunlit hours and no first light in the 31-day series.
   - Apollo 11: "Not mapped here, NASA's map covers 75°S to the south pole"; Sun disc 100%, "full Sun 70.7 h, at least part of it 71.8 h" for a 3-day stay.
-  - Shackleton region point: centre-based sunrise November 24, 02:35 UTC; first light November 23, 20:45; full disc November 24, 20:35. At 20:00 on November 23 the tile read "Above terrain −0.3°, Disc showing 0%".
-- Not verified: the layer on a phone-width screen, Safari, and how the blue tint reads for colour-blind users. The one console error seen during the run came from a hot reload part-way through the edit (the script loaded before the new button existed in the page) and did not recur on full page loads.
+  - Shackleton region point: center-based sunrise November 24, 02:35 UTC; first light November 23, 20:45; full disc November 24, 20:35. At 20:00 on November 23 the tile read "Above terrain −0.3°, Disc showing 0%".
+- Not verified: the layer on a phone-width screen, Safari, and how the blue tint reads for color-blind users. The one console error seen during the run came from a hot reload part-way through the edit (the script loaded before the new button existed in the page) and did not recur on full page loads.
 
 ## Phase 4: public deployment and demo — November 14, 2026 (night; November 15 UTC)
 
@@ -185,7 +185,7 @@
 - Share links can open the ranking (`panel=rank`). The permanent-shadow tint was made lighter so terrain shows through it.
 - Demo: seven slides in `demo/zoriana-demo.pdf` (7 pages, 16:9), printed from `demo/slides.html` with headless Chrome. The app pictures are screenshots of the local app at 1600 × 900, taken from share links on 2026-11-15 UTC. An editable copy of the same deck exists as a private Claude artifact.
 - Fifty-five Node tests pass; `npx vite build` succeeds.
-- Not verified: the live site on a phone or in Safari, behaviour under many simultaneous visitors (JPL requests are sent one at a time), and the demo and repository links from a signed-out browser (to be checked once the repository is public).
+- Not verified: the live site on a phone or in Safari, behavior under many simultaneous visitors (JPL requests are sent one at a time), and the demo and repository links from a signed-out browser (to be checked once the repository is public).
 
 ## Closing the listed gaps — November 15, 2026 (UTC morning)
 
@@ -198,7 +198,7 @@
 - Server: the curated sites are fetched for today's date at start-up ("Warm-up for 2026-11-15: 18/18 sites in 11 s" in the live logs).
 - Load test against https://zoriana.fly.dev/ from one laptop, 2026-11-15 07:40 UTC: 300 page loads 30 at a time, no failures, median 0.33 s, slowest 0.57 s; 200 API requests for a pre-loaded site 20 at a time, no failures, median 0.45 s, slowest 0.76 s; eight different new pins requested at once all succeeded, the first in 1.3 s and the last in 6.7 s (terrain is computed one site at a time and JPL is asked one request at a time). The 12 MB Moon mosaic downloaded in 1.2 s. This is one client on a fast connection, not a measure of many real visitors on slow networks.
 - Sixty Node tests pass; `npx vite build` succeeds. Demo PDF rebuilt (7 pages).
-- MIT licence added for the code.
+- MIT license added for the code.
 - FortiGuard: the request form needs a name, an email address and a "not a robot" check, so it was left for the team to submit.
 
 ## Second product review — November 15, 2026 (UTC)
@@ -216,7 +216,7 @@
 - Best spot, now checked for the chosen dates: from the Shackleton region point, "Checked 6 spots for your 3 d stay from Nov 15. This one, 12.7 km away, has 13.1 h of Sun and Earth together and 72.0 h of sunlight (long-term: Sun 49%, Earth 56%)". Before the fix the suggested pin had 0 h of sunlight in those three days.
 - Named features: 9,087 IAU/USGS features loaded (public domain). Search returns Tycho, Copernicus and Mare Serenitatis; the IM-4 blocking note reads "hidden by terrain 360 m away to the east-northeast (on Mons Mouton)". A first version named Apollo 17's site "in Mare Tranquillitatis" (wrong) and Apollo 11's "in Rimae Hypatia" (misleading); naming is now limited to round features, and to points well inside seas and mountains, and both cases are covered by tests.
 - North-polar terrain: LDEM_80N_80M added (115,520,000 bytes, hash in `data/terrain-manifest.json`). Orientation check against the global grid over 4,000 points: 61 m RMS with 0° longitude down the image, 1,160 m the other way. A pin at 87.8°N 47.1°W now reads "NASA LOLA · 80 m north-polar grid", slope 25.8° over 160 m (it read 22.8° regional over 3.8 km on the coarse grid).
-- Check against NASA's long-term maps (`scripts/validate-illumination.mjs`, local server, 347 days from 2026-01-01, ten points): Sun mean absolute difference 3.1 percentage points, largest 15.8 (Blue Moon Pathfinder 1 ridge point: app 83.5%, NASA 67.7%, NASA's neighbouring pixels 51% to 85%); Earth mean 2.3, largest 4.5. Full table in the README and `data/validation-illumination.json`.
+- Check against NASA's long-term maps (`scripts/validate-illumination.mjs`, local server, 347 days from 2026-01-01, ten points): Sun mean absolute difference 3.1 percentage points, largest 15.8 (Blue Moon Pathfinder 1 ridge point: app 83.5%, NASA 67.7%, NASA's neighboring pixels 51% to 85%); Earth mean 2.3, largest 4.5. Full table in the README and `data/validation-illumination.json`.
 - Earth view, explainers, "How was this worked out?" and the purpose lines were read back from the live site; no console errors.
 - Sixty-eight Node tests pass; `npx vite build` succeeds; demo PDF rebuilt (7 pages).
 - Live machine after adding the north grid: 988 MB total, 387 MB available; warm-up "18/18 sites in 12 s".
@@ -233,7 +233,7 @@
 
 ## Eclipses and the slope layer — November 15, 2026 (UTC)
 
-- Eclipses: `src/eclipse.mjs` (four unit tests: disc overlap against the closed formula, a synthetic pass of the Sun behind Earth with contact times to five minutes, no-eclipse and empty cases, and vector interpolation near the zenith). The Sun's centre now counts as hidden while behind Earth's disc.
+- Eclipses: `src/eclipse.mjs` (four unit tests: disc overlap against the closed formula, a synthetic pass of the Sun behind Earth with contact times to five minutes, no-eclipse and empty cases, and vector interpolation near the zenith). The Sun's center now counts as hidden while behind Earth's disc.
 - Check against published contact times (UTC), local server with live JPL data:
   - March 3, 2026 (published: penumbral 08:44 to 14:23, umbral 09:50 to 13:17, whole-Moon totality 11:04 to 12:03). Apollo 11: 09:30 to 14:00, total 10:35 to 12:50. Apollo 17: 09:30 to 14:05, total 10:35 to 13:00. South pole point: 09:30 to 13:30, total 10:55 to 12:05. North pole point: 09:20 to 14:00, total 10:20 to 12:55.
   - August 28, 2026 (published: penumbral 01:23 to 07:02, umbral 02:33 to 05:52, 93% partial). South pole point: 01:55 to 06:40, total 03:00 to 05:30. Apollo 11: 02:15 to 06:40, total 03:30 to 05:25. Far side 0°N 180°E: 02:00 to 06:20, total 03:15 to 05:05. North pole point: 02:15 to 06:05, 96% at most, never total.
@@ -269,7 +269,7 @@
 - Apollo benchmark re-run on the new grid: unchanged (largest elevation difference 0.7°, azimuth 2.57°). Long-term validation re-run: unchanged (Sun 3.1 points mean, 15.8 largest; Earth 2.3 and 4.5); those ten points use the polar grids.
 - Event times against a real lander (`scripts/check-event-times.mjs`, `data/event-check.json`), Blue Ghost Mission 1 at 18.56°N 61.81°E:
   - Eclipse of March 14, 2025: app 05:05 start, totality 06:20 to 08:30, clear 09:50 UTC. Firefly reported its first look around 05:30 UTC and the diamond ring, as totality ended, around 08:30 UTC. All four app times fall inside the matching published contact intervals for the Moon as a whole.
-  - Sunset of March 16, 2025: app has the Sun starting to be covered 19:20, centre setting 19:48 (± 12 min), last light 20:25 UTC. Firefly: final data around 23:15 UTC, "just over 5 hours into the lunar night", so night from shortly before 18:15. The app is 1.1 to 2.2 hours later. A separate calculation from JPL's sub-solar point puts the Sun's centre on a smooth horizon at 20:10 to 20:11 UTC, matching the app's own smooth-sphere figure of 20:10. The difference is not explained.
+  - Sunset of March 16, 2025: app has the Sun starting to be covered 19:20, center setting 19:48 (± 12 min), last light 20:25 UTC. Firefly: final data around 23:15 UTC, "just over 5 hours into the lunar night", so night from shortly before 18:15. The app is 1.1 to 2.2 hours later. A separate calculation from JPL's sub-solar point puts the Sun's center on a smooth horizon at 20:10 to 20:11 UTC, matching the app's own smooth-sphere figure of 20:10. The difference is not explained.
 - "±" on rise and set times, live: IM-4 "until Earthrise · Nov 16, 15:26 UTC ± 2 h" and "Sunrise in 1 d 11 h · Nov 17, 11:54 UTC ± 48 min". Local: Apollo 11 "until sunset · Nov 29, 19:39 UTC ± 12 min".
 - Map layers menu, live: five named rows (None, Average sunlight, Earth view, Sun × Earth score, Slope). Method sheet: 2,603 characters; full text in `METHOD.md`.
 - Best spot, live, from the Shackleton point for a 3 d stay from Nov 15 12:00: twenty candidates checked; the pin moved to 89.7475°S 57.8043°E, the same winner as with six candidates, in under 46 seconds.
@@ -298,7 +298,7 @@
 
 - Fixes 4 to 10 from `AUDIT_90.md` were made, deployed as version 1.0.0 and checked on the live site; the audit was then run again. Second run: 72 working, 17 partial, 1 not implemented (first run: 45, 42, 3). No row moved down.
 - Checked on the live site:
-  - Server answers carry `version` "1.0.0" and a `request` block (observer table, centre coord@301, site coordinates and height, airless, 1 h, UT, ephemeris "DE441" read from JPL's reply), and `terrain.resolutionShares` (IM-4: 24% from the 40 m grid, 71% from 80 m, 5% from 1.9 km), which the card prints.
+  - Server answers carry `version` "1.0.0" and a `request` block (observer table, center coord@301, site coordinates and height, airless, 1 h, UT, ephemeris "DE441" read from JPL's reply), and `terrain.resolutionShares` (IM-4: 24% from the 40 m grid, 71% from 80 m, 5% from 1.9 km), which the card prints.
   - Search reads "84.6000° S 31.0000° E", "89.5S 45E", "-89.5, 45", "S 89.45 W 137.31" and "-89.45 222.69" (the last becomes −137.31° E). Names such as "Tycho" and "Apollo 11" still go to the name search.
   - The card opens with one sentence ("Nov 15, 12:00 UTC: the Sun is up but terrain hides it, and Earth is up but terrain hides it. Over the 3 d stay: …") and the countdown; "Hide the numbers" folds azimuth, disc share, distances and data rows. In Safari on the simulated iPhone the numbers start folded.
   - "At touchdown: no sunlight, Earth out of view, so no direct line home at first."
@@ -316,7 +316,7 @@
 ## Fly-bys — November 15, 2026 (UTC)
 
 - New: a fly-by is a 50-second camera pass over the Landing view, with pause and half or double speed. It starts from a "Fly-by" button on any site card, or from four listed places (Shackleton, Tycho, Copernicus, the Apollo 11 site). Nothing new is calculated: true-scale LOLA relief, NASA imagery, and the sunlight for the time on the clock.
-- New endpoint `/api/terrain-patch`: 513 × 513 heights (16-bit metres, 526,338 bytes) on the Landing view's grid, each read from the finest grid covering the point. Live: Tycho "586 m" spacing, all from the 474 m grid, 0.9 s when new; IM-4 "273 m" spacing, 37% from the 40 m grid and 63% from the 80 m grid, 0.25 s. The Landing view's status line now reads "true-scale LOLA relief, 586 m grid" (was 3.8 km) away from the far south.
+- New endpoint `/api/terrain-patch`: 513 × 513 heights (16-bit meters, 526,338 bytes) on the Landing view's grid, each read from the finest grid covering the point. Live: Tycho "586 m" spacing, all from the 474 m grid, 0.9 s when new; IM-4 "273 m" spacing, 37% from the 40 m grid and 63% from the 80 m grid, 0.25 s. The Landing view's status line now reads "true-scale LOLA relief, 586 m grid" (was 3.8 km) away from the far south.
 - Checked locally in Chromium: Tycho from the list moved the clock ("Clock moved to Nov 18, 23:00 UTC, when the Sun is 10.2° high over Tycho."), flew from a range of 231 km down to 38 km and back to 143 km, and showed the crater's walls and central peak in relief; IM-4 from its card reached a range of 20 km on the 273 m mesh and ended "Fly-by finished · drag to look around"; Shackleton ran on the browser's 160 m mesh; pause, 2× speed and the close button worked. No console errors.
 - Checked on the live site: Copernicus from the list ("Fly-by · Copernicus", clock at Nov 20 16:00 with the Sun 23.8° high, range 51 km at 72% of the flight, 586 m grid). No console errors.
 - Checked in Safari on the simulated iPhone 17 Pro (local build): the card shows five buttons (Compare, Fly to, Fly-by, Share, Method); tapping Fly-by at the Apollo 11 site collapsed the sheet, showed the fly-by bar above it and ran the flight.
@@ -327,7 +327,7 @@
 ## Fly-by captions — November 15, 2026 (UTC)
 
 - Each fly-by now shows one plain sentence per stage and, with the numbers switch on, a second line of figures. The switch is the site card's own ("Hide the numbers"); the fly-by bar has a "123" button for it. There is no audience toggle.
-- Live site, Copernicus from the list: "Landing time moved to Nov 20, 16:00 UTC, when the Sun is 23.8° high over Copernicus."; then "Copernicus: a crater 96 km across, named for the Polish astronomer Nicolaus Copernicus." / "The floor lies about 3.8 km below the rim, and the high ground at its centre stands about 1.0 km above the floor." (numbers: typical rim +270 m, floor −3,510 m, central high point −2,560 m) / "For a lander arriving Nov 20, 16:00 UTC and staying 3 d: Sunlit for the whole stay. Earth in view throughout."
+- Live site, Copernicus from the list: "Landing time moved to Nov 20, 16:00 UTC, when the Sun is 23.8° high over Copernicus."; then "Copernicus: a crater 96 km across, named for the Polish astronomer Nicolaus Copernicus." / "The floor lies about 3.8 km below the rim, and the high ground at its center stands about 1.0 km above the floor." (numbers: typical rim +270 m, floor −3,510 m, central high point −2,560 m) / "For a lander arriving Nov 20, 16:00 UTC and staying 3 d: Sunlit for the whole stay. Earth in view throughout."
 - Local build: Tycho "about 4.7 km below the rim… about 2.3 km above the floor" (rim +1,290 m, floor −3,420 m); Shackleton "about 4.0 km below the rim", and "This point is in permanent shadow."; IM-4 "Within about 30 km of this point the ground rises and falls by 4.4 km." (lowest +2,610 m, highest +7,000 m, slope 9.5° over 160 m). Commonly published depths are about 4.7 km (Tycho), 3.8 km (Copernicus) and 4.2 km (Shackleton).
 - Listed fly-bys now move the landing time, not only the clock, to the good-light moment, so the stay in the last caption matches the view.
 - Safari on the simulated iPhone (local build): the caption sits above the fly-by controls; the numbers line is hidden until "123" is pressed.
@@ -343,13 +343,13 @@
 - Desktop (Chromium, local build): every phase looked at by jumping to it (pad, staging, tower, orbit, the burn, turnaround and docking, extraction, coast, lunar arrival and burn, undocking, descent, landing, moonwalk, lunar liftoff, rendezvous, the burn home, service module cast off, re-entry, parachutes, splashdown). Then the whole flight was stepped through from start to finish in each camera (guided, follow, onboard, whole route) at the guided pace and at 1,000 and 10,000 times: all 27 steps reached, splashdown reached, no drawing failure, no console errors. "Stop at each step" stopped at step 2. Ten seconds of real time advanced the clock 10.00 seconds.
 - Phone (Safari on the simulated iPhone 17 Pro, local build): the layout fits; play ran the first 22 seconds at the right pace; the step list scrolled and jumped to the landing; one-finger drag turned the view and a two-finger spread zoomed; the speed and camera pickers opened and worked; the whole-route view showed Earth, Moon and the path above the controls.
 - Found and fixed on the phone: quick repeated taps on a button zoomed the page (the replay now takes the second tap itself); several taps before the next frame counted as one (the step is now worked out from the time); the whole-route view put Earth behind the controls (the framing now measures the covered area).
-- Live site after deploying (zoriana.fly.dev): `/?replay=apollo11` opened the replay; stepping the whole flight reached all 27 steps and splashdown with no drawing failure and no console errors; closing it returned to the app; the button on the Apollo 11 site card opened it again and the card still gave its answer afterwards; `/api/ephemeris` still answers (version 1.0.0, 745 rows). In Safari on the simulated iPhone 17 Pro the live replay played from liftoff into step 2 at the right pace.
+- Live site after deploying (zoriana.fly.dev): `/?replay=apollo11` opened the replay; stepping the whole flight reached all 27 steps and splashdown with no drawing failure and no console errors; closing it returned to the app; the button on the Apollo 11 site card opened it again and the card still gave its answer afterward; `/api/ephemeris` still answers (version 1.0.0, 745 rows). In Safari on the simulated iPhone 17 Pro the live replay played from liftoff into step 2 at the right pace.
 - Limits: speeds and heights are from the rebuilt path, close but not exact; the speed is hidden during the climb to orbit; the point of atmospheric entry is approximate; attitudes, mid-course corrections and the rendezvous are simplified; vehicles are simplified shapes, enlarged when seen from far away (the factor is shown).
 - Not verified: a real phone; frame rate on slow hardware; machine-speed tapping still loses some taps on the simulator, though taps at a normal pace all count.
 
 ## Replay: liftoff, enlargement and the launch site — November 15, 2026 (UTC)
 
-- Fixed, enlargement: the factor that draws a distant spacecraft larger was measured from the camera's place in the previous frame. At speed the vehicle had flown several kilometres since, so a stack 0.8 km from the camera was drawn 2.2 to 2.4 times too large, changing every frame. It is now measured from the camera's place in the same frame and eased. Stepping the whole flight at 60 frames a second: exactly 1× throughout "Second stage", "Third stage to orbit" and "Turn around and dock"; the factor reverses direction only where the camera changes what it watches (2 to 4 times in the flight).
+- Fixed, enlargement: the factor that draws a distant spacecraft larger was measured from the camera's place in the previous frame. At speed the vehicle had flown several kilometers since, so a stack 0.8 km from the camera was drawn 2.2 to 2.4 times too large, changing every frame. It is now measured from the camera's place in the same frame and eased. Stepping the whole flight at 60 frames a second: exactly 1× throughout "Second stage", "Third stage to orbit" and "Turn around and dock"; the factor reverses direction only where the camera changes what it watches (2 to 4 times in the flight).
 - Fixed, liftoff: the stages were turned along a smoothed direction but placed along the unsmoothed one, so the stack looked stepped while it leaned; and the path slid sideways toward the orbit plane from the first second. The climb is now straight up for twelve seconds, then a gradual lean-over; the stack is placed and turned along one line. Measured from the path: 90° above the horizontal at 5 s, 84° at 20 s, 73° at 66 s, 53° at 83 s, 34° at 120 s, 17° when the first stage is spent (66 km up, 93 km out, 2.64 km/s). Drift over the ground in the first ten seconds: under 20 m. The rocket now stands on the platform deck, 26 m above the ground.
 - New: Launch Complex 39A in simple shapes (hardstand, flame trench, ramp, platform, red umbilical tower with nine swing arms that swing clear at liftoff, crane, storage spheres, floodlight masts, the Vehicle Assembly Building) on drawn ground showing the shore, lagoons, crawlerway and the second pad. The liftoff camera sits on the sunlit side (the Sun was 36° up in the east).
 - Also fixed: drawn textures are kept as pixels in memory and redrawn after the browser resets its graphics, which phones do to tabs left in the background. Checked by forcing a graphics reset in Chromium: the scene came back complete.
@@ -362,7 +362,7 @@
 
 - Site card: three buttons (Compare, Fly to, Fly-by). Share moved to an icon beside the close button; "How this is calculated" sits beside "Hide the numbers". Checked locally in Chromium (three buttons counted; Share gave its note; the method sheet opened) and in Safari on the simulated iPhone 17 Pro (three buttons, Share beside close).
 - Left bar: each icon now has a word under it, and two entries are new: Learn (opens the list at the explanations) and Watch (opens it at the Apollo 11 replay and the fly-bys), beside the planning tools (Search, Compare, Rank). On phones the bar is unchanged. Checked: Watch closed the open card and scrolled the list to its heading; Learn likewise.
-- Replay, new: more detail on the command ship, cabin and lander (windows, hatch, radiators, antennas, ladder and porch, thruster clusters); small thruster flames at each manoeuvre (counted in the scene: four at separation from the third stage, four settling the propellant before the lunar orbit burn, bursts through the descent and ascent, the cabin's own during re-entry); a window view with a drawn window frame (cabin and lander shapes); one real lap of the Moon's orbit from JPL Horizons (110 rows, ends 7,600 km apart, as the real orbit does not close); a label where the third stage's real path ends; swell on the sea, a foam ring, parachutes settling on the water, flotation bags, and the cabin rocking afloat.
+- Replay, new: more detail on the command ship, cabin and lander (windows, hatch, radiators, antennas, ladder and porch, thruster clusters); small thruster flames at each maneuver (counted in the scene: four at separation from the third stage, four settling the propellant before the lunar orbit burn, bursts through the descent and ascent, the cabin's own during re-entry); a window view with a drawn window frame (cabin and lander shapes); one real lap of the Moon's orbit from JPL Horizons (110 rows, ends 7,600 km apart, as the real orbit does not close); a label where the third stage's real path ends; swell on the sea, a foam ring, parachutes settling on the water, flotation bags, and the cabin rocking afloat.
 - The whole flight stepped again in guided, follow, window and whole-route cameras: all 27 steps reached, splashdown reached, no drawing failure, no console errors. Phone: the window view at the docking, playing, with its frame.
 - The existing Moon, Sun and third-stage tables are byte-for-byte unchanged by the new fetch. Ninety-eight Node tests pass.
 - Live site after deploying (zoriana.fly.dev): the Apollo 11 card showed three buttons with Share in its header; the left bar read Search, Compare, Rank, Learn, Watch, About; the replay opened from its row in the list, and stepping the whole flight in the window view reached all 27 steps and splashdown with the window frame showing, no drawing failure and no console errors.
@@ -372,8 +372,19 @@
 
 - Decision by the team: show the United States flag planted during the moonwalk, as part of the record, with the caption quoting the plaque left on the lander ("We came in peace for all mankind.").
 - Time checked against NASA SP-4029 by reading the page's own table rows: "Plaque unveiled (CDR)" 109:52:19; "United States flag deployed (CDR, LMP)" 110:09:43, which is 03:41:43 UTC on July 21. (An automated summary of the same page had paired that row with a different time; the rows were then read directly.) The same reading confirmed first step 109:24:15, second astronaut on the surface 109:43:16 and hatch closed 111:39:13.
-- In the replay the flag is absent 30 seconds before that time and present afterwards, beside the astronauts and facing the guided camera, and it stays for the lunar liftoff. The guided pace now slows through the planting. Whole flight stepped again in the guided and window views: 27 steps, splashdown reached, no drawing failure.
+- In the replay the flag is absent 30 seconds before that time and present afterward, beside the astronauts and facing the guided camera, and it stays for the lunar liftoff. The guided pace now slows through the planting. Whole flight stepped again in the guided and window views: 27 steps, splashdown reached, no drawing failure.
 - Ninety-nine Node tests pass (one new: the flag's time, its order among the moonwalk's events, and that the caption mentions it).
 - Live site after deploying (zoriana.fly.dev): the whole flight stepped to splashdown through all 27 steps with no drawing failure and no console errors; the flag absent 30 seconds before its time and present 30 seconds after; the caption carries the plaque's words.
 - Phone (Safari on the simulated iPhone 17 Pro, live site): the moonwalk played from the step list; paused at 110:08:44 there was no flag, and at 110:09:46 the flag stood beside the astronauts.
 - Limits: the flag's exact spot and facing are chosen for the picture; it is a simple drawing of the 1969 flag; it does not fall or fade.
+
+## Lander legs, the Moon's whole orbit, quick compare, corner clock, American English — November 16, 2026 (UTC)
+
+- Fixed, lander: the two thin braces on each leg pointed outward and upward into space instead of meeting the main strut (their angle had the wrong sign), and the thruster outriggers overshot their clusters. The legs are rebuilt from end points: a short truss from the stage's corners, one main strut down to the footpad, two thin struts from the lower corners to the main strut partway down. Seen on the surface and at extraction: no loose rods. Two whip antennas were removed.
+- Whole-route camera: chosen from the camera menu it now frames the Moon's complete orbit (it used to frame only the Earth-to-Moon stretch, so most of the ring was off screen). Seen at 1440 by 900 and at 375 by 812: the whole ring above the caption, Earth, Moon and the spacecraft labeled. The ring is brighter and is hidden in close views, where it read as a stray line running out of the Moon.
+- Removed: the white line of the spent third stage past the Moon, its two labels, and the caption sentence about it. The stage itself shrinks away about an hour after separation.
+- Quick compare: Shift-click on Apollo 11 and right-click on Apollo 17 gave a comparison of the two without opening either card; Shift-click on bare ground dropped a pin and added it as the third option. The count and the hint under the map say so.
+- Corner clock: shows the moment on the map in the viewer's time zone ("5:00 PM PST") with the same moment in UTC beneath ("01:00 UTC"); the two lights are captioned "Earth view" and "Sunlight". On a phone the corner keeps the local time and zone only.
+- Wording: American spelling throughout the app, code, tests and documents (center, meters, color, modeled, labeled, maneuver, program, metric tons, "around the"). The two check files in `data/` that the scripts read had their field names changed to match. Web addresses and source names are unchanged.
+- Whole flight stepped in all four cameras (801 samples each): no drawing failure. Ninety-nine Node tests pass; the build succeeds.
+- Limits: quick compare needs a keyboard or a right mouse button; on a phone the Compare button on a site card is still the way. The corner's time zone comes from the browser.

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { skyDirection } from './ephemeris.mjs';
 import { makeVisualSampler,referenceShadow } from './shadow-reference.mjs';
 
-// Kilometres keep ray/surface subtraction stable in WebGL highp floats.
+// Kilometers keep ray/surface subtraction stable in WebGL highp floats.
 export const projectionGLSL = `
 const float PI = 3.141592653589793;
 const float R = 1737.4;

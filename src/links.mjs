@@ -1,8 +1,8 @@
 // Links that open a site in the two NASA map tools named by the challenge. Formats were checked
 // against the live sites on 2026-11-14: QuickMap takes a lon/lat `extent` box or a projected
-// `prjExtent` box in metres; Moon Trek takes a centre and zoom in its URL fragment.
+// `prjExtent` box in meters; Moon Trek takes a center and zoom in its URL fragment.
 const R=1737400,RAD=Math.PI/180,POLAR_FROM=80;
-// Polar stereographic metres about the nearer pole (lon 0 up at the south pole, down at the north).
+// Polar stereographic meters about the nearer pole (lon 0 up at the south pole, down at the north).
 export function polarXY(lat,lon){
  const rho=2*R*Math.tan((90-Math.abs(lat))*RAD/2),l=lon*RAD;
  return [rho*Math.sin(l),(lat<0?1:-1)*rho*Math.cos(l)];

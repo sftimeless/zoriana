@@ -2,7 +2,7 @@
 // scripts/prepare-features.py writes public/assets/features.json as rows of
 // [name, latitude, east longitude, diameter in km, kind], largest first.
 //
-// A feature is known here only by its centre and diameter, so "inside" and "near the rim" treat
+// A feature is known here only by its center and diameter, so "inside" and "near the rim" treat
 // each one as a circle. That is a fair description for craters and a rough one for anything else.
 const RAD=Math.PI/180,RADIUS_KM=1737.4,KM_PER_DEGREE=RADIUS_KM*RAD;
 
@@ -29,7 +29,7 @@ export function searchFeatures(features,query,limit=6){
 
 const isCrater=kind=>kind==='Crater'||kind==='Satellite crater';
 // Only kinds that are roughly round areas are used to name a place. Rilles, ridges, valleys and
-// crater chains are long and thin, so a circle around their centre says little about a point.
+// crater chains are long and thin, so a circle around their center says little about a point.
 const AREAS=new Set(['Crater','Satellite crater','Mare','Oceanus','Lacus','Sinus','Palus','Planitia','Mons','Promontorium','Statio']);
 // The named feature that best describes a point: the smallest one whose circle reaches it.
 // Returns its name, kind and a short phrase such as "inside Shackleton" or "near the rim of

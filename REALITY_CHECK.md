@@ -42,7 +42,7 @@ It remains a first-pass planning and teaching tool, and says so on every stay pa
 | 12 | Educator | Why permanent shadow | WORKING | Explainer; shadow map at both poles | — |
 | 13 | Educator | Sun's position in the sky | WORKING | Tiles, sky chart, sight line | Flat strip chart, not a dome |
 | 14 | Educator | Earth from everywhere? | WORKING | Explainer; Earth view on the whole globe | Level-ground geometry outside the polar maps |
-| 15 | Educator | Why neighbours differ | WORKING | Blocking note; terrain toggle | Reason is per site, not in the comparison |
+| 15 | Educator | Why neighbors differ | WORKING | Blocking note; terrain toggle | Reason is per site, not in the comparison |
 | 16 | Educator | Advance time | WORKING | Play; 30-day slider | One speed |
 | 17 | Educator | Apollo 11, July 20, 1969 | WORKING | "See it at touchdown"; matches published angle | Regional terrain only |
 | 18 | Educator | Plan own missions | WORKING | Pins, dates, compare, share | Pins cannot be renamed |
@@ -72,7 +72,7 @@ It remains a first-pass planning and teaching tool, and says so on every stay pa
 | Ephemerides | Live NASA/JPL Horizons observer tables per site and date: apparent, airless, observer at DEM elevation + 2 m, in the mean-Earth lunar frame. Cached in memory; today's data for the 18 sites is fetched at start-up ("18/18 sites in 12 s" in the live log). Nothing precomputed or mocked. | `server.mjs`, `src/ephemeris.mjs` |
 | Terrain horizon | Computed on the server from LOLA elevation: a ray every 0.25° out to 300 km on a curved Moon. | `src/terrain-math.mjs`, `terrain-worker.mjs` |
 | Terrain data | 40 m south of 85°S; 80 m from 80°S to 85°S and north of 80°N; 1.9 km elsewhere. | `terrain-worker.mjs`, `data/terrain-manifest.json` |
-| Visibility | Body centre above the terrain horizon and, for the Sun, outside Earth's disc; sampled every 5 minutes between hourly JPL points. Disc share reported alongside. | `src/terrain-math.mjs`, `src/disc.mjs`, `src/eclipse.mjs` |
+| Visibility | Body center above the terrain horizon and, for the Sun, outside Earth's disc; sampled every 5 minutes between hourly JPL points. Disc share reported alongside. | `src/terrain-math.mjs`, `src/disc.mjs`, `src/eclipse.mjs` |
 | NASA map layers | Permanent shadow, long-term average Sun and Earth visibility (drawn and looked up, not computed here), and slope computed from the 80 m grids; all within 10° to 15° of each pole. | `src/psr.mjs`, `scripts/prepare-illumination.py`, `scripts/prepare-slope.py` |
 | Sites and names | 18 curated points in five groups; search across 9,087 IAU-named features; coordinates; pins; map labels. | `src/sites.mjs`, `src/features.mjs` |
 | Date and time | Landing date 1950-01-01 to 2099-12-24, landing hour, 30-day slider in 15-minute steps. | `index.html`, `server.mjs` |
@@ -119,7 +119,7 @@ It remains a first-pass planning and teaching tool, and says so on every stay pa
 **4. When will Earth be obstructed, and for how long? — WORKING**
 - **Answer given:** IM-4: "1 d 3 h until Earthrise · Nov 16, 15:26 UTC"; "Earth out of view: Nov 15 00:00 to Nov 16 15:26 (1 d 15 h); Dec 1 07:38 to Dec 13 16:11 (12 d 8 h)"; "Longest Earth outage 12 d 8 h from Dec 1"; Earth in view 53% of 30 days.
 - **Evidence:** `segments`, `gaps`, `longest` (`src/windows.mjs`).
-- **Limits:** Earth's centre; not a communications assessment.
+- **Limits:** Earth's center; not a communications assessment.
 
 **5. Delay by 3, 7 or 14 days — WORKING**
 - **Answer given:** Malapert region, 3 d stay (sunlit / Earth / both): Nov 15 baseline 0.0 / 72.0 / 0.0 h, "No direct sunlight during the stay. Earth in view throughout."; Nov 18 71.9 / 72.0 / 71.9 h; Nov 22 72.0 / 72.0 / 72.0 h, tagged "Most sunlight", "Most Sun + Earth"; Nov 29 65.6 / 72.0 / 65.6 h. Delay buttons: +1 d, +3 d, +7 d, +14 d, +30 d.
@@ -205,7 +205,7 @@ It remains a first-pass planning and teaching tool, and says so on every stay pa
 | **WHERE** | Yes: ranking, four map layers, date-checked best spot | App's own calculation, plus NASA's long-term maps, checked against each other | Mostly; the layers need their legends read | Yes: method sheet, scripts, source hashes | Yes: share link, CSV | Yes: caution line; slope shown and preferred, not certified |
 | **WHEN** | Best day and best hour within 30 days | Yes for what it computes | Yes | Yes | Yes | Yes |
 | **SUNLIGHT** | Windows, totals, disc times, longest dark, eclipses | JPL plus LOLA skyline plus Earth's disc; four outside checks | Yes: countdown and sentence | Yes | Yes | Yes: "not usable power" |
-| **EARTH** | Outages with start, end, length; Earthrise band | Same model; Earth's centre for totals | Yes | Yes | Yes | Yes: "not a working radio link" |
+| **EARTH** | Outages with start, end, length; Earthrise band | Same model; Earth's center for totals | Yes | Yes | Yes | Yes: "not a working radio link" |
 | **COMPARE** | Four options, deltas, tags, CSV | Yes | Yes | Yes | Yes | Yes |
 
 **Scientific correctness versus presentation.** Sun and Earth directions are as good as JPL Horizons. Year-long totals agree with NASA's long-term maps to about 3 percentage points on average. What is still ahead of the evidence: event times shown to the minute with no uncertainty beside them, and results on sharp ridges.
@@ -221,14 +221,14 @@ It remains a first-pass planning and teaching tool, and says so on every stay pa
 - **Terrain and horizon.** 0.25° azimuth steps to 300 km. Narrow ridges between rays and features below the grid size can be missed. The observer is 2 m above the surface.
 - **Illumination and shadow.** Site numbers use the fine skyline; the drawn shadow layer is coarser, so picture and numbers can disagree at edges.
 - **Eclipses.** Two round discs from the site's own JPL positions. Checked against the published contact times of both 2026 eclipses and against NASA's list for all twelve eclipses from 2026 to 2030 (each site's mid-eclipse within 14 minutes of NASA's time of greatest eclipse). Earth's atmosphere, which enlarges the real shadow by about 2%, is ignored.
-- **Earth visibility.** Line of sight to Earth's centre for hours; disc share reported separately. No ground stations, antennas or relays.
-- **Long-term maps.** NASA's values count any part of the disc as visible and are averaged to 480 m. The validation script asks the app for the same quantity over 347 days: Sun mean absolute difference 3.1 percentage points (largest 15.8, on a knife-edge ridge where NASA's neighbouring pixels span 51% to 85%); Earth 2.3 (largest 4.5).
+- **Earth visibility.** Line of sight to Earth's center for hours; disc share reported separately. No ground stations, antennas or relays.
+- **Long-term maps.** NASA's values count any part of the disc as visible and are averaged to 480 m. The validation script asks the app for the same quantity over 347 days: Sun mean absolute difference 3.1 percentage points (largest 15.8, on a knife-edge ridge where NASA's neighboring pixels span 51% to 85%); Earth 2.3 (largest 4.5).
 - **Slope.** A 160 m baseline from 80 m grids, reduced to 320 m cells. Not a hazard measure.
 - **Imagery.** The Landing view's fine detail comes from a mosaic photographed under its own lighting; only its fine texture is used. It can show shadows that do not match the chosen date.
 - **Dates.** 1950 to 2099 accepted; exercised for 1969–1972 and 2026–2030.
 - **Caching and placeholders.** Results are cached in memory by site, date and height. Nothing is precomputed except NASA's maps and the slope map. If JPL or terrain is unavailable the app shows an error rather than a substitute.
-- **Site positions.** Future targets are feature centres or candidate points, flagged "Approximate" in the card, ranking and CSV. Landing dates for past missions come from NASA's Apollo table and each mission's published arrival time.
-- **Place names.** Features are circles from a centre and a diameter; seas and mountains are named only well inside the circle, and linear features never.
+- **Site positions.** Future targets are feature centers or candidate points, flagged "Approximate" in the card, ranking and CSV. Landing dates for past missions come from NASA's Apollo table and each mission's published arrival time.
+- **Place names.** Features are circles from a center and a diameter; seas and mountains are named only well inside the circle, and linear features never.
 
 ---
 
@@ -238,7 +238,7 @@ It remains a first-pass planning and teaching tool, and says so on every stay pa
 
 **13-year-old.** Spins the Moon, reads the names, taps Apollo 11, presses **See it at touchdown**, presses Play, drops a pin, cycles the map layers. Understands at once: gold is Sun, blue is Earth, the countdown, the touchdown button. Likely confusion: "above terrain" versus "elevation"; five map layers on one button with no menu; the strip-shaped sky chart.
 
-**Curious adult.** Sees a labelled Moon and a clock, taps a site, reads one sentence. Understands at once: sunlit or not, Earth in view or not. Likely confusion: what the column of icon buttons does; what "3 d" means; how much text sits below the tiles.
+**Curious adult.** Sees a labeled Moon and a clock, taps a site, reads one sentence. Understands at once: sunlit or not, Earth in view or not. Likely confusion: what the column of icon buttons does; what "3 d" means; how much text sits below the tiles.
 
 **Improvements that help all three:** a small menu with names for the map layers instead of one button to press repeatedly; labels on the icon buttons at first use; a shorter method sheet with the detail moved to the README.
 
@@ -261,7 +261,7 @@ It remains a first-pass planning and teaching tool, and says so on every stay pa
 - Copying a share link to the clipboard from a real click.
 - The Landing view when NASA's tile server is slow or unavailable (by design it keeps the 8K image).
 - Eclipses after 2030 and dates outside 1969–1972 and 2026–2030.
-- Behaviour with many real visitors; one load test from one laptop passed earlier.
+- Behavior with many real visitors; one load test from one laptop passed earlier.
 
 ## Found during this run
 

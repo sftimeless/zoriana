@@ -2,7 +2,7 @@
 //
 // It runs in its own canvas and is loaded only when asked for, so the planning app is untouched by it.
 // Where each vehicle is comes from apollo11.mjs (real times, Moon, Sun and third-stage path; the rest
-// rebuilt between them). Distances are true: the scene is in kilometres, in the ICRF frame, with the
+// rebuilt between them). Distances are true: the scene is in kilometers, in the ICRF frame, with the
 // origin moved to whatever the camera is watching so that a 3 m cabin and a 384,000 km route both draw
 // cleanly. Vehicles are at true size close up, and enlarged (with a note saying so) when seen from far away.
 import * as THREE from 'three';
@@ -37,7 +37,7 @@ const TEMPLATE=`
  <section class="rp-panel rp-about" hidden>
   <p><b>Real.</b> The time of every event (NASA’s Apollo 11 timeline), the positions of the Moon and the Sun, and the path of the rocket’s third stage after its burn toward the Moon (JPL Horizons), which the spacecraft shared until it pulled away. The launch pad, landing site and splashdown point are the recorded ones.</p>
   <p><b>Rebuilt.</b> The paths between those anchors are calculated here as unpowered flight that passes through them at the published times. The speeds and heights on screen come from that reconstruction, so they are close, not exact.</p>
-  <p><b>Drawn.</b> The vehicles are simplified original drawings made for this app with AI coding assistance. They are at true size close up, and enlarged when seen from far away; a note says when. The small thrusters fire where each manoeuvre calls for them, in a simplified pattern; the window frame, the sea and the splash are drawn too. Launch Complex 39A and the ground around it are drawn the same way, from the pad’s published layout, and are not a survey. The United States flag stands where the crew planted it. No NASA footage, logos or markings are used.</p>
+  <p><b>Drawn.</b> The vehicles are simplified original drawings made for this app with AI coding assistance. They are at true size close up, and enlarged when seen from far away; a note says when. The small thrusters fire where each maneuver calls for them, in a simplified pattern; the window frame, the sea and the splash are drawn too. Launch Complex 39A and the ground around it are drawn the same way, from the pad’s published layout, and are not a survey. The United States flag stands where the crew planted it. No NASA footage, logos or markings are used.</p>
  </section>
  <p class="rp-scale" hidden></p>
  <p class="rp-loading">Loading the flight…</p>
@@ -64,7 +64,7 @@ const TEMPLATE=`
  </footer>`;
 
 // A finely divided patch of a globe around one point, so that things standing on the surface really touch
-// it (the facets of the whole globe sag as much as 2 km below a true sphere). Built around its own centre
+// it (the facets of the whole globe sag as much as 2 km below a true sphere). Built around its own center
 // to keep the numbers small, and given the globe's texture coordinates so it carries the same picture.
 function cap(center,R,spread,material,rings=48,around=64,local=0){
  const c=unit(center),e=unit(cross(Math.abs(c[2])<.9?[0,0,1]:[1,0,0],c)),n=cross(c,e),pos=[],uv=[],nor=[],idx=[];
@@ -198,10 +198,9 @@ export async function openReplay(onClose){
  const outPoints=outTimes.map(mission.craft),backPoints=backTimes.map(mission.craft);
  path(outPoints,0x4da3ff,.3,inertial);path(backPoints,0xff9f0a,.3,inertial);
  const outDone=path(outPoints,0x6db4ff,1,inertial),backDone=path(backPoints,0xffb340,1,inertial);
- path(data.sivb.filter(r=>(r[0]-LAUNCH)/1000>=T.evade).map(r=>[r[1],r[2],r[3]]),0xffffff,.28,inertial);
- path((data.orbit??[]).map(r=>[r[1],r[2],r[3]]),0x8e8e93,.22,inertial);   // one whole lap of the Moon round the Earth
- path(data.moon.map(r=>[r[1],r[2],r[3]]),0xb4b4ba,.4,inertial);              // the stretch it covered during the flight
- const stageEnd=data.sivb.at(-1).slice(1,4);
+ // The Moon's own orbit: one whole lap around the Earth, and brighter, the stretch it covered during the flight. Both belong to
+ // the wide views only; close to the Moon they would read as a stray line running out of it.
+ const moonLap=[path((data.orbit??[]).map(r=>[r[1],r[2],r[3]]),0xa2a2a8,.5,inertial),path(data.moon.map(r=>[r[1],r[2],r[3]]),0xd6d6dc,.85,inertial)];
  // Around the Moon the lines are fixed to the Moon, which turns and travels while the ships circle it.
  const west=scale(unit(cross([0,0,1],siteUnit)),-1),moonFixed=(X,t)=>{const M=mission.moonToIcrf(t),v=sub(X,mission.moon(t));return [0,1,2].map(i=>M[0][i]*v[0]+M[1][i]*v[1]+M[2][i]*v[2]);};
  path(range(0,2*Math.PI+.01,Math.PI/90).map(a=>scale(add(scale(siteUnit,Math.cos(a)),scale(west,Math.sin(a))),R_MOON+111)),0xffffff,.32,moon);
@@ -217,7 +216,7 @@ export async function openReplay(onClose){
  const lm=models.lunarModule();V.lmD.add(lm.userData.descent);V.lmA.add(lm.userData.ascent);
  const shipJets=ship.userData.jets,cabinJets=ship.userData.cabinJets,lmJets=lm.userData.jets,stageJets=V.sIVB.userData.aps,bags=ship.userData.command.userData.bags;
  // The splash: two rings of foam spreading on the water and a short column of spray.
- // The flag planted during the moonwalk, a few metres from the lander; it stays when the crew leave.
+ // The flag planted during the moonwalk, a few meters from the lander; it stays when the crew leave.
  V.flag=new THREE.Group();{const planted=models.flag();planted.position.set(5.6,0,5);planted.rotation.y=-.88;V.flag.add(planted);}   // turned to face the guided camera
  V.sea=new THREE.Group();
  const foam=[0,1].map(()=>{const ring=new THREE.Mesh(new THREE.RingGeometry(.8,1,64).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));ring.position.y=.15;V.sea.add(ring);return ring;});
@@ -252,7 +251,7 @@ export async function openReplay(onClose){
  const tumble=(q,angle)=>q.clone().multiply(tq.setFromAxisAngle(XAXIS,angle));
  function set(obj,pos,q,s,visible=true){obj.visible=visible;if(!visible)return;obj.userData.p=pos;obj.quaternion.copy(q);obj.scale.setScalar(s/1000);}
 
- // Where everything is at time t. Positions are km in the ICRF frame; they are moved to the camera's origin afterwards.
+ // Where everything is at time t. Positions are km in the ICRF frame; they are moved to the camera's origin afterward.
  function layout(){
   flames.length=0;
   const P=mission.craft(t),Vc=mission.craftVelocity(t),mo=mission.moon(t),mv=moonVel(t),M=mission.moonToIcrf(t),north=[M[0][2],M[1][2],M[2][2]];
@@ -286,7 +285,7 @@ export async function openReplay(onClose){
   const A=t<=0?upP:t<T.orbit?unit(lerp(unit(lerp(upP,climb,smooth(t/4))),vhat,smooth((t-(T.orbit-120))/120))):t<T.tliOff?vhat:A_TLI,Q=unit(cross(A,[0,0,1]));
   const stackQ=keep('stack',basis(A,[0,0,1],[1,0,0]));
   const vMoon=unit(sub(Vc,mv));
-  // The command ship: hC is its centre, in metres up the stack; after the turnaround it is nose to nose with the lander.
+  // The command ship: hC is its center, in meters up the stack; after the turnaround it is nose to nose with the lander.
   let hC,nose;
   if(t<T.csmSep){hC=97.2;nose=A;}
   else if(t<T.dock){const u=(t-T.csmSep)/(T.dock-T.csmSep),turn=Math.PI*smooth((u-.2)/.4);hC=u<.2?97.2+30*smooth(u/.2):u<.6?127.2:127.2-29.65*smooth((u-.6)/.4);nose=add(scale(A,Math.cos(turn)),scale(Q,Math.sin(turn)));}
@@ -298,7 +297,7 @@ export async function openReplay(onClose){
   drop(V.sIC,T.sicSep,0,110,.02,.004);drop(V.sII,T.siiSep,42.1,100,.015,.003);
   {const tau=t-T.tower;if(tau>30)V.tower.visible=false;else set(V.tower,tau>0?add(along(40.8),scale(add(scale(A,.12*tau),scale(Q,.07*tau)),sC)):along(40.8),tau>0?tumble(stackQ,.2*tau):stackQ,sC);}
   if(t<T.evade)set(V.sIVB,along(hS),stackQ,sC);
-  else{const SV=mission.stage(t);if(!SV)V.sIVB.visible=false;else{const sS=enlarge('stage',SV,.02);set(V.sIVB,add(SV,scale(A_TLI,m(-174.95)*Math.min(sS,40)*(1-smooth((t-T.evade)/1800)))),stackQ,sS);}}
+  else{const SV=mission.stage(t),gone=smooth((t-T.evade-3600)/1800);if(!SV||gone>=1)V.sIVB.visible=false;else{const sS=enlarge('stage',SV,.02)*(1-.999*gone);set(V.sIVB,add(SV,scale(A_TLI,m(-174.95)*Math.min(sS,40)*(1-smooth((t-T.evade)/1800)))),stackQ,sS);}}
   {const tau=t-T.csmSep;for(const p of V.sIVB.userData.panels){const a=p.userData.angle,fly=Math.max(0,tau-12);p.visible=tau<70;p.quaternion.setFromAxisAngle(tv.set(Math.cos(a),0,-Math.sin(a)),clamp(tau*.06,0,1.1));p.position.set(Math.sin(a)*fly*1.5,models.SIZE.sIVB+fly*.8,Math.cos(a)*fly*1.5);}}
   burn(V.sIC.userData.plume,t>-5&&t<T.sicCutoff);burn(V.sII.userData.plume,t>T.sicSep+1.2&&t<T.siiCutoff);burn(V.sIVB.userData.plume,(t>T.siiSep+2&&t<T.orbit)||(t>=T.tliOn&&t<T.tliOff));
 
@@ -368,7 +367,7 @@ export async function openReplay(onClose){
  }
 
  // ---------- Camera ----------
- // The whole route: looking down on the plane of the Moon's orbit, centred halfway between Earth and Moon so both
+ // The whole route: looking down on the plane of the Moon's orbit, centered halfway between Earth and Moon so both
  // stay in view while the Moon travels to meet the ship. The view does not turn, so the drawn paths hold still.
  const moonMid=mission.moon(T.landing),ROUTE_UP=unit(cross(moonMid,moonVel(T.landing))),ROUTE_FLAT=unit(sub(moonMid,scale(ROUTE_UP,dot(moonMid,ROUTE_UP))));
  const portrait=()=>root.clientHeight>root.clientWidth;
@@ -379,7 +378,10 @@ export async function openReplay(onClose){
   const watch=view==='route'||(view==='guided'&&guide.f==='route')?'route':guide.f==='route'?'craft':guide.f;
   const vehicle=watch==='site'||watch==='lander'?'lander':'craft';
   let F,up,fwd;
-  if(watch==='route'){F=scale(L.mo,.5);up=ROUTE_UP;fwd=ROUTE_FLAT;}
+  // Chosen by hand, the whole-route camera pulls back to take in the Moon's complete orbit around the Earth; inside the guided
+  // tour it stays close on the stretch between the two.
+  const lap=view==='route';
+  if(watch==='route'){F=lap?[0,0,0]:scale(L.mo,.5);up=ROUTE_UP;fwd=ROUTE_FLAT;}
   else if(watch==='site'){F=L.focus.site;up=L.upS;fwd=L.westS;}
   else if(watch==='lander'){F=L.focus.lander;({up,fwd}=L.fl??L.fc);}
   else{F=L.focus.craft;({up,fwd}=L.fc);}
@@ -410,7 +412,7 @@ export async function openReplay(onClose){
   }
   const half=Math.tan(camera.fov*RAD/2),aspect=root.clientWidth/Math.max(1,root.clientHeight);
   const clear=clamp(1-(covered()+headroom()+30)/Math.max(1,root.clientHeight),.3,1),sin62=Math.sin(62*RAD);
-  const routeDist=Math.max(((tall?192000:150000)*sin62+35000)/(half*clear),((tall?150000:192000)+45000)/(half*aspect));
+  const routeDist=lap?Math.max((408000*sin62+50000)/(half*clear),438000/(half*aspect)):Math.max(((tall?192000:150000)*sin62+35000)/(half*clear),((tall?150000:192000)+45000)/(half*aspect));
   const base=watch==='route'?{az:tall?0:90,el:62,d:routeDist}:view==='guided'?guide:{az:150,el:14,d:(vehicle==='lander'?.01:t<T.sicSep?.11:t<T.siiSep?.07:t<T.csmSep?.036:t<T.cmSep?.021:.012)*5};
   const want={az:base.az+user.az,el:clamp(base.el+user.el,-89,89),dist:clamp(base.d*user.zoom,.006,4e6)};
   if(jumped||seekingCamera){cam.az=want.az;cam.el=want.el;cam.dist=want.dist;}
@@ -418,7 +420,7 @@ export async function openReplay(onClose){
   const a=cam.az*RAD,e=cam.el*RAD,dir=add(scale(add(scale(fwd,-Math.cos(a)),scale(right,Math.sin(a))),Math.cos(e)),scale(up,Math.sin(e)));
   let C=add(focus,scale(dir,cam.dist));
   // Never under the ground.
-  for(const [centre,R] of [[[0,0,0],R_EARTH],[L.mo,R_MOON]]){const v=sub(C,centre),r=norm(v);if(r<R+.004)C=add(centre,scale(v,(R+.004)/r));}
+  for(const [center,R] of [[[0,0,0],R_EARTH],[L.mo,R_MOON]]){const v=sub(C,center),r=norm(v);if(r<R+.004)C=add(center,scale(v,(R+.004)/r));}
   origin=focus;camPos=C;camTrack=watch==='route'?'fixed':watch;camRel=watch==='route'?[0,0,0]:sub(C,watch==='site'?L.site:watch==='lander'?L.Lr??L.P:L.P);
   toScene(sub(C,origin),camera.position);toScene(up,camera.up);camera.lookAt(0,0,0);
   return {watch,vehicle};
@@ -438,10 +440,10 @@ export async function openReplay(onClose){
 
  // ---------- Labels ----------
  const labelBox=$('.rp-labels'),labels={};
- for(const [key,css] of [['earth',''],['moon',''],['craft','rp-ship'],['lander','rp-ship'],['stage','rp-dim'],['stageEnd','rp-dim'],['orbit','rp-dim']]){const el=document.createElement('span');el.className=`rp-label ${css}`;el.hidden=true;labelBox.appendChild(el);labels[key]=el;}
- labels.earth.textContent='Earth';labels.moon.textContent='Moon';labels.stage.textContent='Third stage';labels.stageEnd.textContent='Spent third stage, on its way to orbit the Sun';labels.orbit.textContent='The Moon’s orbit';
+ for(const [key,css] of [['earth',''],['moon',''],['craft','rp-ship'],['lander','rp-ship'],['orbit','rp-dim']]){const el=document.createElement('span');el.className=`rp-label ${css}`;el.hidden=true;labelBox.appendChild(el);labels[key]=el;}
+ labels.earth.textContent='Earth';labels.moon.textContent='Moon';labels.orbit.textContent='The Moon’s orbit';
  const orbitMark=(data.orbit??[])[Math.floor((data.orbit?.length??0)*.12)]?.slice(1,4);
- const blocked=(X,centre,R)=>{const d=sub(X,camPos),len=norm(d),along=dot(sub(centre,camPos),d)/len;if(along<=0||along>=len)return false;const c=sub(centre,camPos);return dot(c,c)-along*along<R*R;};
+ const blocked=(X,center,R)=>{const d=sub(X,camPos),len=norm(d),along=dot(sub(center,camPos),d)/len;if(along<=0||along>=len)return false;const c=sub(center,camPos);return dot(c,c)-along*along<R*R;};
  function label(key,X,show,body){
   const el=labels[key];
   if(show&&X&&!(body!=='earth'&&blocked(X,[0,0,0],R_EARTH*.995))&&!(body!=='moon'&&blocked(X,moonNow,R_MOON*.995))){
@@ -479,9 +481,10 @@ export async function openReplay(onClose){
   const nearSea=1-smooth((norm(sub(camPos,mission.splashPoint(t)))-40)/200);seaMaterial.visible=nearSea>0;seaMaterial.emissiveIntensity=.5*daylight;
   waveMaterial.opacity=nearSea>0?1-smooth((norm(camPos)-R_EARTH-1.2)/5):0;swell.visible=waveMaterial.opacity>.01;waveMaterial.emissiveIntensity=.35*daylight;waves.offset.set(now*.00002%1,now*.000013%1);air.material.uniforms.strength.value=smooth((height-60)/200);
   for(const f of flames)f.scale.set(1+.05*Math.sin(now*.031),1+.14*Math.sin(now*.047)+.08*Math.sin(now*.113),1+.05*Math.cos(now*.037));
-  // Route lines mean nothing from a few hundred metres away, so they fade out close up.
+  // Route lines mean nothing from a few hundred meters away, so they fade out close up.
   const reach=norm(sub(camPos,origin)),fade=view==='onboard'?.5*smooth((Math.min(norm(camPos)-R_EARTH,norm(sub(camPos,L.mo))-R_MOON)-50)/400):smooth((Math.log10(Math.max(reach,.001))-.7)/1.3);
-  for(const line of lines){line.material.opacity=line.userData.base*fade;line.visible=fade>.01;}
+  const wideOnly=smooth((Math.log10(Math.max(reach,.001))-4.6)/.6);
+  for(const line of lines){const f=moonLap.includes(line)?fade*wideOnly:fade;line.material.opacity=line.userData.base*f;line.visible=f>.01;}
   let n=0;while(n<outTimes.length&&outTimes[n]<=t)n++;outDone.geometry.setDrawRange(0,n);n=0;while(n<backTimes.length&&backTimes[n]<=t)n++;backDone.geometry.setDrawRange(0,n);
   detail.visible=norm(sub(camPos,L.site))<60;
   renderer.render(scene,camera);
@@ -494,8 +497,7 @@ export async function openReplay(onClose){
   label('craft',t<T.cmSep?L.Cc:L.cmPos,view!=='onboard'&&tiny(L.Cc,L.lenC,L.sC));
   labels.lander.textContent=t>=T.lmJettison?'Eagle (left behind)':'Eagle';
   label('lander',L.lmPos,(apart||t>=T.lmJettison)&&t<T.teiOn+1200&&tiny(L.lmPos,.008,L.lmS)&&norm(sub(L.lmPos,L.Cc))/far(L.lmPos)>.03);
-  label('stageEnd',stageEnd,watch==='route'&&t>T.evade+3600&&t<T.teiOn);label('orbit',orbitMark,watch==='route'&&!!orbitMark);
-  label('stage',V.sIVB.userData.p,t>T.evade+1200&&V.sIVB.visible&&far(V.sIVB.userData.p)>3000&&watch==='route'&&norm(sub(V.sIVB.userData.p,L.Cc))/far(V.sIVB.userData.p)>.07);
+  label('orbit',orbitMark,watch==='route'&&!!orbitMark);
   const size=watch==='lander'||watch==='site'?L.lmS:L.sC,note=$('.rp-scale');
   note.hidden=!(size>1.5&&view!=='onboard');if(!note.hidden)note.textContent=`Spacecraft drawn ${Number(size.toPrecision(2)).toLocaleString('en-US')}× larger than life`;
 
@@ -519,7 +521,7 @@ export async function openReplay(onClose){
   }
   if(t>T.drogue)return `${round(Math.max(0,altE))} km above the Pacific`;
   const v=norm(t>T.entry?sub(Vx,spin(X)):Vx)*3600;
-  return altE<3000?`${round(v)} km/h · ${round(Math.max(0,altE))} km above Earth`:`${round(v)} km/h · ${round(norm(X))} km from Earth’s centre · ${round(norm(sub(X,L.mo)))} km from the Moon’s`;
+  return altE<3000?`${round(v)} km/h · ${round(Math.max(0,altE))} km above Earth`:`${round(v)} km/h · ${round(norm(X))} km from Earth’s center · ${round(norm(sub(X,L.mo)))} km from the Moon’s`;
  }
  function showStep(){
   const step=STEPS[stepIndex];

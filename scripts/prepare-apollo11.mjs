@@ -1,6 +1,6 @@
 // Fetches what the Apollo 11 replay needs from NASA/JPL Horizons and writes public/assets/apollo11.json:
-//   moon  the Moon's position and velocity from Earth's centre, every 30 minutes, July 16 to 25, 1969
-//   orbit one whole lap of the Moon round the Earth (27.3 days centred on the landing), every 6 hours, positions only
+//   moon  the Moon's position and velocity from Earth's center, every 30 minutes, July 16 to 25, 1969
+//   orbit one whole lap of the Moon around the Earth (27.3 days centered on the landing), every 6 hours, positions only
 //   sun   the Sun's direction from Earth, every 12 hours
 //   sivb  the real path of the Saturn V's third stage (S-IVB) after its engine burn toward the Moon:
 //         JPL's reconstruction by D. R. Adamo (2012), which starts 18 minutes after the burn ended
