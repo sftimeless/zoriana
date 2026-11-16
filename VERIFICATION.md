@@ -493,5 +493,6 @@ Ninety-nine Node tests pass; the build succeeds.
 - Tablet upright (820 × 1180): the phone layout applies and nothing collides. No request failed in any of these loads.
 - Caching: the page itself is served `no-cache` and the scripts and styles carry content hashes, so a returning visitor gets the latest release.
 - Records: `package.json` now states the MIT license the repository already carries. README.md's line on AI assistance covered only November 14; it now covers the later work and points to REFERENCES.md. REFERENCES.md lists the two independent reviews (Codex, ChatGPT). FRESH_START.md has a dated note for November 15.
+- Live site after deploying (zoriana.fly.dev, release 34), in Safari on the simulated iPhone: the Apollo 11 card's bottom bar shows the clock and date with no half-hidden label above it, and the touchdown button reads "July 20, 1969, 20:17 UTC". The sideways layout was checked locally in the browser pane, not on the simulator.
 - Checked and unchanged: the GitHub page's description and link to the live site; the four documents hold no "solo" or one-person wording.
 - Ninety-nine Node tests pass; the build succeeds.
