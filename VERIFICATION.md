@@ -475,3 +475,13 @@ An independent read-only sweep (OpenAI Codex, run by the team from a prompt writ
 From a separate review of the slides (ChatGPT): the problem slide's headline now says a ridge decides whether a lander "can see the Sun and Earth" (not "has power and a link home"); the live-app and code addresses are links, and the regenerated PDF carries three link annotations (7 pages). The product name stays Zoriana, as everywhere in the project.
 
 Ninety-nine Node tests pass; the build succeeds.
+
+## Fourth sweep — November 16, 2026 (UTC)
+
+- Every quoted button or label name in README.md, METHOD.md, SUBMISSION.md and REFERENCES.md was looked up in the app's source: all exist (including the opt-in diagnostics buttons).
+- Ranking export on the live site, captured in the page without saving a file: with "at least 150 h sunlit" the table showed 8 of 18 sites and the CSV held the same 8, in the same order, under the renamed column headings.
+- A share link carrying site, date, time, stay, terrain off, permanent shadow off, grid on and a two-option comparison reopened with every one of those restored.
+- Phone (375 × 812), ranking: the column headings no longer collide; names wrap whole. "Chandrayaan-3" was breaking inside the word; the name column is now a little wider and its type a little smaller.
+- The Apollo cards showed the landing date as "July 20, 1969" on one line and "Jul 20, 1969" on the button beneath; the button now spells the month out too.
+- SUBMISSION.md's feature list did not mention the poles-and-grid layer, quick compare, zooming into the Landing view or the corner clock; one line now does.
+- Ninety-nine Node tests pass; the build succeeds.
