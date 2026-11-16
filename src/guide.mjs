@@ -1,14 +1,16 @@
-// Zoriana, the guide. On a first visit she asks who is exploring (general audience, educator or mission planner), sets the
-// app up for them and offers a one-minute tour; after that she explains, in plain words and larger type, whatever on the
-// map is clicked. The little astronaut is an original drawing made in code for this app.
+// Zoriana, the guide. On a first visit she asks how the visitor would like to explore and sets the app up to match. Each
+// choice is a different guided experience on the same map and the same calculations: a tour that teaches how to read the
+// map (Explore the Moon), two investigations where a prediction is tested by the app's own numbers (Learn & Discover), and
+// a quiet seven-step walkthrough of the analysis tools with the astronaut out of the way (Plan a Mission). She also
+// explains, in plain words and larger type, whatever on the map is clicked. The little astronaut is an original drawing made in code for this app.
 // Written with AI coding assistance (Anthropic Claude Code) under human direction.
 
-export const AVATAR=`<svg class="guide-face" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#1f2a44"/><path d="M9 46c1-9 7-13 15-13s14 4 15 13z" fill="#f2f2f7"/><rect x="19" y="35" width="10" height="6" rx="2" fill="#ff9f0a"/><circle cx="24" cy="20" r="13.5" fill="#f2f2f7"/><rect x="12.5" y="13" width="23" height="15" rx="7.5" fill="#0b1b3a"/><path d="M16 19c2-3.4 6-4.6 10-4" fill="none" stroke="#ffd60a" stroke-width="1.8" stroke-linecap="round"/><circle cx="30.5" cy="22.5" r="1.3" fill="#6db4ff"/><path d="M36.5 9.5v-5" stroke="#f2f2f7" stroke-width="1.6" stroke-linecap="round"/><circle cx="36.5" cy="4" r="1.6" fill="#ff453a"/></svg>`;
+export const AVATAR=`<svg class="guide-face" viewBox="0 0 96 96" aria-hidden="true"><g><rect width="96" height="96" fill="#0c1428"/><g fill="#fff"><circle cx="16" cy="20" r=".9" opacity=".8"/><circle cx="30" cy="10" r=".7" opacity=".6"/><circle cx="82" cy="34" r=".8" opacity=".7"/><circle cx="10" cy="44" r=".6" opacity=".5"/><circle cx="64" cy="8" r=".6" opacity=".6"/></g><circle cx="76" cy="18" r="7.5" fill="#2f7fe0"/><path d="M70.6 15.6c2.6-1.9 5.8-1.5 8 .2M72 21.6c2.6 1.1 5.8.7 8-1" fill="none" stroke="#e8f1ff" stroke-width="1.5" stroke-linecap="round" opacity=".9"/><ellipse cx="48" cy="97" rx="64" ry="21" fill="#9a9aa2"/><ellipse cx="22" cy="86" rx="7" ry="2" fill="#7a7a82"/><ellipse cx="78" cy="89" rx="9" ry="2.4" fill="#7a7a82"/><rect x="28" y="46" width="40" height="30" rx="8" fill="#c9c9d1"/><path d="M27 86c0-17 7-27 21-27s21 10 21 27z" fill="#f4f4f8"/><path d="M29 70c-4 3-6 8-6 14M67 70c4 3 6 8 6 14" fill="none" stroke="#f4f4f8" stroke-width="7" stroke-linecap="round"/><rect x="39" y="65" width="18" height="11" rx="2.5" fill="#dcdce4"/><circle cx="44" cy="70.5" r="1.9" fill="#ff453a"/><circle cx="52" cy="70.5" r="1.9" fill="#0a84ff"/><circle cx="48" cy="37" r="19" fill="#f4f4f8"/><rect x="32.5" y="27" width="31" height="21" rx="10.5" fill="#d79a26"/><path d="M33.2 40.5h29.6c-1.3 4.4-5.4 7.5-10.3 7.5h-9c-4.900 0-9-3.100-10.300-7.500z" fill="#a8700f"/><path d="M37 34.5c2.6-3.6 7.6-5 12.6-4.2" fill="none" stroke="#fff3cf" stroke-width="2" stroke-linecap="round" opacity=".9"/><circle cx="56" cy="40" r="2.6" fill="#2f7fe0" opacity=".9"/></g><circle cx="48" cy="48" r="46" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1"/></svg>`;
 
 export const AUDIENCES=[
- ['general','Just curious','Plain words, big pictures, and the Apollo 11 story'],
- ['educator','Teaching or learning','Poles and grid on, short lessons, a replay you can pause'],
- ['planner','Planning a mission','All the numbers, terrain, comparison, ranking and export'],
+ ['general','Explore the Moon','Discover fascinating places and their stories.','fullmoon','All set to explore the Moon.'],
+ ['educator','Learn & Discover','Understand sunlight, shadows, and lunar science.','book','All set to learn and discover. Poles and grid are on.'],
+ ['planner','Plan a Mission','Compare landing sites, dates, and conditions.','scope','All set to plan a mission. The numbers are showing.'],
 ];
 
 // Latin words in lunar place names.
@@ -21,77 +23,147 @@ export function explainName(name,kind,diameterKm){
  return `${name}: a ${String(kind||'feature').toLowerCase()} about ${size} km across. Craters are mostly named for scientists and explorers.${IAU}`;
 }
 export const EXPLAIN={
- shadow:'This blue patch is ground that never gets direct sunlight. It is called permanent shadow, and it is one of the coldest places known. Water ice may survive there, which is why new missions aim for the poles. The patches come from NASA’s maps.',
+ shadow:'This blue patch is ground that never gets direct sunlight: permanent shadow, from NASA’s maps. Blue does not mean water. These are among the coldest places known, and scientists think some may hold ice, which is one reason missions aim for the poles. The map shows the shadow, not what is in it.',
  sun:'The gold line points from this place toward the Sun. The number is how high the Sun sits above the horizon there, in degrees. It shows a direction, not a distance: the Sun is about 150 million km away.',
  earth:'The blue line points from this place toward Earth. The number is how high Earth sits above the horizon there, in degrees. It shows a direction, not a distance: Earth is about 384,000 km away.',
 };
 
-function tourFor(audience,api){
- const moon={text:'This is the Moon, built from NASA photographs. Drag to turn it. Scroll or pinch to zoom in.'};
- const names={text:'The names are Latin. “Mare” means sea: early astronomers took the dark plains for seas. The International Astronomical Union approves the names; the astronauts did not choose them. Click any name and I will tell you what it means.'};
- const lines={text:'Two lines leave the place. Gold points to the Sun and blue points to Earth. They show direction, not distance. The number is how high the Sun or Earth sits above the horizon there.'};
- const shadow={run:api.showSouthPole,text:'Now the south pole. The blue patches are ground that never gets sunlight. It is so cold there that water ice may survive, which is why new missions aim for the poles. Click a patch any time to ask me again.'};
- const time={target:'.timeline',text:'This bar is time. Drag it, or press play, to watch sunlight and shadow move across a month.'};
- const replay=extra=>({text:`Want the whole story? Watch Apollo 11 fly to the Moon and back, step by step.${extra}`,action:['Watch the replay',api.openReplay]});
- if(audience==='planner')return [
-  moon,
-  {run:()=>api.select('im4'),target:'.planner',text:'Open a site from the list, or right-click anywhere on the Moon to drop a pin. I have opened IM-4, a planned landing near the south pole.'},
-  {target:'.metrics',text:'The card gives the Sun’s and Earth’s elevation, how far each clears the real terrain, and what is in the way. The lines on the map show their directions.'},
-  {target:'#compare',text:'Compare puts sites and landing dates side by side. Shift-click two markers to compare them in two clicks.'},
-  {target:'#rail-rank',text:'Rank orders every listed site for your date and stay. Ranking and comparison both export to CSV.'},
-  {target:'.timeline',text:'Set the landing date and hour here, then drag the bar through the stay.'},
-  {text:'One caution. This is geometry only: sunlight is not usable power, and Earth in view is not a working radio link. “How this is calculated” on any site card shows the method.'},
+const hours=x=>String(Math.round(x*10)/10);
+
+// Explore the Moon: a mental model of the map. What the picture is, what its colors and marks mean, what the names are,
+// what the two lines say, what the blue patches are, what the time bar does; then the visitor is on their own.
+function exploreTour(api){return [
+ {run:api.home,text:'This is the Moon, built from NASA photographs and lit as the Sun lights it right now. Drag to turn it. Scroll or pinch to zoom.'},
+ {text:'How to read it. Gray is the ground. The darker gray plains are old lava, not shadow. The side turned away from the Sun is drawn dark: that is night. Round markers are places where a spacecraft landed or plans to; click one to open it.'},
+ {run:()=>api.flyTo(8.35,30.83),text:'The names are Latin. This plain is Mare Tranquillitatis, the Sea of Tranquility. “Mare” means sea: early astronomers took the dark plains for water. The International Astronomical Union approves every name; the astronauts did not choose them. Click any name and I will explain it.'},
+ {run:()=>api.select('apollo11'),target:'#site-card',text:'I have opened Apollo 11, where people first landed. The card says in one sentence whether this place is in sunlight and whether it can see Earth at the time on the bar below.'},
+ {text:'Two lines leave the place. Gold points toward the Sun, blue toward Earth. They show direction, not distance. The number is how high the Sun or Earth sits above the horizon there: 90° is straight overhead, 0° is on the horizon.'},
+ {run:api.showSouthPole,text:'Now the south pole. The blue patches are ground that never gets direct sunlight. Blue does not mean water: it marks permanent shadow, from NASA’s maps. Scientists think some of these cold places may hold ice, which is one reason missions aim here.'},
+ {run:()=>{api.home();api.playTime(true);},leave:()=>api.playTime(false),target:'.timeline',text:'This bar is time, and I am playing it. Watch night sweep across the Moon: one day here lasts 29.5 Earth days. Drag the bar yourself to pick any moment in the next month.'},
+ {text:'Your turn. Open any marker, then click a name, a line’s label or a blue patch, and I will tell you what it is. You can find me under Guide in the sidebar.',actions:[['Watch Apollo 11',api.openReplay]]},
+];}
+
+// Learn & Discover: a question, a prediction, a test with the app's own calculation, one input changed, an explanation.
+// Every number quoted is read back from the comparison the app has just computed; none is written here.
+function investigation(api,kind){
+ const sun=kind==='sun',ids=sun?['shackleton','bluemoon1']:['apollo11','shackleton'],[a,b]=api.names(ids),key=sun?'sun':'earth',what=sun?'sunlit':'with Earth in view';
+ const differ=(x,y,total)=>Math.abs(x-y)>=total*.1;
+ const line=r=>`${r.rows[0].name}: ${what} for ${hours(r.rows[0][key])} of ${r.total} hours. ${r.rows[1].name}: ${hours(r.rows[1][key])} of ${r.total}.`;
+ const failed='The calculation did not come back. Check the connection, then choose Start over.';
+ return [
+  {run:()=>{api.beginCompare();sun?api.showSouthPole():api.home();},
+   text:sun?`Investigation: sunlight. ${a} and ${b} are both near the Moon’s south pole, about ${Math.round(api.distanceKm(ids[0],ids[1]))} km apart. For a ${api.stayLabel()} stay starting ${api.dateLabel(0)}, will they get about the same amount of sunlight? Make a prediction.`
+          :`Investigation: Earth in the sky. ${a} is near the middle of the side of the Moon that faces Earth. ${b} is at the south pole. For a ${api.stayLabel()} stay starting ${api.dateLabel(0)}, can one of them have Earth in view while the other does not? Make a prediction.`,
+   choices:sun?['About the same','Very different']:['Yes, it can','No, both see Earth']},
+  {busy:'Testing your prediction with the app’s own calculation: NASA terrain and JPL positions for both places…',
+   work:async m=>{m.first=await api.compare(ids,0);if(!m.first)return failed;
+    const r=m.first,d=differ(r.rows[0][key],r.rows[1][key],r.total);m.firstDiffer=d;
+    const right=sun?(m.choice0===1)===d:(m.choice0===0)===d;
+    return `Result for the stay from ${r.when}. ${line(r)} ${d?`That is ${hours(Math.abs(r.rows[0][key]-r.rows[1][key]))} hours apart.`:'For this stay they come out about the same.'} ${right?'Your prediction matches the calculation.':'The calculation disagrees with your prediction, which is how experiments teach.'}`;}},
+  {text:`Now change one input: the date. Land 14 days later, about half a lunar day on. Will the answer stay the same? Make a prediction.`,choices:['It will stay the same','It will change']},
+  {busy:'Running both places again, 14 days later…',
+   work:async m=>{m.second=await api.compare(ids,14);if(!m.second||!m.first)return failed;
+    const r=m.second,f=m.first,changed=differ(r.rows[0][key],f.rows[0][key],r.total)||differ(r.rows[1][key],f.rows[1][key],r.total);
+    return `Result for the stay from ${r.when}. ${line(r)} Before, it was ${hours(f.rows[0][key])} and ${hours(f.rows[1][key])} hours. ${changed?'The answer changed with the date.':'For these two dates the answer stayed about the same.'} ${(m.choice2===1)===changed?'Your prediction matches.':'Your prediction did not match.'} The comparison panel shows all four results.`;}},
+  {text:sun?'Why. At the poles the Sun never climbs more than about 1.5° above the horizon, and it circles the whole sky once every 29.5 days. A ridge or crater rim a few kilometers away can hide it for days. So the ground around a place and the date decide its sunlight, not how close two places are.'
+           :'Why. The Moon always keeps the same face toward Earth, so from the middle of the near side Earth never sets. At the poles Earth sits right on the horizon. The Moon rocks slightly as it orbits, so there Earth dips behind the hills and comes back over a month.'},
+  {text:`A caution scientists would add: this is geometry. It tells when ${sun?'sunlight reaches the ground, not how much power a lander would get':'Earth is above the skyline, not whether a radio link would work'}, and it says nothing about whether a place is safe to land on. To go deeper, show the numbers on a site’s card or read how it is calculated.`,
+   actions:[['Show the numbers',api.showNumbers],['How it is calculated',api.openMethod]]},
  ];
- const pick={run:()=>api.select('apollo11'),target:'.planner',text:'Pick a place from the list, or click a marker on the Moon. I have opened Apollo 11, where people first landed.'};
- if(audience==='educator')return [moon,names,pick,lines,shadow,time,
-  {run:api.showGrid,target:'#grid',text:'For a class, Poles and grid is on. The red pole is north, the blue one south, and the yellow ring is the equator.'},
-  {run:api.showLearn,text:'Under Learn there are short answers to the questions students ask. Each has a button that shows the answer on the Moon.'},
-  replay(' Choose “Stop at each step” there to talk each stage through.')];
- return [moon,names,pick,lines,shadow,time,replay('')];
 }
 
+// Plan a Mission: the analysis tools in the order a planner uses them. No astronaut, no lessons.
+function planWalk(api){return [
+ {run:()=>{if(!api.selected())api.select('im4');},target:'.planner',text:'1 · Site. Pick a site from the list, search coordinates, or right-click the Moon to drop a pin. (IM-4 is opened if nothing was selected.)'},
+ {target:'.timeline',text:'2 · Date and stay. Set the landing date and hour in the bar below, in UTC. Set the surface stay, 24 h to 7 d, on the site’s card.'},
+ {target:'#lunar',text:'3 · Sunlight. The card totals sunlit hours for the stay and lists each interruption. The 30-day chart scores every landing day; the gold band on the time bar shows the same windows.'},
+ {target:'.metrics',text:'4 · Earth in view. Counted the same way, in blue. “Above terrain” is the margin to the real skyline, and the ± on each rise and set time is how far it moves if the skyline is 0.1° higher or lower.'},
+ {target:'#compare',text:'5 · Alternatives. Compare adds this site and date to the comparison. Add another site, or use Delay on a card to shift the date. Shift-clicking a marker adds it directly. Rank orders every listed site.'},
+ {text:'6 · Assumptions and limits. Geometry only: sunlight is not usable power, Earth in view is not a link budget, and nothing here assesses landing hazards. Terrain grids run from 40 m at the south pole to 474 m elsewhere.',actions:[['Open the method',api.openMethod]]},
+ {target:'#share',text:'7 · Results. Export CSV from the comparison or the ranking, or copy a link that reopens this exact view: site, date, stay and comparison.'},
+];}
+
 export function createGuide(api){
- const read=()=>{try{return localStorage.getItem('zoriana-audience');}catch{return null;}};
- let audience=read(),steps=null,index=0,marked=null;
- const welcome=document.createElement('section');welcome.className='guide-welcome';welcome.hidden=true;welcome.setAttribute('aria-label','Welcome');
- welcome.innerHTML=`<div class="guide-card mat">${AVATAR}<h2>Hi, I’m Zoriana, your guide.</h2><p>Who is exploring the Moon today? I will set things up for you.</p><div class="guide-choices">${AUDIENCES.map(([id,title,note])=>`<button data-audience="${id}"><strong>${title}</strong><small>${note}</small></button>`).join('')}</div><button class="guide-skip" data-skip>Skip for now</button></div>`;
- const bubble=document.createElement('section');bubble.className='guide-bubble mat';bubble.hidden=true;bubble.setAttribute('aria-live','polite');
- bubble.innerHTML=`${AVATAR}<div class="guide-body"><p class="guide-text"></p><div class="guide-row"><span class="guide-count"></span><button data-back>Back</button><button data-act hidden></button><button class="primary" data-next>Next</button></div></div><button class="guide-close" data-close aria-label="Close the guide">×</button>`;
+ const get=key=>{try{return localStorage.getItem(key);}catch{return null;}},put=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
+ let audience=get('zoriana-audience'),welcomed=get('zoriana-welcomed')==='1',flow=null,index=0,memo={},marked=null,opener=null,shown=null,buttons=[];
+ const welcome=document.createElement('section');welcome.className='guide-welcome';welcome.hidden=true;
+ welcome.setAttribute('role','dialog');welcome.setAttribute('aria-modal','true');welcome.setAttribute('aria-labelledby','guide-title');
+ welcome.innerHTML=`<div class="guide-card mat"><header class="guide-hello">${AVATAR}<div><h2 id="guide-title">Welcome to the Moon.</h2><p>I’m Zoriana, your lunar guide.</p></div></header><h3>How would you like to explore?</h3><div class="guide-choices">${AUDIENCES.map(([id,title,note,icon])=>`<button class="guide-choice" data-audience="${id}"><span class="guide-icon"><svg class="ic"><use href="#i-${icon}"/></svg></span><span class="guide-choice-text"><strong>${title}</strong><small>${note}</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>`).join('')}</div><button class="guide-free" data-free>Explore freely <span aria-hidden="true">→</span></button><p class="guide-note">You can change your experience anytime.</p></div>`;
+ const bubble=document.createElement('section');bubble.className='guide-bubble mat';bubble.hidden=true;bubble.setAttribute('aria-live','polite');bubble.setAttribute('aria-label','Guide');
+ bubble.innerHTML=`${AVATAR}<div class="guide-body"><p class="guide-text"></p><div class="guide-row"><span class="guide-count"></span><span class="guide-dyn"></span></div></div><div class="guide-side"><button class="guide-close" data-close aria-label="Close the guide">×</button><button class="guide-size" data-size aria-label="Larger text" title="Larger text, for a class or a projector">A+</button></div>`;
  document.body.append(welcome,bubble);
  const $=s=>bubble.querySelector(s);
  const mark=selector=>{marked?.classList.remove('guide-target');marked=selector?document.querySelector(selector):null;if(marked&&marked.offsetParent)marked.classList.add('guide-target');};
- const close=()=>{bubble.hidden=true;steps=null;mark(null);};
- let act=null;
- function show(text,{count='',back=false,next=null,action=null}={}){
-  $('.guide-text').textContent=text;$('.guide-count').textContent=count;$('[data-back]').hidden=!back;
-  $('[data-next]').hidden=!next;if(next)$('[data-next]').textContent=next;
-  act=action?.[1]??null;$('[data-act]').hidden=!action;if(action)$('[data-act]').textContent=action[0];
-  bubble.hidden=false;
+ // One way to draw the bubble: text, a count, and a row of buttons ([label, action, primary?]).
+ function show(text,row=[],count=''){
+  $('.guide-text').textContent=text;$('.guide-count').textContent=count;buttons=row;
+  $('.guide-dyn').innerHTML=row.map(([label,,primary],i)=>`<button data-i="${i}"${primary?' class="primary"':''}>${label}</button>`).join('');
+  bubble.classList.toggle('plain',audience==='planner');bubble.hidden=false;shown={text,row,count};
  }
- function step(i){
-  index=i;const s=steps[i];s.run?.();mark(s.target??null);
-  show(s.text,{count:`${i+1} of ${steps.length}`,back:i>0,next:i<steps.length-1?'Next':'Done',action:s.action});
+ function end(){flow?.[index]?.leave?.();if(flow?.learn)api.endCompare();flow=null;mark(null);}
+ const close=()=>{end();bubble.hidden=true;};
+ async function go(i){
+  flow[index]?.leave?.();
+  const current=flow,s=flow[i],count=`${i+1} of ${flow.length}`;index=i;s.run?.(memo);mark(s.target??null);
+  const nav=()=>[...(i>0?[['Back',()=>go(i-1)]]:[]),...(flow.learn&&i>0?[['Start over',()=>start(flow.make,true)]]:[]),...(s.actions??[]).map(([label,run])=>[label,()=>{close();run();}]),[i<flow.length-1?'Next':'Done',()=>i<flow.length-1?go(i+1):close(),true]];
+  if(s.work){
+   show(s.busy,[],count);const text=await s.work(memo);
+   if(flow!==current||index!==i)return;show(text,nav(),count);return;
+  }
+  const text=typeof s.text==='function'?s.text(memo):s.text;
+  if(s.choices)show(text,[...(i>0?[['Back',()=>go(i-1)]]:[]),...s.choices.map((label,k)=>[label,()=>{memo[`choice${i}`]=k;go(i+1);},true])],count);
+  else show(text,nav(),count);
  }
- function startTour(){steps=tourFor(audience??'general',api);step(0);}
+ function start(make,learn=false){end();memo={};flow=make();flow.make=make;flow.learn=learn;index=0;go(0);}
+ const startExplore=()=>start(()=>exploreTour(api)),startSun=()=>start(()=>investigation(api,'sun'),true),startEarth=()=>start(()=>investigation(api,'earth'),true),startPlan=()=>start(()=>planWalk(api));
+ const invite={
+  general:()=>show('All set to explore the Moon. Want a short tour of what you are looking at?',[['Not now',close],['Start the tour',startExplore,true]]),
+  educator:()=>show('All set to learn and discover: poles and grid are on. Each investigation asks for a prediction, then tests it with the app’s real calculation.',[['Not now',close],['Earth in the sky',startEarth],['Sunlight at the pole',startSun,true]]),
+  planner:()=>show('Planning tools are ready: the numbers are showing. This walkthrough is optional.',[['Close',close],['Seven-step walkthrough',startPlan,true]]),
+ };
+ // Leaving the welcome is remembered, so a returning visitor is not asked again; Guide in the sidebar reopens it.
+ function leave(){welcome.hidden=true;welcomed=true;put('zoriana-welcomed','1');opener?.focus?.();opener=null;}
  function choose(id){
-  audience=id;try{localStorage.setItem('zoriana-audience',id);}catch{}
-  welcome.hidden=true;api.setup(id);steps=null;mark(null);
-  const title=AUDIENCES.find(a=>a[0]===id)[1].toLowerCase();
-  show(`All set for “${title}”. Want a one-minute tour? You can find me again at the top of the list.`,{next:'Not now',action:['Start the tour',startTour]});
+  end();audience=id;put('zoriana-audience',id);leave();api.setup(id);
+  // A planner asked for tools, not a tour: the astronaut stays out of the way and one line says where the help is.
+  if(id==='planner'){bubble.hidden=true;api.toast('Planning setup: the numbers are showing. An optional seven-step walkthrough is under Guide.');}
+  else invite[id]();
  }
- welcome.onclick=e=>{const id=e.target.closest('[data-audience]')?.dataset.audience;if(id)choose(id);else if(e.target.closest('[data-skip]')||e.target===welcome)welcome.hidden=true;};
+ function openWelcome(){close();opener=document.activeElement;welcome.hidden=false;welcome.querySelector('[data-audience]').focus({preventScroll:true});}
+ welcome.onclick=e=>{const id=e.target.closest('[data-audience]')?.dataset.audience;if(id)choose(id);else if(e.target.closest('[data-free]')||e.target===welcome)leave();};
+ // Keyboard: Escape leaves, and Tab stays inside the panel while it is open.
+ welcome.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();leave();return;}
+  if(e.key!=='Tab')return;
+  const stops=[...welcome.querySelectorAll('button')],first=stops[0],last=stops.at(-1);
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+ });
  bubble.onclick=e=>{
   if(e.target.closest('[data-close]'))return close();
-  if(e.target.closest('[data-act]')){const run=act;if(run===startTour)return startTour();close();return run?.();}
-  if(e.target.closest('[data-back]')&&steps)return step(index-1);
-  if(e.target.closest('[data-next]')){if(steps&&index<steps.length-1)step(index+1);else close();}
+  if(e.target.closest('[data-size]')){const big=bubble.classList.toggle('big');$('[data-size]').textContent=big?'A−':'A+';return;}
+  const i=e.target.closest('[data-i]')?.dataset.i;if(i!==undefined)buttons[Number(i)]?.[1]?.();
  };
+ bubble.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
  return {
   audience:()=>audience,
-  welcome(){close();welcome.hidden=false;welcome.querySelector('[data-audience]').focus();},
-  // A plain answer about something on the map. It does not interrupt a tour that is under way.
-  say(text){if(!steps){mark(null);show(text,{next:'OK'});}},
-  startTour,close,
-  touring:()=>Boolean(steps),
+  firstVisit:()=>!audience&&!welcomed,
+  welcome:openWelcome,
+  // The sidebar's Guide button: what this experience offers, and a way to change it.
+  open(){
+   if(!audience)return openWelcome();
+   end();
+   const change=['Change experience',openWelcome];
+   if(audience==='planner')show('Planning help. The walkthrough covers site, date and stay, sunlight, Earth view, comparison, assumptions, and export.',[change,['Seven-step walkthrough',startPlan,true]]);
+   else if(audience==='educator')show('Two investigations, each with a prediction tested by the app’s real calculation. They can be repeated on any date.',[change,['Earth in the sky',startEarth],['Sunlight at the pole',startSun,true]]);
+   else show('I can show you around, or explain anything you click: a name, a line’s label, a blue patch.',[change,['Start the tour',startExplore,true]]);
+  },
+  // A plain answer about something on the map. During a tour it appears in place and the tour can be resumed.
+  say(text){
+   if(flow){const back=shown.resume??shown;show(text,[['Back to the tour',()=>show(back.text,back.row,back.count),true]],back.count);shown.resume=back;}
+   else{mark(null);show(text,[['OK',close,true]]);}
+  },
+  close,
+  touring:()=>Boolean(flow),
  };
 }

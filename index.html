@@ -76,6 +76,7 @@
    <button id="rail-rank" class="rail-app orange" data-label="Rank" aria-label="Rank landing sites" title="Plan: rank landing sites"><svg class="ic"><use href="#i-rank"/></svg></button>
    <button id="rail-learn" class="rail-app purple wide-only" data-label="Learn" aria-label="Learn: short explanations" title="Learn: short explanations of light, shadow and Earth view"><svg class="ic"><use href="#i-book"/></svg></button>
    <button id="rail-watch" class="rail-app red wide-only" data-label="Watch" aria-label="Watch: fly-bys and the Apollo 11 replay" title="Watch: fly-bys and the Apollo 11 replay"><svg class="ic"><use href="#i-play"/></svg></button>
+   <button id="rail-guide" class="rail-app guide wide-only" data-label="Guide" aria-label="Zoriana, your lunar guide" title="Zoriana, your lunar guide: tours, investigations and help"></button>
    <button id="about" class="rail-app gray" data-label="About" aria-label="About the data and method" title="Data and method"><svg class="ic"><use href="#i-info"/></svg></button>
   </div>
   <button id="rail-home" class="rail-home" aria-label="Zoriana: show whole Moon" title="Show whole Moon · the icon is an AI-generated image"><img src="/assets/icon-192.png" alt="" width="46" height="46"></button>
@@ -88,9 +89,8 @@
 
   <div id="browse">
    <div id="chips" class="chips" role="group" aria-label="Filter landing sites"></div>
-   <button id="guide-open" class="list-action guide-open"><span class="guide-mini"></span><span class="row-text"><strong>Zoriana, your guide</strong><small class="wrap">A one-minute tour, set up for who you are</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>
    <div class="explain first">
-    <details><summary>New here? How to read this app</summary><p>Pick a site and a landing date, and the app works out where the Sun and Earth sit in that site’s sky, using NASA’s real terrain. A site needs the Sun above the surrounding ground for solar power, and Earth above it for a direct radio line home.</p>
+    <details><summary>New here? How to read this app</summary><p><button id="guide-open" class="mini-toggle">Ask Zoriana, your lunar guide</button></p><p>Pick a site and a landing date, and the app works out where the Sun and Earth sit in that site’s sky, using NASA’s real terrain. A site needs the Sun above the surrounding ground for solar power, and Earth above it for a direct radio line home.</p>
      <p><b>Colors.</b> Gold is always the Sun and blue is always Earth: the two lines from a site point toward them, solid when the site can see them and dashed when it cannot. Blue patches near the poles are ground that never gets sunlight. Marker colors only group the sites by kind; your own pins are red.</p>
      <p><b>Words and units.</b> The <i>horizon</i> is where a site’s ground meets its sky; hills and crater rims raise it. <i>Elevation</i> is how many degrees a body sits above level ground, and <i>above terrain</i> is how far it clears the real skyline: positive means visible, negative means hidden. <i>Azimuth</i> is a compass direction in degrees clockwise from north. Times are UTC, except the corner clock, which shows the map’s moment in your own time zone. <i>T+</i> is time since landing, and “3 d” means three Earth days.</p></details>
    </div>
@@ -124,8 +124,8 @@
    <button id="site-coords" class="mono coords" title="Copy as latitude, east longitude (decimal degrees)"></button>
 
 
-   <button id="site-landed" class="mini-toggle site-landed" hidden></button>
-   <button id="replay-open" class="mini-toggle site-landed replay-open" hidden><svg class="ic"><use href="#i-play"/></svg><span>Replay the whole flight in 3D: Earth to the Moon and back</span></button>
+   <button id="site-landed" class="mini-toggle site-landed" hidden><svg class="ic"><use href="#i-clock"/></svg><span></span></button>
+   <button id="replay-open" class="mini-toggle site-landed" hidden><svg class="ic"><use href="#i-play"/></svg><span>Replay the whole flight in 3D: Earth to the Moon and back</span></button>
    <!-- The answer in a sentence, before any numbers -->
    <p id="site-answer" class="plain answer"></p>
    <!-- Next-event banner: the lunar equivalent of the next turn -->
