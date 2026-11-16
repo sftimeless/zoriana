@@ -434,3 +434,11 @@
 - Checked and left alone: Sun, Earth and Moon are capitalized everywhere in the app; "true-scale terrain" beside "relief at true scale" is ordinary grammar; "South Pole" is capitalized only as a button or label name; 18 sites, 27 steps, four cameras and 99 tests agree across the app, documents and slides.
 - Known and not fixed here: the screenshots inside the slides were taken before the latest interface changes (they show "Disc showing", the old corner clock and a four-button site card).
 - Ninety-nine Node tests pass; the build succeeds.
+
+## Slide screenshots retaken — November 16, 2026 (UTC)
+
+- The three app pictures in the demo slides (`demo/img/app-site.jpg`, `app-ranking.jpg`, `app-heatmap.jpg`) were retaken from the local app at 1600 × 900 (saved at 2400 × 1350) with headless Chrome, from the same share links as before: IM-4 on November 15, 2026 at T+5 d; the ranking for a 7-day stay; IM-4 with the Sun × Earth score layer. A script waited for each view's data to finish loading before capturing.
+- They now show the current interface: "Map time" on both clocks, the three-button site card, "Disk showing", "Sun elev.", "Blue Ghost Mission 1", "Approx. point", and the poles-and-grid button. The figures the slides quote are unchanged (Sun 6.5°, Earth 7.4° at IM-4; 18 sites ranked).
+- Taking them exposed two leftovers, now fixed in the app: the ranking said "Approx. location" where the rest of the app says "approximate point", and the hint line above the time bar, grown longer, touched the bar. The hint is shorter and sits 16 px higher.
+- `demo/zoriana-demo.pdf` regenerated (7 pages); slide 3 read back with the new picture in place. The private slides artifact has the same three pictures.
+- Ninety-nine Node tests pass; the build succeeds.

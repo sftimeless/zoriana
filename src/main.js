@@ -802,7 +802,7 @@ addEventListener('resize',()=>setSheet(sheetState));setSheet('mid');
 try{if(!localStorage.getItem('zoriana-hints')){localStorage.setItem('zoriana-hints','1');const tools=$('.map-tools');tools.classList.add('hints');const hide=()=>tools.classList.remove('hints');setTimeout(hide,9000);tools.addEventListener('pointerdown',hide,{once:true});}}catch{}
 $('#north').onclick=()=>{if(surface)face(0);else{camera.up.set(0,1,0);controls.update();invalidate();}};
 $('#recenter').onclick=()=>{if(!selected)return;if(mode==='landing')enterSurface(selected);else fly(selected,2.2);};
-function setPin(value){pinning=value;$('#pin').classList.toggle('active',value);$('#globe').classList.toggle('pinning',value);$('#hint').classList.toggle('gone',!value);$('#hint').textContent=value?'Click anywhere on the Moon to place your pin':'Drag to explore · Scroll to zoom, and keep going for the Landing view · Right-click to drop a pin · Shift-click to compare';if(value)toast('Click anywhere on the Moon to place your pin.');}
+function setPin(value){pinning=value;$('#pin').classList.toggle('active',value);$('#globe').classList.toggle('pinning',value);$('#hint').classList.toggle('gone',!value);$('#hint').textContent=value?'Click anywhere on the Moon to place your pin':'Drag to explore · Scroll to zoom, then on into the Landing view · Right-click drops a pin · Shift-click compares';if(value)toast('Click anywhere on the Moon to place your pin.');}
 $('#pin').onclick=()=>setPin(!pinning);$('#pin-from-card').onclick=()=>setPin(true);
 let pointerStart;
 let holdTimer=null,touches=0;
@@ -1258,7 +1258,7 @@ function drawRanking(date,done){
  $('#ranking-rows').innerHTML=ordered.map(s=>{
   const m=rankResults.get(s.id),ready=m&&!m.error;if(ready)position++;
   const hours=key=>`<b class="c ${key}${key===rankSort?' sorted':''}" style="--f:${ready?Math.min(1,m[key]/duration).toFixed(3):0}">${ready?number(m[key])+' h':m?'n/a':'…'}</b>`;
-  return `<div class="rank-row cat-${s.cat}${ready&&position===1&&score(s)>0?' first':''}" data-rank="${safe(s.id)}"><span class="pos">${ready?position:''}</span><span class="badge">${icon(siteIcon(s))}</span><button class="rank-name" data-open title="Open ${safe(s.name)}"><strong>${safe(s.name)}</strong><small>${s.note?'<em>Approx. location</em> · ':''}${safe(s.description||coord(s))}</small></button>${hours('both')}${hours('sun')}${hours('earth')}<b class="c sunHeight${rankSort==='sunHeight'?' sorted':''}">${ready?(m.sunHeight===null?'—':deg(m.sunHeight)):m?'n/a':'…'}</b><button class="add" data-add aria-label="Add ${safe(s.name)} to the comparison" title="Add to comparison">${icon('plus')}</button></div>`;
+  return `<div class="rank-row cat-${s.cat}${ready&&position===1&&score(s)>0?' first':''}" data-rank="${safe(s.id)}"><span class="pos">${ready?position:''}</span><span class="badge">${icon(siteIcon(s))}</span><button class="rank-name" data-open title="Open ${safe(s.name)}"><strong>${safe(s.name)}</strong><small>${s.note?'<em>Approx. point</em> · ':''}${safe(s.description||coord(s))}</small></button>${hours('both')}${hours('sun')}${hours('earth')}<b class="c sunHeight${rankSort==='sunHeight'?' sorted':''}">${ready?(m.sunHeight===null?'—':deg(m.sunHeight)):m?'n/a':'…'}</b><button class="add" data-add aria-label="Add ${safe(s.name)} to the comparison" title="Add to comparison">${icon('plus')}</button></div>`;
  }).join('');
 }
 $('#ranking-chips').onclick=e=>{const k=e.target.closest('[data-rank-filter]')?.dataset.rankFilter;if(k){rankFilter=k;renderRanking();}};
