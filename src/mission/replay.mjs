@@ -198,9 +198,13 @@ export async function openReplay(onClose){
  const outPoints=outTimes.map(mission.craft),backPoints=backTimes.map(mission.craft);
  path(outPoints,0x4da3ff,.3,inertial);path(backPoints,0xff9f0a,.3,inertial);
  const outDone=path(outPoints,0x6db4ff,1,inertial),backDone=path(backPoints,0xffb340,1,inertial);
- // The Moon's own orbit: one whole lap around the Earth, and brighter, the stretch it covered during the flight. Both belong to
- // the wide views only; close to the Moon they would read as a stray line running out of it.
- const moonLap=[path((data.orbit??[]).map(r=>[r[1],r[2],r[3]]),0xa2a2a8,.5,inertial),path(data.moon.map(r=>[r[1],r[2],r[3]]),0xd6d6dc,.85,inertial)];
+ // The Moon's own orbit: one whole lap around the Earth, as a single even ring (a second, brighter line over the days of the
+ // flight read as two orbits). It belongs to the wide views only; close to the Moon it would read as a stray line running out of it.
+ const lap=(data.orbit?.length?data.orbit:data.moon).map(r=>r.slice(1,4));
+ // The Moon's path is not a closed curve: after one lap it misses its starting point by about 7,600 km. The two ends are eased
+ // together over the far side of the ring, away from the days of the flight, where the line stays exactly on the Moon's path.
+ if(data.orbit?.length){const N=lap.length,gap=sub(lap[N-1],lap[0]),k=Math.floor(N*.15);for(let i=0;i<k;i++){const w=.5*(1-smooth(i/k));lap[i]=add(lap[i],scale(gap,w));lap[N-1-i]=sub(lap[N-1-i],scale(gap,w));}}
+ const moonLap=[path(lap,0xb4b4ba,.6,inertial)];
  // Around the Moon the lines are fixed to the Moon, which turns and travels while the ships circle it.
  const west=scale(unit(cross([0,0,1],siteUnit)),-1),moonFixed=(X,t)=>{const M=mission.moonToIcrf(t),v=sub(X,mission.moon(t));return [0,1,2].map(i=>M[0][i]*v[0]+M[1][i]*v[1]+M[2][i]*v[2]);};
  path(range(0,2*Math.PI+.01,Math.PI/90).map(a=>scale(add(scale(siteUnit,Math.cos(a)),scale(west,Math.sin(a))),R_MOON+111)),0xffffff,.32,moon);
@@ -228,7 +232,7 @@ export async function openReplay(onClose){
  // ---------- State ----------
  let t=START,playing=false,speed='guided',view='guided',stopAtSteps=false,stepIndex=-1,seeking=false,last=performance.now(),jumped=true;
  const cam={az:78,el:3,dist:.4},user={az:0,el:0,zoom:1};
- let camPos=null,camTrack='craft',camRel=[0,0,0],frameDt=0;const scales={};
+ let castOff=null,camPos=null,camTrack='craft',camRel=[0,0,0],frameDt=0;const scales={};
  let lastFocus=null,lastKey='',lag0=[0,0,0],lagClock=9,frameUp=null,frameFwd=null,origin=[0,0,0];
  const held=new Map(),basisMatrix=new THREE.Matrix4(),bx=new THREE.Vector3(),by=new THREE.Vector3(),bz=new THREE.Vector3(),tq=new THREE.Quaternion(),tv=new THREE.Vector3();
  const FLIP=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),Math.PI),XAXIS=new THREE.Vector3(1,0,0);
@@ -321,6 +325,7 @@ export async function openReplay(onClose){
 
   // The lunar module: inside the adapter, docked to the command ship's nose, or flying its own path.
   const docked=(t>=T.dock&&t<T.undock)||(t>=T.redock&&t<T.lmJettison),split=t>=T.lmLiftoff,dockOff=scale(yC,m(12.65)*sC);
+  if(t<T.lmJettison)castOff=null;
   let lmPos,lmQ,lmS=sC;
   if(t<T.dock){lmPos=along(hS+12.3);lmQ=keep('lm',stackQ);}
   else if(docked){lmPos=add(Cc,dockOff);lmQ=keep(split?'lmA':'lm',tq.copy(csmQ).multiply(FLIP));}
@@ -332,7 +337,11 @@ export async function openReplay(onClose){
    else if(t<T.lmLiftoff){lmPos=Lr;lmQ=settle('lm',basis(upS,westS,north));}
    else if(t<T.lmOrbit){const s=(t-T.lmLiftoff)/(T.lmOrbit-T.lmLiftoff);lmPos=Lr;lmQ=settle('lmA',basis(unit(lerp(upL,rel,smooth(s*1.3))),fl.fwd,westS));}
    else if(t<T.redock){lmPos=add(Lr,scale(dockOff,smooth((t-(T.redock-1800))/1800)));lmQ=settle('lmA',basis(rel,upL,north));}
-   else{lmPos=add(Lr,scale(dockOff,1-smooth((t-T.lmJettison)/300)));lmQ=held.get('lmA')??keep('lmA',tq.copy(csmQ).multiply(FLIP));}
+   else{
+    // Cast off: springs push the lander off the nose at walking pace (about 0.6 m/s), along the way the ship was pointing then.
+    if(!castOff)castOff=yC;
+    lmPos=add(Lr,scale(castOff,m(12.65)*sC+m(.6*Math.min(t-T.lmJettison,900))));lmQ=held.get('lmA')??keep('lmA',tq.copy(csmQ).multiply(FLIP));
+   }
   }
   if(!split)keep('lmA',lmQ);
   lmQ=lmQ.clone();

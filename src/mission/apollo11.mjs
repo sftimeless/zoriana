@@ -163,7 +163,7 @@ export function createMission(data){
   if(t<T.lmLiftoff)return aroundMoon(t,0,0);
   if(t<T.lmOrbit){const d=T.lmOrbit-T.lmLiftoff,s=(t-T.lmLiftoff)/d;return aroundMoon(t,hermite(0,0,aInsertLm,wInsertLm*d,s),LM_INSERT_ALT*Math.sin(Math.PI/2*s));}
   if(t<T.redock){const d=T.redock-T.lmOrbit,s=(t-T.lmOrbit)/d;return aroundMoon(t,hermite(aInsertLm+turns,wInsertLm*d,csmAngle(T.redock),w2*d,s),LM_INSERT_ALT+(LUNAR_ALT-LM_INSERT_ALT)*smooth(s/.85));}
-  return aroundMoon(t,csmAngle(Math.min(t,T.teiOn))+w2*Math.max(0,t-T.teiOn)-4e-6*(t-T.lmJettison),LUNAR_ALT);   // left in lunar orbit, falling slowly behind
+  return aroundMoon(t,csmAngle(Math.min(t,T.teiOn))+w2*Math.max(0,t-T.teiOn)-3.3e-7*(t-T.lmJettison),LUNAR_ALT);   // left in lunar orbit, falling behind at about 0.6 m/s
  }
  const velocity=(f,t)=>{const a=f(t-1),b=f(t+1);return a&&b?scale(sub(b,a),.5):[0,0,0];};
  return {

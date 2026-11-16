@@ -51,7 +51,7 @@ export const STEPS=[
   text:'After 21 hours 36 minutes on the surface, the top half of Eagle lifts off, using the bottom half as its launch pad. Its single engine has no backup. Seven minutes later Eagle is back in orbit.'},
  {at:T.redock-900,mark:T.redock,title:'Rendezvous and docking',pace:[[T.redock+200,9]],sec:3,cam:{f:'craft',d:.1,az:70,el:15},pov:'lander',
   text:'Eagle spends three and a half hours catching up with Columbia, then the two dock. The astronauts and the boxes of samples move across to Columbia.'},
- {at:T.lmJettison-60,mark:T.lmJettison,title:'Eagle left behind',pace:[[T.lmJettison+400,7]],sec:3,cam:{f:'craft',d:.12,az:70,el:14},pov:'lander',
+ {at:T.lmJettison-60,mark:T.lmJettison,title:'Eagle left behind',pace:[[T.lmJettison+150,11]],sec:3,cam:{f:'craft',d:.12,az:70,el:14},pov:'lander',
   text:'Its work done, Eagle’s upper stage is cast off in lunar orbit. Where it ended up is not known.'},
  {at:T.teiOn-200,mark:T.teiOn,title:'Heading home',pace:[[T.teiOn-30,3],[T.teiOff+60,8]],sec:3,cam:{f:'craft',d:5000,az:205,el:24},cams:[[T.teiOn-30,{f:'craft',d:.09,az:115,el:10}]],pov:'moon',
   text:'Behind the Moon for the last time, Columbia’s engine fires for 2 minutes 31 seconds. It is the only way home: the burn speeds the ship up enough to escape the Moon and fall back toward Earth.'},
