@@ -2,7 +2,7 @@
 
 Paste-ready text for three fields of the NASA Space Apps 2026 project page. Everything the app ships or depends on is listed here. Update this file if anything is added, especially new artwork.
 
-Last checked against the code on November 14, 2026.
+Last checked against the code on November 15, 2026.
 
 ---
 
