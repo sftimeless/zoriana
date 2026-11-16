@@ -2,8 +2,8 @@
 // average-visibility maps at a handful of polar points.
 //
 // NASA's maps (AVGVISIB_75S/75N and their _EARTH versions, 120 m pixels) give the share of time
-// that any part of the Sun's or Earth's disc is visible, from a long simulation over LOLA terrain
-// (Mazarico et al. 2011). Here the app is asked for the same quantity (any part of the disc above
+// that any part of the Sun's or Earth's disk is visible, from a long simulation over LOLA terrain
+// (Mazarico et al. 2011). Here the app is asked for the same quantity (any part of the disk above
 // its own terrain skyline) over 347 days, about one cycle of lunar seasons, starting 2026-01-01.
 // The two use different terrain grids, observer heights and periods, so close agreement is the
 // most that can be expected; the point is to measure how far apart they are.
@@ -57,4 +57,4 @@ for(const [name,lat,lon] of points){
 const stats=body=>{const d=rows.map(r=>Math.abs(r[body].difference));return {meanAbsoluteDifference:+(d.reduce((a,b)=>a+b)/d.length).toFixed(3),largestDifference:+Math.max(...d).toFixed(3)};};
 const summary={points:rows.length,days:DAYS,from:'2026-01-01',sun:stats('sun'),earth:stats('earth')};
 console.log(JSON.stringify(summary));
-await writeFile(new URL('../data/validation-illumination.json',import.meta.url),JSON.stringify({generated:new Date().toISOString(),note:'App: share of 5-minute samples with any part of the disc above the app\'s terrain skyline, over 347 days from 2026-01-01. NASA: AVGVISIB 120 m pixel at the same place, with the range of its eight neighbors.',summary,rows},null,1)+'\n');
+await writeFile(new URL('../data/validation-illumination.json',import.meta.url),JSON.stringify({generated:new Date().toISOString(),note:'App: share of 5-minute samples with any part of the disk above the app\'s terrain skyline, over 347 days from 2026-01-01. NASA: AVGVISIB 120 m pixel at the same place, with the range of its eight neighbors.',summary,rows},null,1)+'\n');

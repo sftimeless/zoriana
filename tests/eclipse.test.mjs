@@ -11,7 +11,7 @@ test('covered share: apart, touching, half-way and wholly inside',()=>{
  assert.equal(coveredShare(.5,.27,.95),1);                      // Sun wholly behind Earth
  assert.equal(coveredShare(.95-.27,.27,.95),1);                 // inner contact
  assert.ok(Math.abs(coveredShare(1000,1,1000)-.5)<1e-3);          // a nearly straight edge through the center hides half
- const equal=coveredShare(1,1,1);                               // two equal discs one radius apart: 39.1%
+ const equal=coveredShare(1,1,1);                               // two equal disks one radius apart: 39.1%
  assert.ok(Math.abs(equal-(2*Math.PI/3-Math.sqrt(3)/2)/Math.PI)<1e-9);
  assert.ok(coveredShare(.9,.27,.95)>coveredShare(1.0,.27,.95)); // closer covers more
 });

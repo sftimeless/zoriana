@@ -44,7 +44,7 @@ Source code: https://github.com/sftimeless/zoriana
 
 **How it works**
 
-A small Node.js server asks NASA/JPL Horizons for the apparent position and distance of the Sun and Earth as seen from the exact site, hourly for 31 days. It builds the site's skyline from LOLA elevation data (40 m and 80 m grids near the south pole, 80 m near the north pole, a 474 m global grid elsewhere) by sampling terrain out to 300 km in every direction on a curved Moon. The browser compares the two: a body is visible when it clears the skyline. The Sun and Earth are also measured as discs, so the app can report first light and full Sun separately. The globe, terrain shadows and landing view are drawn with Three.js.
+A small Node.js server asks NASA/JPL Horizons for the apparent position and distance of the Sun and Earth as seen from the exact site, hourly for 31 days. It builds the site's skyline from LOLA elevation data (40 m and 80 m grids near the south pole, 80 m near the north pole, a 474 m global grid elsewhere) by sampling terrain out to 300 km in every direction on a curved Moon. The browser compares the two: a body is visible when it clears the skyline. The Sun and Earth are also measured as disks, so the app can report first light and full Sun separately. The globe, terrain shadows and landing view are drawn with Three.js.
 
 **How we checked it**
 
@@ -57,7 +57,7 @@ A small Node.js server asks NASA/JPL Horizons for the apparent position and dist
 - Against a real lander: Firefly's Blue Ghost photographed the Sun coming out from behind Earth at about 08:30 UTC on March 14, 2025; the app ends totality at that site at 08:30. For the same lander's sunset two days later the app is 1 to 2 hours later than Firefly's account, and we say so.
 - Each rise and set time carries a "±" showing how far it moves if the skyline is 0.1° off.
 - The totals do not depend on the time step: at three sites they are identical to 0.01 h whether tested every 15, 5, 2 or 1 minutes, and the app's interpolation between hourly positions is within 0.00003° of JPL asked every 10 minutes (`scripts/check-convergence.mjs`).
-- 99 automated tests cover the ephemeris parsing, visibility math, terrain projection, polar maps, place names, disc geometry, exports, and the Apollo 11 flight path and step list.
+- 99 automated tests cover the ephemeris parsing, visibility math, terrain projection, polar maps, place names, disk geometry, exports, and the Apollo 11 flight path and step list.
 
 **Benefits and what we hope to achieve**
 

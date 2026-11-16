@@ -5,8 +5,8 @@ Sources (LRO LOLA GDR, PDS Geosciences Node, extras/illumination/img), all 7624 
 polar stereographic projection at 120 m per pixel, covering 75 degrees to each pole:
 
   lpsr_75{s,n}_120m_201608.img            permanently shadowed regions (+20000 shadowed, -20000 not)
-  avgvisib_75{s,n}_120m_201608.img        share of time any part of the Sun's disc is visible (DN x 0.00004)
-  avgvisib_75{s,n}_120m_201608_earth.img  the same for Earth's disc
+  avgvisib_75{s,n}_120m_201608.img        share of time any part of the Sun's disk is visible (DN x 0.00004)
+  avgvisib_75{s,n}_120m_201608_earth.img  the same for Earth's disk
 
 Outputs in public/assets, orientation unchanged (south: 0 deg longitude up; north: 0 deg down;
 90 deg E to the right in both):

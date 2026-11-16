@@ -106,7 +106,7 @@
   - 2026-11-15 12:00 UTC: Earth overhead at 2.7°N 3.3°W (near the center of the near side, within libration range); Sun overhead at 1.6°S 108.3°E (within the Moon's ±1.6° solar latitude range).
   - Shackleton region, 2026-11-21 06:00 UTC, landing view tilted toward the horizon: the Earth globe appears above the horizon directly along the blue sight line, with Earth reported 5.1° above the horizon and in view.
   - The landing-view terrain footprint is now circular with a soft edge.
-- Not verified: Earth's drawn phase against an independent source, and the Sun disc's appearance (it was outside the view in these checks).
+- Not verified: Earth's drawn phase against an independent source, and the Sun disk's appearance (it was outside the view in these checks).
 
 ## Earth imagery and Earth-facing landing view — November 14, 2026 (evening)
 
@@ -119,7 +119,7 @@
 ## Earth follows the map modes — November 14, 2026 (evening)
 
 - Earth now has the same two looks as the Moon: lit by the modeled Sun in Explore and Landing, and plain NASA imagery with no lighting in Satellite or whenever the Sunlight layer is off.
-- In-app browser, no console errors: at Malapert region on 2026-11-21 06:00 UTC, Earth drew as a lit crescent with Sunlight on and as a full textured disc with Sunlight off; switching to Satellite turned lighting off and back to Explore turned it on.
+- In-app browser, no console errors: at Malapert region on 2026-11-21 06:00 UTC, Earth drew as a lit crescent with Sunlight on and as a full textured disk with Sunlight off; switching to Satellite turned lighting off and back to Explore turned it on.
 
 ## Real Earth distance — November 14, 2026 (evening)
 
@@ -167,14 +167,14 @@
 
 - Official icon: the team's icon (source image dated November 14, 2026, 19:44 Pacific, 1254 × 1254) replaced the code-drawn placeholder. The rounded square was located by measurement (a rounded rectangle of radius about 255 px fits its outline to within 2 px RMS), cropped, given transparent corners and resized to 512, 192 and 64 px. Seen in the app's rail button and as the page icon. How the source image was made has not been recorded yet; see the open item in REFERENCES.md.
 - Permanently shadowed regions: NASA LOLA product LPSR_75S_120M_201608 downloaded from the PDS Geosciences Node (116,250,752 bytes, SHA-256 `f47c5374…6beff4`, recorded in `data/terrain-manifest.json`). Every sample is +20000 or −20000 as the label states. Spot checks on the full-resolution grid: the floors of Shackleton, Haworth, Shoemaker, Faustini and Cabeus are shadowed; the Malapert massif point and the Shackleton ridge candidate point are not. Shadowed area in the file: about 27,700 km² south of 75°S and about 19,500 km² south of 80°S (not compared with a published total).
-- Sun and Earth as discs: new `src/disc.mjs`. Against the exact circular-segment formula the 15-strip sum is within 0.4% of the disc; a synthetic sunrise gives the expected 16 minutes between first light, center and full disc.
+- Sun and Earth as disks: new `src/disc.mjs`. Against the exact circular-segment formula the 15-strip sum is within 0.4% of the disk; a synthetic sunrise gives the expected 16 minutes between first light, center and full disk.
 - Benchmark: `scripts/benchmark-apollo.mjs` run against the live server on 2026-11-15 03:46 UTC. Twelve Sun-angle cases from NASA's Apollo table: largest elevation difference 0.7°, largest azimuth difference 2.57°; six level-horizon sunrises 22 to 73 minutes from the table. The Apollo 11 touchdown value still matches the Journal's JPL-based figure to 0.06°. The cause of the roughly 2° azimuth differences at Apollo 14, 15 and 16 was not found.
-- Fifty-five Node tests pass (nine new: six for the disc measure, three for the shadow-map lookup). `npx vite build` succeeds.
+- Fifty-five Node tests pass (nine new: six for the disk measure, three for the shadow-map lookup). `npx vite build` succeeds.
 - In-app browser, live JPL data, 2026-11-15:
   - Shackleton region point: "Permanent shadow: No, nearest is 2.3 km away". Blue patches drawn around the pole in Explore, Landing and Satellite modes; the button hides them and the link gains `psr=off`.
   - A typed pin on the floor of Shackleton crater (89.67°S 129.8°E): "Yes, NASA maps this spot as never sunlit"; the app's own calculation for the same pin gives 0 sunlit hours and no first light in the 31-day series.
-  - Apollo 11: "Not mapped here, NASA's map covers 75°S to the south pole"; Sun disc 100%, "full Sun 70.7 h, at least part of it 71.8 h" for a 3-day stay.
-  - Shackleton region point: center-based sunrise November 24, 02:35 UTC; first light November 23, 20:45; full disc November 24, 20:35. At 20:00 on November 23 the tile read "Above terrain −0.3°, Disc showing 0%".
+  - Apollo 11: "Not mapped here, NASA's map covers 75°S to the south pole"; Sun disk 100%, "full Sun 70.7 h, at least part of it 71.8 h" for a 3-day stay.
+  - Shackleton region point: center-based sunrise November 24, 02:35 UTC; first light November 23, 20:45; full disk November 24, 20:35. At 20:00 on November 23 the tile read "Above terrain −0.3°, Disk showing 0%".
 - Not verified: the layer on a phone-width screen, Safari, and how the blue tint reads for color-blind users. The one console error seen during the run came from a hot reload part-way through the edit (the script loaded before the new button existed in the page) and did not recur on full page loads.
 
 ## Phase 4: public deployment and demo — November 14, 2026 (night; November 15 UTC)
@@ -233,12 +233,12 @@
 
 ## Eclipses and the slope layer — November 15, 2026 (UTC)
 
-- Eclipses: `src/eclipse.mjs` (four unit tests: disc overlap against the closed formula, a synthetic pass of the Sun behind Earth with contact times to five minutes, no-eclipse and empty cases, and vector interpolation near the zenith). The Sun's center now counts as hidden while behind Earth's disc.
+- Eclipses: `src/eclipse.mjs` (four unit tests: disk overlap against the closed formula, a synthetic pass of the Sun behind Earth with contact times to five minutes, no-eclipse and empty cases, and vector interpolation near the zenith). The Sun's center now counts as hidden while behind Earth's disk.
 - Check against published contact times (UTC), local server with live JPL data:
   - March 3, 2026 (published: penumbral 08:44 to 14:23, umbral 09:50 to 13:17, whole-Moon totality 11:04 to 12:03). Apollo 11: 09:30 to 14:00, total 10:35 to 12:50. Apollo 17: 09:30 to 14:05, total 10:35 to 13:00. South pole point: 09:30 to 13:30, total 10:55 to 12:05. North pole point: 09:20 to 14:00, total 10:20 to 12:55.
   - August 28, 2026 (published: penumbral 01:23 to 07:02, umbral 02:33 to 05:52, 93% partial). South pole point: 01:55 to 06:40, total 03:00 to 05:30. Apollo 11: 02:15 to 06:40, total 03:30 to 05:25. Far side 0°N 180°E: 02:00 to 06:20, total 03:15 to 05:05. North pole point: 02:15 to 06:05, 96% at most, never total.
   - Every partial phase is inside the penumbral contacts, every total phase inside the umbral contacts, and on March 3 all sites are total throughout the whole-Moon totality.
-- In the app at Apollo 11 from 2026-03-01: at 07:00 "3 h 00 m until eclipse by Earth · Mar 3, 09:59 UTC"; at 09:30 "Eclipse: Earth covers 2% of the Sun"; at 11:30 "Eclipsed by Earth", disc 0%, "1 h 57 m until end of eclipse · Mar 3, 13:26 UTC", and the globe is dark; at 15:00 "Sunlit". The 3-day stay reads "Sunlit for about 69 of 72 hours". From 2026-11-15: "Eclipses by Earth: None in these 30 days".
+- In the app at Apollo 11 from 2026-03-01: at 07:00 "3 h 00 m until eclipse by Earth · Mar 3, 09:59 UTC"; at 09:30 "Eclipse: Earth covers 2% of the Sun"; at 11:30 "Eclipsed by Earth", disk 0%, "1 h 57 m until end of eclipse · Mar 3, 13:26 UTC", and the globe is dark; at 15:00 "Sunlit". The 3-day stay reads "Sunlit for about 69 of 72 hours". From 2026-11-15: "Eclipses by Earth: None in these 30 days".
 - Slope layer: computed from LDEM_80S_80M and LDEM_80N_80M over a 160 m baseline, reduced to 320 m cells. Spot checks (mean / steepest in the cell): IM-1 11.5° / 14.5° (site card 11.5°); IM-4 8.8° / 12.5°; Malapert 8.8° / 10.0°; Shackleton point 5.2° / 6.8°; Blue Moon Pathfinder 1 point 2.0° / 4.0°; Shackleton floor 4.0° / 7.5°. South: 29% of cells under 5°, 38% over 10°, median 7.9°. North: 35%, 33%, 7.0°. Seen at both poles and in the Landing view; the first version ended on a hard circle and was changed to fade out between 84° and 80°.
 - Best-spot finder: candidates on ground gentler than 10° now come first and the message gives the slope.
 - Seventy-two Node tests pass; `npx vite build` succeeds; demo PDF rebuilt (7 pages).
@@ -300,7 +300,7 @@
 - Checked on the live site:
   - Server answers carry `version` "1.0.0" and a `request` block (observer table, center coord@301, site coordinates and height, airless, 1 h, UT, ephemeris "DE441" read from JPL's reply), and `terrain.resolutionShares` (IM-4: 24% from the 40 m grid, 71% from 80 m, 5% from 1.9 km), which the card prints.
   - Search reads "84.6000° S 31.0000° E", "89.5S 45E", "-89.5, 45", "S 89.45 W 137.31" and "-89.45 222.69" (the last becomes −137.31° E). Names such as "Tycho" and "Apollo 11" still go to the name search.
-  - The card opens with one sentence ("Nov 15, 12:00 UTC: the Sun is up but terrain hides it, and Earth is up but terrain hides it. Over the 3 d stay: …") and the countdown; "Hide the numbers" folds azimuth, disc share, distances and data rows. In Safari on the simulated iPhone the numbers start folded.
+  - The card opens with one sentence ("Nov 15, 12:00 UTC: the Sun is up but terrain hides it, and Earth is up but terrain hides it. Over the 3 d stay: …") and the countdown; "Hide the numbers" folds azimuth, disk share, distances and data rows. In Safari on the simulated iPhone the numbers start folded.
   - "At touchdown: no sunlight, Earth out of view, so no direct line home at first."
   - Finder, IM-4: at least 6 h of Earth gives "Land between Nov 16 15:26 and Dec 1 01:38 (14 d 10 h); or between Dec 13 16:11 and Dec 15 06:00"; 24 h of Sun and Earth together gives "between Nov 17 11:54 and Nov 28 15:32" (local build), and "Use Nov 17 12:00" set the landing to that hour with "At touchdown: sunlit, Earth in view".
   - Ranking minimums: at least 24 h sunlit and 40 h of Earth left 9 of 18 sites.
@@ -402,3 +402,19 @@
 - Whole flight stepped in all four cameras (801 samples each): no drawing failure. Ninety-nine Node tests pass; the build succeeds.
 - Live site after deploying (zoriana.fly.dev, release 27): the reported pin opened with the grid on and the South Pole named; its comparison card gave the stay dates and "Sunlight next reaches this spot Nov 28, 05:22 UTC", and the clock note appeared once the timeline was dragged to December 10; the Sun card's rows fit; the replay stepped through the flight with no drawing failure and no console errors.
 - Limits: zoom to fly low works with a mouse wheel or trackpad, not with a two-finger pinch on a phone, where the Landing map style and a site's Fly-by remain the way in. The pole markers are 1 px lines and thin posts; the grid does not show in the low view. The cast-off direction is the way the ship pointed at that moment in the replay, which is a made-up attitude.
+
+## Wording audit: two clocks, the replay's number line, mixed terms — November 16, 2026 (UTC)
+
+- The two clocks: the bar at the bottom and the corner both show the moment the map is drawing, the bar in UTC and the corner in the viewer's time zone. Neither is the device's clock unless "Now" is chosen. Both are now headed "Map time" (the bar "Map time · UTC"), with a tooltip saying so. Seen with Apollo 11 open: corner "MAP TIME 4:00 PM PST 00:00 UTC", bar "MAP TIME · UTC 00:00 Nov 16, 2026".
+- Replay number line: "361,000 km from the Moon's" left its noun out, and the line measured some distances from a body's center and others from its surface. Every height and distance is now to the surface, and named: "7.4 km above Earth", "28,100 km/h · 186 km above Earth", "4,800 km/h · 334,000 km from Earth · 72,500 km from the Moon", "5,780 km/h relative to the Moon · 111 km above its surface". Read at twelve moments from the pad to re-entry.
+- One word for one thing, found by reading every caption, label, tooltip and message in the app and the replay:
+  - "disk" throughout (American spelling; "Disk showing"), in the app and the documents.
+  - minutes are "min" everywhere ("12 h 46 min"); "m" is only meters.
+  - "Sun elevation" where the comparison and ranking said "Sun height"; "while sunlit" where it said "while lit".
+  - "Landing view" for the low terrain view (the new zoom hint and message called it a "low view").
+  - "level horizon" where some lines said "reference horizon"; "approximate point" where one said "approximate location"; "NASA LRO" where two said "NASA / LRO".
+  - the corner lights now carry the same words as the cards: "Sunlit" or "No sunlight", "Earth in view" or "Earth not in view".
+  - "Choose map" and "Surface stay" in place of a title-case heading and a label that said "Mission duration".
+  - replay captions: "The crew spends", "The astronauts are pressed", and "the top half of Eagle" for the part cast off, as in the liftoff step.
+- Ninety-nine Node tests pass (two expectations updated for "min"); the build succeeds; the replay drew all twelve moments with no failure.
+- Left as they are, on purpose: "Sun + Earth" as the short column name for "Sun and Earth together"; "3 d" in controls beside "72 hours" in sentences; "km up" in the replay's prose captions.

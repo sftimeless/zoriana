@@ -8,8 +8,8 @@ test('segments keeps an interval open to the end of the range',()=>{assert.deepE
 test('segments clips to the requested range and ignores samples outside it',()=>{assert.deepEqual(segments(rows([1,1,1,1,1,-1,1]),2*H,4*H),[[2*H,4*H]]);});
 test('segments returns nothing for a body that never rises, empty input or missing rows',()=>{assert.deepEqual(segments(rows([-1,-2,-3]),0,2*H),[]);assert.deepEqual(segments([],0,H),[]);assert.deepEqual(segments(null,0,H),[]);});
 test('a body exactly on the horizon is not counted as visible',()=>{assert.deepEqual(segments(rows([0,0,0]),0,2*H),[]);});
-test('segment hours match the banner countdown for the same crossing',()=>{const r=rows([2,2,-2,-2]);const c=nextCrossing(r,0);assert.equal(c.rising,false);assert.equal(c.time,1.5*H);assert.equal(span(c.time-0),'1 h 30 m');});
-test('span formats days, hours and minutes',()=>{assert.equal(span(94*H),'3 d 22 h');assert.equal(span(12*H+46*60000),'12 h 46 m');assert.equal(span(9*60000),'9 min');assert.equal(span(H),'1 h 00 m');assert.equal(span(24*H),'1 d 0 h');});
+test('segment hours match the banner countdown for the same crossing',()=>{const r=rows([2,2,-2,-2]);const c=nextCrossing(r,0);assert.equal(c.rising,false);assert.equal(c.time,1.5*H);assert.equal(span(c.time-0),'1 h 30 min');});
+test('span formats days, hours and minutes',()=>{assert.equal(span(94*H),'3 d 22 h');assert.equal(span(12*H+46*60000),'12 h 46 min');assert.equal(span(9*60000),'9 min');assert.equal(span(H),'1 h 00 min');assert.equal(span(24*H),'1 d 0 h');});
 test('span never shows a negative countdown',()=>{assert.equal(span(-5000),'0 min');assert.equal(span(29000),'0 min');assert.equal(span(31000),'1 min');});
 const D=24*H,series=(hours,f)=>Array.from({length:hours+1},(_,i)=>({time:i*H,az:0,el:f(i)}));
 test('gaps returns the dark stretches between and around sunlit intervals',()=>{assert.deepEqual(gaps([[2,4],[6,8]],0,10),[[0,2],[4,6],[8,10]]);assert.deepEqual(gaps([],0,10),[[0,10]]);assert.deepEqual(gaps([[0,10]],0,10),[]);});
