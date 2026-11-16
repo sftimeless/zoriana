@@ -7,7 +7,7 @@ export function parseHorizons(text) {
     const jd = Number(c[0]), az = Number(c[3]), el = Number(c[4]);
     if (![jd, az, el].every(Number.isFinite) || !c[3] || !c[4]) throw new Error('Invalid JPL sample.');
     const row = { time: Math.round((jd - 2440587.5) * DAY / 1000) * 1000, az, el };
-    // Optional sixth column: distance from the site to the body's centre, in km.
+    // Optional sixth column: distance from the site to the body's center, in km.
     const range = c[5] ? Number(c[5]) : NaN;
     if (Number.isFinite(range) && range > 0) row.range = range;
     return row;
@@ -50,16 +50,16 @@ export function coordinatesToVector(lat,lon) {
   const p=lat*Math.PI/180,l=lon*Math.PI/180;
   return [Math.cos(p)*Math.cos(l),Math.sin(p),-Math.cos(p)*Math.sin(l)];
 }
-// Direction of a body from the Moon's centre, given its direction from a surface site and its
+// Direction of a body from the Moon's center, given its direction from a surface site and its
 // distance in Moon radii. For Earth the two differ by up to about 0.26° (parallax); for the Sun
 // the difference is negligible.
-export function centredDirection(lat,lon,az,el,distance) {
-  const v=centredPosition(lat,lon,az,el,distance),length=Math.hypot(...v);
+export function centeredDirection(lat,lon,az,el,distance) {
+  const v=centeredPosition(lat,lon,az,el,distance),length=Math.hypot(...v);
   return v.map(x=>x/length);
 }
-// The body's position relative to the Moon's centre, in Moon radii, from the site's view of it
+// The body's position relative to the Moon's center, in Moon radii, from the site's view of it
 // and its distance from the site.
-export function centredPosition(lat,lon,az,el,distance) {
+export function centeredPosition(lat,lon,az,el,distance) {
   const site=coordinatesToVector(lat,lon),toBody=skyDirection(lat,lon,az,el);
   return site.map((s,i)=>s+toBody[i]*distance);
 }

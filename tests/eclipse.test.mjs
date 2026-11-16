@@ -10,7 +10,7 @@ test('covered share: apart, touching, half-way and wholly inside',()=>{
  assert.equal(coveredShare(.27+.95,.27,.95),0);                 // just touching
  assert.equal(coveredShare(.5,.27,.95),1);                      // Sun wholly behind Earth
  assert.equal(coveredShare(.95-.27,.27,.95),1);                 // inner contact
- assert.ok(Math.abs(coveredShare(1000,1,1000)-.5)<1e-3);          // a nearly straight edge through the centre hides half
+ assert.ok(Math.abs(coveredShare(1000,1,1000)-.5)<1e-3);          // a nearly straight edge through the center hides half
  const equal=coveredShare(1,1,1);                               // two equal discs one radius apart: 39.1%
  assert.ok(Math.abs(equal-(2*Math.PI/3-Math.sqrt(3)/2)/Math.PI)<1e-9);
  assert.ok(coveredShare(.9,.27,.95)>coveredShare(1.0,.27,.95)); // closer covers more
@@ -25,14 +25,14 @@ test('a Sun passing behind Earth: contact times, totality and the limb',()=>{
  const series=eclipseSeries(sunRows,earthRows);
  assert.equal(series.length,97);
  assert.ok(Math.abs(series[0].separation-2)<1e-6);
- assert.ok(Math.abs(eclipseAt(series,4*HOUR).separation)<1e-6);            // dead centre at 4 h
+ assert.ok(Math.abs(eclipseAt(series,4*HOUR).separation)<1e-6);            // dead center at 4 h
  assert.equal(eclipseAt(series,4*HOUR).coverage,1);
- assert.ok(Math.abs(eclipseAt(series,4*HOUR).limb+.9507)<.001);            // centre is one Earth radius inside
+ assert.ok(Math.abs(eclipseAt(series,4*HOUR).limb+.9507)<.001);            // center is one Earth radius inside
  const [event]=eclipseEvents(series);
- // First contact when the centres are 1.2173° apart: 0.7827° travelled, 1.565 h. Last contact 6.435 h.
+ // First contact when the centers are 1.2173° apart: 0.7827° traveled, 1.565 h. Last contact 6.435 h.
  assert.ok(Math.abs(event.start-1.565*HOUR)<=5*60000,`start ${event.start/HOUR}`);
  assert.ok(Math.abs(event.end-6.435*HOUR)<=5*60000,`end ${event.end/HOUR}`);
- // Totality while the centres are within 0.6841°: 2.632 h to 5.368 h.
+ // Totality while the centers are within 0.6841°: 2.632 h to 5.368 h.
  assert.ok(Math.abs(event.totalStart-2.632*HOUR)<=5*60000&&Math.abs(event.totalEnd-5.368*HOUR)<=5*60000);
  assert.equal(event.maxCoverage,1);
  assert.equal(eclipseEvents(series).length,1);

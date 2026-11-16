@@ -2,19 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { POLAR, HEAT, poleOf, polarPixel, polarLatLon, shadowNear, bestCell, topCells } from '../src/psr.mjs';
 
-const SIZE=POLAR.psr.size,centre=SIZE/2;
+const SIZE=POLAR.psr.size,center=SIZE/2;
 
 test('south map follows the PDS layout: 0° longitude up, 90°E right',()=>{
- assert.deepEqual(polarPixel(-90,0,SIZE),{pole:'south',x:centre,y:centre});
- const zero=polarPixel(-80,0,SIZE);assert.ok(Math.abs(zero.x-centre)<1e-9&&zero.y<centre);
- const east=polarPixel(-80,90,SIZE);assert.ok(east.x>centre&&Math.abs(east.y-centre)<1e-6);
+ assert.deepEqual(polarPixel(-90,0,SIZE),{pole:'south',x:center,y:center});
+ const zero=polarPixel(-80,0,SIZE);assert.ok(Math.abs(zero.x-center)<1e-9&&zero.y<center);
+ const east=polarPixel(-80,90,SIZE);assert.ok(east.x>center&&Math.abs(east.y-center)<1e-6);
  assert.ok(Math.abs(polarPixel(-75,0,SIZE).y)<.2);     // 75°S sits on the image edge
 });
 
 test('north map is turned the other way: 0° longitude down, 90°E still right',()=>{
  assert.equal(polarPixel(90,0,SIZE).pole,'north');
- const zero=polarPixel(80,0,SIZE);assert.ok(Math.abs(zero.x-centre)<1e-9&&zero.y>centre);
- const east=polarPixel(80,90,SIZE);assert.ok(east.x>centre&&Math.abs(east.y-centre)<1e-6);
+ const zero=polarPixel(80,0,SIZE);assert.ok(Math.abs(zero.x-center)<1e-9&&zero.y>center);
+ const east=polarPixel(80,90,SIZE);assert.ok(east.x>center&&Math.abs(east.y-center)<1e-6);
  assert.ok(Math.abs(polarPixel(75,0,SIZE).y-SIZE)<.2);
 });
 
@@ -24,7 +24,7 @@ test('places outside the polar maps are not looked up',()=>{
 });
 
 test('ten degrees from the pole is 304 km on the map',()=>{
- const km=(centre-polarPixel(-80,0,SIZE).y)*POLAR.psr.gridMeters/1000;
+ const km=(center-polarPixel(-80,0,SIZE).y)*POLAR.psr.gridMeters/1000;
  assert.ok(Math.abs(km-2*1737.4*Math.tan(5*Math.PI/180))<.001);
 });
 
@@ -38,7 +38,7 @@ test('pixel to latitude and longitude undoes the projection at both poles and bo
 test('shadowNear reports the site cell and the nearest shadowed cell',()=>{
  const width=11,values=new Uint8Array(width*width);
  assert.deepEqual(shadowNear(values,width),{inside:false,share:0,nearestMeters:null,reachMeters:1200});
- values[5*width+8]=255;values[1*width+5]=200;values[5*width+6]=90;   // 3 cells east, 4 north, and a mostly lit neighbour
+ values[5*width+8]=255;values[1*width+5]=200;values[5*width+6]=90;   // 3 cells east, 4 north, and a mostly lit neighbor
  const near=shadowNear(values,width);
  assert.equal(near.inside,false);assert.equal(near.nearestMeters,720);
  values[5*width+5]=255;
@@ -70,7 +70,7 @@ test('topCells returns the best cells first and keeps them apart',()=>{
  const width=21,rgba=new Uint8ClampedArray(width*width*4),put=(x,y,sun,earth)=>rgba.set([sun,earth,sun,255],(y*width+x)*4);
  put(10,10,100,100);put(14,10,250,250);put(15,10,240,240);put(10,3,200,200);put(0,0,255,255);put(3,10,255,0);
  const picked=topCells(rgba,width,8,3,4);
- assert.deepEqual(picked.map(c=>[c.dx,c.dy]),[[4,0],[0,-7],[0,0]]);   // the neighbour of the best cell is skipped; the corner is out of range; no-Earth cell scores nothing
+ assert.deepEqual(picked.map(c=>[c.dx,c.dy]),[[4,0],[0,-7],[0,0]]);   // the neighbor of the best cell is skipped; the corner is out of range; no-Earth cell scores nothing
  assert.ok(picked[0].score>picked[1].score&&picked[1].score>picked[2].score);
  assert.equal(topCells(rgba,width,8,1,4).length,1);
  assert.deepEqual(topCells(new Uint8ClampedArray(width*width*4),width),[]);

@@ -33,39 +33,39 @@ export function polarLatLon(pole,x,y,size){
  return {lat,lon:rho?Math.atan2(dx,pole==='south'?-dy:dy)/RAD:0};
 }
 
-// Reads a square window of shadow-mask values (0-255, row-major, `width` across) centred on a site.
+// Reads a square window of shadow-mask values (0-255, row-major, `width` across) centered on a site.
 // A cell counts as shadowed when at least half of it is. Returns whether the site's own cell is
-// shadowed and the distance to the nearest shadowed cell centre, or null if none is in the window.
+// shadowed and the distance to the nearest shadowed cell center, or null if none is in the window.
 export function shadowNear(values,width,gridMeters=POLAR.psr.gridMeters){
- const centre=(width-1)/2;let nearest=Infinity;
- for(let y=0;y<width;y++)for(let x=0;x<width;x++)if(values[y*width+x]>=128)nearest=Math.min(nearest,Math.hypot(x-centre,y-centre));
- const inside=values[centre*width+centre]>=128;
- return {inside,share:values[centre*width+centre]/255,nearestMeters:inside?0:Number.isFinite(nearest)?nearest*gridMeters:null,reachMeters:centre*gridMeters};
+ const center=(width-1)/2;let nearest=Infinity;
+ for(let y=0;y<width;y++)for(let x=0;x<width;x++)if(values[y*width+x]>=128)nearest=Math.min(nearest,Math.hypot(x-center,y-center));
+ const inside=values[center*width+center]>=128;
+ return {inside,share:values[center*width+center]/255,nearestMeters:inside?0:Number.isFinite(nearest)?nearest*gridMeters:null,reachMeters:center*gridMeters};
 }
 
 // Finds the most promising cell near a site in a square window of heat-map pixels (RGBA bytes,
-// `width` across, site at the centre). The score is average Sun share times average Earth share:
+// `width` across, site at the center). The score is average Sun share times average Earth share:
 // a rough guide to "power and a link at once", not a measured overlap. Cells farther than
 // `radius` cells are ignored; ties go to the nearer cell. Returns null when nothing scores.
 export function bestCell(rgba,width,radius=(width-1)/2){
- const centre=(width-1)/2;let best=null;
+ const center=(width-1)/2;let best=null;
  for(let y=0;y<width;y++)for(let x=0;x<width;x++){
-  const distance=Math.hypot(x-centre,y-centre);if(distance>radius)continue;
+  const distance=Math.hypot(x-center,y-center);if(distance>radius)continue;
   const i=(y*width+x)*4,sun=rgba[i]/255,earth=rgba[i+1]/255,score=sun*earth;
-  if(score>0&&(!best||score>best.score+1e-9||(Math.abs(score-best.score)<=1e-9&&distance<best.distance)))best={dx:x-centre,dy:y-centre,distance,sun,earth,peakSun:rgba[i+2]/255,score};
+  if(score>0&&(!best||score>best.score+1e-9||(Math.abs(score-best.score)<=1e-9&&distance<best.distance)))best={dx:x-center,dy:y-center,distance,sun,earth,peakSun:rgba[i+2]/255,score};
  }
  return best;
 }
 
-// The `count` best-scoring cells within `radius` cells of the centre, kept at least `separation`
+// The `count` best-scoring cells within `radius` cells of the center, kept at least `separation`
 // cells apart so they are genuinely different places. Best first. Used to pick candidates that
 // are then checked for the chosen dates.
 export function topCells(rgba,width,radius=(width-1)/2,count=6,separation=4){
- const centre=(width-1)/2,cells=[];
+ const center=(width-1)/2,cells=[];
  for(let y=0;y<width;y++)for(let x=0;x<width;x++){
-  const distance=Math.hypot(x-centre,y-centre);if(distance>radius)continue;
+  const distance=Math.hypot(x-center,y-center);if(distance>radius)continue;
   const i=(y*width+x)*4,sun=rgba[i]/255,earth=rgba[i+1]/255;
-  if(sun*earth>0)cells.push({dx:x-centre,dy:y-centre,distance,sun,earth,peakSun:rgba[i+2]/255,score:sun*earth});
+  if(sun*earth>0)cells.push({dx:x-center,dy:y-center,distance,sun,earth,peakSun:rgba[i+2]/255,score:sun*earth});
  }
  cells.sort((a,b)=>b.score-a.score||a.distance-b.distance);
  const picked=[];
@@ -76,7 +76,7 @@ export function topCells(rgba,width,radius=(width-1)/2,count=6,separation=4){
  return picked;
 }
 
-// Heat-map modes: which value is drawn, in which colour, and the range over which it fades in.
+// Heat-map modes: which value is drawn, in which color, and the range over which it fades in.
 // The ranges span what the 480 m maps actually hold: ordinary polar ground is sunlit about 40% of
 // the time and the best cells about 50%, so shadowed ground stays clear and good ground glows.
 export const HEAT={
@@ -89,7 +89,7 @@ export const HEAT={
 
 // Adds both overlays to a Three.js material without disturbing shader patches already on it.
 // `uniforms` holds psrSouth, psrNorth, heatSouth, heatNorth, slopeSouth, slopeNorth (textures), psrVisible (0 or 1),
-// heatMode (0 off, or a HEAT code) and earthDirection (unit vector from the Moon's centre toward
+// heatMode (0 off, or a HEAT code) and earthDirection (unit vector from the Moon's center toward
 // Earth in Moon-fixed coordinates), and is shared between materials.
 export function addPolarOverlay(material,uniforms){
  const before=material.onBeforeCompile,key=material.customProgramCacheKey;

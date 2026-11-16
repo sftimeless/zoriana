@@ -15,7 +15,7 @@ export function southPixel(lat,lon){
  // PDS: south-pole longitude 0 is upward, 90E right; zero-based pixel centers.
  return [3791.5+rho*Math.sin(l)/40,3791.5-rho*Math.cos(l)/40];
 }
-// Same projection for any PDS south-polar LOLA grid: metres per pixel and the pixel offset of the pole.
+// Same projection for any PDS south-polar LOLA grid: meters per pixel and the pixel offset of the pole.
 export function southPolarPixel(lat,lon,metersPerPixel,poleOffset){
  const rho=2*RADIUS*Math.tan((90+lat)*RAD/2),l=lon*RAD;
  return [poleOffset+rho*Math.sin(l)/metersPerPixel,poleOffset-rho*Math.cos(l)/metersPerPixel];
@@ -26,7 +26,7 @@ export function northPolarPixel(lat,lon,metersPerPixel,poleOffset){
  return [poleOffset+rho*Math.sin(l)/metersPerPixel,poleOffset+rho*Math.cos(l)/metersPerPixel];
 }
 // Surface slope in degrees from central differences east-west and north-south over `baseline`
-// metres. It describes the DEM at that scale only; rocks and small craters are not resolved.
+// meters. It describes the DEM at that scale only; rocks and small craters are not resolved.
 export function slopeAt(lat,lon,sample,baseline){
  const height=bearing=>{const [p,l]=destination(lat,lon,bearing,baseline/2);return sample(p,l)?.height;};
  const north=height(0),east=height(90),south=height(180),west=height(270);
@@ -80,6 +80,6 @@ export function computeHorizon(lat,lon,sample,{stepDegrees=.25,maxDistance=30000
   angles.push(Math.round(highest*10000)/10000);distances.push(Math.round(atDistance));
  }
  return {angles,distances,stepDegrees,maxDistanceMeters:maxDistance,observerHeightMeters:observerHeight,elevationMeters:ground.height,localResolutionMeters:ground.resolution,fineSampleFraction:fineSamples/total,sampleCount:total,
-  // Share of all skyline samples read from each grid, keyed by its spacing in metres (near terrain is fine, far terrain coarser).
+  // Share of all skyline samples read from each grid, keyed by its spacing in meters (near terrain is fine, far terrain coarser).
   resolutionShares:Object.fromEntries(Object.entries(byResolution).map(([r,n])=>[r,n/total]))};
 }

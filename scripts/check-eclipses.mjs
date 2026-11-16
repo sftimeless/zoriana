@@ -31,7 +31,7 @@ for(const r of rows){
  if(r.kind==='Total'&&!seen.every(s=>s?.total))problems.push(`${r.date}: a total lunar eclipse should hide the Sun completely at every site`);
  if(r.kind==='Partial'&&!seen.every(Boolean))problems.push(`${r.date}: a partial lunar eclipse should touch every site`);
  if(r.kind==='Penumbral'&&seen.some(s=>s?.total))problems.push(`${r.date}: a penumbral lunar eclipse should not hide the Sun completely anywhere`);
- for(const s of seen)if(s&&Math.abs(s.middleMinusNasaMinutes)>25)problems.push(`${r.date}: a site's eclipse is centred ${s.middleMinusNasaMinutes} min from NASA's time`);
+ for(const s of seen)if(s&&Math.abs(s.middleMinusNasaMinutes)>25)problems.push(`${r.date}: a site's eclipse is centered ${s.middleMinusNasaMinutes} min from NASA's time`);
 }
 console.log(problems.length?problems.join('\n'):`All ${rows.length} eclipses are consistent with NASA's list.`);
 await writeFile(new URL('../data/eclipse-check.json',import.meta.url),JSON.stringify({generated:new Date().toISOString(),source:'https://eclipse.gsfc.nasa.gov/LEdecade/LEdecade2021.html',note:'Site times are UTC to the nearest five minutes; NASA times are Terrestrial Dynamical Time, about 70 s ahead of UTC.',problems,rows},null,1)+'\n');

@@ -48,7 +48,7 @@ function sample(lat,lon){
  return height===null?null:{height,resolution:1895.21};
 }
 const sources={40:'NASA LOLA · 40 m south-pole grid',80:'NASA LOLA · 80 m south-polar grid',474:'NASA LOLA · 474 m global grid'};
-// Heights in metres on the Landing view's grid around a site, each read from the finest grid that covers it.
+// Heights in meters on the Landing view's grid around a site, each read from the finest grid that covers it.
 function patch(lat,lon,n,halfKm){
  loadFineWindow(lat,lon);
  const frame=patchFrame(lat,lon),heights=new Int16Array(n*n),v=[0,0,0],counts={};

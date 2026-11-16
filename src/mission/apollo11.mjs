@@ -14,7 +14,7 @@
 //             landing site, and smooth curves for the descent, ascent, rendezvous and re-entry.
 // It is an illustration of the flight plan as flown, good to the published times, not a navigation record.
 //
-// Positions are km from Earth's centre in the ICRF frame; t is seconds since liftoff (ground elapsed time).
+// Positions are km from Earth's center in the ICRF frame; t is seconds since liftoff (ground elapsed time).
 import { MU_EARTH, MU_MOON, add, sub, scale, dot, cross, norm, unit, lerp, smooth, hermite, kepler, lambert, tableState } from './orbit.mjs';
 import { moonFromIcrf, earthRotationAngle, apply } from '../earth-orientation.mjs';
 
@@ -68,7 +68,7 @@ export function createMission(data){
  const cutoff=departure(T.tliOff),e1=unit(cutoff.r),n=unit(cross(real0.r,real0.v)),e2=cross(n,e1);
  const inPlane=a=>add(scale(e1,Math.cos(a)),scale(e2,Math.sin(a))),angleOf=p=>Math.atan2(dot(p,e2),dot(p,e1));
  const rPark=R_EARTH+PARK_ALT,wPark=Math.sqrt(MU_EARTH/rPark**3),wCut=norm(cross(cutoff.r,cutoff.v))/dot(cutoff.r,cutoff.r);
- const aIgnition=-(wPark+wCut)/2*(T.tliOff-T.tliOn);                // angle travelled during the burn, at the mean of the rates before and after
+ const aIgnition=-(wPark+wCut)/2*(T.tliOff-T.tliOn);                // angle traveled during the burn, at the mean of the rates before and after
  const parkAngle=t=>aIgnition+wPark*(t-T.tliOn);
  // The climb: from the pad, which turns with the Earth, into the orbit plane by the time of insertion.
  const padDirection=t=>earthFixed(sphere(PAD.lat,PAD.lon),t);

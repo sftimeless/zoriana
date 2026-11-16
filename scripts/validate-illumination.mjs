@@ -34,7 +34,7 @@ async function nasa(lat,lon,earth){
 
 const rows=[];
 for(const [name,lat,lon] of points){
- let any={sun:0,earth:0},centre={sun:0,earth:0},total=0,source='';
+ let any={sun:0,earth:0},center={sun:0,earth:0},total=0,source='';
  for(let from=0;from<DAYS;from+=WINDOW){
   const date=new Date(START+from*DAY).toISOString().slice(0,10),span=Math.min(WINDOW,DAYS-from)*DAY;
   const d=await fetch(`${base}/api/ephemeris?lat=${lat.toFixed(6)}&lon=${lon.toFixed(6)}&date=${date}&reference=0`).then(r=>r.json());
@@ -42,19 +42,19 @@ for(const [name,lat,lon] of points){
   source=d.terrain.source;const t0=d.sun[0].time,t1=t0+span;
   for(const [body,radius] of [['sun',SUN_RADIUS_KM],['earth',EARTH_RADIUS_KM]]){
    const disc=discSeries(d[body],d.terrain,radius).filter(s=>s.time>=t0&&s.time<t1),mid=clearanceSeries(d[body],d.terrain).filter(s=>s.time>=t0&&s.time<t1);
-   any[body]+=disc.filter(s=>s.fraction>.001).length;centre[body]+=mid.filter(s=>s.el>0).length;
+   any[body]+=disc.filter(s=>s.fraction>.001).length;center[body]+=mid.filter(s=>s.el>0).length;
    if(body==='sun')total+=disc.length;
   }
  }
  const row={name,lat,lon,terrain:source,days:DAYS};
  for(const body of ['sun','earth']){
   const n=await nasa(lat,lon,body==='earth'),app=any[body]/total;
-  row[body]={app:+app.toFixed(3),appCentreOnly:+(centre[body]/total).toFixed(3),nasa:+n.value.toFixed(3),nasaNeighbours:[+n.low.toFixed(3),+n.high.toFixed(3)],difference:+(app-n.value).toFixed(3)};
+  row[body]={app:+app.toFixed(3),appCenterOnly:+(center[body]/total).toFixed(3),nasa:+n.value.toFixed(3),nasaNeighbors:[+n.low.toFixed(3),+n.high.toFixed(3)],difference:+(app-n.value).toFixed(3)};
  }
  rows.push(row);
- console.log(name.padEnd(30),`Sun app ${(row.sun.app*100).toFixed(1).padStart(5)}%  NASA ${(row.sun.nasa*100).toFixed(1).padStart(5)}%  (${(row.sun.nasaNeighbours[0]*100).toFixed(0)}–${(row.sun.nasaNeighbours[1]*100).toFixed(0)})   Earth app ${(row.earth.app*100).toFixed(1).padStart(5)}%  NASA ${(row.earth.nasa*100).toFixed(1).padStart(5)}%  (${(row.earth.nasaNeighbours[0]*100).toFixed(0)}–${(row.earth.nasaNeighbours[1]*100).toFixed(0)})   ${source}`);
+ console.log(name.padEnd(30),`Sun app ${(row.sun.app*100).toFixed(1).padStart(5)}%  NASA ${(row.sun.nasa*100).toFixed(1).padStart(5)}%  (${(row.sun.nasaNeighbors[0]*100).toFixed(0)}–${(row.sun.nasaNeighbors[1]*100).toFixed(0)})   Earth app ${(row.earth.app*100).toFixed(1).padStart(5)}%  NASA ${(row.earth.nasa*100).toFixed(1).padStart(5)}%  (${(row.earth.nasaNeighbors[0]*100).toFixed(0)}–${(row.earth.nasaNeighbors[1]*100).toFixed(0)})   ${source}`);
 }
 const stats=body=>{const d=rows.map(r=>Math.abs(r[body].difference));return {meanAbsoluteDifference:+(d.reduce((a,b)=>a+b)/d.length).toFixed(3),largestDifference:+Math.max(...d).toFixed(3)};};
 const summary={points:rows.length,days:DAYS,from:'2026-01-01',sun:stats('sun'),earth:stats('earth')};
 console.log(JSON.stringify(summary));
-await writeFile(new URL('../data/validation-illumination.json',import.meta.url),JSON.stringify({generated:new Date().toISOString(),note:'App: share of 5-minute samples with any part of the disc above the app\'s terrain skyline, over 347 days from 2026-01-01. NASA: AVGVISIB 120 m pixel at the same place, with the range of its eight neighbours.',summary,rows},null,1)+'\n');
+await writeFile(new URL('../data/validation-illumination.json',import.meta.url),JSON.stringify({generated:new Date().toISOString(),note:'App: share of 5-minute samples with any part of the disc above the app\'s terrain skyline, over 347 days from 2026-01-01. NASA: AVGVISIB 120 m pixel at the same place, with the range of its eight neighbors.',summary,rows},null,1)+'\n');

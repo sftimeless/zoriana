@@ -6,15 +6,15 @@
 import { T, START, END } from './apollo11.mjs';
 
 // cam: f = what the camera watches ('craft', 'lander', 'site' or 'route' for the whole route),
-//      d = distance in km, az = degrees round from directly behind, el = degrees above the local horizontal.
+//      d = distance in km, az = degrees around from directly behind, el = degrees above the local horizontal.
 // cams: later cameras within the same step, as [from this time, cam].
 // pov: where the onboard view looks first.
 // pace: [[until this time, seconds], ...], then sec for the rest of the step. Seconds are real seconds in the guided replay.
 export const STEPS=[
  {at:START,mark:0,title:'Liftoff',sec:12,cam:{f:'craft',d:.47,az:150,el:-5},pov:'back',
-  text:'July 16, 1969, 13:32 UTC. Five engines lift the 111 m Saturn V off Pad 39A in Florida with Neil Armstrong, Buzz Aldrin and Michael Collins on top. The rocket weighs about 2,900 tonnes, nearly all of it propellant.'},
+  text:'July 16, 1969, 13:32 UTC. Five engines lift the 111 m Saturn V off Pad 39A in Florida with Neil Armstrong, Buzz Aldrin and Michael Collins on top. The rocket weighs about 2,900 metric tons, nearly all of it propellant.'},
  {at:45,mark:45,title:'First stage',sec:8,cam:{f:'craft',d:.7,az:135,el:10},pov:'back',
-  text:'The first stage burns about 13 tonnes of kerosene and liquid oxygen every second. Its whole job takes 2 minutes 42 seconds.'},
+  text:'The first stage burns about 13 metric tons of kerosene and liquid oxygen every second. Its whole job takes 2 minutes 42 seconds.'},
  {at:150,mark:T.sicSep,title:'Staging',sec:9,cam:{f:'craft',d:.55,az:152,el:16},pov:'back',
   text:'About 66 km up, the empty first stage drops away and falls into the Atlantic. The five engines of the second stage take over, burning liquid hydrogen and oxygen.'},
  {at:192,mark:T.tower,title:'Escape tower away',sec:5,cam:{f:'craft',d:.22,az:62,el:8},pov:'nose',
@@ -30,11 +30,11 @@ export const STEPS=[
  {at:T.csmSep-30,mark:T.csmSep,title:'Turn around and dock',pace:[[T.dock+40,13]],sec:3,cam:{f:'craft',d:.085,az:62,el:14},pov:'nose',
   text:'The lunar module has ridden up inside the adapter beneath the command ship. Collins pulls the command ship, Columbia, clear; the four panels fall away; then he turns around and docks nose to nose with the lander, Eagle.'},
  {at:T.lmEject-40,mark:T.lmEject,title:'Pulling the lander out',pace:[[T.lmEject+500,8]],sec:4,cam:{f:'craft',d:.12,az:75,el:12},pov:'back',
-  text:'Springs push the joined spacecraft out of the spent third stage. The stage is then steered away; it swung past the Moon and has circled the Sun ever since. The thin white line is its real path, from JPL.'},
+  text:'Springs push the joined spacecraft out of the spent third stage. The stage is then steered away; it swung past the Moon and has circled the Sun ever since.'},
  {at:T.evade+600,mark:T.evade+600,title:'Three days of coasting',sec:14,cam:{f:'route'},pov:'moon',
   text:'For 71 hours the main engines are silent. The ship slows from 39,000 km/h to about 3,000 as it climbs away from Earth, then speeds up again as the Moon pulls it in. The blue line is the way out.'},
  {at:T.loiOn-2400,mark:T.loiOn,title:'Braking into lunar orbit',pace:[[T.loiOn-60,5],[T.loiOff+120,9]],sec:2,cam:{f:'craft',d:5200,az:205,el:24},cams:[[T.loiOn-60,{f:'craft',d:.1,az:105,el:10}]],pov:'moon',
-  text:'Behind the Moon and out of radio contact, Columbia’s main engine fires against the direction of travel for 5 minutes 58 seconds. That slows the ship enough for the Moon to hold it. Had the engine not fired, the path would have swung round the Moon and back to Earth.'},
+  text:'Behind the Moon and out of radio contact, Columbia’s main engine fires against the direction of travel for 5 minutes 58 seconds. That slows the ship enough for the Moon to hold it. Had the engine not fired, the path would have swung around the Moon and back to Earth.'},
  {at:T.loiOff+300,mark:T.circular,title:'In lunar orbit',sec:9,cam:{f:'craft',d:4600,az:240,el:34},pov:'down',
   text:'A second short burn rounds the orbit off about 110 km above the surface: one lap every two hours, 30 laps in all. Armstrong and Aldrin move into Eagle and switch it on.'},
  {at:T.undock-120,mark:T.undock,title:'Eagle undocks',pace:[[T.undock+900,9]],sec:4,cam:{f:'craft',d:.1,az:70,el:15},pov:'lander',
@@ -58,7 +58,7 @@ export const STEPS=[
  {at:T.teiOff+400,mark:T.teiOff+400,title:'The fall back to Earth',sec:13,cam:{f:'route'},pov:'earth',
   text:'Two and a half days of coasting, gathering speed the whole way. The orange line is the way home. It has to meet the atmosphere at a shallow angle: too steep and the cabin burns up, too shallow and it skips back out to space.'},
  {at:T.cmSep-90,mark:T.cmSep,title:'Only the cabin comes home',pace:[[T.cmSep+200,8]],sec:3,cam:{f:'craft',d:.07,az:115,el:15},pov:'earth',
-  text:'The service module, with the engine and the supplies, is cast off. Of the 2,900 tonnes that left the pad, what returns is a cabin 3.9 m wide weighing about 5.5 tonnes. It turns its heat shield forward.'},
+  text:'The service module, with the engine and the supplies, is cast off. Of the 2,900 metric tons that left the pad, what returns is a cabin 3.9 m wide weighing about 5.5 metric tons. It turns its heat shield forward.'},
  {at:T.entry-60,mark:T.entry,title:'Re-entry',sec:11,cam:{f:'craft',d:.07,az:62,el:8},pov:'ahead',
   text:'Columbia meets the air 122 km up at 39,700 km/h. The heat shield reaches about 2,800 °C, and a sheath of glowing gas cuts off radio contact for about three minutes. The crew are pressed into their couches at more than six times their weight.'},
  {at:T.drogue-15,mark:T.drogue,title:'Parachutes',sec:9,cam:{f:'craft',d:.16,az:60,el:2},pov:'nose',

@@ -13,8 +13,8 @@ export const hermite=(p0,m0,p1,m1,s)=>{const s2=s*s,s3=s2*s;return (2*s3-3*s2+1)
 const stumpC=z=>z>1e-6?(1-Math.cos(Math.sqrt(z)))/z:z<-1e-6?(Math.cosh(Math.sqrt(-z))-1)/-z:.5-z/24;
 const stumpS=z=>{if(z>1e-6){const s=Math.sqrt(z);return (s-Math.sin(s))/(s*s*s);}if(z<-1e-6){const s=Math.sqrt(-z);return (Math.sinh(s)-s)/(s*s*s);}return 1/6-z/120;};
 
-// Where a body is after dt seconds of unpowered flight around one centre (universal-variable Kepler
-// propagation; works for circles, ellipses and hyperbolas, forwards and backwards).
+// Where a body is after dt seconds of unpowered flight around one center (universal-variable Kepler
+// propagation; works for circles, ellipses and hyperbolas, forward and backward).
 export function kepler(r0,v0,dt,mu){
  if(dt===0)return {r:[...r0],v:[...v0]};
  const r0m=norm(r0),vr0=dot(r0,v0)/r0m,alpha=2/r0m-dot(v0,v0)/mu,root=Math.sqrt(mu);

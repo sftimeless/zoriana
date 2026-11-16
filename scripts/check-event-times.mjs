@@ -42,8 +42,8 @@ const dim=disc.find((s,i)=>i&&s.fraction<.999&&disc[i-1].fraction>=.999),last=di
 const night=Date.parse('2025-03-16T18:15Z'),late=t=>+((t-night)/3600000).toFixed(1);
 const sunset={
  published:{firefly:'final data around 2025-03-16T23:15Z, just over 5 hours into the lunar night',impliedStartOfNight:'shortly before 2025-03-16T18:15Z'},
- app:{sunStartsToBeCovered:iso(dim.time),centreSets:iso(set.time),plusMinusMinutesFor0p1DegreeOfSkyline:spread?Math.round(spread.minutes):null,lastLight:iso(last.time),centreSetsOnSmoothSphere:iso(smooth.time)},
- hoursLaterThanFirefly:{sunStartsToBeCovered:late(dim.time),centreSets:late(set.time),lastLight:late(last.time)}};
+ app:{sunStartsToBeCovered:iso(dim.time),centerSets:iso(set.time),plusMinusMinutesFor0p1DegreeOfSkyline:spread?Math.round(spread.minutes):null,lastLight:iso(last.time),centerSetsOnSmoothSphere:iso(smooth.time)},
+ hoursLaterThanFirefly:{sunStartsToBeCovered:late(dim.time),centerSets:late(set.time),lastLight:late(last.time)}};
 
 const result={site:'Blue Ghost Mission 1, 18.56°N 61.81°E',terrain:d.terrain.source,eclipse,sunset};
 console.log(JSON.stringify(result,null,1));

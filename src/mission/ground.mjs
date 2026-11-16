@@ -1,7 +1,7 @@
 // The ground around Launch Complex 39A, drawn as a picture to lay over the globe near the pad, where the
 // satellite picture of Earth (20 km to a pixel) shows only a blur.
 //
-// It is an illustration of the lie of the land, not a survey: the Atlantic shore a little under a kilometre
+// It is an illustration of the lie of the land, not a survey: the Atlantic shore a little under a kilometer
 // east of the pad, the lagoons and marsh to the west, the crawlerway arriving from the south from the
 // assembly building, the second pad to the north-west. Distances are in km, east and north of the pad.
 // The same drawing is made at three sizes so it stays sharp from the pad and still fits the coast from high up.
@@ -15,11 +15,11 @@ export function capeCanvas(size,N=1024){
  let seed=5;const rand=()=>(seed=(seed*1664525+1013904223)%4294967296)/4294967296;
  const LAND='#58633f',LAGOON='#34617c',OCEAN='#2b5f88',SAND='#cfc29b',ROAD='#8f8f88',TRACK='#b9aa86',APRON='#a8a28e',CONCRETE='#bcb7a8';
  const trace=points=>{g.beginPath();points.forEach(([e,n],i)=>i?g.lineTo(X(e),Y(n)):g.moveTo(X(e),Y(n)));};
- const area=(points,colour)=>{g.fillStyle=colour;trace(points);g.closePath();g.fill();};
+ const area=(points,color)=>{g.fillStyle=color;trace(points);g.closePath();g.fill();};
  // A line wide km wide, never thinner than least pixels; left out altogether when least is 0 and it would be under half a pixel.
- const line=(points,colour,wide,least=0)=>{if(!least&&wide*k<.5)return;g.strokeStyle=colour;g.lineWidth=Math.max(least,wide*k);g.lineJoin=g.lineCap='round';trace(points);g.stroke();};
- const blob=(e,n,r,colour,squash=1,turn=0)=>{g.fillStyle=colour;g.beginPath();g.ellipse(X(e),Y(n),r*k,r*k*squash,turn,0,7);g.fill();};
- const octagon=(e,n,r,colour)=>area([...Array(8)].map((_,i)=>[e+r*Math.cos((i+.5)*Math.PI/4),n+r*Math.sin((i+.5)*Math.PI/4)]),colour);
+ const line=(points,color,wide,least=0)=>{if(!least&&wide*k<.5)return;g.strokeStyle=color;g.lineWidth=Math.max(least,wide*k);g.lineJoin=g.lineCap='round';trace(points);g.stroke();};
+ const blob=(e,n,r,color,squash=1,turn=0)=>{g.fillStyle=color;g.beginPath();g.ellipse(X(e),Y(n),r*k,r*k*squash,turn,0,7);g.fill();};
+ const octagon=(e,n,r,color)=>area([...Array(8)].map((_,i)=>[e+r*Math.cos((i+.5)*Math.PI/4),n+r*Math.sin((i+.5)*Math.PI/4)]),color);
 
  g.fillStyle=LAND;g.fillRect(0,0,N,N);
  for(let i=0;i<1100;i++){const r=(.004+rand()*.02)*size;blob((rand()-.5)*size,(rand()-.5)*size,r,['rgba(108,116,72,.28)','rgba(62,78,50,.32)','rgba(126,119,86,.2)'][i%3],.4+rand()*.6,rand()*3);}
@@ -45,10 +45,10 @@ export function capeCanvas(size,N=1024){
  if(size<100)octagon(-1.4,2.65,.4,APRON);
  octagon(0,0,.44,APRON);
  if(close){
-  // The pad itself: perimeter road, the concrete round the hardstand, scorched ground at each end of the flame trench, holding ponds.
+  // The pad itself: perimeter road, the concrete around the hardstand, scorched ground at each end of the flame trench, holding ponds.
   g.strokeStyle=ROAD;g.lineWidth=.012*k;g.beginPath();[...Array(9)].forEach((_,i)=>{const a=(i+.5)*Math.PI/4,e=.4*Math.cos(a),n=.4*Math.sin(a);i?g.lineTo(X(e),Y(n)):g.moveTo(X(e),Y(n));});g.stroke();
   g.fillStyle=CONCRETE;g.fillRect(X(-.19),Y(.23),.38*k,.46*k);
-  for(const side of [-1,1]){const burnt=g.createLinearGradient(0,Y(side*.2),0,Y(side*.43));burnt.addColorStop(0,'rgba(40,38,34,.75)');burnt.addColorStop(1,'rgba(40,38,34,0)');g.fillStyle=burnt;g.fillRect(X(-.03),Math.min(Y(side*.2),Y(side*.43)),.06*k,.23*k);}
+  for(const side of [-1,1]){const burned=g.createLinearGradient(0,Y(side*.2),0,Y(side*.43));burned.addColorStop(0,'rgba(40,38,34,.75)');burned.addColorStop(1,'rgba(40,38,34,0)');g.fillStyle=burned;g.fillRect(X(-.03),Math.min(Y(side*.2),Y(side*.43)),.06*k,.23*k);}
   g.fillStyle=LAGOON;g.fillRect(X(-.3),Y(.36),.09*k,.07*k);g.fillRect(X(.21),Y(.36),.09*k,.07*k);
   for(const e of [-.39,.39])blob(e,.31,.03,CONCRETE);
   line([[0,-.1],[0,-.5]],TRACK,.04);line([[0,-.1],[0,-.5]],LAND,.012);

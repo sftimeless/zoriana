@@ -57,11 +57,15 @@
 
  <!-- Status rail: mission clock, link and power state, and the main destinations -->
  <nav id="rail" aria-label="Status and navigation">
-  <div class="rail-status" aria-live="off">
+  <!-- The moment the map shows, in the viewer's own time zone with UTC beneath, then two lights for the selected site -->
+  <div class="rail-status" aria-live="off" title="The moment shown on the map, in your time zone. Calculations use UTC.">
    <time id="rail-clock">--:--</time>
-   <span class="rail-utc">UTC</span>
+   <span id="rail-zone" class="rail-utc">UTC</span>
+   <span id="rail-also" class="rail-also wide-only">--:-- UTC</span>
    <span id="rail-earth" class="rail-ind earth" title="Select a site to see Earth visibility"><svg class="ic"><use href="#i-antenna"/></svg></span>
+   <span class="rail-cap wide-only">Earth view</span>
    <span id="rail-sun" class="rail-ind sun" title="Select a site to see sunlight"><svg class="ic"><use href="#i-sun"/></svg></span>
+   <span class="rail-cap wide-only">Sunlight</span>
   </div>
   <!-- Three ways in: plan a landing (search, compare, rank), learn how it works, or watch a fly-by or the Apollo 11 replay -->
   <div class="rail-apps">
@@ -84,7 +88,7 @@
    <div id="chips" class="chips" role="group" aria-label="Filter landing sites"></div>
    <div class="explain first">
     <details><summary>New here? How to read this app</summary><p>Pick a site and a landing date, and the app works out where the Sun and Earth sit in that site’s sky, using NASA’s real terrain. A site needs the Sun above the surrounding ground for solar power, and Earth above it for a direct radio line home.</p>
-     <p><b>Colours.</b> Gold is always the Sun and blue is always Earth: the two lines from a site point toward them, solid when the site can see them and dashed when it cannot. Blue patches near the poles are ground that never gets sunlight. Marker colours only group the sites by kind; your own pins are red.</p>
+     <p><b>Colors.</b> Gold is always the Sun and blue is always Earth: the two lines from a site point toward them, solid when the site can see them and dashed when it cannot. Blue patches near the poles are ground that never gets sunlight. Marker colors only group the sites by kind; your own pins are red.</p>
      <p><b>Words and units.</b> The <i>horizon</i> is where a site’s ground meets its sky; hills and crater rims raise it. <i>Elevation</i> is how many degrees a body sits above level ground, and <i>above terrain</i> is how far it clears the real skyline: positive means visible, negative means hidden. <i>Azimuth</i> is a compass direction in degrees clockwise from north. Times are UTC. <i>T+</i> is time since landing, and “3 d” means three Earth days.</p></details>
    </div>
    <h2 class="list-title">Landing sites</h2>
@@ -100,7 +104,7 @@
    <div class="explain">
     <details><summary>Why land near the south pole?</summary><p>Craters near the Moon’s south pole are thought to hold water ice and other resources scientists want to study, which is why many upcoming missions are aimed there. The catch is the light. Near the pole the Sun never climbs more than a few degrees above the horizon, so mountains and crater rims decide whether a spot is sunlit or dark, and whether Earth is in view. Moving a short distance, or landing a few days later, can change everything.</p></details>
     <details><summary>Why do some craters never see the Sun?</summary><p>The Moon is tilted only about 1.5°, so at its poles the Sun circles just above the horizon all year and never rises high. The floor of a deep crater sits below its own rim, and a Sun that low can never clear it. Those floors stay dark and extremely cold, which is how ice can survive there. The blue patches near the poles are NASA’s map of ground that never gets direct sunlight, worked out from LOLA terrain. The shadows the app draws for your chosen date and time are a separate, live calculation.</p><p><button class="mini-toggle" data-show="pole">Show me the south pole</button></p></details>
-    <details><summary>Can you see Earth from everywhere on the Moon?</summary><p>No. The Moon always keeps the same face toward Earth, so Earth hangs almost still in its sky. On the near side Earth is always up; on the far side it is never seen. Because the Moon rocks slightly as it orbits, there is a band about 8° wide around the edge of the near side, and near the poles, where Earth slowly rises and sets over a month. That band is the only place an Earthrise can be watched from the ground. To see it, open Map layers (the ring-shaped button) and choose Earth view, or open a site near the edge and watch its countdown to Earthrise.</p><p>The far side is not the dark side: it gets as much sunlight as the near side. “Far” only means it never faces Earth. The night side is whichever half is turned away from the Sun, and it moves all the way round the Moon every 29.5 days.</p><p><button class="mini-toggle" data-show="earth">Show me the Earth view</button></p></details>
+    <details><summary>Can you see Earth from everywhere on the Moon?</summary><p>No. The Moon always keeps the same face toward Earth, so Earth hangs almost still in its sky. On the near side Earth is always up; on the far side it is never seen. Because the Moon rocks slightly as it orbits, there is a band about 8° wide around the edge of the near side, and near the poles, where Earth slowly rises and sets over a month. That band is the only place an Earthrise can be watched from the ground. To see it, open Map layers (the ring-shaped button) and choose Earth view, or open a site near the edge and watch its countdown to Earthrise.</p><p>The far side is not the dark side: it gets as much sunlight as the near side. “Far” only means it never faces Earth. The night side is whichever half is turned away from the Sun, and it moves all the way around the Moon every 29.5 days.</p><p><button class="mini-toggle" data-show="earth">Show me the Earth view</button></p></details>
     <details><summary>Is that dark patch a shadow?</summary><p>Not always. Three different things look dark. <b>Dark rock:</b> the lunar seas are old lava plains that reflect less light, and they stay dark at noon. <b>Night:</b> the half of the Moon turned away from the Sun. <b>Shadow:</b> ground the Sun is above but a hill or crater rim blocks. The app works out night and shadow for the time you choose and draws them over NASA’s imagery. Tap a site or drop a pin and it says which one you are looking at.</p><p>The imagery itself is a mosaic of photographs, each with the lighting of the day it was taken, so a ridge can look bright in the picture while the calculation says it is in shadow now. A photo you have seen elsewhere can differ from the app for the same reasons: another date, another viewing angle, or detail finer than the terrain data here. That is also why one photograph cannot choose a landing time.</p><p><button class="mini-toggle" data-show="imagery">Switch the calculated sunlight off and on</button></p></details>
     <details><summary>Why does so little change in an hour?</summary><p>A day on the Moon lasts 29.5 Earth days, so the Sun crosses its sky about thirty times more slowly than ours: half a degree, its own width, each hour. Sunrise at one spot can take hours, and near the poles a low Sun can skim the ridges for days. The same place can therefore be sunlit on one date and dark two weeks later with no weather involved: it has simply turned away from the Sun. Near the poles there are seasons too, because the Sun’s height there changes by about 1.5° either way over a year, enough to light or darken ground beside a ridge.</p></details>
    </div>
@@ -146,7 +150,7 @@
      <dl class="adv"><dt title="Compass direction, in degrees clockwise from north">Azimuth</dt><dd id="sun-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="sun-clear">—</dd><dt title="Share of the Sun’s 0.5°-wide disc above the horizon">Disc showing</dt><dd id="sun-disc">—</dd><dt>Distance</dt><dd id="sun-range">—</dd></dl>
     </div>
     <div class="tile earth">
-     <span class="tile-label" title="How high the centre of Earth is above a level horizon. Earth must be above the terrain for a direct radio line."><svg class="ic"><use href="#i-globe"/></svg>Earth elevation</span>
+     <span class="tile-label" title="How high the center of Earth is above a level horizon. Earth must be above the terrain for a direct radio line."><svg class="ic"><use href="#i-globe"/></svg>Earth elevation</span>
      <strong id="earth-elevation">—</strong>
      <span id="earth-state" class="state">Select a date</span>
      <dl class="adv"><dt title="Compass direction, in degrees clockwise from north">Azimuth</dt><dd id="earth-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="earth-clear">—</dd><dt title="Share of Earth’s 1.9°-wide disc above the horizon">Disc showing</dt><dd id="earth-disc">—</dd><dt>Distance</dt><dd id="earth-range">—</dd></dl>
@@ -291,7 +295,7 @@
   </div>
  </div>
 
- <div id="hint" class="hint">Drag to explore · Scroll to zoom · Right-click to drop a pin</div>
+ <div id="hint" class="hint">Drag to explore · Scroll to zoom · Right-click to drop a pin · Shift-click to compare</div>
 
  <section class="timeline mat" aria-label="Date and time">
   <div class="timeline-top">
@@ -320,13 +324,13 @@
   <h2>Real observations.<br>Clear boundaries.</h2>
   <p>The lunar mosaic comes from NASA’s Lunar Reconnaissance Orbiter. Sun and Earth positions are requested from NASA/JPL Horizons for your coordinates and dates.</p>
   <dl>
-   <dt>What “in view” means</dt><dd>The Sun or Earth counts as in view when its centre is above the terrain skyline in its direction. The Sun must also be clear of Earth’s disc, so eclipses count as darkness. The tiles add how much of each disc is showing.</dd>
+   <dt>What “in view” means</dt><dd>The Sun or Earth counts as in view when its center is above the terrain skyline in its direction. The Sun must also be clear of Earth’s disc, so eclipses count as darkness. The tiles add how much of each disc is showing.</dd>
    <dt>Where the Sun and Earth are</dt><dd>NASA/JPL Horizons gives both positions for the exact site and height, hourly, as seen in the Moon’s airless sky, including the Moon’s slow rocking. The app samples every five minutes in between.</dd>
    <dt>Terrain</dt><dd id="terrain-detail">NASA LOLA elevation: 40 m near the south pole, 80 m near both poles, 474 m elsewhere. The skyline is traced every 0.25° out to 300 km from 2 m above the ground. Select a site to see its grid.</dd>
    <dt>Where and when to land</dt><dd>Map layers show NASA’s long-term maps near each pole (how often the Sun and Earth are up, permanent shadow) and slope from LOLA terrain; Earth view elsewhere is plain geometry. “Find best spot” takes the most promising cells within 15 km and runs each for your dates. Best day and best hour search the next 30 days.</dd>
    <dt>How accurate</dt><dd>Checked four ways: Sun angles at the Apollo landings (0.06° at Apollo 11); a year of sunlight at ten polar points against NASA’s maps (3 percentage points apart on average, more on sharp ridges); the 2026 eclipses against published times; and all twelve eclipses to 2030 against NASA’s list. Rise and set times carry a “±” showing how far they move if the skyline is 0.1° higher or lower; at the poles that can be hours.</dd>
    <dt>Conventions</dt><dd>Times are UTC (JPL’s UT). Latitude is positive north and longitude positive east, in the Moon’s mean-Earth frame on a 1,737.4 km sphere. Positions use JPL’s <span id="info-kernel">DE441</span> ephemeris and hold for every date offered; what limits a prediction is the terrain grid, not how far ahead it is.</dd>
-   <dt>Measured, modelled or drawn</dt><dd>Measured by NASA: terrain and imagery. NASA’s own models: permanent shadow and the long-term maps. Calculated here: every angle, window and countdown. Drawn only for clarity: the length of the Sun and Earth lines and the Sun’s distance.</dd>
+   <dt>Measured, modeled or drawn</dt><dd>Measured by NASA: terrain and imagery. NASA’s own models: permanent shadow and the long-term maps. Calculated here: every angle, window and countdown. Drawn only for clarity: the length of the Sun and Earth lines and the Sun’s distance.</dd>
    <dt>Not included</dt><dd>Usable power, radio links and ground stations, landing hazards such as rocks, and Earth’s atmosphere during eclipses. This is geometry only.</dd>
    <dt>Names and pictures</dt><dd>Place names: the IAU and USGS list of 9,087 lunar features. Globe: NASA LRO 8K mosaic, with fine detail from NASA Moon Trek’s 100 m imagery in the Landing view. Earth: NASA Blue Marble. Imagery carries the lighting of the day it was photographed.</dd>
   </dl>

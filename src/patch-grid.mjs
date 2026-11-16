@@ -16,7 +16,7 @@ export function patchFrame(lat,lon){
  return {up:coordinatesToVector(c,lon),north:skyDirection(c,lon,0,0),east:skyDirection(c,lon,90,0)};
 }
 
-// Unit direction from the Moon's centre to grid point (i, j): i runs west to east and j south to
+// Unit direction from the Moon's center to grid point (i, j): i runs west to east and j south to
 // north, each from 0 to n-1, across a square 2 * halfKm wide laid on the plane touching the site.
 export function patchDirection(frame,i,j,n,halfKm,out=[0,0,0]){
  const x=(i/(n-1)*2-1)*halfKm/RADIUS_KM,y=(j/(n-1)*2-1)*halfKm/RADIUS_KM,{up,east,north}=frame;
@@ -27,7 +27,7 @@ export function patchDirection(frame,i,j,n,halfKm,out=[0,0,0]){
 // Latitude and east longitude, in degrees, of a unit direction.
 export const directionToCoordinates=v=>[Math.asin(Math.max(-1,Math.min(1,v[1])))*DEG,Math.atan2(-v[2],v[0])*DEG];
 
-// Height in metres at fractional grid position (x, y), bilinear between the four nearest points.
+// Height in meters at fractional grid position (x, y), bilinear between the four nearest points.
 export function patchHeight(heights,n,x,y){
  const cx=Math.max(0,Math.min(n-1.000001,x)),cy=Math.max(0,Math.min(n-1.000001,y)),i=Math.floor(cx),j=Math.floor(cy),fx=cx-i,fy=cy-j,k=j*n+i;
  return (heights[k]*(1-fx)+heights[k+1]*fx)*(1-fy)+(heights[k+n]*(1-fx)+heights[k+n+1]*fx)*fy;

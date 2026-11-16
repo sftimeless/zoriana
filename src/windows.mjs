@@ -3,7 +3,7 @@ import { DAY, visibleHours, sampleAt } from './ephemeris.mjs';
 
 // Intervals [start, end] in ms during which a body is above the horizon (el > 0), clipped to
 // the requested range. Each rise and set is placed where a straight line between the two
-// neighbouring samples crosses zero, the same rule nextCrossing uses, so the two always agree.
+// neighboring samples crosses zero, the same rule nextCrossing uses, so the two always agree.
 export function segments(rows,start,end){
  const out=[];let open=null,last=start,previous=null;
  const crossing=(a,b)=>a.time+(b.time-a.time)*(-a.el)/(b.el-a.el);
@@ -84,7 +84,7 @@ export function crossingSpread(rows,crossing,delta=.1,limitHours=72){
  const limit=limitHours*3600000,sign=crossing.rising?1:-1; // rising: -delta comes first, then +delta
  const reach=(target,direction)=>{ // direction -1 searches back in time, +1 forward
   const at=rows.findIndex(r=>r.time>=crossing.time);if(at<0)return null;
-  // Pairs of neighbouring samples, starting with the pair that holds the crossing itself.
+  // Pairs of neighboring samples, starting with the pair that holds the crossing itself.
   for(let i=direction<0?at:Math.max(0,at-1);(direction<0?i>=1:i<rows.length-1)&&Math.abs(rows[i].time-crossing.time)<=limit;i+=direction){
    const a=direction<0?rows[i-1]:rows[i],b=direction<0?rows[i]:rows[i+1];
    if((a.el-target)*(b.el-target)<=0&&a.el!==b.el)return a.time+(b.time-a.time)*(target-a.el)/(b.el-a.el);

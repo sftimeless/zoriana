@@ -60,7 +60,7 @@ async function warm(){
     console.log(`Warm-up for ${today}: ${ready}/${sites.length} sites in ${Math.round((Date.now()-started)/1000)} s`);
   }finally{warming=false;}
 }
-// A public server gets a per-visitor ceiling so one client cannot monopolise the JPL queue.
+// A public server gets a per-visitor ceiling so one client cannot monopolize the JPL queue.
 const RATE_WINDOW=5*60000,RATE_LIMIT=400,visitors=new Map();
 function allowed(req){
   if(!PRODUCTION)return true;
@@ -99,7 +99,7 @@ const vite=PRODUCTION?null:await (await import('vite')).createServer({server:{mi
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   if(url.pathname==='/healthz'){res.writeHead(200,{'Content-Type':'text/plain','Cache-Control':'no-store'});res.end('ok');return;}
-  // Heights for the Landing view's terrain: 16-bit metres, row by row from the south-west corner (see src/patch-grid.mjs).
+  // Heights for the Landing view's terrain: 16-bit meters, row by row from the south-west corner (see src/patch-grid.mjs).
   if(url.pathname==='/api/terrain-patch'){
     const lat=Number(url.searchParams.get('lat')),lon=Number(url.searchParams.get('lon'));
     if(!allowed(req)){res.writeHead(429,{'Retry-After':'60','Content-Type':'application/json'});res.end(JSON.stringify({error:'Too many requests from this connection. Please wait a minute and retry.'}));return;}

@@ -22,7 +22,7 @@ test('search puts names that start with the query first, ignores accents, and ne
 });
 
 test('placeName picks the smallest feature that covers the point and words it by kind',()=>{
- assert.equal(placeName(small,0,0.1).text,'inside Alpha');                 // 3 km from the centre; the rille next to it is ignored
+ assert.equal(placeName(small,0,0.1).text,'inside Alpha');                 // 3 km from the center; the rille next to it is ignored
  assert.equal(placeName(small,0,1.0).text,'inside Alpha B');               // the satellite crater sits inside Alpha
  assert.equal(placeName(small,1.5,0).text,'near the rim of Alpha');        // 45 km out of a 50 km radius
  assert.equal(placeName(small,5,0).text,'in Big Sea');                     // 152 km into a 300 km radius
