@@ -78,7 +78,7 @@ NASA's CGI mosaic is optimized for aesthetics, including polar gap filling. It i
 
 License: the code is under the MIT License (see LICENSE). That license does not cover the NASA data and imagery in `public/assets/` and `demo/img/`, which remain under NASA's own terms (generally free to use with credit), or the app icon.
 
-NASA imagery does not imply NASA endorsement. AI coding assistance: OpenAI Codex (first build, terrain and shadow model) and Anthropic Claude Code (map-style interface redesign and Landing view on November 14, 2026). No code or assets were copied from the earlier Zoriana project.
+NASA imagery does not imply NASA endorsement. AI coding assistance: OpenAI Codex (first build, terrain and shadow model) and Anthropic Claude Code (the map-style interface and Landing view on November 14, 2026, and the features, the Apollo 11 replay and the documents since; the full list is in REFERENCES.md). No code or assets were copied from the earlier Zoriana project.
 
 Apollo Lunar Module coordinates (Apollo 11, 12, 14, 15, 16 and 17) come from NASA's NSSDC table "Apollo Landing Site Coordinates" (LRO-derived, planetocentric mean-Earth/polar-axis frame, DE421; last updated March 6, 2017): https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html
 

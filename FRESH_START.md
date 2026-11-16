@@ -11,4 +11,6 @@ Development uses AI coding assistance (OpenAI Codex). Record human team members 
 
 Update, 2026-11-14 afternoon (Pacific): the interface redesign and landing view were written with Anthropic Claude Code in addition to OpenAI Codex.
 
+Update, 2026-11-15 (Pacific): the later features, the Apollo 11 replay and the documents were written with Anthropic Claude Code; OpenAI Codex and ChatGPT each made one read-only review. The team is two people, Christian Munoz and Iryna Khoroshavina Munoz; their contributions are stated in REFERENCES.md.
+
 Provenance note: the images in `Zoriana/` carry file dates of 2026-11-13 (17:01–18:30 Pacific), before this directory was started. One of them was briefly used as the app icon on 2026-11-14 and then removed the same afternoon; it was replaced by a placeholder mark drawn in code. Later on 2026-11-14 the team supplied the official icon (source image dated 2026-11-14, 19:44 Pacific), and the app now ships resized copies of it (`public/assets/icon-512.png`, `icon-192.png`, `favicon.png`); the placeholder was deleted. The official icon is an AI-generated image made with ChatGPT; it carries a visible AI mark in its lower-right corner and is also disclosed in the app and the documents. None of the `Zoriana/` images are used by the app.
