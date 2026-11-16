@@ -367,3 +367,11 @@
 - The existing Moon, Sun and third-stage tables are byte-for-byte unchanged by the new fetch. Ninety-eight Node tests pass.
 - Live site after deploying (zoriana.fly.dev): the Apollo 11 card showed three buttons with Share in its header; the left bar read Search, Compare, Rank, Learn, Watch, About; the replay opened from its row in the list, and stepping the whole flight in the window view reached all 27 steps and splashdown with the window frame showing, no drawing failure and no console errors.
 - Limits: which thruster fires in which burst is a made-up pattern; the window view's eye is beside the cabin, not at a real seat; the sea's swell repeats every 130 m; no flag is drawn on the Moon (a content decision left open).
+
+## The flag at the landing site — November 16, 2026 (UTC)
+
+- Decision by the team: show the United States flag planted during the moonwalk, as part of the record, with the caption quoting the plaque left on the lander ("We came in peace for all mankind.").
+- Time checked against NASA SP-4029 by reading the page's own table rows: "Plaque unveiled (CDR)" 109:52:19; "United States flag deployed (CDR, LMP)" 110:09:43, which is 03:41:43 UTC on July 21. (An automated summary of the same page had paired that row with a different time; the rows were then read directly.) The same reading confirmed first step 109:24:15, second astronaut on the surface 109:43:16 and hatch closed 111:39:13.
+- In the replay the flag is absent 30 seconds before that time and present afterwards, beside the astronauts and facing the guided camera, and it stays for the lunar liftoff. The guided pace now slows through the planting. Whole flight stepped again in the guided and window views: 27 steps, splashdown reached, no drawing failure.
+- Ninety-nine Node tests pass (one new: the flag's time, its order among the moonwalk's events, and that the caption mentions it).
+- Limits: the flag's exact spot and facing are chosen for the picture; it is a simple drawing of the 1969 flag; it does not fall or fade.

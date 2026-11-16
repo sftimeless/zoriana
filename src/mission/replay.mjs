@@ -37,7 +37,7 @@ const TEMPLATE=`
  <section class="rp-panel rp-about" hidden>
   <p><b>Real.</b> The time of every event (NASA’s Apollo 11 timeline), the positions of the Moon and the Sun, and the path of the rocket’s third stage after its burn toward the Moon (JPL Horizons), which the spacecraft shared until it pulled away. The launch pad, landing site and splashdown point are the recorded ones.</p>
   <p><b>Rebuilt.</b> The paths between those anchors are calculated here as unpowered flight that passes through them at the published times. The speeds and heights on screen come from that reconstruction, so they are close, not exact.</p>
-  <p><b>Drawn.</b> The vehicles are simplified original drawings made for this app with AI coding assistance. They are at true size close up, and enlarged when seen from far away; a note says when. The small thrusters fire where each manoeuvre calls for them, in a simplified pattern; the window frame, the sea and the splash are drawn too. Launch Complex 39A and the ground around it are drawn the same way, from the pad’s published layout, and are not a survey. No NASA footage, logos or markings are used.</p>
+  <p><b>Drawn.</b> The vehicles are simplified original drawings made for this app with AI coding assistance. They are at true size close up, and enlarged when seen from far away; a note says when. The small thrusters fire where each manoeuvre calls for them, in a simplified pattern; the window frame, the sea and the splash are drawn too. Launch Complex 39A and the ground around it are drawn the same way, from the pad’s published layout, and are not a survey. The United States flag stands where the crew planted it. No NASA footage, logos or markings are used.</p>
  </section>
  <p class="rp-scale" hidden></p>
  <p class="rp-loading">Loading the flight…</p>
@@ -217,6 +217,8 @@ export async function openReplay(onClose){
  const lm=models.lunarModule();V.lmD.add(lm.userData.descent);V.lmA.add(lm.userData.ascent);
  const shipJets=ship.userData.jets,cabinJets=ship.userData.cabinJets,lmJets=lm.userData.jets,stageJets=V.sIVB.userData.aps,bags=ship.userData.command.userData.bags;
  // The splash: two rings of foam spreading on the water and a short column of spray.
+ // The flag planted during the moonwalk, a few metres from the lander; it stays when the crew leave.
+ V.flag=new THREE.Group();{const planted=models.flag();planted.position.set(5.6,0,5);planted.rotation.y=-.88;V.flag.add(planted);}   // turned to face the guided camera
  V.sea=new THREE.Group();
  const foam=[0,1].map(()=>{const ring=new THREE.Mesh(new THREE.RingGeometry(.8,1,64).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));ring.position.y=.15;V.sea.add(ring);return ring;});
  const spray=models.plume(2.4,8,0xffffff);spray.rotation.x=Math.PI;V.sea.add(spray);
@@ -355,6 +357,7 @@ export async function openReplay(onClose){
    stageJets.forEach((j,i)=>burn(j,within(T.orbit,T.orbit+87)||within(T.tliOn-77,T.tliOn)||within(T.tliOff,T.tliOff+60)||(within(T.orbit,T.evade)&&burst(i+40,5,.06))));}
   burn(lm.userData.plumeDown,(t>=T.doi&&t<T.doi+30)||(t>=T.pdi&&t<T.landing));burn(lm.userData.plumeUp,t>=T.lmLiftoff&&t<T.lmOrbit);
   set(V.crew,site,basis(upS,westS,north),1,t>=T.firstStep&&t<T.evaEnd);
+  set(V.flag,site,basis(upS,westS,north),1,t>=T.flag&&norm(sub(site,camPos??site))<80);
   V.crew.children.forEach((c,i)=>{c.visible=i<3||(t>=T.firstStep+19*60&&t<T.evaEnd-600);});
 
   const yL=axis(lmQ,1),cmUp=axis(cmQ,1);

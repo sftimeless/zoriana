@@ -25,7 +25,7 @@ export const T={
  sicCutoff:get(0,2,41.63),sicSep:get(0,2,41.71),tower:get(0,3,17.9),siiCutoff:get(0,9,3.7),siiSep:get(0,9,8.22),orbit:get(0,11,39.41),
  tliOn:get(2,44,16.2),tliOff:get(2,50,3.03),csmSep:get(3,15,23),dock:get(3,24,3.7),lmEject:get(4,17,3),evade:get(4,40,1.72),
  loiOn:get(75,49,50.37),loiOff:get(75,55,47.9),circular:get(80,11,36.75),undock:get(100,12,0),doi:get(101,36,14),pdi:get(102,33,5.01),landing:get(102,45,39.9),
- evaStart:get(109,7,33),firstStep:get(109,24,15),evaEnd:get(111,39,13),lmLiftoff:get(124,22,.79),lmOrbit:get(124,29,15.67),redock:get(128,3,0),lmJettison:get(130,9,31.2),
+ evaStart:get(109,7,33),firstStep:get(109,24,15),plaque:get(109,52,19),flag:get(110,9,43),evaEnd:get(111,39,13),lmLiftoff:get(124,22,.79),lmOrbit:get(124,29,15.67),redock:get(128,3,0),lmJettison:get(130,9,31.2),
  teiOn:get(135,23,42.28),teiOff:get(135,26,13.69),cmSep:get(194,49,12.7),entry:get(195,3,5.7),drogue:get(195,12,6.9),splash:get(195,18,35)};
 export const END=T.splash+90,START=-12;
 export const R_EARTH=6378.137,R_MOON=1737.4;
