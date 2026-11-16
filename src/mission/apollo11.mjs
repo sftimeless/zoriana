@@ -11,7 +11,7 @@
 //             at the published times: the climb to orbit and the parking orbit (fitted to the plane and
 //             timing of the real S-IVB path), the coast to the Moon and the coast home (Lambert arcs
 //             around the Earth joined to hyperbolas around the Moon), a circular lunar orbit over the
-//             landing site, and smooth curves for the descent, ascent, rendezvous and re-entry.
+//             landing site, and smooth curves for the descent, ascent, rendezvous and reentry.
 // It is an illustration of the flight plan as flown, good to the published times, not a navigation record.
 //
 // Positions are km from Earth's center in the ICRF frame; t is seconds since liftoff (ground elapsed time).
@@ -127,7 +127,7 @@ export function createMission(data){
   if(t>tJoinBack+BLEND)return inbound(t);
   return lerp(departMoon(t),inbound(t),smooth((t-(tJoinBack-BLEND))/(2*BLEND)));
  }
- // Re-entry: along the ground track from the entry point to splashdown, fast at first, turning with the Earth.
+ // Reentry: along the ground track from the entry point to splashdown, fast at first, turning with the Earth.
  const entryFixed=sphere(ENTRY_POINT.lat,ENTRY_POINT.lon),splashFixed=sphere(SPLASH.lat,SPLASH.lon),arc=Math.acos(dot(entryFixed,splashFixed));
  // Nearly all the distance is covered before the small parachutes open 7.3 km up; they slow the fall to 3.2 km,
  // where the three main parachutes take over for the last five and a half minutes.
