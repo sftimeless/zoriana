@@ -1388,8 +1388,8 @@ guide=createGuide({
  home(){if(selected)closeSite();$('#planner').scrollTop=0;goHome();},
  flyTo(lat,lon,distance=2.7){if(selected)closeSite();startFlight({to:new THREE.Vector3(...coordinatesToVector(lat,lon)).multiplyScalar(distance)});if(phone.matches)setSheet('peek');},
  // The tour's first step turns the Moon slowly by itself.
- // One very fast, full turn of the Moon about its axis, starting and ending on the opening view: the first beat of the
- // Explore tour. It is skipped for anyone who has asked their system for less motion.
+ // One very fast, full turn of the Moon about its axis, starting and ending on the opening view. It plays only when a
+ // visitor clicks "Explore the Moon" in the welcome. It is skipped for anyone who has asked their system for less motion.
  spin(on){
   cancelAnimationFrame(guideSpin);guideSpin=0;
   if(!on||surface||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
