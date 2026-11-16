@@ -13,6 +13,8 @@
 }
 *{box-sizing:border-box}
 body{margin:0;overflow:hidden}
+/* A quick second tap on a button must not zoom the whole page on a phone (it did in Safari). Pinch still works. */
+html,body,button,a,input,select,summary,label{touch-action:manipulation}
 button,input,select{font:inherit}
 button,a,input,select{-webkit-tap-highlight-color:transparent}
 button{border:0;color:inherit;cursor:pointer;background:none;padding:0}

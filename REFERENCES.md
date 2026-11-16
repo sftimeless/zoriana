@@ -104,6 +104,6 @@ The project idea, the choice of challenge, and the decisions about what to build
 - [x] The icon carries a visible AI mark in its lower-right corner.
 - [ ] Any image used in the demo video or slides is listed here and watermarked if AI-generated. This includes the pictures in `Zoriana/`, which are dated November 13 and are not used by the app.
 - [x] Team member names and contributions are filled in for both members (edit the line above if the wording should differ).
-- [x] Demo: 7 slides, in English, at https://github.com/sftimeless/zoriana/blob/main/demo/zoriana-demo.pdf (public once the repository is public).
+- [x] Demo: 7 slides, in English, at https://github.com/sftimeless/zoriana/blob/main/demo/zoriana-demo.pdf (public).
 - [x] Project link: https://zoriana.fly.dev/ (public, no login).
 - [ ] Open both links in a private browser window before submitting.

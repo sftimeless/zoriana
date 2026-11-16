@@ -477,12 +477,26 @@ function render(now){pending=false;rendering=true;const cpuStart=performance.now
 }
 controls.addEventListener('change',invalidate);
 controls.addEventListener('start',()=>{flight=null;$('#hint').classList.add('gone');invalidate();});
-function resize(){
- camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth>900?35:45;camera.clearViewOffset();
+// On phones the globe sits in the open map area above the sheet. While the guide's panel covers the top of
+// that area, it sits lower, between the panel and the sheet, so what the guide points at is not hidden.
+let shiftY=.17,shiftFrame=0;
+function frameView(){
+ camera.clearViewOffset();
  // Keep the globe centered in the open map area beside the sidebar (or above the sheet on phones).
  if(innerWidth>900)camera.setViewOffset(innerWidth,innerHeight,-$('#planner').getBoundingClientRect().right/2,0,innerWidth,innerHeight);
- else camera.setViewOffset(innerWidth,innerHeight,0,innerHeight*.17,innerWidth,innerHeight);
- camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);invalidate();
+ else camera.setViewOffset(innerWidth,innerHeight,0,innerHeight*shiftY,innerWidth,innerHeight);
+ camera.updateProjectionMatrix();invalidate();
+}
+function frameFor(guiding){
+ const from=shiftY,to=guiding?-.06:.17,began=performance.now();cancelAnimationFrame(shiftFrame);
+ if(from===to)return;
+ if(innerWidth>900||matchMedia('(prefers-reduced-motion: reduce)').matches){shiftY=to;frameView();return;}
+ const step=now=>{const k=Math.min(1,(now-began)/450);shiftY=from+(to-from)*k*k*(3-2*k);frameView();if(k<1)shiftFrame=requestAnimationFrame(step);};
+ shiftFrame=requestAnimationFrame(step);
+}
+function resize(){
+ camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth>900?35:45;
+ frameView();renderer.setSize(innerWidth,innerHeight);invalidate();
 }
 addEventListener('resize',resize);resize();
 diagnostics=createRenderDiagnostics(renderer,camera,invalidate);
@@ -1418,7 +1432,8 @@ guide=createGuide({
  // Opens the Learn section of the list, for the step that describes it.
  showLearn(){openListAt('#learn-title');if(phone.matches)setSheet('mid');},
  // Moves the view without closing an open place.
- look(lat,lon,distance=2.6){startFlight({to:new THREE.Vector3(...coordinatesToVector(lat,lon)).multiplyScalar(distance)});},
+ look(lat,lon,distance=2.6){startFlight({to:new THREE.Vector3(...coordinatesToVector(lat,lon)).multiplyScalar(distance)});if(phone.matches)setSheet('peek');},
+ frame:frameFor,
  // Shows the poles-and-grid layer for one step, then puts it back as the visitor had it.
  gridDemo(on){if(on){if(guideGrid===null)guideGrid=gridEnabled;setGrid(true);}else if(guideGrid!==null){setGrid(guideGrid);guideGrid=null;}},
  // An experiment changes one input, the landing date, and puts it back when it ends. Days count from the visitor's own date.
