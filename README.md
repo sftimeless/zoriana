@@ -33,6 +33,7 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 - Freshly downloaded 8K NASA mosaic with a LOLA-derived visual bump map.
 - Explore, Landing and Satellite modes. Landing tilts the camera over the selected site with true-scale LOLA relief (see Navigator interface); Satellite shows unlit reference imagery. None of these is a ground-level panorama.
 - Search historic locations/regions, enter latitude and east longitude, or drop a custom pin: right-click the Moon (long-press on touch screens), or use the pin tool and click.
+- Zoriana, the guide: a first-visit welcome asks who is exploring (just curious, teaching or learning, planning a mission) and sets the app up to match: numbers hidden or shown, poles and grid on for a class. She offers a one-minute tour for that audience and can be called again from the top of the list. A plain click on a place name, a blue patch of permanent shadow, or a Sun or Earth line gets an explanation in larger type. Code: `src/guide.mjs`.
 - Poles and grid layer: a red pole at the north pole and a blue one at the south, the equator in yellow, and latitude and longitude lines every 30°, for orientation and for teaching.
 - Zoom in past the closest whole-Moon view and keep going to drop into the Landing view of that spot (tilted camera, true-scale terrain); zoom back out of it to return.
 - Compare two places in two clicks: Shift-click (or right-click) a marker to add it to the comparison, or Shift-click the bare Moon to pin that spot and add it.

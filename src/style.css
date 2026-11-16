@@ -465,7 +465,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:30px;border:0;border-radiu
 footer{position:absolute;bottom:10px;left:calc(var(--map-left) + 4px);right:16px;display:flex;justify-content:space-between;gap:20px;font-size:10.5px;color:var(--label3)}
 footer button{font-size:10.5px;color:var(--label2)}
 footer button:hover{color:#fff}
-#toast{position:absolute;left:calc(var(--map-left) + (100vw - var(--map-left))/2);top:54px;transform:translateX(-50%);z-index:10;background:rgba(44,44,46,.96);border:.5px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 18px;font-size:13px;font-weight:500;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:min(80vw,420px);text-align:center}
+#toast{position:absolute;left:calc(var(--map-left) + (100vw - var(--map-left))/2);top:54px;transform:translateX(-50%);z-index:10;background:rgba(44,44,46,.96);border:.5px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 18px;font-size:14px;font-weight:500;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:min(80vw,420px);text-align:center}
 
 /* Method sheet */
 dialog{background:#1c1c1e;color:var(--label);border:.5px solid rgba(255,255,255,.16);border-radius:20px;padding:28px;max-width:520px;width:calc(100vw - 32px);max-height:calc(100vh - 48px);box-shadow:0 30px 100px rgba(0,0,0,.7)}
@@ -485,6 +485,34 @@ dialog .close{position:absolute;right:14px;top:14px}
 
 @media(max-width:1240px){.timeline .met{display:none}}
 @media(max-width:1120px){.timeline .legend{display:none}.date-label{margin-left:auto!important}.timeline .hour-label{margin-left:0!important}}
+
+/* Zoriana, the guide: the welcome that asks who is exploring, and the bubble she speaks in. Larger type than the rest. */
+.guide-face{width:44px;height:44px;flex:none;border-radius:50%;display:block}
+.guide-welcome{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.guide-welcome[hidden],.guide-bubble[hidden]{display:none}
+.guide-card{width:min(440px,100%);padding:22px 22px 14px;border-radius:22px;text-align:center}
+.guide-card .guide-face{width:76px;height:76px;margin:0 auto 10px}
+.guide-card h2{font-size:21px;font-weight:700;letter-spacing:-.2px}
+.guide-card p{margin-top:6px;font-size:15px;line-height:1.4;color:var(--label2)}
+.guide-choices{display:grid;gap:9px;margin-top:16px}
+.guide-choices button{display:block;width:100%;text-align:left;padding:12px 14px;border-radius:14px;background:var(--card)}
+.guide-choices button:hover,.guide-choices button:focus-visible{background:rgba(255,255,255,.14)}
+.guide-choices strong{display:block;font-size:16px;font-weight:600}
+.guide-choices small{display:block;margin-top:2px;font-size:13px;line-height:1.35;color:var(--label2)}
+.guide-skip{margin-top:10px;padding:8px 12px;font-size:14px;font-weight:600;color:var(--blue)}
+.guide-bubble{position:absolute;left:calc(var(--map-left) + 14px);top:52px;z-index:9;display:flex;gap:12px;align-items:flex-start;width:min(410px,calc(100vw - var(--map-left) - 90px));padding:14px 12px 12px 14px;border-radius:18px}
+.guide-body{flex:1;min-width:0}
+.guide-text{font-size:15px;line-height:1.45;color:var(--label)}
+.guide-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.guide-count{margin-right:auto;font-size:12px;color:var(--label3);font-variant-numeric:tabular-nums}
+.guide-row button{padding:7px 13px;border-radius:999px;font-size:14px;font-weight:600;background:var(--fill);color:var(--label)}
+.guide-row button.primary{background:var(--blue);color:#fff}
+.guide-row button[hidden]{display:none}
+.guide-close{flex:none;width:26px;height:26px;border-radius:50%;font-size:18px;line-height:1;color:var(--label2);background:var(--fill)}
+.guide-target{outline:2px solid #ffd60a;outline-offset:3px}
+.guide-open{margin-top:12px}
+.guide-mini .guide-face{width:34px;height:34px}
+.sky-chip{pointer-events:auto;cursor:help}
 
 /* Phone and narrow windows: status pill on top, sheet at the bottom */
 @media(max-width:900px){
@@ -549,6 +577,7 @@ dialog .close{position:absolute;right:14px;top:14px}
  footer{left:12px;right:12px;bottom:5px;font-size:9px}
  footer button{font-size:9px}
  #scale{display:none}
+ .guide-bubble{left:8px;right:58px;top:62px;width:auto}
  .clock-block .clock-name{display:none}   /* on a phone the sheet covers this line; the landing date beside it carries the UTC label */
  #toast{left:50%;top:60px}
  .place-label .name{font-size:10.5px}

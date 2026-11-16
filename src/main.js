@@ -20,6 +20,7 @@ import { searchFeatures, placeName } from './features.mjs';
 import { eclipseSeries, eclipseAt, eclipseEvents } from './eclipse.mjs';
 import { nextListedEclipse } from './eclipse-catalog.mjs';
 import { discSeries, discAt, discHours, limbEvents, SUN_RADIUS_KM, EARTH_RADIUS_KM } from './disc.mjs';
+import { createGuide, explainName, EXPLAIN, AVATAR } from './guide.mjs';
 import { POLAR, HEAT, poleOf, polarPixel, polarLatLon, shadowNear, topCells, addPolarOverlay } from './psr.mjs';
 import './style.css';
 
@@ -40,6 +41,8 @@ const categories={
 // A site may carry its own icon; otherwise it takes its category's.
 const siteIcon=s=>s.icon??categories[s.cat].icon;
 
+const openedPlain=location.search==='';   // a first visit with nothing asked for: the guide may say hello
+let guide=null;
 let selected=null,mode='explore',pinning=false,data=null,selectedRequest=0,playing=false,flight=null,compared=[],playTimer=null;
 let restoring=true; // true until the address has been read at start-up
 let terrainEnabled=true,duration=72,filter='all',landingHour=0; // landing hour: UTC hour of day the stay begins
@@ -282,7 +285,7 @@ function makeBeam(name,color,label){
  const geometry=new LineGeometry();geometry.setPositions([0,0,0,0,0,0]);
  const beamMaterial=new LineMaterial({color,linewidth:4,transparent:true,opacity:.95,dashSize:.022,gapSize:.016});
  const line=new Line2(geometry,beamMaterial);line.visible=false;line.frustumCulled=false;line.renderOrder=2;scene.add(line);
- const chip=document.createElement('div');chip.className=`sky-chip ${name}`;chip.hidden=true;$('#labels').appendChild(chip);
+ const chip=document.createElement('div');chip.className=`sky-chip ${name}`;chip.hidden=true;chip.title='What does this line show?';chip.onclick=()=>guide?.say(EXPLAIN[name]);$('#labels').appendChild(chip);
  return {name,label,line,chip,base:new THREE.Vector3(),direction:new THREE.Vector3(),end:new THREE.Vector3(),length:0,active:false};
 }
 const beams={sun:makeBeam('sun',SUN_COLOR,'Sun'),earth:makeBeam('earth',EARTH_COLOR,'Earth')};
@@ -861,6 +864,22 @@ renderer.domElement.addEventListener('wheel',e=>{
  push=0;limitSince=0;
  if(surface){setMode('explore');toast('Back to the whole Moon.');}else diveAt(e.clientX,e.clientY);
 },{passive:true});
+// A plain click on the map asks the guide what is there: a place name, or a patch of permanent shadow.
+renderer.domElement.addEventListener('pointerup',e=>{
+ if(pinning||e.shiftKey||e.button!==0||surface||tour||!pointerStart||Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)>6||Date.now()-lastPinAt<900)return;
+ for(const el of featureLabels){
+  if(el.hidden)continue;const r=el.getBoundingClientRect();
+  if(e.clientX<r.left-6||e.clientX>r.right+6||e.clientY<r.top-6||e.clientY>r.bottom+6)continue;
+  const f=features?.find(x=>x[0]===el.textContent);if(f)guide?.say(explainName(f[0],f[4],f[3]));return;
+ }
+ if(!psrEnabled)return;
+ const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);
+ const hit=ray.intersectObject(moon)[0];if(!hit)return;
+ const v=hit.point.normalize(),r=psrAt({lat:THREE.MathUtils.radToDeg(Math.asin(v.y)),lon:THREE.MathUtils.radToDeg(Math.atan2(-v.z,v.x))});
+ // From far away a patch is a few pixels wide, so a near miss counts.
+ const reach=Math.max(1500,(camera.position.length()-1)*1737.4*4);
+ if(r?.inside||(r?.covered&&r.nearestMeters!==null&&r.nearestMeters<reach))guide?.say(EXPLAIN.shadow);
+});
 function addCustom(site){for(let i=labels.length-1;i>=0;i--){if(labels[i].site.id.startsWith('pin-')&&!compared.some(s=>s.site.id===labels[i].site.id)){labels[i].el.remove();labels.splice(i,1);}}addLabel(site);}
 
 // ---- Data ----
@@ -1351,6 +1370,17 @@ $('#share').onclick=$('#share-compare').onclick=async()=>{
 
 for(const id of ['about','details','sources'])$('#'+id).onclick=()=>$('#info').showModal();$('#close-info').onclick=()=>$('#info').close();$('#info').onclick=e=>{if(e.target===$('#info')){const r=$('#info').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#info').close();}};
 restoreFromUrl();
+// ---- Zoriana, the guide: asks who is exploring, sets the app up for them, gives a short tour, and explains what is clicked ----
+guide=createGuide({
+ setup(id){setDetail(id==='planner');setGrid(id==='educator');syncUrl();},
+ select(id){const s=sites.find(x=>x.id===id);if(!s||selected?.id===id)return;if(mode!=='explore')setMode('explore');selectSite(s);},
+ showSouthPole(){if(selected)closeSite();setPsr(true);startFlight({to:new THREE.Vector3(...coordinatesToVector(-84,15)).multiplyScalar(2.4)});if(phone.matches)setSheet('peek');},
+ showGrid(){if(selected)closeSite();setGrid(true);goHome();},
+ showLearn(){openListAt('#learn-title');if(phone.matches)setSheet('mid');},
+ openReplay(){openMissionReplay();},
+});
+$('#guide-open .guide-mini').innerHTML=AVATAR;$('#guide-open').onclick=()=>guide.welcome();
+if(openedPlain&&!guide.audience())setTimeout(()=>guide.welcome(),1200);
 {const p=new URLSearchParams(location.search);if(!['date','hour','t','site','compare'].some(k=>p.has(k)))$('#time').value=new Date().getUTCHours();} // nothing asked for: open on now, like the Now button
 restoring=false;
 updateClock();refreshMetrics();if(!selected)referenceLight();invalidate();
