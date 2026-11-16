@@ -523,14 +523,14 @@ export async function openReplay(onClose){
   if(t<=0)return 'On the pad at Kennedy Space Center, Florida';
   if(t>=T.splash)return 'Afloat in the Pacific Ocean';
   const altE=norm(X)-R_EARTH,altM=norm(sub(X,L.mo))-R_MOON;
-  if(t<T.orbit)return `About ${round(altE)} km up`;
+  if(t<T.orbit)return `${round(altE)} km above Earth`;
   if(L.wM>.5){
    if(lander&&t>=T.landing&&t<T.lmLiftoff)return 'On the Moon, in the Sea of Tranquility';
    return `${round(norm(sub(Vx,L.mv))*3600)} km/h relative to the Moon · ${altM<1?`${Math.round(Math.max(0,altM)*100)*10} m`:`${round(altM)} km`} above its surface`;
   }
   if(t>T.drogue)return `${round(Math.max(0,altE))} km above the Pacific`;
   const v=norm(t>T.entry?sub(Vx,spin(X)):Vx)*3600;
-  return altE<3000?`${round(v)} km/h · ${round(Math.max(0,altE))} km above Earth`:`${round(v)} km/h · ${round(norm(X))} km from Earth’s center · ${round(norm(sub(X,L.mo)))} km from the Moon’s`;
+  return altE<3000?`${round(v)} km/h · ${round(Math.max(0,altE))} km above Earth`:`${round(v)} km/h · ${round(altE)} km from Earth · ${round(altM)} km from the Moon`;   // both measured to the surface, like every other height on this line
  }
  function showStep(){
   const step=STEPS[stepIndex];

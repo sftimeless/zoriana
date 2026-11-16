@@ -45,11 +45,11 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 - Eclipses of the Sun by Earth, counted in every sunlight figure and shown on the globe, and a slope layer near both poles.
 - Past missions show their full landing date, with a "See it at touchdown" button that sets the date and hour to the real landing time. Future missions show only the announced year, because no landing date has been published.
 - The best landing hour in the next 30 days for Sun and Earth together, a step-by-step "How was this worked out?" under each sky chart, and a global Earth view showing where Earth is up and where it rises and sets.
-- Sun and Earth as discs: each tile shows how much of the disc clears the skyline, and the stay summary gives hours of full Sun, hours with any Sun, and the next first light and full disc.
+- Sun and Earth as disks: each tile shows how much of the disk clears the skyline, and the stay summary gives hours of full Sun, hours with any Sun, and the next first light and full disk.
 - Mission durations of 24, 48, 72, or 168 hours from the chosen landing date and hour (UTC), with a terrain-aware horizon toggle. Under the totals the stay is also written out as times: when there is no sunlight, when Earth is out of view, and when both are available together.
 - The timeline opens at the landing time (T+0), so the clock and the Sun and Earth angles first shown are those for the landing date and hour chosen; the clock shows the year. A visit with no date in the link opens on the present hour. Share links written before this change that carry no `t` value now open at the landing time instead of twelve hours after it.
 - Search reads coordinates in the common forms: `-89.5, 45`, `89.5S 45E`, `84.6000° S 31.0000° E` (as the site card prints them) and east longitudes from 0° to 360°. Selecting a site's coordinates copies them as `latitude, east longitude`.
-- Each site card opens with the answer in a sentence and its countdown; the numbers (azimuth, disc share, distances, data sources) can be folded away with one button, and start folded on phones. The caution line and the plain sentences always stay.
+- Each site card opens with the answer in a sentence and its countdown; the numbers (azimuth, disk share, distances, data sources) can be folded away with one button, and start folded on phones. The caution line and the plain sentences always stay.
 - "Find landing times" lists the arrival times after which sunlight, Earth view or both hold without a break for the hours you ask for (`arrivalWindows` in `src/windows.mjs`). The ranking can be limited to sites with at least a chosen number of sunlit and Earth-view hours.
 - **Fly-by**: a camera pass over any site or pin, on true-scale LOLA terrain with NASA imagery and the sunlight calculated for the chosen time. It can be paused and played at half or double speed. Four are listed to start from: Shackleton, Tycho, Copernicus and the Apollo 11 site. During the flight, captions say what the place is, what the ground does (a crater's depth is measured from the terrain on screen) and what a lander would get there; a "123" button shows the numbers behind each one. See "Fly-by" in `METHOD.md`.
 - **Apollo 11 replay**: the whole July 1969 flight in 3D, from the pad to the Moon and back, in 27 steps with captions. Guided, follow, window and whole-route cameras; guided pace, real time, or up to 10,000 times faster. Event times are NASA's, the Moon, Sun and third-stage path are JPL's, and the rest of the path is rebuilt between them (see METHOD.md, "Apollo 11 replay"). Open it from the Apollo 11 site card, the "Mission replay" row, or `/?replay=apollo11`.
@@ -61,7 +61,7 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 
 ## Scientific scope
 
-This is an exploratory planning prototype. Body-center elevations are compared with the reference horizon, with no atmosphere. The terrain-aware model described below includes eclipses of the Sun by Earth (see "Eclipses") but does not include Earth ground-station visibility, antenna link budgets, solar-array orientation, battery capacity, or thermal models. Sun-above-horizon duration is not usable power and Earth-above-horizon duration is not a guaranteed communication window. Hourly interpolation can miss short events; near-pole local terrain is especially important.
+This is an exploratory planning prototype. Body-center elevations are compared with a level horizon, with no atmosphere. The terrain-aware model described below includes eclipses of the Sun by Earth (see "Eclipses") but does not include Earth ground-station visibility, antenna link budgets, solar-array orientation, battery capacity, or thermal models. Sun-above-horizon duration is not usable power and Earth-above-horizon duration is not a guaranteed communication window. Hourly interpolation can miss short events; near-pole local terrain is especially important.
 
 NASA's CGI mosaic is optimized for aesthetics, including polar gap filling. It is not a quantitative terrain product. A separate quantitative DEM-based skyline drives site visibility; the globe relief is downsampled for rendering. Do not treat regional exploration pins as safe landing sites.
 
@@ -131,7 +131,7 @@ Visibility now compares Sun/Earth body centers with a sampled local LOLA terrain
 - Fallback and terrain beyond the window: quantitative NASA SVS LOLA LDEM_16 float TIFF, 16 pixels per degree (about 1.9 km north/south spacing). TIFF kilometer heights are converted to half-meter signed integers; the scientific data is not taken from the decorative bump image.
 - Skyline: great-circle rays every 0.25°, out to 300 km, including lunar curvature. Radial samples adapt to raster spacing and distance. Bilinear raster and angular interpolation can miss small or narrow ridges. Coarse global results are particularly limited; grid spacing is not an accuracy guarantee.
 - Slope: a central difference across one grid cell either side of the site (80 m baseline south of 85°S, 160 m from 80°S to 85°S, 948 m elsewhere, or 3.8 km, labeled regional, if the 474 m grid is not installed). It describes the DEM at that scale; rocks, small craters and lander-scale hazards are not resolved. Check: the IM-1 site reads 11.5° over 160 m, in line with the roughly 12° slope reported for that landing site.
-- Events: five-minute terrain-clearance samples made from hourly JPL positions. Disc shares are reported for the selected site (see "Sun and Earth as discs"); hour totals, the ranking and the comparison count body centers. Eclipses are evaluated separately (see "Eclipses"). No ground-station or link-budget guarantees.
+- Events: five-minute terrain-clearance samples made from hourly JPL positions. Disk shares are reported for the selected site (see "Sun and Earth as disks"); hour totals, the ranking and the comparison count body centers. Eclipses are evaluated separately (see "Eclipses"). No ground-station or link-budget guarantees.
 - JPL Horizons reports `MEAN_ME (high precision)` as the lunar frame for surface sites (checked November 15, 2026), the same mean-Earth frame as the LOLA products and the Apollo coordinates.
 - The global and polar products use different versions of the lunar mean-Earth frame and resolutions; small registration differences and coarse/fine boundary discontinuities remain possible. This is an exploratory model, not a validated landing-safety tool.
 
@@ -171,22 +171,22 @@ The full method text that used to sit in the app's method sheet is in `METHOD.md
 
 The map button with the concentric rings opens a **Map layers** menu: Off, Average sunlight, Average Earth view, Sun × Earth score and Slope, each with a one-line description. On a first visit the icon buttons show their names for a few seconds; after that the names appear on hover. Share links carry it (`heat=sun`, `earth` or `both`).
 
-- Sources: LRO LOLA products AVGVISIB_75S_120M_201608 and AVGVISIB_75N_120M_201608, and their `_EARTH` versions (same data set and directory as above). Each value is the share of time steps, in NASA's long-term simulation, in which any part of the Sun's (or Earth's) disc was visible from that 120 m pixel.
+- Sources: LRO LOLA products AVGVISIB_75S_120M_201608 and AVGVISIB_75N_120M_201608, and their `_EARTH` versions (same data set and directory as above). Each value is the share of time steps, in NASA's long-term simulation, in which any part of the Sun's (or Earth's) disk was visible from that 120 m pixel.
 - `scripts/prepare-illumination.py` averages 4 × 4 blocks into `public/assets/heat-south-480m.webp` and `heat-north-480m.webp` (1906 × 1906, lossless): red = mean Sun share, green = mean Earth share, blue = the highest Sun share among the 16 source pixels. They are downloaded only when the heat map or a polar site needs them (about 5 MB each).
-- NASA's maps end 15° from each pole. The heat map fades out over the last five degrees (75° to 80°) instead of stopping on a hard circle, which looked like a disc pasted on the Moon.
+- NASA's maps end 15° from each pole. The heat map fades out over the last five degrees (75° to 80°) instead of stopping on a hard circle, which looked like a disk pasted on the Moon.
 - Drawing: one color per map (yellow, blue, green) whose strength fades in over the range in the legend (sunlight 15% to 55%, Earth 10% to 90%, score 0.08 to 0.48). At 480 m, ordinary polar ground is sunlit about 40% of the time and the best 1% of cells about 50%, so shadowed ground stays clear, ordinary ground is tinted and the best ground glows. Within 5° of the south pole the score's 95th percentile is 0.20 and its 99.9th is 0.47; farther out, open near-side plains score about 0.45 because Earth is always in view there.
 - Site card: "Long-term average" gives the Sun and Earth shares for the site's cell. "Find best spot within 15 km" works in two steps: `topCells` in `src/psr.mjs` picks the twenty best-scoring cells within 15 km that are at least 1.4 km apart, then each is run through the full calculation for the chosen landing time and stay, and the one with the most hours of Sun and Earth together gets a pin. If none beats the current site, the app says so.
 - Earth view: outside the polar maps the Earth map is plain geometry, not NASA's product: a blue wash where Earth is above level ground at the selected time, and a brighter band within about 8° of the edge of the mean near side, where libration makes Earth rise and set.
-- Limits: long-term averages over a 480 m cell, counted when any part of the disc shows. They say nothing about a particular date, which is what the rest of the app is for. The score multiplies two averages; it is a guide to where to look, not a measured overlap. A small peak can be diluted by its cell: the best 120 m pixel reads 90%, the best 480 m cell 63%.
+- Limits: long-term averages over a 480 m cell, counted when any part of the disk shows. They say nothing about a particular date, which is what the rest of the app is for. The score multiplies two averages; it is a guide to where to look, not a measured overlap. A small peak can be diluted by its cell: the best 120 m pixel reads 90%, the best 480 m cell 63%.
 
-## Sun and Earth as discs
+## Sun and Earth as disks
 
-`src/disc.mjs` measures how much of the Sun's or Earth's disc is above the skyline. The angular radius comes from the JPL distance (Sun about 0.27°, Earth about 0.95°). The disc is cut into 15 vertical strips and each strip is compared with the terrain horizon at its own azimuth, so a ridge to one side hides only that side. The disc is a plain circle of even brightness (no limb darkening), sampled every five minutes.
+`src/disc.mjs` measures how much of the Sun's or Earth's disk is above the skyline. The angular radius comes from the JPL distance (Sun about 0.27°, Earth about 0.95°). The disk is cut into 15 vertical strips and each strip is compared with the terrain horizon at its own azimuth, so a ridge to one side hides only that side. The disk is a plain circle of even brightness (no limb darkening), sampled every five minutes.
 
-- Tiles: "Disc showing" percentage for the Sun and for Earth; the status reads "partly hidden" while the share is between 0 and 100%.
-- Stay summary: hours with the full Sun, hours with at least part of it, and the next two limb events (first light, full disc, start of covering, last light).
+- Tiles: "Disk showing" percentage for the Sun and for Earth; the status reads "partly hidden" while the share is between 0 and 100%.
+- Stay summary: hours with the full Sun, hours with at least part of it, and the next two limb events (first light, full disk, start of covering, last light).
 - CSV exports carry `sun_full_disc_hours` and `sun_any_disc_hours`.
-- Sunlit and Earth-in-view hours, the 30-day bands, the ranking and the comparison still count the center of the body. Example: at the Shackleton region point from November 15, 2026 the Sun's center rises on November 24 at 02:35 UTC, while the first edge shows at about 20:45 on November 23 and the full disc is not clear until about 20:35 on November 24.
+- Sunlit and Earth-in-view hours, the 30-day bands, the ranking and the comparison still count the center of the body. Example: at the Shackleton region point from November 15, 2026 the Sun's center rises on November 24 at 02:35 UTC, while the first edge shows at about 20:45 on November 23 and the full disk is not clear until about 20:35 on November 24.
 
 ## Benchmark against published Apollo Sun angles
 
@@ -199,7 +199,7 @@ The map button with the concentric rings opens a **Map layers** menu: Off, Avera
 
 ## Check against NASA's long-term maps
 
-`node scripts/validate-illumination.mjs` (with the server running and NASA's maps in `data/`) asks the app for the share of time that any part of the Sun's, and of Earth's, disc is above its own terrain skyline over 347 days from January 1, 2026 (about one cycle of lunar seasons), at ten polar points, and compares it with NASA's AVGVISIB 120 m pixel at the same place. Results are saved in `data/validation-illumination.json`.
+`node scripts/validate-illumination.mjs` (with the server running and NASA's maps in `data/`) asks the app for the share of time that any part of the Sun's, and of Earth's, disk is above its own terrain skyline over 347 days from January 1, 2026 (about one cycle of lunar seasons), at ten polar points, and compares it with NASA's AVGVISIB 120 m pixel at the same place. Results are saved in `data/validation-illumination.json`.
 
 | Point | Sun: app | Sun: NASA (neighbors) | Earth: app | Earth: NASA (neighbors) |
 |---|---|---|---|---|
@@ -234,9 +234,9 @@ The globe uses one 8K image (about 1.3 km per pixel at the equator), which is so
 
 ## Eclipses
 
-A few times a year Earth passes in front of the Sun as seen from the Moon (a lunar eclipse seen from Earth), and a site loses sunlight for hours whatever its terrain. `src/eclipse.mjs` works this out from the positions already loaded for the site: the angle between the centers of the Sun and Earth, their apparent sizes from the JPL distances, and the share of the Sun's disc that Earth covers.
+A few times a year Earth passes in front of the Sun as seen from the Moon (a lunar eclipse seen from Earth), and a site loses sunlight for hours whatever its terrain. `src/eclipse.mjs` works this out from the positions already loaded for the site: the angle between the centers of the Sun and Earth, their apparent sizes from the JPL distances, and the share of the Sun's disk that Earth covers.
 
-- The Sun's center counts as hidden while it is behind Earth's disc, exactly as if Earth's edge were part of the skyline. That flows into sunlit hours, the timeline bands, the ranking, the comparison and the best landing time. The disc share is reduced by the covered part.
+- The Sun's center counts as hidden while it is behind Earth's disk, exactly as if Earth's edge were part of the skyline. That flows into sunlit hours, the timeline bands, the ranking, the comparison and the best landing time. The disk share is reduced by the covered part.
 - The site card shows "Eclipse: Earth covers 42% of the Sun" or "Eclipsed by Earth", the countdown reads "until eclipse by Earth" and "until end of eclipse", "Lunar day ahead" lists each eclipse in the 30 days, and the globe dims by the covered share.
 - Directions are interpolated as vectors between hourly samples, so the result holds near the zenith.
 - Check against the published contact times of the two 2026 lunar eclipses (times UTC):
@@ -249,7 +249,7 @@ A few times a year Earth passes in front of the Sun as seen from the Moon (a lun
   Every site's partial phase lies inside the penumbral contacts and every total phase inside the umbral contacts; on March 3 every site is total throughout the whole-Moon totality; and in the partial eclipse one end of the Moon (the north) is never fully covered, as a 93% eclipse requires. Site times are to the nearest five minutes.
 - Beyond 2026: the calculation is the same for any date from 1950 to 2099. `node scripts/check-eclipses.mjs` runs it at three sites (Apollo 11, a south-pole point, a north-pole point) for every lunar eclipse in NASA's tables from 2026 to 2030, twelve in all, and saves the result in `data/eclipse-check.json`. All twelve are consistent: the four total eclipses hide the Sun completely at every site; the four partial ones touch every site and hide it completely at some; the four penumbral ones hide it completely nowhere and miss some sites altogether (July 18, 2027, the slightest, misses all three). Where a site sees the eclipse, its middle is within 14 minutes of NASA's time of greatest eclipse.
 - "Lunar day ahead" also names the next eclipse on NASA's list (2026 to 2035, `src/eclipse-catalog.mjs`) with a button that jumps to it. The list only points to the date; what the site sees is always computed.
-- Limits: two round discs. Earth's atmosphere makes the real shadow about 2% larger and lets some red light through, neither of which is modeled.
+- Limits: two round disks. Earth's atmosphere makes the real shadow about 2% larger and lets some red light through, neither of which is modeled.
 
 ## Slope layer
 

@@ -4,7 +4,7 @@
 // topography by simulating the Sun and Earth over long periods (Mazarico et al. 2011). This app only
 // draws them and looks them up. scripts/prepare-illumination.py makes the images:
 //   psr-{south,north}-240m.png    share of each 240 m cell in permanent shadow
-//   heat-{south,north}-480m.webp  R = average share of time some of the Sun's disc is visible,
+//   heat-{south,north}-480m.webp  R = average share of time some of the Sun's disk is visible,
 //                                 G = the same for Earth, B = the highest Sun share inside the cell
 //   slope-{south,north}-320m.webp R = mean slope of each 320 m cell, G = steepest slope in it,
 //                                 in quarter-degrees, over a 160 m baseline (scripts/prepare-slope.py)
@@ -104,7 +104,7 @@ export function addPolarOverlay(material,uniforms){
   vec3 polarUnit=normalize(polarDirection);
   float polarNorth=step(0.0,polarUnit.y),polarInside=step(0.9659258,abs(polarUnit.y)),layerOn=step(.5,heatMode),heatOn=layerOn*(1.0-step(3.5,heatMode));
   // NASA's maps stop at 75° latitude. The heat map fades in over the next five degrees rather than
-  // ending on a hard circle, which read as a disc pasted on the Moon.
+  // ending on a hard circle, which read as a disk pasted on the Moon.
   float heatFade=smoothstep(0.9659258,0.9848078,abs(polarUnit.y));
   vec2 polarS=${scale}*vec2(-polarUnit.z,polarUnit.x)/max(1.0-polarUnit.y,.5)+.5;
   vec2 polarN=${scale}*vec2(-polarUnit.z,-polarUnit.x)/max(1.0+polarUnit.y,.5)+.5;
@@ -129,7 +129,7 @@ export function addPolarOverlay(material,uniforms){
   float slopeDegrees=mix(texture2D(slopeSouth,slopeUv).r,texture2D(slopeNorth,slopeUv).r,polarNorth)*63.75;
   vec3 slopeColor=mix(vec3(1.0,.72,.1),vec3(1.0,.2,.15),smoothstep(${(HEAT.slope.to-1).toFixed(1)},${(HEAT.slope.to+1).toFixed(1)},slopeDegrees));
   // Amber is drawn lightly and red more strongly, and the layer fades out between 84° and 80°
-  // latitude so its edge does not read as a disc.
+  // latitude so its edge does not read as a disk.
   float slopeShare=(smoothstep(${(HEAT.slope.from-1).toFixed(1)},${(HEAT.slope.from+1).toFixed(1)},slopeDegrees)*.34+smoothstep(${(HEAT.slope.to-1).toFixed(1)},${(HEAT.slope.to+1).toFixed(1)},slopeDegrees)*.3)*smoothstep(0.9848078,0.9945219,abs(polarUnit.y))*step(3.5,heatMode);
   outgoingLight=mix(outgoingLight,outgoingLight*.45+slopeColor*.6,slopeShare);
   #include <opaque_fragment>`);

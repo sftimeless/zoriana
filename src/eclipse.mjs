@@ -1,8 +1,8 @@
 // Eclipses of the Sun by Earth, as seen from a site on the Moon (a lunar eclipse seen from Earth).
 //
-// The site's own JPL positions for the Sun and Earth already say where both discs are in its sky.
+// The site's own JPL positions for the Sun and Earth already say where both disks are in its sky.
 // When they overlap, Earth hides part or all of the Sun and the site loses sunlight for a few
-// hours whatever the terrain. This is plain geometry of two round discs: Earth's atmosphere, which
+// hours whatever the terrain. This is plain geometry of two round disks: Earth's atmosphere, which
 // bends a little red light into the shadow and makes the real shadow about 2% larger, is ignored.
 import { SUN_RADIUS_KM, EARTH_RADIUS_KM, angularRadius } from './disc.mjs';
 
@@ -10,8 +10,8 @@ const RAD=Math.PI/180,MINUTE=60000;
 // Unit vector toward a body in the site's east, north, up frame.
 const vector=row=>{const e=row.el*RAD,a=row.az*RAD;return [Math.cos(e)*Math.sin(a),Math.cos(e)*Math.cos(a),Math.sin(e)];};
 
-// Share of a disc of radius `small` hidden by a disc of radius `large` whose center is `distance`
-// away (any one angular unit). 0 when they do not touch, 1 when the small disc is wholly inside.
+// Share of a disk of radius `small` hidden by a disk of radius `large` whose center is `distance`
+// away (any one angular unit). 0 when they do not touch, 1 when the small disk is wholly inside.
 export function coveredShare(distance,small,large){
  if(distance>=small+large)return 0;
  if(distance<=Math.abs(large-small))return large>=small?1:(large*large)/(small*small);
@@ -23,8 +23,8 @@ export function coveredShare(distance,small,large){
 
 // For every `stepMinutes` across the two ephemerides (which share their sample times):
 //   separation  angle between the centers of the Sun and Earth, degrees
-//   coverage    share of the Sun's disc hidden by Earth, 0 to 1
-//   limb        how far the Sun's center is outside Earth's disc, degrees (negative: behind Earth)
+//   coverage    share of the Sun's disk hidden by Earth, 0 to 1
+//   limb        how far the Sun's center is outside Earth's disk, degrees (negative: behind Earth)
 // Directions are interpolated as vectors between the hourly samples, so the result holds up even
 // where a body is near the zenith and its azimuth swings quickly.
 export function eclipseSeries(sunRows,earthRows,stepMinutes=5){

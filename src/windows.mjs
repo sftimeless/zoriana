@@ -20,10 +20,10 @@ export function segments(rows,start,end){
  return out;
 }
 
-// Countdown text: "3 d 22 h", "12 h 46 m" or "9 min". Negative spans read as zero.
+// Countdown text: "3 d 22 h", "12 h 46 min" or "9 min". Negative spans read as zero.
 export function span(ms){
  const m=Math.max(0,Math.round(ms/60000)),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mm=m%60;
- return d?`${d} d ${h} h`:h?`${h} h ${String(mm).padStart(2,'0')} m`:`${mm} min`;
+ return d?`${d} d ${h} h`:h?`${h} h ${String(mm).padStart(2,'0')} min`:`${mm} min`;
 }
 
 // The complement of a sorted interval list inside [start, end]: for sunlight, the dark stretches.

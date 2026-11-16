@@ -59,14 +59,15 @@
  <!-- Status rail: mission clock, link and power state, and the main destinations -->
  <nav id="rail" aria-label="Status and navigation">
   <!-- The moment the map shows, in the viewer's own time zone with UTC beneath, then two lights for the selected site -->
-  <div class="rail-status" aria-live="off" title="The moment shown on the map, in your time zone. Calculations use UTC.">
+  <div class="rail-status" aria-live="off" title="Map time: the moment the map is showing, set in the bar at the bottom, here in your own time zone. It is not your device’s clock unless you choose Now. Calculations use UTC.">
+   <span class="rail-name wide-only">Map time</span>
    <time id="rail-clock">--:--</time>
    <span id="rail-zone" class="rail-utc">UTC</span>
    <span id="rail-also" class="rail-also wide-only">--:-- UTC</span>
-   <span id="rail-earth" class="rail-ind earth" title="Select a site to see Earth visibility"><svg class="ic"><use href="#i-antenna"/></svg></span>
-   <span class="rail-cap wide-only">Earth view</span>
+   <span id="rail-earth" class="rail-ind earth" title="Select a site to see whether Earth is in view"><svg class="ic"><use href="#i-antenna"/></svg></span>
+   <span id="rail-earth-cap" class="rail-cap wide-only">Earth view</span>
    <span id="rail-sun" class="rail-ind sun" title="Select a site to see sunlight"><svg class="ic"><use href="#i-sun"/></svg></span>
-   <span class="rail-cap wide-only">Sunlight</span>
+   <span id="rail-sun-cap" class="rail-cap wide-only">Sunlight</span>
   </div>
   <!-- Three ways in: plan a landing (search, compare, rank), learn how it works, or watch a fly-by or the Apollo 11 replay -->
   <div class="rail-apps">
@@ -148,13 +149,13 @@
      <span class="tile-label" title="How high the Sun is above a level horizon. Higher means stronger light on a flat solar panel."><svg class="ic"><use href="#i-sun"/></svg>Sun elevation</span>
      <strong id="sun-elevation">—</strong>
      <span id="sun-state" class="state">Select a date</span>
-     <dl class="adv"><dt title="Compass direction, in degrees clockwise from north">Azimuth</dt><dd id="sun-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="sun-clear">—</dd><dt title="Share of the Sun’s 0.5°-wide disc above the horizon">Disc showing</dt><dd id="sun-disc">—</dd><dt>Distance</dt><dd id="sun-range">—</dd></dl>
+     <dl class="adv"><dt title="Compass direction, in degrees clockwise from north">Azimuth</dt><dd id="sun-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="sun-clear">—</dd><dt title="Share of the Sun’s 0.5°-wide disk above the horizon">Disk showing</dt><dd id="sun-disc">—</dd><dt>Distance</dt><dd id="sun-range">—</dd></dl>
     </div>
     <div class="tile earth">
      <span class="tile-label" title="How high the center of Earth is above a level horizon. Earth must be above the terrain for a direct radio line."><svg class="ic"><use href="#i-globe"/></svg>Earth elevation</span>
      <strong id="earth-elevation">—</strong>
      <span id="earth-state" class="state">Select a date</span>
-     <dl class="adv"><dt title="Compass direction, in degrees clockwise from north">Azimuth</dt><dd id="earth-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="earth-clear">—</dd><dt title="Share of Earth’s 1.9°-wide disc above the horizon">Disc showing</dt><dd id="earth-disc">—</dd><dt>Distance</dt><dd id="earth-range">—</dd></dl>
+     <dl class="adv"><dt title="Compass direction, in degrees clockwise from north">Azimuth</dt><dd id="earth-az">—</dd><dt class="clear-label">Above terrain</dt><dd id="earth-clear">—</dd><dt title="Share of Earth’s 1.9°-wide disk above the horizon">Disk showing</dt><dd id="earth-disc">—</dd><dt>Distance</dt><dd id="earth-range">—</dd></dl>
     </div>
    </div>
 
@@ -171,7 +172,7 @@
 
    <section class="group">
     <header><h3>Surface stay</h3>
-     <div id="duration" class="segmented" role="group" aria-label="Mission duration">
+     <div id="duration" class="segmented" role="group" aria-label="Surface stay">
       <button data-duration="24" aria-pressed="false">24 h</button><button data-duration="48" aria-pressed="false">48 h</button><button data-duration="72" aria-pressed="true">3 d</button><button data-duration="168" aria-pressed="false">7 d</button>
      </div>
     </header>
@@ -246,7 +247,7 @@
  </div>
 
  <section id="map-picker" class="mat map-picker" hidden aria-label="Choose map">
-  <div class="picker-head"><strong>Choose Map</strong><button id="close-picker" class="circle-btn" aria-label="Close map chooser"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="picker-head"><strong>Choose map</strong><button id="close-picker" class="circle-btn" aria-label="Close map chooser"><svg class="ic"><use href="#i-x"/></svg></button></div>
   <div class="picker-tiles">
    <button data-mode="explore" class="active"><span class="thumb explore"></span>Explore</button>
    <button data-mode="landing"><span class="thumb landing"><i></i></span>Landing</button>
@@ -284,7 +285,7 @@
   <div id="ranking-head" class="rank-head"></div>
   <div id="ranking-rows"></div>
   <div class="panel-actions"><button id="export-ranking" class="mini-toggle">Export CSV</button></div>
-  <p class="tiny">Sun + Earth counts the hours when both are above the horizon, so a lander has sunlight and a direct line to Earth at the same time. Sun height is the Sun’s average elevation while the site is sunlit. Select a heading to sort by it; select a site to open it. This ranks geometry only, not mission suitability.</p>
+  <p class="tiny">Sun + Earth counts the hours when both are above the horizon, so a lander has sunlight and a direct line to Earth at the same time. Sun elev. is the Sun’s average elevation while the site is sunlit. Select a heading to sort by it; select a site to open it. This ranks geometry only, not mission suitability.</p>
  </section>
 
  <div id="flyby-bar" class="mat flyby-bar" role="group" aria-label="Fly-by" hidden>
@@ -298,12 +299,12 @@
   </div>
  </div>
 
- <div id="hint" class="hint">Drag to explore · Scroll to zoom, and keep going to fly low · Right-click to drop a pin · Shift-click to compare</div>
+ <div id="hint" class="hint">Drag to explore · Scroll to zoom, and keep going for the Landing view · Right-click to drop a pin · Shift-click to compare</div>
 
  <section class="timeline mat" aria-label="Date and time">
   <div class="timeline-top">
    <button id="play" class="play" aria-label="Play time animation"><svg class="ic"><use href="#i-play"/></svg></button>
-   <div class="clock-block"><span id="clock">00:00</span><small><span id="clock-date"></span><span class="utc"> · UTC</span><span id="clock-when" class="when"></span></small></div>
+   <div class="clock-block" title="Map time: the moment the map is showing, in UTC. Every calculation uses it. The corner clock shows the same moment in your time zone."><small class="clock-name">Map time · UTC</small><span id="clock">00:00</span><small><span id="clock-date"></span><span id="clock-when" class="when"></span></small></div>
    <div class="met" title="Time since the landing hour you chose"><small>Mission time</small><span id="met" class="mono">T+0 h</span></div>
    <div class="legend"><span class="lg sun">Sunlit</span><span class="lg earth">Earth in view</span></div>
    <label class="date-label"><small>Landing date · UTC</small><input id="date" type="date" min="1950-01-01" max="2099-12-24" aria-label="Landing date in UTC"></label>
@@ -318,7 +319,7 @@
   <div class="timeline-ticks"><span id="range-start"></span><span>+5 d</span><span>+10 d</span><span>+15 d</span><span>+20 d</span><span>+25 d</span><span>+30 d</span></div>
  </section>
 
- <footer><button id="sources">NASA / LRO imagery · LOLA terrain · JPL Horizons</button><span id="scale">Lunar exploration preview</span></footer>
+ <footer><button id="sources">NASA LRO imagery · LOLA terrain · JPL Horizons</button><span id="scale">Lunar exploration preview</span></footer>
  <div id="toast" role="status" hidden></div>
 
  <dialog id="info">
@@ -327,7 +328,7 @@
   <h2>Real observations.<br>Clear boundaries.</h2>
   <p>The lunar mosaic comes from NASA’s Lunar Reconnaissance Orbiter. Sun and Earth positions are requested from NASA/JPL Horizons for your coordinates and dates.</p>
   <dl>
-   <dt>What “in view” means</dt><dd>The Sun or Earth counts as in view when its center is above the terrain skyline in its direction. The Sun must also be clear of Earth’s disc, so eclipses count as darkness. The tiles add how much of each disc is showing.</dd>
+   <dt>What “in view” means</dt><dd>The Sun or Earth counts as in view when its center is above the terrain skyline in its direction. The Sun must also be clear of Earth’s disk, so eclipses count as darkness. The tiles add how much of each disk is showing.</dd>
    <dt>Where the Sun and Earth are</dt><dd>NASA/JPL Horizons gives both positions for the exact site and height, hourly, as seen in the Moon’s airless sky, including the Moon’s slow rocking. The app samples every five minutes in between.</dd>
    <dt>Terrain</dt><dd id="terrain-detail">NASA LOLA elevation: 40 m near the south pole, 80 m near both poles, 474 m elsewhere. The skyline is traced every 0.25° out to 300 km from 2 m above the ground. Select a site to see its grid.</dd>
    <dt>Where and when to land</dt><dd>Map layers show NASA’s long-term maps near each pole (how often the Sun and Earth are up, permanent shadow) and slope from LOLA terrain; Earth view elsewhere is plain geometry. “Find best spot” takes the most promising cells within 15 km and runs each for your dates. Best day and best hour search the next 30 days.</dd>

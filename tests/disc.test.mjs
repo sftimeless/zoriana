@@ -9,19 +9,19 @@ test('apparent sizes from the Moon match the familiar values',()=>{
  assert.ok(Math.abs(angularRadius(EARTH_RADIUS_KM,384400)-.9507)<.001);       // Earth about 1.9° wide
 });
 
-test('disc share over a level horizon: none, half, all',()=>{
+test('disk share over a level horizon: none, half, all',()=>{
  const r=.2666;
  assert.equal(discFraction(90,-r,r,flat),0);
  assert.equal(discFraction(90,r,r,flat),1);
  assert.ok(Math.abs(discFraction(90,0,r,flat)-.5)<1e-9);
 });
 
-test('disc share matches the circular-segment formula part-way up',()=>{
+test('disk share matches the circular-segment formula part-way up',()=>{
  const r=.2666,exact=h=>.5+(h*Math.sqrt(1-h*h)+Math.asin(h))/Math.PI;
  for(const h of [-.8,-.4,.3,.7])assert.ok(Math.abs(discFraction(10,h*r,r,flat,61)-exact(h))<.004,`h=${h}`);
 });
 
-test('a ridge to one side hides only that side of the disc',()=>{
+test('a ridge to one side hides only that side of the disk',()=>{
  const r=.95,ridge=az=>az>100?5:-5; // skyline steps up just east of the body
  assert.ok(Math.abs(discFraction(100,0,r,ridge)-.5)<.07);
  assert.equal(discFraction(102,0,r,ridge),0);
