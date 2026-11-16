@@ -11,6 +11,8 @@ Team Zoriana: Christian Munoz, and Iryna Khoroshavina Munoz (overall design and 
 Requires Node 22.12+ (Node 25.9 used for validation).
 
 ```sh
+git clone https://github.com/sftimeless/zoriana.git
+cd zoriana
 npm install
 npm run dev
 ```
