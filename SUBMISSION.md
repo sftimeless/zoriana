@@ -10,7 +10,15 @@ Zoriana
 
 ## High-Level Project Summary
 
-Zoriana is a map-style web app for choosing where and when to land on the Moon. Pick a site and a date, and it shows when that spot has sunlight (needed for power) and a clear line to Earth (needed for communications), hour by hour for a full lunar day. It combines live Sun and Earth positions from NASA/JPL Horizons with real lunar terrain from the Lunar Orbiter Laser Altimeter, so a ridge or crater rim that blocks the Sun or Earth is accounted for. One click ranks 18 past and planned landing sites, and up to four site-and-date options can be compared side by side. A built-in guide, Zoriana, offers three ways in: explore, learn, or plan. This matters most at the lunar south pole, where the Sun never climbs more than a few degrees and terrain decides whether a lander has power and a link home.
+Zoriana is an interactive lunar map that helps people explore where and when to land on the Moon. Select a location and date to see, hour by hour across a full lunar day, when that spot has sunlight (needed for power) and a direct line to Earth (needed for communications).
+
+Using Sun and Earth positions from NASA/JPL Horizons and terrain elevation data from NASA's Lunar Orbiter Laser Altimeter (LOLA), Zoriana accounts for how nearby ridges and crater rims can block sunlight or the view of Earth.
+
+Users can rank 18 past and planned landing sites, compare up to four location-and-date options side by side, and choose one of three experiences, Explore, Learn or Plan, with help from Zoriana, our astronaut guide.
+
+The lunar south pole makes these questions especially important. There the Sun stays close to the horizon, so even small terrain differences can decide whether a lander has light and a view of Earth.
+
+Zoriana makes this accessible to curious explorers, educators and mission planners, and is open about its sources and its limits.
 
 ## Link to Project Demo
 
@@ -86,6 +94,53 @@ Scanning a whole area for a chosen date, relay satellites for sites that cannot 
 **Tools, languages and software**
 
 JavaScript (Node.js server, browser client), Three.js, Vite, Python with NumPy and Pillow for data preparation, Docker and Fly.io for hosting. Data: NASA/JPL Horizons, LRO LOLA elevation, permanently-shadowed-region and average-visibility maps, LRO LROC imagery, NASA Blue Marble. Full list with links in REFERENCES.md.
+
+## Links as entered on the form
+
+The form limits how many links each field takes, so the two link fields carry a shortened list. Every source, including the ones left out here, is in [REFERENCES.md](REFERENCES.md).
+
+**NASA Data**
+
+- NASA/JPL Horizons System: https://ssd.jpl.nasa.gov/horizons/
+- JPL Horizons API documentation: https://ssd-api.jpl.nasa.gov/doc/horizons.html
+- LRO LOLA polar elevation LDEM_85S_40M: https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_85s_40m.lbl
+- LRO LOLA polar elevation LDEM_80S_80M: https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_80s_80m.lbl
+- LRO LOLA polar elevation LDEM_80N_80M: https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_80n_80m.lbl
+- LRO LOLA global elevation LDEM_64: https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_64.img
+- LRO LOLA permanent shadow and average visibility maps: https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/extras/illumination/img/
+- NASA SVS CGI Moon Kit (LROC color mosaic, LDEM_16 elevation): https://svs.gsfc.nasa.gov/4720/
+- NASA Moon Trek (LROC WAC global mosaic tiles): https://trek.nasa.gov/moon/
+- NASA Blue Marble: Next Generation, December 2004: https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography-bathymetry/december/world.topo.bathy.200412.3x5400x2700.jpg
+- NASA NSSDC Apollo Landing Site Coordinates: https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html
+- NASA NSSDC Apollo 11 Command and Service Module: https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059A
+- NASA SP-2000-4029 Apollo 11 timeline: https://www.nasa.gov/wp-content/uploads/static/history/SP-4029/Apollo_11i_Timeline.htm
+- Apollo Lunar Surface Journal, Thermal Environment: https://www.nasa.gov/wp-content/uploads/static/history/alsj/WOTM/WOTM-ThermalEnvrnmnt.html
+- NASA Eclipse Web Site, lunar eclipses 2021–2030: https://eclipse.gsfc.nasa.gov/LEdecade/LEdecade2021.html
+- NASA Eclipse Web Site, lunar eclipses 2031–2040: https://eclipse.gsfc.nasa.gov/LEdecade/LEdecade2031.html
+- LROC, Firefly Blue Ghost Landing Region: https://www.lroc.im-ldi.com/images/1400
+- LROC, IM-2 intended landing site: https://www.lroc.asu.edu/images/1401
+- LROC QuickMap: https://quickmap.lroc.im-ldi.com/
+
+**Space Agency Partner and Other Data** (26 rows, the form's limit)
+
+- JAXA SLIM mission page (landing coordinates): https://darts.isas.jaxa.jp/en/missions/slim
+- ISRO Chandrayaan-3 landing site, Statio Shiv Shakti: https://en.wikipedia.org/wiki/Statio_Shiv_Shakti
+- IAU/USGS Planetary Nomenclature of the Moon: https://planetarynames.wr.usgs.gov/GIS_Downloads
+- Firefly Aerospace, 14 days of surface operations on the Moon: https://fireflyspace.com/news/firefly-aerospace-successfully-completes-14-days-of-surface-operations-on-the-moon
+- SpacePolicyOnline, Firefly's images of Earth eclipsing the Sun: https://spacepolicyonline.com/news/fireflys-dazzling-images-of-earth-eclipsing-the-sun/
+- Wikipedia: IM-1 https://en.wikipedia.org/wiki/IM-1 · IM-2 https://en.wikipedia.org/wiki/IM-2 · IM-3 https://en.wikipedia.org/wiki/IM-3 · IM-4 https://en.wikipedia.org/wiki/IM-4 · Griffin Mission One https://en.wikipedia.org/wiki/Griffin_Mission_One · Blue Moon Pathfinder Mission 1 https://en.wikipedia.org/wiki/Blue_Moon_Pathfinder_Mission_1 · March 2025 lunar eclipse https://en.wikipedia.org/wiki/March_2025_lunar_eclipse · March 2026 lunar eclipse https://en.wikipedia.org/wiki/March_2026_lunar_eclipse · August 2026 lunar eclipse https://en.wikipedia.org/wiki/August_2026_lunar_eclipse (nine rows)
+- Three.js (MIT License): https://threejs.org/
+- Vite (MIT License): https://vite.dev/
+- Node.js: https://nodejs.org/
+- Python with NumPy and Pillow: https://www.python.org/
+- Docker: https://www.docker.com/
+- Fly.io (hosting): https://fly.io/
+- Zoriana full reference list (every source, including those not listed here): https://github.com/sftimeless/zoriana/blob/main/REFERENCES.md
+- Zoriana source code: https://github.com/sftimeless/zoriana
+- Anthropic Claude Code (AI coding assistant): https://claude.com/claude-code
+- OpenAI Codex (AI coding assistant): https://openai.com/codex/
+- OpenAI ChatGPT (AI-generated app icon): https://chatgpt.com/
+- Google Fonts, Space Grotesk and Inter (demo slides): https://fonts.google.com/
 
 ---
 
