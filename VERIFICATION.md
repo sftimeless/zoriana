@@ -375,4 +375,5 @@
 - In the replay the flag is absent 30 seconds before that time and present afterwards, beside the astronauts and facing the guided camera, and it stays for the lunar liftoff. The guided pace now slows through the planting. Whole flight stepped again in the guided and window views: 27 steps, splashdown reached, no drawing failure.
 - Ninety-nine Node tests pass (one new: the flag's time, its order among the moonwalk's events, and that the caption mentions it).
 - Live site after deploying (zoriana.fly.dev): the whole flight stepped to splashdown through all 27 steps with no drawing failure and no console errors; the flag absent 30 seconds before its time and present 30 seconds after; the caption carries the plaque's words.
+- Phone (Safari on the simulated iPhone 17 Pro, live site): the moonwalk played from the step list; paused at 110:08:44 there was no flag, and at 110:09:46 the flag stood beside the astronauts.
 - Limits: the flag's exact spot and facing are chosen for the picture; it is a simple drawing of the 1969 flag; it does not fall or fade.
