@@ -4,7 +4,8 @@
 Source: "Planetary Nomenclature of the Moon" center points (IAU and USGS Astrogeology, public
 domain), MOON_nomenclature_center_pts.zip from https://planetarynames.wr.usgs.gov/GIS_Downloads,
 unpacked into data/iau/extracted/. Output: public/assets/features.json, one entry per feature:
-[name, latitude, east longitude (-180 to 180), diameter in km, kind].
+[name, latitude, east longitude (-180 to 180), diameter in km, kind, origin]. The origin is the IAU's own note on
+what the name means or whom it honors; lettered satellite craters share their parent's and carry none.
 
 Usage: python3 -I scripts/prepare-features.py
 """
@@ -34,7 +35,9 @@ for row in read_dbf(SOURCE):
     if row['approval'] != 'Adopted by IAU': continue
     lon = float(row['center_lon']); lon = lon - 360 if lon > 180 else lon
     kind = KINDS.get(row['type'], row['type'].split(',')[0])
-    features.append([row['clean_name'] or row['name'], round(float(row['center_lat']), 4), round(lon, 4), round(float(row['diameter']), 1), kind])
+    entry = [row['clean_name'] or row['name'], round(float(row['center_lat']), 4), round(lon, 4), round(float(row['diameter']), 1), kind]
+    if row['type'] != 'Satellite Feature' and row['origin']: entry.append(row['origin'])
+    features.append(entry)
 features.sort(key=lambda f: -f[3])
 (ROOT / 'public/assets/features.json').write_text(json.dumps(features, ensure_ascii=False, separators=(',', ':')))
 print(len(features), 'features;', 'largest:', features[0][:4], '; example:', next(f for f in features if f[0] == 'Shackleton'))

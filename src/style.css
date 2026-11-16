@@ -492,7 +492,7 @@ dialog .close{position:absolute;right:14px;top:14px}
 .guide-face{width:44px;height:44px;flex:none;border-radius:50%;display:block;overflow:hidden}
 .guide-welcome{position:fixed;inset:0;z-index:40;display:grid;align-items:center;justify-items:start;padding:24px clamp(16px,7vw,120px);background:rgba(0,0,0,.34);overflow:auto}
 .guide-welcome[hidden],.guide-bubble[hidden]{display:none}
-.guide-card{width:min(500px,100%);padding:28px 28px 20px;border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.guide-card{position:relative;width:min(500px,100%);padding:28px 28px 20px;border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
 .guide-hello{display:flex;align-items:center;gap:18px}
 .guide-hello .guide-face{width:92px;height:92px}
 .guide-card h2{font-size:30px;font-weight:700;letter-spacing:-.6px;line-height:1.1}
@@ -513,24 +513,26 @@ dialog .close{position:absolute;right:14px;top:14px}
 .guide-free{display:block;width:100%;margin-top:14px;padding:12px 14px;border-radius:16px;border:.5px solid rgba(255,255,255,.18);font-size:16px;font-weight:600;color:var(--label);text-align:center;transition:background .15s}
 .guide-free:hover{background:rgba(255,255,255,.08)}
 .guide-note{margin-top:10px;font-size:13px;text-align:center;color:rgba(235,235,245,.66)}
-.guide-bubble{position:absolute;left:calc(var(--map-left) + 14px);top:52px;z-index:9;display:flex;gap:12px;align-items:flex-start;width:min(410px,calc(100vw - var(--map-left) - 90px));padding:14px 12px 12px 14px;border-radius:18px}
+.guide-bubble{position:absolute;left:calc(var(--map-left) + 14px);top:52px;z-index:9;display:flex;gap:14px;align-items:flex-start;width:min(480px,calc(100vw - var(--map-left) - 90px));padding:18px 16px 16px 18px;border-radius:20px}
 .guide-body{flex:1;min-width:0}
 .guide-text{font-size:15px;line-height:1.45;color:var(--label)}
-.guide-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
-.guide-count{margin-right:auto;font-size:12px;color:var(--label3);font-variant-numeric:tabular-nums}
-.guide-row button{padding:7px 13px;border-radius:999px;font-size:14px;font-weight:600;background:var(--fill);color:var(--label)}
+.guide-row{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin-top:14px}
+.guide-count{font-size:12px;color:var(--label3);font-variant-numeric:tabular-nums}
+.guide-count:empty{display:none}
+.guide-row button{padding:8px 15px;border-radius:999px;font-size:14px;font-weight:600;white-space:nowrap;background:var(--fill);color:var(--label)}
 .guide-row button.primary{background:var(--blue);color:#fff}
-.guide-dyn{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
-.guide-side{display:flex;flex-direction:column;gap:8px;flex:none}
-.guide-size{width:26px;height:26px;border-radius:50%;font-size:10.5px;font-weight:700;color:var(--label2);background:var(--fill)}
-/* For a class or a projector: larger type in a wider bubble. */
-.guide-bubble.big{width:min(600px,calc(100vw - var(--map-left) - 90px))}
-.guide-bubble.big .guide-text{font-size:21px;line-height:1.4}
-.guide-bubble.big .guide-row button{font-size:16px;padding:9px 16px}
+.guide-dyn{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px}
+/* A menu of choices: one column, every button the same width and height. */
+.guide-bubble.menu .guide-dyn{display:grid;grid-template-columns:1fr;gap:10px}
+.guide-bubble.menu .guide-row button{padding:11px 16px;font-size:15px;border-radius:14px;text-align:center}
+.guide-card-close{position:absolute;top:14px;right:14px;width:30px;height:30px;font-size:20px}
 /* Planning: the same help without the astronaut. */
 .guide-bubble.plain .guide-face{display:none}
 .guide-close{flex:none;width:26px;height:26px;border-radius:50%;font-size:18px;line-height:1;color:var(--label2);background:var(--fill)}
-.guide-target{outline:2px solid #ffd60a;outline-offset:3px}
+/* What the guide is talking about: a gold outline that breathes. */
+@keyframes guide-pulse{0%,100%{outline-color:#ffd60a;box-shadow:0 0 0 0 rgba(255,214,10,0)}50%{outline-color:#fff0a6;box-shadow:0 0 0 7px rgba(255,214,10,.3)}}
+.guide-target{outline:2px solid #ffd60a;outline-offset:3px;animation:guide-pulse 1.2s ease-in-out infinite}
+.feature-label.guide-target,.place-label.guide-target,.sky-chip.guide-target{outline-offset:5px;border-radius:10px}
 #rail .rail-app.guide{background:none;box-shadow:none}
 .rail-app.guide .guide-face{width:46px;height:46px}
 .sky-chip{pointer-events:auto;cursor:help}
@@ -598,7 +600,11 @@ dialog .close{position:absolute;right:14px;top:14px}
  footer{left:12px;right:12px;bottom:5px;font-size:9px}
  footer button{font-size:9px}
  #scale{display:none}
- .guide-bubble{left:8px;right:58px;top:62px;width:auto}
+ .guide-bubble{left:8px;right:58px;top:62px;width:auto;gap:10px;padding:13px 11px 12px 13px;border-radius:18px}
+ .guide-bubble>.guide-face{width:32px;height:32px}
+ .guide-text{font-size:14.5px;line-height:1.42}
+ .guide-row{margin-top:10px;gap:8px}.guide-dyn{gap:8px}
+ .guide-row button{padding:7px 12px;font-size:13.5px}
  .guide-welcome{align-items:end;justify-items:center;padding:12px}
  .guide-card{width:min(520px,100%);padding:20px 18px 14px;border-radius:22px}
  .guide-hello{gap:13px}.guide-hello .guide-face{width:62px;height:62px}

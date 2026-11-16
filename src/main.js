@@ -870,7 +870,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
  for(const el of featureLabels){
   if(el.hidden)continue;const r=el.getBoundingClientRect();
   if(e.clientX<r.left-6||e.clientX>r.right+6||e.clientY<r.top-6||e.clientY>r.bottom+6)continue;
-  const f=features?.find(x=>x[0]===el.textContent);if(f)guide?.say(explainName(f[0],f[4],f[3]));return;
+  const f=features?.find(x=>x[0]===el.textContent);if(f)guide?.say(explainName(f,features));return;
  }
  if(!psrEnabled)return;
  const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);
@@ -1371,20 +1371,59 @@ $('#share').onclick=$('#share-compare').onclick=async()=>{
 for(const id of ['about','details','sources'])$('#'+id).onclick=()=>$('#info').showModal();$('#close-info').onclick=()=>$('#info').close();$('#info').onclick=e=>{if(e.target===$('#info')){const r=$('#info').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#info').close();}};
 restoreFromUrl();
 // ---- Zoriana, the guide: asks who is exploring, sets the app up for them, gives a short tour, and explains what is clicked ----
-let guideTime=null,guideOwns=false;
+let guideTime=null,guideOwns=false,guideDate=null,guideSpin=0,guideGrid=null;
 let guideSaved=null;   // the visitor's own comparison, set aside while an investigation borrows the panel
 const siteById=id=>sites.find(s=>s.id===id);
 guide=createGuide({
  // What each experience sets up. Site, date, stay and comparison are left as the visitor has them.
  setup(id){setDetail(id==='planner');setGrid(id==='educator');syncUrl();},
  toast,stayLabel,
+ stayWords:()=>duration<72?`${duration}-hour`:`${duration/24}-day`,
+ phone:()=>phone.matches,
  select(id){const s=siteById(id);if(!s||selected?.id===id)return;if(mode!=='explore')setMode('explore');selectSite(s);},
  selected:()=>selected?.name??null,
  names:ids=>ids.map(id=>siteById(id).name),
  distanceKm:(a,b)=>siteVector(siteById(a)).angleTo(siteVector(siteById(b)))*1737.4,
  dateLabel:()=>stamp(startDate()),
- home(){if(selected)closeSite();goHome();},
- flyTo(lat,lon){if(selected)closeSite();startFlight({to:new THREE.Vector3(...coordinatesToVector(lat,lon)).multiplyScalar(2.7)});if(phone.matches)setSheet('peek');},
+ home(){if(selected)closeSite();$('#planner').scrollTop=0;if(phone.matches)setSheet('peek');goHome();},
+ flyTo(lat,lon,distance=2.7){if(selected)closeSite();startFlight({to:new THREE.Vector3(...coordinatesToVector(lat,lon)).multiplyScalar(distance)});if(phone.matches)setSheet('peek');},
+ // The tour's first step turns the Moon slowly by itself.
+ // One very fast, full turn of the Moon about its axis, starting and ending on the opening view. It plays only when a
+ // visitor clicks "Explore the Moon" in the welcome. It is skipped for anyone who has asked their system for less motion.
+ spin(on){
+  cancelAnimationFrame(guideSpin);guideSpin=0;
+  if(!on||surface||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  flight=null;const from=homePosition(),began=performance.now(),axis=new THREE.Vector3(0,1,0),SECONDS=1.2;
+  const turn=now=>{
+   const u=Math.min(1,(now-began)/(SECONDS*1000)),eased=u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+   camera.position.copy(from).applyAxisAngle(axis,eased*Math.PI*2);camera.up.set(0,1,0);camera.lookAt(0,0,0);invalidate();
+   guideSpin=u<1?requestAnimationFrame(turn):0;
+  };
+  guideSpin=requestAnimationFrame(turn);
+ },
+ // The tour's first step shows the two gestures instead of naming them: the Moon turns a little, the view zooms in, and
+ // everything returns to the opening view.
+ demo(){
+  cancelAnimationFrame(guideSpin);guideSpin=0;
+  if(surface||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  flight=null;const from=homePosition(),began=performance.now(),axis=new THREE.Vector3(0,1,0),TOTAL=4200;
+  const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2,part=(u,a,b)=>ease(Math.min(1,Math.max(0,(u-a)/(b-a))));
+  const move=now=>{
+   const u=Math.min(1,(now-began)/TOTAL),angle=.75*(part(u,0,.32)-part(u,.7,1)),scale=1-.3*(part(u,.36,.62)-part(u,.7,1));
+   camera.position.copy(from).applyAxisAngle(axis,angle).multiplyScalar(scale);camera.up.set(0,1,0);camera.lookAt(0,0,0);invalidate();
+   guideSpin=u<1?requestAnimationFrame(move):0;
+  };
+  guideSpin=requestAnimationFrame(move);
+ },
+ // Opens the Learn section of the list, for the step that describes it.
+ showLearn(){openListAt('#learn-title');if(phone.matches)setSheet('mid');},
+ // Moves the view without closing an open place.
+ look(lat,lon,distance=2.6){startFlight({to:new THREE.Vector3(...coordinatesToVector(lat,lon)).multiplyScalar(distance)});},
+ // Shows the poles-and-grid layer for one step, then puts it back as the visitor had it.
+ gridDemo(on){if(on){if(guideGrid===null)guideGrid=gridEnabled;setGrid(true);}else if(guideGrid!==null){setGrid(guideGrid);guideGrid=null;}},
+ // An experiment changes one input, the landing date, and puts it back when it ends. Days count from the visitor's own date.
+ moveDate(days){if(guideDate===null)guideDate=$('#date').value;const d=days?shiftDate(guideDate,days):guideDate;if(d&&d!==$('#date').value)applyDate(d);},
+ restoreDate(){if(guideDate!==null&&guideDate!==$('#date').value){applyDate(guideDate);syncUrl();}guideDate=null;},
  showSouthPole(){if(selected)closeSite();setPsr(true);startFlight({to:new THREE.Vector3(...coordinatesToVector(-84,15)).multiplyScalar(2.4)});if(phone.matches)setSheet('peek');},
  // The tour's demonstration of the time bar: play, then put the clock back where the visitor had it.
  playTime(on){

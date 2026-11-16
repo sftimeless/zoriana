@@ -326,6 +326,9 @@ export async function openReplay(onClose){
 
   // The lunar module: inside the adapter, docked to the command ship's nose, or flying its own path.
   const docked=(t>=T.dock&&t<T.undock)||(t>=T.redock&&t<T.lmJettison),split=t>=T.lmLiftoff,dockOff=scale(yC,m(12.65)*sC);
+  // The camera aims a little forward of the command ship while the lander is on its nose. That aim point slides over two
+  // minutes on either side of each docking and parting, so the pair never lurches on the screen.
+  const span=(a,b)=>smooth((t-(a-120))/120)*(1-smooth((t-b)/120)),joined=Math.max(span(T.dock,T.undock),span(T.redock,T.lmJettison));
   if(t<T.lmJettison)castOff=null;
   let lmPos,lmQ,lmS=sC;
   if(t<T.dock){lmPos=along(hS+12.3);lmQ=keep('lm',stackQ);}
@@ -337,7 +340,13 @@ export async function openReplay(onClose){
    else if(t<T.landing){const s=(t-T.pdi)/(T.landing-T.pdi);lmPos=Lr;lmQ=settle('lm',basis(unit(lerp(scale(rel,-1),upL,smooth(s)**1.5)),unit(lerp(scale(upL,-1),fl.fwd,smooth((s-.3)/.3))),fl.fwd));}
    else if(t<T.lmLiftoff){lmPos=Lr;lmQ=settle('lm',basis(upS,westS,north));}
    else if(t<T.lmOrbit){const s=(t-T.lmLiftoff)/(T.lmOrbit-T.lmLiftoff);lmPos=Lr;lmQ=settle('lmA',basis(unit(lerp(upL,rel,smooth(s*1.3))),fl.fwd,westS));}
-   else if(t<T.redock){lmPos=add(Lr,scale(dockOff,smooth((t-(T.redock-1800))/1800)));lmQ=settle('lmA',basis(rel,upL,north));}
+   else if(t<T.redock){
+    // The last stretch before docking: Eagle turns to face Columbia's nose and eases into the very spot and size it
+    // holds once docked, so nothing snaps at the moment the two join.
+    const far=add(Lr,scale(dockOff,smooth((t-(T.redock-1800))/1800))),w=smooth((t-(T.redock-180))/180);
+    lmPos=w>0?lerp(far,add(Cc,dockOff),w):far;lmS=sL+(sC-sL)*w;
+    lmQ=settle('lmA',w>0?tq.copy(csmQ).multiply(FLIP):basis(rel,upL,north));
+   }
    else{
     // Cast off: springs push the lander off the nose at walking pace (about 0.6 m/s), along the way the ship was pointing then.
     if(!castOff)castOff=yC;
@@ -371,7 +380,7 @@ export async function openReplay(onClose){
 
   const yL=axis(lmQ,1),cmUp=axis(cmQ,1);
   return {P,Vc,mo,mv,wM,fc,fl,Lr,site,upS,westS,sC,lenC,lmS,Cc,lmPos,cmPos,yC,yL,cmUp,nose,
-   focus:{craft:t<T.sicSep?along(-5):t<T.siiSep?along(22):t<T.csmSep?along(32):t<T.cmSep?(docked?add(Cc,scale(yC,m(4)*sC)):Cc):add(cmPos,scale(cmUp,m(chutes.visible&&t<T.splash?22*(1-smooth((t-T.splash+25)/25)*.93):1.5)*sC)),lander:add(lmPos,scale(yL,m(3.4)*lmS)),site:add(site,scale(upS,m(2.6)))},
+   focus:{craft:t<T.sicSep?along(-5):t<T.siiSep?along(22):t<T.csmSep?along(32):t<T.cmSep?add(Cc,scale(yC,m(4)*sC*joined)):add(cmPos,scale(cmUp,m(chutes.visible&&t<T.splash?22*(1-smooth((t-T.splash+25)/25)*.93):1.5)*sC)),lander:add(lmPos,scale(yL,m(3.4)*lmS)),site:add(site,scale(upS,m(2.6)))},
    pov:{craft:t<T.cmSep?add(Cc,add(scale(axis(csmQ,0),m(7)*sC),scale(yC,m(1)*sC))):add(cmPos,add(scale(axis(cmQ,0),m(4.5)*sC),scale(cmUp,m(2)*sC))),lander:add(lmPos,add(scale(yL,m(5.3)*lmS),scale(axis(lmQ,0),m(2.4)*lmS)))},
    lmFront:axis(lmQ,0),cmSide:axis(cmQ,0)};
  }

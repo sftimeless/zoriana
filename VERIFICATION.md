@@ -546,3 +546,59 @@ Local build only; not deployed at the time of writing.
 - Ninety-nine Node tests pass; the build succeeds; the replay stepped through the flight with no drawing failure.
 - Live site after deploying (zoriana.fly.dev, release 36), with the team's go-ahead: the welcome appeared on the plain address; the Explore tour ran all eight steps and the clock was restored; the sunlight investigation returned the same numbers as the local build (0 and 72 hours, then 23.5 and 72, four cards in the comparison); choosing Plan a Mission raised no bubble and posted its one line; the replay stepped through the flight with no drawing failure and no console errors; the replay link opened without the welcome.
 - Limits: checked in Chrome by script, not yet in Safari, with a screen reader, or with a real first-time visitor; the investigations use fixed pairs of sites and a fixed 14-day shift; their numbers need the server to reach JPL for dates it has not cached; on phones the investigation's comparison panel stays closed, so the four results are read from the guide's text; the guide speaks English only.
+
+## Seven points from the team after trying the guide — November 16, 2026 (UTC)
+
+Local build at the time of writing.
+
+1. The "A+" button is gone (it read as a grade), and with it the larger-type mode.
+2. The Guide button sits below About, at the foot of the sidebar's buttons.
+3. Docking still jerked at the moment Eagle joined Columbia. Cause: at that instant Eagle switched to a different position reference, size factor and attitude rule. Over the last three minutes it now eases into exactly the place, size and attitude it holds when docked. Watched in real time: frames 0.4 s before and 0.7 s after the join are identical.
+4. Choosing Plan a Mission showed a passing message and then needed two clicks to reach the walkthrough. It now shows one plain panel, without the astronaut ("Want a seven-step walkthrough of the tools?" with "No thanks" and "Show me"), and the Guide button starts the walkthrough, or the Explore tour, in one click. The first step of each carries "Change experience".
+5. Wording: "Investigation" and "Make a prediction" became "Let's try an experiment" and a plain question; results read "Here is the answer…", "You guessed right" or "Not what you guessed"; the stay is "3-day", not "3 d". The two experiments are named "Sunlight at the pole" and "Can everyone see Earth?".
+6. Every clicked name gave the same paragraph. Each now gets its own meaning or history from the IAU's origin note, which `scripts/prepare-features.py` now carries into `public/assets/features.json` for the 2,023 main features (lettered satellite craters use their parent's). Read back for eighteen names, among them: Mare Nubium "Sea of Clouds"; Lacus Somniorum "Lake of Dreams"; Sinus Iridum "Bay of Rainbows"; Dorsum Buckland, William Buckland, British Earth scientist; Planck, Max Karl Ernst Planck, German physicist; Copernicus A, through Copernicus; Mount Marilyn, one of the names the astronauts did choose. Clicked on the map: three different seas gave three different answers.
+7. Panels without a way out: the welcome has a close button (the same as "Explore freely"); every step shows "‹ Back" and "Next ›" where they apply, and every bubble has a close button.
+- Earth experiment run again with the new wording: Apollo 11 72 of 72 hours with Earth in view and Shackleton region 13.3; fourteen days later 72 and 0.
+- Ninety-nine Node tests pass; the build succeeds; the replay stepped through the docking with no drawing failure.
+- Limits: a person's name is assembled from the IAU note and the feature's name, which reads well for the eighteen checked but was not read for all 1,596; origins the note gives as a bare phrase are quoted as written.
+
+## Steps that show what they say — November 16, 2026 (UTC)
+
+The team's note: several steps only talked; nothing moved or was pointed out, and the tour did not show how to get around the app. Local build at the time of writing.
+
+- Every step now points: what it names flashes with a gold outline (found again as the map settles), and a control inside the side panel is scrolled into view.
+- Explore the Moon, now eleven steps, each checked for what flashed or moved: the Moon turning by itself; the names of the dark plains (four seas); every marker in view (seven); "Mare Tranquillitatis" after flying there; Apollo 11's marker and card; the Sun and Earth line labels; the permanent-shadow button at the south pole; the time bar while it plays; then the sidebar buttons, the map buttons, and the Guide button.
+- Experiments: both places flash while the question is asked. When the answer arrives, the guide opens Shackleton region, flashes the comparison and the line labels, and plays the clock so the line can be watched turning from dashed to solid. Changing the date really moves the landing date (November 16 to 30 in the run), so the Moon is relit, and the date is put back when the experiment ends (checked: back to November 16, clock stopped).
+- Planning walkthrough: each of the seven steps flashed its controls (the site panel; date bar and stay buttons; sunlit row and the 30-day chart; the Sun and Earth cards; Compare and Rank; "How this is calculated"; Share).
+- Ninety-nine Node tests pass; the build succeeds.
+- Limits: the flashing respects the system's reduce-motion setting (the outline stays, without the pulse); on a phone the map highlights sit behind the bottom sheet until it is lowered.
+
+## Three more points from the team — November 16, 2026 (UTC)
+
+Local build at the time of writing.
+
+- After docking, the joined pair lurched together to a new place on the screen. Cause: the camera's aim point jumped 4 m along the ship's nose at the instant of docking. It now slides over two minutes on either side of each docking and parting. Watched at the guided pace: the pair sits in the same place 2 s, 10 s and 60 s after joining, and the camera's offset from its aim point is unchanged across the join.
+- One very fast spin of the Moon (a full turn in 1.2 seconds, ending on the opening view) answers a click on "Explore the Moon" in the welcome, and nothing else. Checked by watching which markers were in view: a spin on clicking "Explore the Moon", both the first time and after changing experience back to it; no spin on opening the app, on "Start the tour", on the Guide button, on reopening the welcome, on "Explore freely", on "Learn & Discover" or on "Plan a Mission". It is skipped when the system asks for reduced motion.
+- The guide's panel is wider (480 px) with more padding. A menu of three choices is one column of equal buttons (347 × 40 px each, evenly spaced); step buttons keep one size and one gap.
+- Ninety-nine Node tests pass; the build succeeds.
+
+## Every step moves — November 16, 2026 (UTC)
+
+The team's note: between the first two steps of the Explore tour nothing moved; each step of the first two experiences should show something in context. Local build at the time of writing.
+
+- Explore the Moon, measured by sampling the on-screen positions of every marker and name while each step ran: steps 1 to 8 all move the map. Step 1 shows the two gestures instead of naming them (the Moon turns about 40°, the view zooms in, then both return); 2 flies in for a closer look at the lava plains; 3 pulls back to the whole Moon; 4 flies to Mare Tranquillitatis; 5 opens Apollo 11; 6 steps to the side of it; 7 goes to the south pole; 8 plays the clock. Step 9 opens the Learn section it describes in the side panel; step 10 switches poles and grid on for the length of the step and puts it back; step 11 is the hand-over.
+- Learn & Discover, same measurement on the sunlight experiment: all six steps move (to the pole; Shackleton opened and the clock run; back out to both places for the date question; the Moon relit two weeks on and the clock run again; a close look at the ground for the reason; back to the whole Moon). The landing date read November 30 during the experiment and November 16 after "Done".
+- A fault caught by this check and fixed before it shipped: the new step 9 called a hook that an earlier rewrite had dropped, and the tour stopped at step 8. Every hook the guide calls is now checked against what the app provides (none missing). Run again to the end: Explore 1 to 11, the Earth experiment 1 to 6, the planning walkthrough 1 to 7.
+- The shared link is rewritten when an experiment puts the date back, so a reload does not land on the experiment's date.
+- Ninety-nine Node tests pass; the build succeeds.
+
+## Last sweep before deploying the guide changes — November 16, 2026 (UTC)
+
+Local build at the time of writing.
+
+- Every script passes a syntax check; 99 Node tests pass; the build succeeds; every hook the guide calls exists in the app.
+- Phone size (375 × 812), run again after several rounds without it: the welcome fits with its close button; the Explore tour ran 1 to 11, the sunlight experiment 1 to 6 with the date put back afterward, the planning walkthrough 1 to 7. Two things fixed: the guide's panel was too tall there (its last step stood 388 px high; now 314 px, with a smaller face and tighter buttons), and it told phone visitors the guide is "under Guide in the sidebar", which phones do not show; it now says "under 'New here?' in the list". Starting a tour on a phone also lowers the sheet so the map can be seen.
+- Replay: all four cameras stepped through the flight with no drawing failure. At the guided pace, the largest frame-to-frame change in the camera's offset from its aim point within 12 seconds of each docking and parting was 0.01 m (first docking), 0.08 m (undocking), 0.05 m (second docking) and 0.02 m (cast-off): no lurch at any of the four.
+- A link to Apollo 17 on another date opened without the welcome, with its touchdown button full width and no replay button; searching "tycho" listed Tycho and its satellite craters.
+- Wording: the guide's text has no first-person narration left beyond her introduction, and no "investigation" or "prediction". The Guide button's tooltip and one slide line still used the older words and were brought in line; the demo PDF was regenerated (7 pages, three links).
+- Not checked: Safari, a screen reader, a real phone.
