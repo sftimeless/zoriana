@@ -591,3 +591,14 @@ The team's note: between the first two steps of the Explore tour nothing moved; 
 - A fault caught by this check and fixed before it shipped: the new step 9 called a hook that an earlier rewrite had dropped, and the tour stopped at step 8. Every hook the guide calls is now checked against what the app provides (none missing). Run again to the end: Explore 1 to 11, the Earth experiment 1 to 6, the planning walkthrough 1 to 7.
 - The shared link is rewritten when an experiment puts the date back, so a reload does not land on the experiment's date.
 - Ninety-nine Node tests pass; the build succeeds.
+
+## Last sweep before deploying the guide changes — November 16, 2026 (UTC)
+
+Local build at the time of writing.
+
+- Every script passes a syntax check; 99 Node tests pass; the build succeeds; every hook the guide calls exists in the app.
+- Phone size (375 × 812), run again after several rounds without it: the welcome fits with its close button; the Explore tour ran 1 to 11, the sunlight experiment 1 to 6 with the date put back afterward, the planning walkthrough 1 to 7. Two things fixed: the guide's panel was too tall there (its last step stood 388 px high; now 314 px, with a smaller face and tighter buttons), and it told phone visitors the guide is "under Guide in the sidebar", which phones do not show; it now says "under 'New here?' in the list". Starting a tour on a phone also lowers the sheet so the map can be seen.
+- Replay: all four cameras stepped through the flight with no drawing failure. At the guided pace, the largest frame-to-frame change in the camera's offset from its aim point within 12 seconds of each docking and parting was 0.01 m (first docking), 0.08 m (undocking), 0.05 m (second docking) and 0.02 m (cast-off): no lurch at any of the four.
+- A link to Apollo 17 on another date opened without the welcome, with its touchdown button full width and no replay button; searching "tycho" listed Tycho and its satellite craters.
+- Wording: the guide's text has no first-person narration left beyond her introduction, and no "investigation" or "prediction". The Guide button's tooltip and one slide line still used the older words and were brought in line; the demo PDF was regenerated (7 pages, three links).
+- Not checked: Safari, a screen reader, a real phone.

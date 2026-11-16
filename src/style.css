@@ -600,7 +600,11 @@ dialog .close{position:absolute;right:14px;top:14px}
  footer{left:12px;right:12px;bottom:5px;font-size:9px}
  footer button{font-size:9px}
  #scale{display:none}
- .guide-bubble{left:8px;right:58px;top:62px;width:auto}
+ .guide-bubble{left:8px;right:58px;top:62px;width:auto;gap:10px;padding:13px 11px 12px 13px;border-radius:18px}
+ .guide-bubble>.guide-face{width:32px;height:32px}
+ .guide-text{font-size:14.5px;line-height:1.42}
+ .guide-row{margin-top:10px;gap:8px}.guide-dyn{gap:8px}
+ .guide-row button{padding:7px 12px;font-size:13.5px}
  .guide-welcome{align-items:end;justify-items:center;padding:12px}
  .guide-card{width:min(520px,100%);padding:20px 18px 14px;border-radius:22px}
  .guide-hello{gap:13px}.guide-hello .guide-face{width:62px;height:62px}

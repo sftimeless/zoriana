@@ -70,7 +70,7 @@ function exploreTour(api){return [
  {run:()=>{api.home();api.playTime(true);},leave:()=>api.playTime(false),target:'.timeline',text:'This bar is time. Look how it works: as it plays, night sweeps across the Moon. One day here lasts 29.5 Earth days. Drag the bar to pick any moment in the next month.'},
  {run:()=>{api.home();api.showLearn();},target:['.rail-apps','#learn-title'],text:'Getting around. The buttons on the left: Search finds any place by name or coordinates. Compare and Rank line places up side by side. Learn, opened here in the list, has short answers to common questions. Watch has fly-bys and the Apollo 11 replay.'},
  {run:()=>{api.home();api.gridDemo(true);},leave:()=>api.gridDemo(false),target:'.map-tools',text:'The buttons on the right change the map: its style, sunlight, permanent shadow, poles and grid (switched on for a moment: red is the north pole, blue the south), and map layers. Below them: drop a pin anywhere, see the whole Moon, and the compass, which puts north back at the top.'},
- {text:'Your turn. Open any marker, then click a name, a line’s label or a blue patch to learn what it is. The guide is always under Guide in the sidebar.',target:'#rail-guide',actions:[['Watch Apollo 11',api.openReplay]]},
+ {text:`Your turn. Open any marker, then click a name, a line’s label or a blue patch to learn what it is. The guide is always ${api.phone()?'under “New here?” in the list':'under Guide in the sidebar'}.`,target:'#rail-guide',actions:[['Watch Apollo 11',api.openReplay]]},
 ];}
 
 // Learn & Discover: a question, a prediction, a test with the app's own calculation, one input changed, an explanation.
@@ -164,7 +164,7 @@ export function createGuide(api){
  const invite={
   general:()=>show('All set to explore the Moon. Want a short tour of the map and how to get around?',[['Not now',close],['Start the tour',startExplore,true]]),
   educator:()=>show('All set to learn and discover. Two experiments are ready: make a guess, then test it with real NASA data.',[['Sunlight at the pole',startSun,true],['Can everyone see Earth?',startEarth,true],['Not now',close]]),
-  planner:()=>show('Planning tools are ready, and the numbers are showing. Want a seven-step walkthrough of the tools? It is optional, and it is always under Guide.',[['No thanks',close],['Show me',startPlan,true]]),
+  planner:()=>show(`Planning tools are ready, and the numbers are showing. Want a seven-step walkthrough of the tools? It is optional, and it is always ${api.phone()?'under “New here?” in the list':'under Guide'}.`,[['No thanks',close],['Show me',startPlan,true]]),
  };
  // Leaving the welcome is remembered, so a returning visitor is not asked again; Guide in the sidebar reopens it.
  function leave(){welcome.hidden=true;welcomed=true;put('zoriana-welcomed','1');opener?.focus?.();opener=null;}
