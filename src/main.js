@@ -1371,7 +1371,7 @@ $('#share').onclick=$('#share-compare').onclick=async()=>{
 for(const id of ['about','details','sources'])$('#'+id).onclick=()=>$('#info').showModal();$('#close-info').onclick=()=>$('#info').close();$('#info').onclick=e=>{if(e.target===$('#info')){const r=$('#info').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#info').close();}};
 restoreFromUrl();
 // ---- Zoriana, the guide: asks who is exploring, sets the app up for them, gives a short tour, and explains what is clicked ----
-let guideTime=null,guideOwns=false,guideDate=null;
+let guideTime=null,guideOwns=false,guideDate=null,guideSpin=0;
 let guideSaved=null;   // the visitor's own comparison, set aside while an investigation borrows the panel
 const siteById=id=>sites.find(s=>s.id===id);
 guide=createGuide({
@@ -1388,7 +1388,11 @@ guide=createGuide({
  home(){if(selected)closeSite();$('#planner').scrollTop=0;goHome();},
  flyTo(lat,lon,distance=2.7){if(selected)closeSite();startFlight({to:new THREE.Vector3(...coordinatesToVector(lat,lon)).multiplyScalar(distance)});if(phone.matches)setSheet('peek');},
  // The tour's first step turns the Moon slowly by itself.
- spin(on){controls.autoRotate=Boolean(on);controls.autoRotateSpeed=1.6;invalidate();},
+ // The tour's first step: one full turn in about six seconds, then back to the opening view.
+ spin(on){
+  clearTimeout(guideSpin);controls.autoRotate=Boolean(on);controls.autoRotateSpeed=10;invalidate();
+  if(on)guideSpin=setTimeout(()=>{controls.autoRotate=false;goHome();},6000);
+ },
  // An experiment changes one input, the landing date, and puts it back when it ends. Days count from the visitor's own date.
  moveDate(days){if(guideDate===null)guideDate=$('#date').value;const d=days?shiftDate(guideDate,days):guideDate;if(d&&d!==$('#date').value)applyDate(d);},
  restoreDate(){if(guideDate!==null&&guideDate!==$('#date').value)applyDate(guideDate);guideDate=null;},

@@ -60,17 +60,17 @@ const nameLabels=(test=()=>true)=>()=>[...document.querySelectorAll('.feature-la
 // Explore the Moon: a mental model of the map. What the picture is, what its colors and marks mean, what the names are,
 // what the two lines say, what the blue patches are, what the time bar does; then the visitor is on their own.
 function exploreTour(api){return [
- {run:()=>{api.home();api.spin(true);},leave:()=>api.spin(false),text:'This is the Moon, built from NASA photographs and lit as the Sun lights it right now. I am turning it slowly. Drag to turn it yourself; scroll or pinch to zoom.'},
- {run:api.home,target:nameLabels(t=>/^(Mare|Oceanus)/.test(t)),text:'How to read it. Gray is the ground. The darker plains, whose names are flashing, are old lava, not shadow. The side turned away from the Sun is drawn dark: that is night.'},
+ {run:()=>{api.home();api.spin(true);},leave:()=>api.spin(false),text:'This is the Moon, built from NASA photographs and lit as the Sun lights it right now. Watch it spin once around. Then drag to turn it yourself; scroll or pinch to zoom.'},
+ {run:api.home,target:nameLabels(t=>/^(Mare|Oceanus)/.test(t)),text:'How to read it. Gray is the ground. The darker plains, whose names are flashing, are old lava, not shadow. The side turned away from the Sun is dark: that is night.'},
  {target:markers(),text:'The round markers, flashing now, are places where a spacecraft landed or plans to land. Click one to open it.'},
- {run:()=>api.flyTo(8.35,30.83),target:nameLabels(t=>t==='Mare Tranquillitatis'),text:'The names are Latin. This plain is Mare Tranquillitatis, the Sea of Tranquility. “Mare” means sea: early astronomers took the dark plains for water. Click any name and I will tell you what it means.'},
- {run:()=>api.select('apollo11'),target:['#site-card',markers('Apollo 11')],text:'I have opened Apollo 11, where people first landed. Its card, on the left, says in one sentence whether this place is in sunlight and whether it can see Earth at the time on the bar below.'},
+ {run:()=>api.flyTo(8.35,30.83),target:nameLabels(t=>t==='Mare Tranquillitatis'),text:'The names are Latin. This plain is Mare Tranquillitatis, the Sea of Tranquility. “Mare” means sea: early astronomers took the dark plains for water. Click any name to learn what it means.'},
+ {run:()=>api.select('apollo11'),target:['#site-card',markers('Apollo 11')],text:'Here is the landing site of Apollo 11, where people first walked on the Moon. The card on the left says, in one sentence, whether this place is in sunlight and whether it can see Earth at the time on the bar below.'},
  {run:()=>api.select('apollo11'),target:'.sky-chip',text:'Two lines leave the place, and their labels are flashing. Gold points toward the Sun, blue toward Earth. They show direction, not distance. The number is how high the Sun or Earth sits above the horizon there: 90° is straight overhead, 0° is on the horizon.'},
  {run:api.showSouthPole,target:'#psr',text:'Now the south pole. The blue patches are ground that never gets direct sunlight. Blue does not mean water: it marks permanent shadow, from NASA’s maps. Scientists think some of these cold places may hold ice. The flashing button on the right turns the patches on and off.'},
- {run:()=>{api.home();api.playTime(true);},leave:()=>api.playTime(false),target:'.timeline',text:'This bar is time, and I am playing it. Watch night sweep across the Moon: one day here lasts 29.5 Earth days. Drag the bar yourself to pick any moment in the next month.'},
+ {run:()=>{api.home();api.playTime(true);},leave:()=>api.playTime(false),target:'.timeline',text:'This bar is time. Look how it works: as it plays, night sweeps across the Moon. One day here lasts 29.5 Earth days. Drag the bar to pick any moment in the next month.'},
  {target:'.rail-apps',text:'Getting around. The buttons on the left: Search finds any place by name or coordinates. Compare and Rank line places up side by side. Learn has short answers to common questions. Watch has fly-bys and the Apollo 11 replay.'},
  {target:'.map-tools',text:'The buttons on the right change the map: its style, sunlight, permanent shadow, poles and grid, and map layers. Below them: drop a pin anywhere, see the whole Moon, and the compass, which puts north back at the top.'},
- {text:'Your turn. Open any marker, then click a name, a line’s label or a blue patch, and I will tell you what it is. You can find me under Guide in the sidebar.',target:'#rail-guide',actions:[['Watch Apollo 11',api.openReplay]]},
+ {text:'Your turn. Open any marker, then click a name, a line’s label or a blue patch to learn what it is. The guide is always under Guide in the sidebar.',target:'#rail-guide',actions:[['Watch Apollo 11',api.openReplay]]},
 ];}
 
 // Learn & Discover: a question, a prediction, a test with the app's own calculation, one input changed, an explanation.
@@ -90,7 +90,7 @@ function investigation(api,kind){
    work:async m=>{api.moveDate(0);m.first=await api.compare(ids,0);if(!m.first)return failed;api.select('shackleton');api.playTime(true);
     const r=m.first,d=differ(r.rows[0][key],r.rows[1][key],r.total);
     const right=sun?(m.choice0===1)===d:(m.choice0===0)===d;
-    return `Here is the answer for the stay starting ${r.when}. ${line(r)} ${d?`That is ${hours(Math.abs(r.rows[0][key]-r.rows[1][key]))} hours apart.`:'So for this stay they come out about the same.'} ${right?'You guessed right.':'Not what you guessed, and that is how experiments teach.'} I have opened ${api.names(['shackleton'])[0]} and started the clock: watch its ${sun?'gold':'blue'} line. Solid means ${sun?'sunlit':'Earth is in view'}, dashed means hidden.`;}},
+    return `Here is the answer for the stay starting ${r.when}. ${line(r)} ${d?`That is ${hours(Math.abs(r.rows[0][key]-r.rows[1][key]))} hours apart.`:'So for this stay they come out about the same.'} ${right?'You guessed right.':'Not what you guessed, and that is how experiments teach.'} Now watch ${api.names(['shackleton'])[0]} as the clock runs: a solid ${sun?'gold':'blue'} line means ${sun?'sunlit':'Earth is in view'}, a dashed one means hidden.`;}},
   {target:'.timeline',text:`Now let’s change one thing: the date, on the bar below. Suppose they land 14 days later, about half a lunar day on. Do you think the answer stays the same?`,choices:['It stays the same','It changes']},
   {busy:'Working both places out again, 14 days later…',
    leave:()=>api.playTime(false),target:['#comparison','.sky-chip','.timeline'],
@@ -106,7 +106,7 @@ function investigation(api,kind){
 
 // Plan a Mission: the analysis tools in the order a planner uses them. No astronaut, no lessons.
 function planWalk(api){return [
- {run:()=>{if(!api.selected())api.select('im4');},target:'.planner',text:'1 · Site. Pick a site from the list, search coordinates, or right-click the Moon to drop a pin. (IM-4 is opened if nothing was selected.)'},
+ {run:()=>{if(!api.selected())api.select('im4');},target:'.planner',text:'1 · Site. Pick a site from the list, search coordinates, or right-click the Moon to drop a pin. (IM-4 opens if nothing was selected.)'},
  {target:['.timeline','#duration'],text:'2 · Date and stay. Set the landing date and hour in the bar below, in UTC. Set the surface stay, 24 h to 7 d, on the site’s card.'},
  {run:api.showNumbers,target:['#lunar','.stay-row.sun'],text:'3 · Sunlight. The card totals sunlit hours for the stay and lists each interruption. The 30-day chart scores every landing day; the gold band on the time bar shows the same windows.'},
  {target:['.metrics','.stay-row.earth'],text:'4 · Earth in view. Counted the same way, in blue. “Above terrain” is the margin to the real skyline, and the ± on each rise and set time is how far it moves if the skyline is 0.1° higher or lower.'},
@@ -143,7 +143,7 @@ export function createGuide(api){
  function show(text,row=[],count=''){
   $('.guide-text').textContent=text;$('.guide-count').textContent=count;buttons=row;
   $('.guide-dyn').innerHTML=row.map(([label,,primary],i)=>`<button data-i="${i}"${primary?' class="primary"':''}>${label}</button>`).join('');
-  bubble.classList.toggle('plain',audience==='planner');bubble.hidden=false;shown={text,row,count};
+  bubble.classList.toggle('plain',audience==='planner');bubble.classList.toggle('menu',!count&&row.length>=3);bubble.hidden=false;shown={text,row,count};
  }
  function end(){flow?.[index]?.leave?.();if(flow?.learn){api.restoreDate();api.endCompare();}flow=null;mark(null);}
  const close=()=>{end();bubble.hidden=true;};
@@ -162,8 +162,8 @@ export function createGuide(api){
  function start(make,learn=false){end();memo={};flow=make();flow.make=make;flow.learn=learn;index=0;go(0);}
  const startExplore=()=>start(()=>exploreTour(api)),startSun=()=>start(()=>investigation(api,'sun'),true),startEarth=()=>start(()=>investigation(api,'earth'),true),startPlan=()=>start(()=>planWalk(api));
  const invite={
-  general:()=>show('All set to explore the Moon. Want a short tour of what you are looking at?',[['Not now',close],['Start the tour',startExplore,true]]),
-  educator:()=>show('All set to learn and discover. I have two experiments: you make a guess, then we test it with real NASA data.',[['Not now',close],['Can everyone see Earth?',startEarth],['Sunlight at the pole',startSun,true]]),
+  general:()=>show('All set to explore the Moon. Want a short tour of the map and how to get around?',[['Not now',close],['Start the tour',startExplore,true]]),
+  educator:()=>show('All set to learn and discover. Two experiments are ready: make a guess, then test it with real NASA data.',[['Sunlight at the pole',startSun,true],['Can everyone see Earth?',startEarth,true],['Not now',close]]),
   planner:()=>show('Planning tools are ready, and the numbers are showing. Want a seven-step walkthrough of the tools? It is optional, and it is always under Guide.',[['No thanks',close],['Show me',startPlan,true]]),
  };
  // Leaving the welcome is remembered, so a returning visitor is not asked again; Guide in the sidebar reopens it.
@@ -199,7 +199,7 @@ export function createGuide(api){
    const change=['Change experience',openWelcome];
    // One click: the tour or the walkthrough starts at once. Its first step carries "Change experience".
    if(audience==='planner')return startPlan();
-   if(audience==='educator')return show('Two experiments. In each you make a guess, then we test it with real NASA data. Try them on any date.',[change,['Can everyone see Earth?',startEarth],['Sunlight at the pole',startSun,true]]);
+   if(audience==='educator')return show('Two experiments. In each, make a guess, then test it with real NASA data. They work on any date.',[['Sunlight at the pole',startSun,true],['Can everyone see Earth?',startEarth,true],change]);
    startExplore();
   },
   // A plain answer about something on the map. During a tour it appears in place and the tour can be resumed.

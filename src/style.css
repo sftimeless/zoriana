@@ -513,14 +513,18 @@ dialog .close{position:absolute;right:14px;top:14px}
 .guide-free{display:block;width:100%;margin-top:14px;padding:12px 14px;border-radius:16px;border:.5px solid rgba(255,255,255,.18);font-size:16px;font-weight:600;color:var(--label);text-align:center;transition:background .15s}
 .guide-free:hover{background:rgba(255,255,255,.08)}
 .guide-note{margin-top:10px;font-size:13px;text-align:center;color:rgba(235,235,245,.66)}
-.guide-bubble{position:absolute;left:calc(var(--map-left) + 14px);top:52px;z-index:9;display:flex;gap:12px;align-items:flex-start;width:min(410px,calc(100vw - var(--map-left) - 90px));padding:14px 12px 12px 14px;border-radius:18px}
+.guide-bubble{position:absolute;left:calc(var(--map-left) + 14px);top:52px;z-index:9;display:flex;gap:14px;align-items:flex-start;width:min(480px,calc(100vw - var(--map-left) - 90px));padding:18px 16px 16px 18px;border-radius:20px}
 .guide-body{flex:1;min-width:0}
 .guide-text{font-size:15px;line-height:1.45;color:var(--label)}
-.guide-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
-.guide-count{margin-right:auto;font-size:12px;color:var(--label3);font-variant-numeric:tabular-nums}
-.guide-row button{padding:7px 13px;border-radius:999px;font-size:14px;font-weight:600;background:var(--fill);color:var(--label)}
+.guide-row{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin-top:14px}
+.guide-count{font-size:12px;color:var(--label3);font-variant-numeric:tabular-nums}
+.guide-count:empty{display:none}
+.guide-row button{padding:8px 15px;border-radius:999px;font-size:14px;font-weight:600;white-space:nowrap;background:var(--fill);color:var(--label)}
 .guide-row button.primary{background:var(--blue);color:#fff}
-.guide-dyn{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.guide-dyn{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px}
+/* A menu of choices: one column, every button the same width and height. */
+.guide-bubble.menu .guide-dyn{display:grid;grid-template-columns:1fr;gap:10px}
+.guide-bubble.menu .guide-row button{padding:11px 16px;font-size:15px;border-radius:14px;text-align:center}
 .guide-card-close{position:absolute;top:14px;right:14px;width:30px;height:30px;font-size:20px}
 /* Planning: the same help without the astronaut. */
 .guide-bubble.plain .guide-face{display:none}

@@ -572,3 +572,12 @@ The team's note: several steps only talked; nothing moved or was pointed out, an
 - Planning walkthrough: each of the seven steps flashed its controls (the site panel; date bar and stay buttons; sunlit row and the 30-day chart; the Sun and Earth cards; Compare and Rank; "How this is calculated"; Share).
 - Ninety-nine Node tests pass; the build succeeds.
 - Limits: the flashing respects the system's reduce-motion setting (the outline stays, without the pulse); on a phone the map highlights sit behind the bottom sheet until it is lowered.
+
+## Three more points from the team — November 16, 2026 (UTC)
+
+Local build at the time of writing.
+
+- After docking, the joined pair lurched together to a new place on the screen. Cause: the camera's aim point jumped 4 m along the ship's nose at the instant of docking. It now slides over two minutes on either side of each docking and parting. Watched at the guided pace: the pair sits in the same place 2 s, 10 s and 60 s after joining, and the camera's offset from its aim point is unchanged across the join.
+- Explore the Moon: the first step now spins the Moon once around in about six seconds and returns to the opening view. The steps demonstrate instead of narrating in the first person: "Here is the landing site of Apollo 11…", "This bar is time. Look how it works…".
+- The guide's panel is wider (480 px) with more padding. A menu of three choices is one column of equal buttons (347 × 40 px each, evenly spaced); step buttons keep one size and one gap.
+- Ninety-nine Node tests pass; the build succeeds.
