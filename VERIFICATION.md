@@ -603,3 +603,17 @@ Local build at the time of writing.
 - Wording: the guide's text has no first-person narration left beyond her introduction, and no "investigation" or "prediction". The Guide button's tooltip and one slide line still used the older words and were brought in line; the demo PDF was regenerated (7 pages, three links).
 - Not checked: Safari, a screen reader, a real phone.
 - Deployed with the team's go-ahead (zoriana.fly.dev, release 37) and checked on the live site: the welcome on the plain address; Guide below About; one spin on clicking "Explore the Moon" and none on the Guide button; the Explore tour 1 to 11; the experiment menu in its new order; the Earth experiment's real numbers (Apollo 11 72 of 72 hours, Shackleton region 13.3; fourteen days later 72 and 0) with the date moved to November 30 during it and back to November 16 after; the replay stepped through the flight with no drawing failure, opened without the welcome, and no console errors. The slides artifact carries the new slide 3 line.
+
+## Final sweep, phones — November 16, 2026 (UTC)
+
+Release 37 on the live site first, then a local build with the fixes below.
+
+- The repository, the live site and the documents agree: `main` equals `origin/main`; a fresh build of `main` produces the same script and style files the live site serves; the feature list and the demo PDF on GitHub are byte-for-byte the local ones; the project, repository and demo links answer; 99 tests pass; the counts in the form text, README and slides match (99 tests, 18 sites, 27 replay steps, 9,087 names).
+- Safari on a simulated iPhone 17 Pro, live site: the welcome appears on the plain address and "Explore the Moon" starts the tour. Three things found there and fixed:
+  - The guide's panel covers the top of the map on a phone, and the map was centered behind it, so the name the tour points at ("This plain is Mare Tranquillitatis") was hidden. While the guide is open on a phone the globe now sits lower, between the panel and the list, and moves back when the guide closes.
+  - The tour said "the card on the left" and "the buttons on the left"; on a phone the card is below and those buttons are at the top or in the list. The tour and the planning walkthrough now say where things are on a phone (and no longer mention right-clicking or Shift-clicking there).
+  - Tapping a button twice quickly made Safari zoom the whole page, which cut off the right side. The page now tells the browser not to zoom on a double tap; pinching still works.
+- Two side-on views were re-aimed for phones so the Sun and Earth lines and their labels fit in the open strip: Apollo 11 in the tour (step 6) and the Shackleton region in the Earth experiment's "Why?" step.
+- Checked after the fixes, local build: Safari on the simulated iPhone showed the globe under the panel, the tour's step 6 with both labels in view, and no zoom after three quick taps on Next; at 375 × 812 the tour ran 1 to 11 and the Earth experiment reached "Why?" with real numbers (72 and 13.3 hours; fourteen days later 72 and 0); at 1440 × 900 the tour ran 1 to 11 with the desktop wording and no console errors.
+- Not checked: a real phone, a screen reader, the planning walkthrough and the sunlight experiment at phone size after this change (their code paths are the same ones checked above, with different words).
+
