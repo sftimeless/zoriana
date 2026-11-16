@@ -42,6 +42,7 @@
  <symbol id="i-slim" viewBox="0 0 24 24"><g stroke-width="1.700"><path d="M9 6.500a3 3 0 0 1 6 0M5.500 6.500h13v8h-13zM9.800 6.500v8M14.200 6.500v8M5.500 10.500h13M9.500 14.500h5v2h-5zM7 14.500L4.500 20M17 14.500l2.500 5.500M3 20h3M18 20h3"/></g></symbol>
  <symbol id="i-lander" viewBox="0 0 24 24"><path d="M4.500 3.500h15v3.500h-15zM9.500 3.500v3.500M14.500 3.500v3.500M12 7v3M7.500 10h9l1.500 3.500-1.500 3.500h-9L6 13.500zM8 17l-2.500 3.500M16 17l2.500 3.500M4 20.500h3M17 20.500h3"/></symbol>
  <symbol id="i-heat" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="12" r="5.6"/><circle cx="12" cy="12" r="9" stroke-opacity=".5"/></symbol>
+ <symbol id="i-axis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 1.8v20.4M5 12c2.2 2 11.8 2 14 0"/></symbol>
  <symbol id="i-shade" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></symbol>
  <symbol id="i-rank" viewBox="0 0 24 24"><path d="M4 6.500h16M4 12h11M4 17.500h6" stroke-width="2.600"/></symbol>
  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3.500M8 7l4-4 4 4M6 11.500v8.500h12v-8.500"/></symbol>
@@ -226,6 +227,7 @@
    <button id="map-mode" data-label="Map style" aria-label="Choose map" aria-expanded="false" title="Choose map"><svg class="ic"><use href="#i-map"/></svg></button>
    <button id="sunlight" data-label="Sunlight" aria-label="Sunlight layer" aria-pressed="true" title="Sunlight layer"><svg class="ic"><use href="#i-sun"/></svg></button>
    <button id="psr" data-label="Permanent shadow" aria-label="Permanent shadow map" aria-pressed="true" title="Permanent shadow map (both poles)"><svg class="ic"><use href="#i-shade"/></svg></button>
+   <button id="grid" data-label="Poles and grid" aria-label="Poles, axis and grid" aria-pressed="false" title="Show the north and south poles, the equator and a latitude and longitude grid"><svg class="ic"><use href="#i-axis"/></svg></button>
    <button id="heat" data-label="Map layers" aria-label="Map layers" aria-pressed="false" aria-expanded="false" title="Map layers: sunlight, Earth view, score, slope"><svg class="ic"><use href="#i-heat"/></svg></button>
   </div>
   <div class="mat toolgroup">
@@ -268,6 +270,7 @@
  <section id="comparison" class="mat comparison" hidden>
   <div class="picker-head"><strong>Compare sites and dates</strong><button id="close-compare" class="circle-btn" aria-label="Close comparison"><svg class="ic"><use href="#i-x"/></svg></button></div>
   <p id="comparison-method" class="tiny">Same start date and stay · terrain included</p>
+  <p id="comparison-clock" class="tiny note" hidden></p>
   <div id="comparison-cards"></div>
   <div class="legend in-card"><span class="lg sun">Sunlit</span><span class="lg earth">Earth in view</span><span class="lg both">Both together</span></div>
   <div class="panel-actions"><button id="share-compare" class="mini-toggle">Copy link</button><button id="export-compare" class="mini-toggle">Export CSV</button></div>
@@ -295,7 +298,7 @@
   </div>
  </div>
 
- <div id="hint" class="hint">Drag to explore · Scroll to zoom · Right-click to drop a pin · Shift-click to compare</div>
+ <div id="hint" class="hint">Drag to explore · Scroll to zoom, and keep going to fly low · Right-click to drop a pin · Shift-click to compare</div>
 
  <section class="timeline mat" aria-label="Date and time">
   <div class="timeline-top">

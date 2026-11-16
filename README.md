@@ -33,6 +33,8 @@ The public copy runs on Fly.io from the `Dockerfile` and `fly.toml` in this repo
 - Freshly downloaded 8K NASA mosaic with a LOLA-derived visual bump map.
 - Explore, Landing and Satellite modes. Landing tilts the camera over the selected site with true-scale LOLA relief (see Navigator interface); Satellite shows unlit reference imagery. None of these is a ground-level panorama.
 - Search historic locations/regions, enter latitude and east longitude, or drop a custom pin: right-click the Moon (long-press on touch screens), or use the pin tool and click.
+- Poles and grid layer: a red pole at the north pole and a blue one at the south, the equator in yellow, and latitude and longitude lines every 30°, for orientation and for teaching.
+- Zoom in past the closest whole-Moon view and keep going to drop into the low, tilted view of that spot on true-scale terrain; zoom back out of it to return.
 - Compare two places in two clicks: Shift-click (or right-click) a marker to add it to the comparison, or Shift-click the bare Moon to pin that spot and add it.
 - Live Sun and Earth apparent azimuth/elevation and distance from NASA/JPL Horizons for the exact coordinates, at DEM elevation plus a two-meter observer height.
 - Thirty-one-day hourly series from the landing date (one full lunar day plus room for a landing hour), interactive time interpolation/playback over the 30 days after landing, and side-by-side comparison of up to four site-and-date options.
