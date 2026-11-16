@@ -877,7 +877,7 @@ async function selectSite(site,move=true){
  $('#site-note').hidden=!site.note;$('#site-note').textContent=site.note||'';$('#site-why').hidden=!site.why;$('#site-why').textContent=site.why?`Why here: ${site.why}`:'';
  // Past missions: one tap sets the date and hour to the real touchdown.
  $('#replay-open').hidden=site.id!=='apollo11';
- $('#site-landed').hidden=!site.landed;if(site.landed)$('#site-landed').textContent=`See it at touchdown: ${new Date(site.landed).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})}, ${site.landed.slice(11,16)} UTC`;
+ $('#site-landed').hidden=!site.landed;if(site.landed)$('#site-landed').textContent=`See it at touchdown: ${new Date(site.landed).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'})}, ${site.landed.slice(11,16)} UTC`;
  $('#site-badge').className=`badge big cat-${site.cat}`;$('#site-badge').innerHTML=icon(siteIcon(site));
  $('#link-quickmap').href=quickMapUrl(site.lat,site.lon);$('#link-trek').href=moonTrekUrl(site.lat,site.lon);
  if(mode==='landing')enterSurface(site);else if(move)fly(site,2.6);invalidate();await loadSelected();

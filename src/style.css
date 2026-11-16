@@ -530,9 +530,9 @@ dialog .close{position:absolute;right:14px;top:14px}
  .map-picker,.comparison,.ranking{top:60px;left:8px;right:58px;width:auto}
  .layer-picker{width:auto}
  .ranking{max-height:52vh}
- .rank-head,.rank-row{grid-template-columns:16px minmax(0,1fr) 68px 52px 48px;gap:5px}
+ .rank-head,.rank-row{grid-template-columns:16px minmax(0,1fr) 64px 50px 46px;gap:5px}
  .rank-head{font-size:9px;letter-spacing:0}
- .rank-name strong{white-space:normal;overflow:visible;overflow-wrap:anywhere;font-size:13px;line-height:1.2}   /* a site's whole name, on two lines if need be */
+ .rank-name strong{white-space:normal;overflow:visible;overflow-wrap:anywhere;font-size:12.5px;letter-spacing:-.2px;line-height:1.2}   /* a site's whole name, on two lines if need be */
  .rank-head span{grid-column:1/3}
  .rank-row .badge,.rank-row .sunHeight,.rank-row .add,.rank-head [data-sort=sunHeight],.rank-head i{display:none}
  #rail-rank{display:grid}
