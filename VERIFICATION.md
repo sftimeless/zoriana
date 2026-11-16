@@ -561,3 +561,14 @@ Local build at the time of writing.
 - Earth experiment run again with the new wording: Apollo 11 72 of 72 hours with Earth in view and Shackleton region 13.3; fourteen days later 72 and 0.
 - Ninety-nine Node tests pass; the build succeeds; the replay stepped through the docking with no drawing failure.
 - Limits: a person's name is assembled from the IAU note and the feature's name, which reads well for the eighteen checked but was not read for all 1,596; origins the note gives as a bare phrase are quoted as written.
+
+## Steps that show what they say — November 16, 2026 (UTC)
+
+The team's note: several steps only talked; nothing moved or was pointed out, and the tour did not show how to get around the app. Local build at the time of writing.
+
+- Every step now points: what it names flashes with a gold outline (found again as the map settles), and a control inside the side panel is scrolled into view.
+- Explore the Moon, now eleven steps, each checked for what flashed or moved: the Moon turning by itself; the names of the dark plains (four seas); every marker in view (seven); "Mare Tranquillitatis" after flying there; Apollo 11's marker and card; the Sun and Earth line labels; the permanent-shadow button at the south pole; the time bar while it plays; then the sidebar buttons, the map buttons, and the Guide button.
+- Experiments: both places flash while the question is asked. When the answer arrives, the guide opens Shackleton region, flashes the comparison and the line labels, and plays the clock so the line can be watched turning from dashed to solid. Changing the date really moves the landing date (November 16 to 30 in the run), so the Moon is relit, and the date is put back when the experiment ends (checked: back to November 16, clock stopped).
+- Planning walkthrough: each of the seven steps flashed its controls (the site panel; date bar and stay buttons; sunlit row and the 30-day chart; the Sun and Earth cards; Compare and Rank; "How this is calculated"; Share).
+- Ninety-nine Node tests pass; the build succeeds.
+- Limits: the flashing respects the system's reduce-motion setting (the outline stays, without the pulse); on a phone the map highlights sit behind the bottom sheet until it is lowered.

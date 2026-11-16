@@ -53,17 +53,24 @@ export const EXPLAIN={
 
 const hours=x=>String(Math.round(x*10)/10);
 
+// Finders for things on the map, used by steps that point at them.
+const markers=(...names)=>()=>[...document.querySelectorAll('.place-label')].filter(el=>!names.length||names.includes(el.querySelector('.name')?.textContent));
+const nameLabels=(test=()=>true)=>()=>[...document.querySelectorAll('.feature-label:not(.grid-label)')].filter(el=>!el.hidden&&test(el.textContent));
+
 // Explore the Moon: a mental model of the map. What the picture is, what its colors and marks mean, what the names are,
 // what the two lines say, what the blue patches are, what the time bar does; then the visitor is on their own.
 function exploreTour(api){return [
- {run:api.home,text:'This is the Moon, built from NASA photographs and lit as the Sun lights it right now. Drag to turn it. Scroll or pinch to zoom.'},
- {text:'How to read it. Gray is the ground. The darker gray plains are old lava, not shadow. The side turned away from the Sun is drawn dark: that is night. Round markers are places where a spacecraft landed or plans to; click one to open it.'},
- {run:()=>api.flyTo(8.35,30.83),text:'The names are Latin. This plain is Mare Tranquillitatis, the Sea of Tranquility. “Mare” means sea: early astronomers took the dark plains for water. The International Astronomical Union approves every name; the astronauts did not choose them. Click any name and I will explain it.'},
- {run:()=>api.select('apollo11'),target:'#site-card',text:'I have opened Apollo 11, where people first landed. The card says in one sentence whether this place is in sunlight and whether it can see Earth at the time on the bar below.'},
- {text:'Two lines leave the place. Gold points toward the Sun, blue toward Earth. They show direction, not distance. The number is how high the Sun or Earth sits above the horizon there: 90° is straight overhead, 0° is on the horizon.'},
- {run:api.showSouthPole,text:'Now the south pole. The blue patches are ground that never gets direct sunlight. Blue does not mean water: it marks permanent shadow, from NASA’s maps. Scientists think some of these cold places may hold ice, which is one reason missions aim here.'},
+ {run:()=>{api.home();api.spin(true);},leave:()=>api.spin(false),text:'This is the Moon, built from NASA photographs and lit as the Sun lights it right now. I am turning it slowly. Drag to turn it yourself; scroll or pinch to zoom.'},
+ {run:api.home,target:nameLabels(t=>/^(Mare|Oceanus)/.test(t)),text:'How to read it. Gray is the ground. The darker plains, whose names are flashing, are old lava, not shadow. The side turned away from the Sun is drawn dark: that is night.'},
+ {target:markers(),text:'The round markers, flashing now, are places where a spacecraft landed or plans to land. Click one to open it.'},
+ {run:()=>api.flyTo(8.35,30.83),target:nameLabels(t=>t==='Mare Tranquillitatis'),text:'The names are Latin. This plain is Mare Tranquillitatis, the Sea of Tranquility. “Mare” means sea: early astronomers took the dark plains for water. Click any name and I will tell you what it means.'},
+ {run:()=>api.select('apollo11'),target:['#site-card',markers('Apollo 11')],text:'I have opened Apollo 11, where people first landed. Its card, on the left, says in one sentence whether this place is in sunlight and whether it can see Earth at the time on the bar below.'},
+ {run:()=>api.select('apollo11'),target:'.sky-chip',text:'Two lines leave the place, and their labels are flashing. Gold points toward the Sun, blue toward Earth. They show direction, not distance. The number is how high the Sun or Earth sits above the horizon there: 90° is straight overhead, 0° is on the horizon.'},
+ {run:api.showSouthPole,target:'#psr',text:'Now the south pole. The blue patches are ground that never gets direct sunlight. Blue does not mean water: it marks permanent shadow, from NASA’s maps. Scientists think some of these cold places may hold ice. The flashing button on the right turns the patches on and off.'},
  {run:()=>{api.home();api.playTime(true);},leave:()=>api.playTime(false),target:'.timeline',text:'This bar is time, and I am playing it. Watch night sweep across the Moon: one day here lasts 29.5 Earth days. Drag the bar yourself to pick any moment in the next month.'},
- {text:'Your turn. Open any marker, then click a name, a line’s label or a blue patch, and I will tell you what it is. You can find me under Guide in the sidebar.',actions:[['Watch Apollo 11',api.openReplay]]},
+ {target:'.rail-apps',text:'Getting around. The buttons on the left: Search finds any place by name or coordinates. Compare and Rank line places up side by side. Learn has short answers to common questions. Watch has fly-bys and the Apollo 11 replay.'},
+ {target:'.map-tools',text:'The buttons on the right change the map: its style, sunlight, permanent shadow, poles and grid, and map layers. Below them: drop a pin anywhere, see the whole Moon, and the compass, which puts north back at the top.'},
+ {text:'Your turn. Open any marker, then click a name, a line’s label or a blue patch, and I will tell you what it is. You can find me under Guide in the sidebar.',target:'#rail-guide',actions:[['Watch Apollo 11',api.openReplay]]},
 ];}
 
 // Learn & Discover: a question, a prediction, a test with the app's own calculation, one input changed, an explanation.
@@ -74,21 +81,23 @@ function investigation(api,kind){
  const line=r=>`${r.rows[0].name} was ${what} for ${hours(r.rows[0][key])} of ${r.total} hours. ${r.rows[1].name}: ${hours(r.rows[1][key])} of ${r.total}.`;
  const failed='The answer did not come back. Check the connection, then choose Start over.';
  return [
-  {run:()=>{api.beginCompare();sun?api.showSouthPole():api.home();},
-   text:sun?`Let’s try an experiment. ${a} and ${b} are both near the Moon’s south pole, only about ${Math.round(api.distanceKm(ids[0],ids[1]))} km apart. Over a ${api.stayWords()} stay starting ${api.dateLabel(0)}, do you think they get about the same amount of sunlight?`
-          :`Let’s try an experiment. ${a} is near the middle of the side of the Moon that faces Earth. ${b} is at the south pole. Over a ${api.stayWords()} stay starting ${api.dateLabel(0)}, could one of them see Earth while the other cannot?`,
+  {run:()=>{api.beginCompare();api.moveDate(0);sun?api.showSouthPole():api.flyTo(-42,18,3.3);},target:markers(a,b),
+   text:sun?`Let’s try an experiment. ${a} and ${b} are both near the Moon’s south pole, only about ${Math.round(api.distanceKm(ids[0],ids[1]))} km apart. Over a ${api.stayWords()} stay starting ${api.dateLabel(0)}, do you think they get about the same amount of sunlight? Both are flashing on the map.`
+          :`Let’s try an experiment. ${a} is near the middle of the side of the Moon that faces Earth. ${b} is at the south pole. Over a ${api.stayWords()} stay starting ${api.dateLabel(0)}, could one of them see Earth while the other cannot? Both are flashing on the map.`,
    choices:sun?['About the same','Very different']:['Yes, it could','No, both see Earth']},
   {busy:'Working it out with real NASA terrain and the real positions of the Sun and Earth…',
-   work:async m=>{m.first=await api.compare(ids,0);if(!m.first)return failed;
+   leave:()=>api.playTime(false),target:['#comparison','.sky-chip'],
+   work:async m=>{api.moveDate(0);m.first=await api.compare(ids,0);if(!m.first)return failed;api.select('shackleton');api.playTime(true);
     const r=m.first,d=differ(r.rows[0][key],r.rows[1][key],r.total);
     const right=sun?(m.choice0===1)===d:(m.choice0===0)===d;
-    return `Here is the answer for the stay starting ${r.when}. ${line(r)} ${d?`That is ${hours(Math.abs(r.rows[0][key]-r.rows[1][key]))} hours apart.`:'So for this stay they come out about the same.'} ${right?'You guessed right.':'Not what you guessed, and that is how experiments teach.'}`;}},
-  {text:`Now let’s change one thing: the date. Suppose they land 14 days later, about half a lunar day on. Do you think the answer stays the same?`,choices:['It stays the same','It changes']},
+    return `Here is the answer for the stay starting ${r.when}. ${line(r)} ${d?`That is ${hours(Math.abs(r.rows[0][key]-r.rows[1][key]))} hours apart.`:'So for this stay they come out about the same.'} ${right?'You guessed right.':'Not what you guessed, and that is how experiments teach.'} I have opened ${api.names(['shackleton'])[0]} and started the clock: watch its ${sun?'gold':'blue'} line. Solid means ${sun?'sunlit':'Earth is in view'}, dashed means hidden.`;}},
+  {target:'.timeline',text:`Now let’s change one thing: the date, on the bar below. Suppose they land 14 days later, about half a lunar day on. Do you think the answer stays the same?`,choices:['It stays the same','It changes']},
   {busy:'Working both places out again, 14 days later…',
-   work:async m=>{m.second=await api.compare(ids,14);if(!m.second||!m.first)return failed;
+   leave:()=>api.playTime(false),target:['#comparison','.sky-chip','.timeline'],
+   work:async m=>{api.moveDate(14);m.second=await api.compare(ids,0);if(!m.second||!m.first)return failed;api.select('shackleton');api.playTime(true);
     const r=m.second,f=m.first,changed=differ(r.rows[0][key],f.rows[0][key],r.total)||differ(r.rows[1][key],f.rows[1][key],r.total);
-    return `Starting ${r.when}: ${line(r)} Last time it was ${hours(f.rows[0][key])} and ${hours(f.rows[1][key])} hours. ${changed?'So the answer changed with the date.':'So for these two dates the answer stayed about the same.'} ${(m.choice2===1)===changed?'You guessed right.':'Not what you guessed.'} ${api.phone()?'':'All four results are in the comparison panel.'}`;}},
-  {text:sun?'Why? At the poles the Sun never climbs more than about 1.5° above the horizon, and it circles the whole sky once every 29.5 days. A ridge or crater rim a few kilometers away can hide it for days. So the ground around a place, and the date, decide how much sunlight it gets. How close two places are matters much less.'
+    return `Starting ${r.when}: ${line(r)} Last time it was ${hours(f.rows[0][key])} and ${hours(f.rows[1][key])} hours. ${changed?'So the answer changed with the date.':'So for these two dates the answer stayed about the same.'} ${(m.choice2===1)===changed?'You guessed right.':'Not what you guessed.'} ${api.phone()?'':'All four results are in the comparison panel.'} The Moon is now lit as it will be on that date, and the clock is running again.`;}},
+  {target:'.sky-chip',text:sun?'Why? At the poles the Sun never climbs more than about 1.5° above the horizon, and it circles the whole sky once every 29.5 days. A ridge or crater rim a few kilometers away can hide it for days. So the ground around a place, and the date, decide how much sunlight it gets. How close two places are matters much less.'
            :'Why? The Moon always keeps the same face toward Earth, so from the middle of the near side Earth never sets. At the poles Earth sits right on the horizon. The Moon rocks slightly as it orbits, so there Earth dips behind the hills and comes back over the course of a month.'},
   {text:`One caution. This is geometry: it tells us when ${sun?'sunlight reaches the ground, not how much power a lander would get':'Earth is above the hills, not whether a radio link would work'}. It also says nothing about whether a place is safe to land on. Want more? Show the numbers on any place’s card, or read how it is worked out.`,
    actions:[['Show the numbers',api.showNumbers],['How it is worked out',api.openMethod]]},
@@ -98,17 +107,17 @@ function investigation(api,kind){
 // Plan a Mission: the analysis tools in the order a planner uses them. No astronaut, no lessons.
 function planWalk(api){return [
  {run:()=>{if(!api.selected())api.select('im4');},target:'.planner',text:'1 · Site. Pick a site from the list, search coordinates, or right-click the Moon to drop a pin. (IM-4 is opened if nothing was selected.)'},
- {target:'.timeline',text:'2 · Date and stay. Set the landing date and hour in the bar below, in UTC. Set the surface stay, 24 h to 7 d, on the site’s card.'},
- {target:'#lunar',text:'3 · Sunlight. The card totals sunlit hours for the stay and lists each interruption. The 30-day chart scores every landing day; the gold band on the time bar shows the same windows.'},
- {target:'.metrics',text:'4 · Earth in view. Counted the same way, in blue. “Above terrain” is the margin to the real skyline, and the ± on each rise and set time is how far it moves if the skyline is 0.1° higher or lower.'},
- {target:'#compare',text:'5 · Alternatives. Compare adds this site and date to the comparison. Add another site, or use Delay on a card to shift the date. Shift-clicking a marker adds it directly. Rank orders every listed site.'},
- {text:'6 · Assumptions and limits. Geometry only: sunlight is not usable power, Earth in view is not a link budget, and nothing here assesses landing hazards. Terrain grids run from 40 m at the south pole to 474 m elsewhere.',actions:[['Open the method',api.openMethod]]},
- {target:'#share',text:'7 · Results. Export CSV from the comparison or the ranking, or copy a link that reopens this exact view: site, date, stay and comparison.'},
+ {target:['.timeline','#duration'],text:'2 · Date and stay. Set the landing date and hour in the bar below, in UTC. Set the surface stay, 24 h to 7 d, on the site’s card.'},
+ {run:api.showNumbers,target:['#lunar','.stay-row.sun'],text:'3 · Sunlight. The card totals sunlit hours for the stay and lists each interruption. The 30-day chart scores every landing day; the gold band on the time bar shows the same windows.'},
+ {target:['.metrics','.stay-row.earth'],text:'4 · Earth in view. Counted the same way, in blue. “Above terrain” is the margin to the real skyline, and the ± on each rise and set time is how far it moves if the skyline is 0.1° higher or lower.'},
+ {target:['#compare','#rail-compare','#rail-rank'],text:'5 · Alternatives. Compare adds this site and date to the comparison. Add another site, or use Delay on a card to shift the date. Shift-clicking a marker adds it directly. Rank orders every listed site.'},
+ {target:'#details',text:'6 · Assumptions and limits. Geometry only: sunlight is not usable power, Earth in view is not a link budget, and nothing here assesses landing hazards. Terrain grids run from 40 m at the south pole to 474 m elsewhere.',actions:[['Open the method',api.openMethod]]},
+ {target:['#share','#rail-compare'],text:'7 · Results. Export CSV from the comparison or the ranking, or copy a link that reopens this exact view: site, date, stay and comparison.'},
 ];}
 
 export function createGuide(api){
  const get=key=>{try{return localStorage.getItem(key);}catch{return null;}},put=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
- let audience=get('zoriana-audience'),welcomed=get('zoriana-welcomed')==='1',flow=null,index=0,memo={},marked=null,opener=null,shown=null,buttons=[];
+ let audience=get('zoriana-audience'),welcomed=get('zoriana-welcomed')==='1',flow=null,index=0,memo={},marked=[],opener=null,shown=null,buttons=[];
  const welcome=document.createElement('section');welcome.className='guide-welcome';welcome.hidden=true;
  welcome.setAttribute('role','dialog');welcome.setAttribute('aria-modal','true');welcome.setAttribute('aria-labelledby','guide-title');
  welcome.innerHTML=`<div class="guide-card mat"><button class="guide-close guide-card-close" data-free aria-label="Close and explore freely">×</button><header class="guide-hello">${AVATAR}<div><h2 id="guide-title">Welcome to the Moon.</h2><p>I’m Zoriana, your lunar guide.</p></div></header><h3>How would you like to explore?</h3><div class="guide-choices">${AUDIENCES.map(([id,title,note,icon])=>`<button class="guide-choice" data-audience="${id}"><span class="guide-icon"><svg class="ic"><use href="#i-${icon}"/></svg></span><span class="guide-choice-text"><strong>${title}</strong><small>${note}</small></span><svg class="ic chev"><use href="#i-chevron"/></svg></button>`).join('')}</div><button class="guide-free" data-free>Explore freely <span aria-hidden="true">→</span></button><p class="guide-note">You can change your experience anytime.</p></div>`;
@@ -116,14 +125,27 @@ export function createGuide(api){
  bubble.innerHTML=`${AVATAR}<div class="guide-body"><p class="guide-text"></p><div class="guide-row"><span class="guide-count"></span><span class="guide-dyn"></span></div></div><button class="guide-close" data-close aria-label="Close the guide">×</button>`;
  document.body.append(welcome,bubble);
  const $=s=>bubble.querySelector(s);
- const mark=selector=>{marked?.classList.remove('guide-target');marked=selector?document.querySelector(selector):null;if(marked&&marked.offsetParent)marked.classList.add('guide-target');};
+// What a step points at: a selector, a function that finds elements (map labels and markers come and go as the view
+ // moves), or a list of either. Everything found pulses; the first one inside the side panel is scrolled into view.
+ let markTimers=[];
+ function mark(target,again=false){
+  if(!again){markTimers.forEach(clearTimeout);markTimers=[];}
+  for(const el of marked??[])el.classList.remove('guide-target');
+  marked=[target].flat().filter(Boolean).flatMap(t=>typeof t==='function'?t():[...document.querySelectorAll(t)]).filter(el=>el&&el.offsetParent&&!el.hidden);
+  for(const el of marked)el.classList.add('guide-target');
+  if(!again){
+   const panel=document.querySelector('#planner'),inPanel=marked.find(el=>el.closest('#planner')&&el.offsetHeight<panel.clientHeight*.7);inPanel?.scrollIntoView({block:'center',behavior:'smooth'});
+   // The map is still moving when a step starts: look again once labels and markers have settled.
+   if(target)markTimers=[700,1700,3000].map(ms=>setTimeout(()=>mark(target,true),ms));
+  }
+ }
  // One way to draw the bubble: text, a count, and a row of buttons ([label, action, primary?]).
  function show(text,row=[],count=''){
   $('.guide-text').textContent=text;$('.guide-count').textContent=count;buttons=row;
   $('.guide-dyn').innerHTML=row.map(([label,,primary],i)=>`<button data-i="${i}"${primary?' class="primary"':''}>${label}</button>`).join('');
   bubble.classList.toggle('plain',audience==='planner');bubble.hidden=false;shown={text,row,count};
  }
- function end(){flow?.[index]?.leave?.();if(flow?.learn)api.endCompare();flow=null;mark(null);}
+ function end(){flow?.[index]?.leave?.();if(flow?.learn){api.restoreDate();api.endCompare();}flow=null;mark(null);}
  const close=()=>{end();bubble.hidden=true;};
  async function go(i){
   flow[index]?.leave?.();
@@ -131,7 +153,7 @@ export function createGuide(api){
   const nav=()=>[...(i>0?[['‹ Back',()=>go(i-1)]]:[]),...(i===0?[['Change experience',openWelcome]]:[]),...(flow.learn&&i>0?[['Start over',()=>start(flow.make,true)]]:[]),...(s.actions??[]).map(([label,run])=>[label,()=>{close();run();}]),[i<flow.length-1?'Next ›':'Done',()=>i<flow.length-1?go(i+1):close(),true]];
   if(s.work){
    show(s.busy,[],count);const text=await s.work(memo);
-   if(flow!==current||index!==i)return;show(text,nav(),count);return;
+   if(flow!==current||index!==i)return;mark(s.target??null);show(text,nav(),count);return;
   }
   const text=typeof s.text==='function'?s.text(memo):s.text;
   if(s.choices)show(text,[...(i>0?[['‹ Back',()=>go(i-1)]]:[]),...s.choices.map((label,k)=>[label,()=>{memo[`choice${i}`]=k;go(i+1);},true])],count);

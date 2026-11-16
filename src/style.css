@@ -525,7 +525,10 @@ dialog .close{position:absolute;right:14px;top:14px}
 /* Planning: the same help without the astronaut. */
 .guide-bubble.plain .guide-face{display:none}
 .guide-close{flex:none;width:26px;height:26px;border-radius:50%;font-size:18px;line-height:1;color:var(--label2);background:var(--fill)}
-.guide-target{outline:2px solid #ffd60a;outline-offset:3px}
+/* What the guide is talking about: a gold outline that breathes. */
+@keyframes guide-pulse{0%,100%{outline-color:#ffd60a;box-shadow:0 0 0 0 rgba(255,214,10,0)}50%{outline-color:#fff0a6;box-shadow:0 0 0 7px rgba(255,214,10,.3)}}
+.guide-target{outline:2px solid #ffd60a;outline-offset:3px;animation:guide-pulse 1.2s ease-in-out infinite}
+.feature-label.guide-target,.place-label.guide-target,.sky-chip.guide-target{outline-offset:5px;border-radius:10px}
 #rail .rail-app.guide{background:none;box-shadow:none}
 .rail-app.guide .guide-face{width:46px;height:46px}
 .sky-chip{pointer-events:auto;cursor:help}
