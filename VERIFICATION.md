@@ -406,7 +406,7 @@
 ## Wording audit: two clocks, the replay's number line, mixed terms — November 16, 2026 (UTC)
 
 - The two clocks: the bar at the bottom and the corner both show the moment the map is drawing, the bar in UTC and the corner in the viewer's time zone. Neither is the device's clock unless "Now" is chosen. Both are now headed "Map time" (the bar "Map time · UTC"), with a tooltip saying so. Seen with Apollo 11 open: corner "MAP TIME 4:00 PM PST 00:00 UTC", bar "MAP TIME · UTC 00:00 Nov 16, 2026".
-- Replay number line: "361,000 km from the Moon's" left its noun out, and the line measured some distances from a body's center and others from its surface. Every height and distance is now to the surface, and named: "7.4 km above Earth", "28,100 km/h · 186 km above Earth", "4,800 km/h · 334,000 km from Earth · 72,500 km from the Moon", "5,780 km/h relative to the Moon · 111 km above its surface". Read at twelve moments from the pad to re-entry.
+- Replay number line: "361,000 km from the Moon's" left its noun out, and the line measured some distances from a body's center and others from its surface. Every height and distance is now to the surface, and named: "7.4 km above Earth", "28,100 km/h · 186 km above Earth", "4,800 km/h · 333,000 km from Earth · 72,500 km from the Moon", "5,780 km/h relative to the Moon · 111 km above its surface". Read at twelve moments from the pad to re-entry.
 - One word for one thing, found by reading every caption, label, tooltip and message in the app and the replay:
   - "disk" throughout (American spelling; "Disk showing"), in the app and the documents.
   - minutes are "min" everywhere ("12 h 46 min"); "m" is only meters.
@@ -417,4 +417,5 @@
   - "Choose map" and "Surface stay" in place of a title-case heading and a label that said "Mission duration".
   - replay captions: "The crew spends", "The astronauts are pressed", and "the top half of Eagle" for the part cast off, as in the liftoff step.
 - Ninety-nine Node tests pass (two expectations updated for "min"); the build succeeds; the replay drew all twelve moments with no failure.
+- Live site after deploying (zoriana.fly.dev, release 28): corner "MAP TIME 4:00 PM PST 00:00 UTC", bar "MAP TIME · UTC 00:00"; "Disk showing" on the cards; the replay's line read "7.4 km above Earth", "34,300 km/h · 2,260 km above Earth" and "4,800 km/h · 333,000 km from Earth · 72,500 km from the Moon"; the flight stepped through with no drawing failure and no console errors.
 - Left as they are, on purpose: "Sun + Earth" as the short column name for "Sun and Earth together"; "3 d" in controls beside "72 hours" in sentences; "km up" in the replay's prose captions.
